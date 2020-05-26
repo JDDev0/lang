@@ -1,0 +1,8 @@
+$a = TEST
+
+fp.a = ($a) -> {
+	func.printTerminal(3, VAR: $a)
+	
+	return TESTED
+}
+test.1 = fp.a($[a]: $a)
