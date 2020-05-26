@@ -1,3 +1,8 @@
+# Lang data
+lang.name = Test 
+lang.version = v0.1.9
+
+# Lang content
 $a = TEST
 
 fp.a = ($a) -> {
