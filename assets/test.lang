@@ -3,6 +3,10 @@ lang.name = Test
 lang.version = v0.1.9
 
 # Lang content
+# Translations examples ("lang request" = "lang value")
+ui.button.ok = Ok
+ui.button.canel = Cancel
+
 { # "Block" start (Is ignored by compiler (only for readability)
 # Trailing and leading Whitespaces are ignored by compiler (use \s for trailing Space)
 	# Variable assignment (" = ", Spaces are important)
@@ -12,6 +16,8 @@ lang.version = v0.1.9
 
 # Text concatenation
 {
+	hello.world = $a$b	
+	
 	$c = $a-$b
 	# /n: escape sequence for "new line"
 	$c = ---Test---\n$c
@@ -78,4 +84,6 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		# Do something with input
 		func.printTerminal(2, Thanks for your $len character input: "$in"!)
 	con.endif
+	
+	user.setting.1 = func.readTerminal(Enter setting 1:)
 }
