@@ -87,3 +87,149 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	
 	user.setting.1 = func.readTerminal(Enter setting 1:)
 }
+
+# Arrays
+{
+	# Print array function pointer
+	fp.printArray = (&a) -> {
+		func.printTerminal(2, \s\nArray:)
+		$i = 0
+		fp.printElement = ($ele) -> {
+			func.printTerminal(2, Array[$i] = $ele)
+			
+			# Set Index
+			$i = func.addi($i, 1)
+			# $[i] -> var pointer
+			# func.copyAfterFP(callerVar, functionVar)
+			# this function copies the value of an function internal variable
+			# to a variable outside of the function
+			func.copyAfterFP($[i], $[i])
+		}
+		
+		# Execute function pointer with ($ele) for each element
+		func.arrayForEach(&arr, fp.printElement)
+	}
+	
+	# func.arrayMake(ArrayName, ArraySize)
+	func.arrayMake(&arr, 10)
+	fp.printArray(&arr)
+	
+	# Sets all element to a value
+	func.arraySetAll(&arr, 42)
+	fp.printArray(&arr)
+	
+	# Sets all element to different value
+	func.arraySetAll(&arr, 0, 1, 2, 3, 4, 5, 6, 42, 8, 10)
+	fp.printArray(&arr)
+	
+	# Sets a element to a value
+	func.arraySet(&arr, 5, TEST)
+	fp.printArray(&arr)
+	
+	# Gets a value of an array
+	$ele = func.arrayGet(&arr, 5)
+	func.printTerminal(3, Value at 5th index: $ele)
+	
+	# Array index out of bounds
+	$ele = func.arrayGet(&arr, 10)
+	func.printError(This Language starts with the 0th index)
+	
+	# Gets all values of array
+	$eles = func.arrayGetAll(&arr)
+	func.printTerminal(3, $eles)
+	
+	# Gets a random element of an array
+	$ele = func.randChoice(&arr)
+	func.printTerminal(3, Value at a random index: $ele)
+	
+	# Delete all values from array
+	func.arrayDelete(&arr)
+	fp.printArray(&arr)
+	
+	# Clears the array data from RAM
+	func.arrayClear(&arr)
+	fp.printArray(&arr)
+	
+	# Gets a random TEXT from an TEXT list
+	$txt = func.randChoice(TEST, 1, 42, THIS is a Text!, $a - $b, $c)
+	func.printTerminal(-1, $txt)
+}
+
+# String functions
+{
+	# toUpper and toLower
+	$test = TesT for this string function
+	func.printTerminal(2, func.toUpper($test))
+	func.printTerminal(2, func.toLower($test))
+	
+	# Substring
+	$txt = This is a test!
+	$test = func.substring($txt, 10)
+	func.printTerminal(2, $test)
+	$test = func.substring($txt, 0, 6)
+	func.printTerminal(2, $test)
+	
+	# TEXT concatenation 2 (Be CAREFUL: if $tests exists it will be printed, if
+	# $tests doesn't exist and $test exists than $test if an s at the end will
+	# be printed)
+	func.printTerminal(2, $tests)
+	
+	# Splits a string
+	$csv = A;B;C;E;1;42
+	func.split(&splited, $csv, ;)
+	func.printTerminal(2, func.arrayGetAll(&splited))
+	# Maximal n (= last argument) spilts
+	func.split(&splited, $csv, ;, 2)
+	func.printTerminal(2, func.arrayGetAll(&splited))
+}
+
+# Utility
+{
+	# Empty variable
+	$a
+	func.printTerminal(5, $a)
+
+	# Advanced conditions
+	con.if(1 || (1 && 0))
+		func.printTerminal(4, TRUE!)
+	con.else
+		func.printTerminal(4, FALSE!)
+	con.endif
+
+	# Returns the folder where the lang is located
+	func.printTerminal(4, $LANG_PATH)
+
+	# \# -> escape sequence for #
+	\#test.value = test
+
+	# Clear all variables and arrays
+	$a = TEST
+	$b = YES!
+	func.printTerminal(-1, $a: $b)
+
+	func.clearAllVars()
+	func.clearAllArrays()
+
+	func.printTerminal(-1, $a: $b)
+	
+	# Sleep
+	func.printTerminal(-1, 0)
+	func.sleep(1000)
+	func.printTerminal(0, 1)
+	func.sleep(1)
+	func.printTerminal(1, 2)
+	func.sleep(1)
+	func.printTerminal(2, 3)
+	fp.printColor = ($i) -> {
+		$i2 = func.subi($i, 1)
+		func.printTerminal($i2, $i2: $i)
+		
+		# Sleeps 100 ms
+		func.sleep(100)
+	}
+	func.repeat(fp.printColor, 8)
+	
+	# Get Lang request
+	lang.req = TESTed 42
+	func.printTerminal(2, func.getLangRequest(lang.req))
+}
