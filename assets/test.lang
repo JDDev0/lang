@@ -62,7 +62,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	
 	func.printTerminal(5, \s\n\n\n\n\n-----------------)
 	
-	# User input (Must not be implemented by compiler!
+	# User input (Implemented by compiler is optional!
 	# If it isn't implemented, an error will occur (function will return ("Error")!)
 	$in = func.readTerminal(INPUT please:)
 	
