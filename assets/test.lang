@@ -20,7 +20,7 @@ lang.version = v0.1.9
 # Function pointer
 fp.printColor = ($i) -> {
 	# func.subi(a, b) -> a - b for int
-	$i = func.subi($i, 1) #Removes
+	$i = func.subi($i, 1) #[0, 7] for repeat will be changed to [-1, 6]
 	
 	# func.printTerminal(Log Level [-1 - 6] (= Color), Text)
 	func.printTerminal($i, $i: $c)
