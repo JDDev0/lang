@@ -14,7 +14,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
+
+import javax.swing.JOptionPane;
 
 import me.jddev0.module.io.TerminalIO.Level;
 
@@ -387,11 +390,7 @@ public class Lang {
 		});
 		
 		//IO Functions
-		funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
-			Compiler.setErrno(27, DATA_ID);
-
-			return "Error";
-		});
+		funcs.put("readTerminal", (lines, arg, DATA_ID) -> Objects.requireNonNullElseGet(JOptionPane.showInputDialog(null, arg, "Lang input", JOptionPane.PLAIN_MESSAGE), () -> ""));
 		funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
 			TerminalIO term = Compiler.term;
 			if(term == null) {

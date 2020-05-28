@@ -3,11 +3,79 @@ lang.name = Test
 lang.version = v0.1.9
 
 # Lang content
-$a = TEST
+{ # "Block" start (Is ignored by compiler (only for readability)
+# Trailing and leading Whitespaces are ignored by compiler (use \s for trailing Space)
+	# Variable assignment (" = ", Spaces are important)
+	$a = Hello\s
+	$b =  World
+} # "Block" end (Variables declared in block will be set after block)
 
-fp.a = ($a) -> {
-	func.printTerminal(3, VAR: $a)
-	
-	return TESTED
+# Text concatenation
+{
+	$c = $a-$b
+	# /n: escape sequence for "new line"
+	$c = ---Test---\n$c
 }
-test.1 = fp.a($[a]: $a)
+
+# Function pointer
+fp.printColor = ($i) -> {
+	# func.subi(a, b) -> a - b for int
+	$i = func.subi($i, 1) #Removes
+	
+	# func.printTerminal(Log Level [-1 - 6] (= Color), Text)
+	func.printTerminal($i, $i: $c)
+} # Variables declared or changed in block won't be set after block
+
+# Loop function (Calls first parameter (Function pointer) with (0) to (count - 1)
+func.repeat(fp.printColor, 8)
+
+# \$ -> escape sequence for $
+# \s is needed, because trailing and leading Whitespaces
+# will be removed in every function argument
+func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
+# Error handling
+{
+	# Will print no error since errno is 0
+	func.printError()
+	
+	# divl: Division for long
+	# Will produce "Dividing by 0 error"
+	$a = func.divl(1, 0)
+	
+	# Will print an error and resets errno to 0
+	# Parameter is not needed
+	func.printError(TEXT)
+	
+	# Will print no error since errno is 0
+	func.printError()
+	
+	# Will produce an error (because $LANG vars are not modifiable by code)
+	$LANG_VERSION = v42
+	# Get errno
+	$errno = $LANG_ERRNO
+	# Get error message (Will set errno to 0)
+	$errtxt = func.getErrorString()
+	func.printTerminal(4, $errno: $errtxt)
+	
+	# Will print no error since errno is 0
+	func.printError()
+	
+	func.printTerminal(5, \s\n\n\n\n\n-----------------)
+	
+	# User input (Must not be implemented by compiler!
+	# If it isn't implemented, an error will occur (function will return ("Error")!)
+	$in = func.readTerminal(INPUT please:)
+	
+	#func.strlen(TEXT) returns the length of the provided text
+	$len = func.strlen($in)
+	
+	# Check if input is supported
+	con.if($LANG_ERRNO != 0)
+		func.printError(Input is not supported)
+	con.elif($len == 0)
+		func.printTerminal(5, You haven't provide any input!)
+	con.else
+		# Do something with input
+		func.printTerminal(2, Thanks for your $len character input: "$in"!)
+	con.endif
+}
