@@ -1,6 +1,6 @@
 # Lang data
 lang.name = Test 
-lang.version = v0.1.9
+lang.version = v0.2.0
 
 # Lang content
 # Translations examples ("lang request" = "lang value")
@@ -34,6 +34,22 @@ fp.printColor = ($i) -> {
 
 # Loop function (Calls first parameter (Function pointer) with (0) to (count - 1)
 func.repeat(fp.printColor, 8)
+
+# Function pointer with return value
+fp.test = () -> {
+	func.printTerminal(4, TEXT)
+	return 42-TEst
+	func.printTerminal(5, TEXT) # Will never be executed, because it comes
+	                            # after an return statement
+}
+func.printTerminal(3, fp.test())
+fp.test2 = () -> {
+	func.printTerminal(1, TEXT)
+	return # Return without value
+	func.printTerminal(2, TEXT) # Will never be executed, because it comes
+	                            # after an return statement
+}
+func.printTerminal(3, fp.test2())
 
 # \$ -> escape sequence for $
 # \s is needed, because trailing and leading Whitespaces
@@ -232,4 +248,53 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	# Get Lang request
 	lang.req = TESTed 42
 	func.printTerminal(2, func.getLangRequest(lang.req))
+}
+
+# Final variables test
+{
+	$a = DON't modify!
+	# Makes $a final
+	func.makeFinal($[a])
+	
+	$a = I have modified you! # Will result in an error
+	func.printTerminal(2, $a)
+	func.printError()
+	
+	$a # Will also result in an error
+	func.printTerminal(2, $a)
+	func.printError()
+	
+	fp.test = () -> {
+		# No error, because $a is an local variable of the function
+		$a = 100
+		func.printTerminal(2, $a)
+		func.printError()
+		
+		# Will also result in an error
+		func.copyAfterFP($[a], $[a])
+	}
+	fp.test()
+	func.printTerminal(2, $a)
+	func.printError()
+	
+	fp.test = () -> {
+		func.printTerminal(2, TESTED!)
+	}
+	# Makes fp.test final
+	func.makeFinal(fp.test)
+	fp.test() # Will produce no error
+	func.printError()
+	
+	fp.test = () -> { # Will result in an error
+		func.printTerminal(5, Modifyed!)
+	}
+	fp.test()
+	func.printError()
+	
+	# Only way to remove final vars
+	func.clearAllVars()
+	
+	$a = New variable # Will produce no error
+	func.printTerminal(2, $a)
+	func.printError()
 }

@@ -221,6 +221,8 @@ import me.jddev0.module.io.TerminalIO.Level;
  * <br><b>Math functions</b><br>
  * <i>Utility functions</i><br>
  * [int]func.rand(void)<br>
+ * [void]func.makeFinal(varPtr)<br>
+ * [void]func.makeFinal(funcPtr)<br>
  * <br><i>Integer functions</i><br>
  * [int]func.addi(int, (int))<br>
  * [int]func.subi(int, int)<br>
@@ -265,10 +267,10 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.arrayClear(arrPtr) //Free arrPtr<br>
  * 
  * @author JDDev0
- * @version v0.1.9
+ * @version v0.2.0
  */
 public class Lang {
-	private static final String VERSION = "v0.1.9";
+	private static final String VERSION = "v0.2.0";
 	private static final Random ran = new Random();
 	
 	private static String oldFile;
@@ -572,6 +574,20 @@ public class Lang {
 				
 				return "Error";
 			}
+			
+			return "";
+		});
+		
+		//Utility functions
+		funcs.put("makeFinal", (lines, arg, DATA_ID) -> {
+			Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
+			if(dataObject == null || dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
+				Compiler.setErrno(21, DATA_ID);
+				
+				return "Error";
+			}
+			
+			dataObject.setFinalData(true);
 			
 			return "";
 		});
@@ -1306,9 +1322,9 @@ public class Lang {
 			data.get(DATA_ID).varTmp.clear();
 			
 			//Final vars
-			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", VERSION);
-			data.get(DATA_ID).varTmp.put("$LANG_PATH", pathLangFile);
-			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", "" + (Integer.MAX_VALUE - 1));
+			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
+			data.get(DATA_ID).varTmp.put("$LANG_PATH", new DataObject(pathLangFile, true));
+			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", new DataObject("" + (Integer.MAX_VALUE - 1), true));
 			
 			//Not final vars
 			setErrno(0, DATA_ID); //Set $LANG_ERRNO
@@ -1322,19 +1338,21 @@ public class Lang {
 			}
 			
 			//Final vars
-			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", VERSION);
-			data.get(DATA_ID).varTmp.put("$LANG_PATH", pathLangFile);
-			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", "" + (Integer.MAX_VALUE - 1));
+			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
+			data.get(DATA_ID).varTmp.put("$LANG_PATH", new DataObject(pathLangFile, true));
+			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", new DataObject("" + (Integer.MAX_VALUE - 1), true));
 			
 			//Not final vars
 			setErrno(0, DATA_ID); //Set $LANG_ERRNO
 		}
 		
 		public static void setErrno(int errno, final int DATA_ID) {
-			data.get(DATA_ID).varTmp.put("$LANG_ERRNO", "" + errno);
+			data.get(DATA_ID).varTmp.computeIfAbsent("$LANG_ERRNO", key -> new DataObject());
+			
+			data.get(DATA_ID).varTmp.get("$LANG_ERRNO").setText("" + errno);
 		}
 		public static int getAndClearErrno(final int DATA_ID) {
-			int ret = Integer.parseInt(data.get(DATA_ID).varTmp.getOrDefault("$LANG_ERRNO", "0"));
+			int ret = Integer.parseInt(data.get(DATA_ID).varTmp.get("$LANG_ERRNO").getText());
 			
 			setErrno(0, DATA_ID); //Reset errno
 			
@@ -1534,10 +1552,95 @@ public class Lang {
 			return (line == null)?"0":line; //If line is null -> return "false"
 		}
 		
-		//Class for data
+		//Classes for variable data
+		private static enum DataType {
+			TEXT, FUNCTION_POINTER, NULL;
+		}
+		private static class DataObject {
+			private DataType type;
+			private String txt;
+			private boolean finalData;
+			
+			public DataObject(DataObject dataObject) {
+				this.type = dataObject.type;
+				this.txt = dataObject.txt;
+				this.finalData = dataObject.finalData;
+			}
+			
+			public DataObject() {
+				this("");
+			}
+			public DataObject(String txt) {
+				this(txt, false);
+			}
+			public DataObject(String txt, boolean finalData) {
+				setText(txt);
+				setFinalData(finalData);
+			}
+			
+			public DataObject setText(String txt) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.TEXT;
+				this.txt = txt;
+				
+				return this;
+			}
+			
+			public String getText() {
+				switch(type) {
+					case TEXT:
+					case FUNCTION_POINTER:
+						return txt;
+					case NULL:
+						return "null";
+				}
+				
+				return null;
+			}
+			
+			public DataObject setFunctionPointer(String txt) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.FUNCTION_POINTER;
+				this.txt = txt;
+				
+				return this;
+			}
+			
+			public DataObject setNull() {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.NULL;
+				
+				return this;
+			}
+			
+			public DataObject setFinalData(boolean finalData) {
+				this.finalData = finalData;
+				
+				return this;
+			}
+			
+			public boolean isFinalData() {
+				return finalData;
+			}
+			
+			public DataType getType() {
+				return type;
+			}
+			
+			@Override
+			public String toString() {
+				return getText();
+			}
+		}
 		private static class Data {
 			public Map<String, String> lang = new HashMap<>();
-			public Map<String, String> varTmp = new HashMap<>();
+			public Map<String, DataObject> varTmp = new HashMap<>();
 			public Map<String, String[]> varArrayTmp = new HashMap<>();
 		}
 		
@@ -1598,7 +1701,7 @@ public class Lang {
 
 				String langPathTmp = linkLangFile;
 				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", langPathTmp); //Set lang path to "new" lang path
+				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", new DataObject(langPathTmp, true)); //Set lang path to "new" lang path
 				
 				try {
 					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
@@ -1637,7 +1740,7 @@ public class Lang {
 
 				String langPathTmp = linkLangFile;
 				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", langPathTmp); //Set lang path to "new" lang path
+				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", new DataObject(langPathTmp, true)); //Set lang path to "new" lang path
 				
 				try {
 					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
@@ -1997,8 +2100,10 @@ public class Lang {
 			 * @return the modified line<br>if null -> continue
 			 */
 			public static String replaceVarsWithValue(BufferedReader lines, String line, final int DATA_ID) {
+				line = line.trim();
+				
 				//If not tmp contains " = " -> var is null
-				if(line.startsWith("$")) { //Set var (set "finalVar" to true if var is final)
+				if(line.startsWith("$")) { //Set var
 					//If tmp contains a mapping to a value for var
 					if(line.matches("\\$LANG_.*")) { //Illegal var
 						setErrno(1, DATA_ID);
@@ -2055,9 +2160,27 @@ public class Lang {
 						string[1] = VarPtr.replaceAllVarPtrsWithVar(string[1]); //Replace all varPtrs
 						
 						//Put var name and var value to the var tmp map
-						data.get(DATA_ID).varTmp.put(string[0], string[1]);
+						DataObject oldValue = data.get(DATA_ID).varTmp.get(string[0]);
+						if(oldValue != null && oldValue.isFinalData()) {
+							setErrno(1, DATA_ID);
+							
+							return null;
+						}
+						if(oldValue != null)
+							oldValue.setText(string[1]);
+						else
+							data.get(DATA_ID).varTmp.put(string[0], new DataObject(string[1]));
 					}else {
-						data.get(DATA_ID).varTmp.put(line, "null");
+						DataObject oldValue = data.get(DATA_ID).varTmp.get(line);
+						if(oldValue != null && oldValue.isFinalData()) {
+							setErrno(1, DATA_ID);
+							
+							return null;
+						}
+						if(oldValue != null)
+							oldValue.setNull();
+						else
+							data.get(DATA_ID).varTmp.put(line, new DataObject().setNull());
 					}
 					
 					return null;
@@ -2354,7 +2477,16 @@ public class Lang {
 					build.append(data.get(DATA_ID).varTmp.get(funcHead));
 				}
 				
-				data.get(DATA_ID).varTmp.put(funcName, build.toString());
+				DataObject oldValue = data.get(DATA_ID).varTmp.get(funcName);
+				if(oldValue != null && oldValue.isFinalData()) {
+					setErrno(1, DATA_ID);
+					
+					return;
+				}
+				if(oldValue != null)
+					oldValue.setFunctionPointer(build.toString());
+				else
+					data.get(DATA_ID).varTmp.put(funcName, new DataObject().setFunctionPointer(build.toString()));
 			}
 			
 			public static String executeFunc(BufferedReader lines, String line, final int DATA_ID) {
@@ -2487,7 +2619,7 @@ public class Lang {
 				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
-				String func = data.get(DATA_ID).varTmp.get(funcName);
+				String func = data.get(DATA_ID).varTmp.get(funcName).getText();
 				String funcHead = func.split("\n", 2)[0]; //Head
 				String funcBody = func.split("\n", 2)[1]; //Body
 				
@@ -2496,7 +2628,11 @@ public class Lang {
 				//Add variables and local variables
 				createDataMap(NEW_DATA_ID);
 				data.get(NEW_DATA_ID).varArrayTmp.putAll(data.get(DATA_ID).varArrayTmp);
-				data.get(NEW_DATA_ID).varTmp.putAll(data.get(DATA_ID).varTmp);
+				//Copies must not be final
+				data.get(DATA_ID).varTmp.forEach((key, val) -> {
+					if(!key.startsWith("$LANG_"))
+						data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
+				});
 				
 				//Set vars
 				String[] funcVars = funcHead.split(",");
@@ -2510,9 +2646,9 @@ public class Lang {
 					val = val.trim();
 					
 					if(var.startsWith("$")) {
-						data.get(NEW_DATA_ID).varTmp.put(var, val); //Copy params to func as local params
+						data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
 					}else if(var.startsWith("fp.")) {
-						data.get(NEW_DATA_ID).varTmp.put(var, data.get(DATA_ID).varTmp.get(val));
+						data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(data.get(DATA_ID).varTmp.get(val)).setFinalData(false));
 					}else if(var.startsWith("&")) {
 						data.get(NEW_DATA_ID).varArrayTmp.put(var, data.get(DATA_ID).varArrayTmp.get(val)); //Copy array to func as local params
 					}
@@ -2536,11 +2672,12 @@ public class Lang {
 				//Add copyValue after call
 				copyAfterFP.forEach((to, from) -> {
 					if(from != null && to != null) {
-						String valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
-						if(valFrom != null) { //var and funcPtr
+						DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
+						if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
 							if(to.startsWith("fp.") || to.startsWith("$")) {
-								//FIXME same error for final vars
-								if(to.startsWith("$LANG")/*&& to.isFinal()*/) { //$LANG var can't be change
+								DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
+								 //$LANG and final vars can't be change
+								if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
 									Compiler.setErrno(1, DATA_ID);
 									
 									return;
