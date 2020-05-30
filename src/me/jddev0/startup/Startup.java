@@ -31,10 +31,16 @@ public class Startup {
 					term.logf(Level.ERROR, "The lang file %s wasn't found!\n", Startup.class, input[0]);
 				}
 			}else {
-				term.logf(Level.ERROR, "To many arguments: %d/1!\n", Startup.class, args.length);
+				term.logf(Level.ERROR, "To many arguments: %d/1!\n", Startup.class, input.length);
+			}
+		}).addCommand("exit", input -> {
+			if(input.length == 0) {
+				System.exit(0);
+			}else {
+				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
 			}
 		}).addCommand("commands", input -> {
-			if(args.length == 0) {
+			if(input.length == 0) {
 				String tmp = "\nCommands: {\n";
 				for(String str:term.getCommands().keySet()) {
 					tmp += "     " + str + "\n";
@@ -43,7 +49,7 @@ public class Startup {
 				
 				term.logln(Level.INFO, tmp, Startup.class);
 			}else {
-				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, args.length);
+				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
 			}
 		});
 		
