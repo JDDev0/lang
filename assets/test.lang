@@ -52,7 +52,7 @@ ui.button.canel = Cancel
 	}
 	func.printTerminal(3, fp.test2())
 	
-	# Use values that are defined after function definition
+	# Use values that are defined after function pointer definition
 	fp.print42 = ($lvl) -> {
 		func.printTerminal($lvl, $test42)
 		func.printError() # No error should occur:
@@ -63,6 +63,33 @@ ui.button.canel = Cancel
 	# Value definition
 	$test42 = TEST the number 42
 	fp.print42(2)
+	
+	# Recursion
+	fp.fac = ($num) -> {
+		con.if($num < 2)
+			return 1
+		con.endif
+		
+		# Recursive call: fp.fac(func.subi($num, 1))
+		return func.mull($num, fp.fac(func.subi($num, 1)))
+	}
+	fp.printFac = ($i) -> {
+		func.printTerminal(3, Faculty of $i is fp.fac($i)!)
+	}
+	func.repeat(fp.printFac, 25) # Long precision is not enough for 21! and beyond
+	
+	# Indirect recursion (Uses variable definition after function pointer definition)
+	fp.a = ($a) -> {
+		return $a - fp.b(func.subi($a, 2))
+	}
+	fp.b = ($a) -> {
+		con.if($a < 0)
+			return END
+		con.endif
+		
+		return $a - fp.a(func.addi($a, 1))
+	}
+	func.printTerminal(4, fp.a(10))
 }
 
 # \$ -> escape sequence for $
