@@ -1,0 +1,22 @@
+lang.name = Items
+lang.version = v0.2.0
+
+# Translation without programming
+#items.test.state.0 = State XYA
+#items.test.state.1 = State XYZ
+#items.test.state.2 = State XYG
+#items.test.state.3 = State XYV
+#items.test.state.4 = State XYB
+#items.test.state.5 = State GXY
+#items.test.state.6 = State GXY
+#items.test.state.7 = State FXY
+
+# Translation with programming
+fp.testStates = ($i) -> {
+	items.test.state.$i = State func.arrayGet(&a, $i)
+}
+func.split(&a, XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY, ;)
+func.repeat(fp.testStates, func.arrayLength(&a))
+
+# Easy to expand: Simply add a new Text to the func.split call
+# func.split(&a, XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY;NEW_VALUE, ;)
