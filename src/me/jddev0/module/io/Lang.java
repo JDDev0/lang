@@ -178,7 +178,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [return]func/linker.funcName(void) -> no args<br>
  * [void]func/linker.funcName(args) -> no return<br>
  * <br>
- * VAR -> COUNT<br>
+ * <b>VAR -> COUNT<b><br>
  * type -> 1<br>
  * type[x] -> x<br>
  * [type] -> 0 or 1<br>
@@ -201,6 +201,8 @@ import me.jddev0.module.io.TerminalIO.Level;
  * <br><b>System Functions</b><br>
  * [void]func.sleep(int)<br>
  * [void]func.repeat(funcPtr, int)<br>
+ * [void]func.repeatWhile(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns true<br>
+ * [void]func.repeatUntil(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns false<br>
  * [Text]func.getLangRequest(Text)<br>
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
@@ -370,6 +372,76 @@ public class Lang {
 				
 				for(int i = 0;i < times;i++) {
 					Compiler.FuncPtr.compileFunc(funcPtr, "" + i, DATA_ID);
+				}
+			}catch(NumberFormatException e) {
+				Compiler.setErrno(9, DATA_ID);
+				
+				return "Error";
+			}
+			
+			return "";
+		});
+		funcs.put("repeatWhile", (lines, arg, DATA_ID) -> {
+			String[] funcArgs = arg.split(",", 2);
+			if(funcArgs.length != 2) {
+				Compiler.setErrno(8, DATA_ID);
+				
+				return "Error";
+			}
+			
+			try {
+				String execFunc = funcArgs[0].trim();
+				String checkFunc = funcArgs[1].trim();
+				if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
+					Compiler.setErrno(20, DATA_ID);
+					
+					return "Error";
+				}
+				
+				while(true) {
+					String check = Compiler.FuncPtr.compileFunc(checkFunc, "", DATA_ID);
+					try {
+						if(Integer.parseInt(check) == 0)
+							break;
+					}catch(NumberFormatException e) {
+						break;
+					}
+					Compiler.FuncPtr.compileFunc(execFunc, "", DATA_ID);
+				}
+			}catch(NumberFormatException e) {
+				Compiler.setErrno(9, DATA_ID);
+				
+				return "Error";
+			}
+			
+			return "";
+		});
+		funcs.put("repeatUntil", (lines, arg, DATA_ID) -> {
+			String[] funcArgs = arg.split(",", 2);
+			if(funcArgs.length != 2) {
+				Compiler.setErrno(8, DATA_ID);
+				
+				return "Error";
+			}
+			
+			try {
+				String execFunc = funcArgs[0].trim();
+				String checkFunc = funcArgs[1].trim();
+				if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
+					Compiler.setErrno(20, DATA_ID);
+					
+					return "Error";
+				}
+				
+				while(true) {
+					String check = Compiler.FuncPtr.compileFunc(checkFunc, "", DATA_ID);
+					try {
+						if(Integer.parseInt(check) != 0)
+							break;
+					}catch(NumberFormatException e) {
+						break;
+					}
+					Compiler.FuncPtr.compileFunc(execFunc, "", DATA_ID);
 				}
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(9, DATA_ID);
@@ -1972,7 +2044,7 @@ public class Lang {
 							numRight = checkIf(numRight + "")?1:0;
 							numLeft = checkIf(numLeft + "")?1:0;
 							
-							numRight = numRight & numLeft; //numLeft and numRight is 1
+							numRight = numRight & numLeft; //numLeft and numRight are 1
 							
 							ifCondition = ifCondition.substring(0, numIndexTmpLeft+1) + numRight + ifCondition.substring(numIndexTmpRight-1); //Replace
 							i = numIndexTmpLeft;

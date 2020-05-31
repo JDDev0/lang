@@ -25,16 +25,65 @@ ui.button.canel = Cancel
 
 # Function pointer
 {
-	fp.printColor = ($i) -> {
-		# func.subi(a, b) -> a - b for int
-		$i = func.subi($i, 1) #[0, 7] for repeat will be changed to [-1, 6]
-		
-		# func.printTerminal(Log Level [-1 - 6] (= Color), Text)
-		func.printTerminal($i, $i: $c)
-	} # Variables declared or changed in block won't be set after block
+	# Loops
+	{
+		# For
+		func.printTerminal(2, Simple for loop test!)
+		fp.printColor = ($i) -> {
+			# func.subi(a, b) -> a - b for int
+			$i = func.subi($i, 1) #[0, 7] for repeat will be changed to [-1, 6]
+			
+			# func.printTerminal(Log Level [-1 - 6] (= Color), Text)
+			func.printTerminal($i, $i: $c)
+		} # Variables declared or changed in block won't be set after block
 
-	# Loop function (Calls first parameter (Function pointer) with (0) to (count - 1)
-	func.repeat(fp.printColor, 8)
+		# Simple for loop (Calls first parameter (Function pointer) with (0)
+		#   to (count - 1)
+		func.repeat(fp.printColor, 8)
+		
+		# While
+		func.printTerminal(2, While loop test!)
+		$num = 50
+		fp.printFunc = () -> {
+			func.printTerminal(4, $num)
+			$num = func.subi($num, 1)
+			func.copyAfterFP($[num], $[num])
+		}
+		fp.test = () -> {
+			# If the condition is complex, you have to use con.if and
+			#   then you have to return 0 (for false) or 1 (for true)
+			con.if($num > 41)
+				return 1
+			con.else
+				return 0
+			con.endif
+		}
+		func.repeatWhile(fp.printFunc, fp.test)
+		
+		# Until
+		func.printTerminal(2, Until loop test!)
+		$win = 0
+		$num = func.addi(func.modi(func.rand(), 10))
+		$maxTries = 3
+		fp.printFunc = () -> {
+			$guess = func.addi(func.modi(func.rand(), 10))
+			con.if($guess < $num)
+				func.printTerminal(3, The number is larger than $guess!)
+			con.elif($guess > $num)
+				func.printTerminal(3, The number is smaller than $guess!)
+			con.else
+				$win = 1
+				func.copyAfterFP($[win], $[win])
+				func.printTerminal(2, You got the number $guess!)
+			con.endif
+		}
+		fp.test = () -> {
+			return $win
+		}
+		# While loop (Calls first parameter (Function pointer) while second
+		#   parameter returns true)
+		func.repeatUntil(fp.printFunc, fp.test)
+	}
 
 	# Function pointer with return value
 	fp.test = () -> {
@@ -307,6 +356,11 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		func.printTerminal(2, $a)
 		func.printError()
 		
+		$b = $a # No Error
+		$b = TEST # Also no error
+		func.printTerminal(2, $a: $b)
+		func.printError()
+		
 		fp.test = () -> {
 			# No error, because $a is an local variable of the function
 			$a = 100
@@ -337,7 +391,11 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		# Only way to remove final vars
 		func.clearAllVars()
 		
-		$a = New variable # Will produce no error
+		$a # Will produce no error
+		func.printTerminal(2, $a)
+		func.printError()
+		
+		$a = New variable # Will also produce no error
 		func.printTerminal(2, $a)
 		func.printError()
 	}

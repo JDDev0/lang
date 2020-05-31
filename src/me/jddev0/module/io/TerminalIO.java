@@ -32,6 +32,12 @@ public class TerminalIO {
 	 * @param logFile File for logging
 	 */
 	public TerminalIO(File logFile) {
+		this(logFile, true);
+	}
+	/**
+	 * @param logFile File for logging
+	 */
+	public TerminalIO(File logFile, boolean enableCommandInput) {
 		try {
 			//Writer for logFile
 			writer = new BufferedWriter(new OutputStreamWriter(
@@ -42,27 +48,29 @@ public class TerminalIO {
 		
 		logln(Level.INFO, "TermIO started!", TerminalIO.class);
 		
-		//Thread for reading System.in and execute commands
-		Thread t = new Thread(() -> {
-			s = new Scanner(System.in);
-			
-			while(true) {
-				String[] strs = s.nextLine().split(" -");
+		if(enableCommandInput) {
+			//Thread for reading System.in and execute commands
+			Thread t = new Thread(() -> {
+				s = new Scanner(System.in);
 				
-				if(actions.get(strs[0]) != null) {
-					String[] args = new String[strs.length-1];
-					for(int i = 1;i < strs.length;i++) {
-						args[i-1] = strs[i];
-					}
+				while(true) {
+					String[] strs = s.nextLine().split(" -");
 					
-					actions.get(strs[0]).action(args);
-				}else {
-					logln(Level.ERROR, "Command \"" + strs[0] + "\" was'n found!", TerminalIO.class);
+					if(actions.get(strs[0]) != null) {
+						String[] args = new String[strs.length-1];
+						for(int i = 1;i < strs.length;i++) {
+							args[i-1] = strs[i];
+						}
+						
+						actions.get(strs[0]).action(args);
+					}else {
+						logln(Level.ERROR, "Command \"" + strs[0] + "\" was'n found!", TerminalIO.class);
+					}
 				}
-			}
-		});
-		t.setName("TerminalIO read");
-		t.start();
+			});
+			t.setName("TerminalIO read");
+			t.start();
+		}
 	}
 	
 	/**
