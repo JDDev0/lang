@@ -283,7 +283,7 @@ public class Lang {
 		"No error" /*errno = 0*/, "$LANG or final var can't be changed by lang file", "To many inner links", "No .lang-File", "File not found",
 		"FuncPtr is invalid", "Stack overflow", "No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num",
 		"No char", "No num", "Dividing by 0", "Negative array length", "Empty array", "Length NAN", "Array out of bounds", "Argument count is not array length",
-		"Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count", "Lang request doesn't exists",
+		"Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count", "Lang request doesn't exist",
 		"Function not supported"
 	};
 	
@@ -525,13 +525,6 @@ public class Lang {
 				return "Error";
 			}catch(Exception e) {}
 			
-			int err;
-			if((err = Compiler.getAndClearErrno(DATA_ID)) != 0) {
-				Compiler.setErrno(err, DATA_ID);
-				
-				return "Error";
-			}
-			
 			return "";
 		});
 		
@@ -550,13 +543,13 @@ public class Lang {
 		
 		//Character functions
 		funcs.put("toValue", (lines, arg, DATA_ID) -> {
-			if(arg.length() != 1) {
+			if(arg.trim().length() != 1) {
 				Compiler.setErrno(12, DATA_ID);
 				
 				return "Error";
 			}
 			
-			return (int)arg.charAt(0) + "";
+			return (int)arg.trim().charAt(0) + "";
 		});
 		funcs.put("toChar", (lines, arg, DATA_ID) -> {
 			try {
@@ -1625,12 +1618,33 @@ public class Lang {
 		}
 		
 		//Classes for variable data
+		private static class ErrorObject {
+			private final int err;
+			
+			public ErrorObject(int err) {
+				this.err = err;
+			}
+			
+			public int getErrno() {
+				return err;
+			}
+			
+			public String getErrmsg() {
+				return errorStrings[err];
+			}
+			
+			@Override
+			public String toString() {
+				return errorStrings[err] + " (" + err + ")";
+			}
+		}
 		private static enum DataType {
-			TEXT, FUNCTION_POINTER, NULL;
+			TEXT, FUNCTION_POINTER, ERROR, NULL, VOID;
 		}
 		private static class DataObject {
 			private DataType type;
 			private String txt;
+			private ErrorObject error;
 			private boolean finalData;
 			
 			public DataObject(DataObject dataObject) {
@@ -1665,8 +1679,12 @@ public class Lang {
 					case TEXT:
 					case FUNCTION_POINTER:
 						return txt;
+					case ERROR:
+						return error.toString();
 					case NULL:
 						return "null";
+					case VOID:
+						return "";
 				}
 				
 				return null;
@@ -1682,11 +1700,30 @@ public class Lang {
 				return this;
 			}
 			
+			public DataObject setError(ErrorObject error) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.ERROR;
+				this.error = error;
+				
+				return this;
+			}
+			
 			public DataObject setNull() {
 				if(finalData)
 					return this;
 				
 				this.type = DataType.NULL;
+				
+				return this;
+			}
+			
+			public DataObject setVoid() {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.VOID;
 				
 				return this;
 			}
