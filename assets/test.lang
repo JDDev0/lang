@@ -50,13 +50,7 @@ ui.button.canel = Cancel
 			func.copyAfterFP($[num], $[num])
 		}
 		fp.test = () -> {
-			# If the condition is complex, you have to use con.if and
-			#   then you have to return 0 (for false) or 1 (for true)
-			con.if($num > 41)
-				return 1
-			con.else
-				return 0
-			con.endif
+			return func.condition($num > 41)
 		}
 		func.repeatWhile(fp.printFunc, fp.test)
 		
@@ -294,7 +288,39 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	# Empty variable
 	$a
 	func.printTerminal(5, $a)
-
+	
+	# Condition function
+	{
+		# func.condition returns 1 if condition is true else 0
+		func.printTerminal(2, 0 and 5)
+		func.printTerminal(3, func.condition(0 == 5))
+		func.printTerminal(3, func.condition(0 != 5))
+		func.printTerminal(3, func.condition(0 < 5))
+		func.printTerminal(3, func.condition(0 > 5))
+		func.printTerminal(3, func.condition(0 <= 5))
+		func.printTerminal(3, func.condition(0 >= 5))
+		func.printTerminal(2, 5 and 5)
+		func.printTerminal(3, func.condition(5 == 5))
+		func.printTerminal(3, func.condition(5 != 5))
+		func.printTerminal(3, func.condition(5 < 5))
+		func.printTerminal(3, func.condition(5 > 5))
+		func.printTerminal(3, func.condition(5 <= 5))
+		func.printTerminal(3, func.condition(5 >= 5))
+		
+		# Be careful:
+		# Will return 0, because (42 == 42) is executed first and
+		#   will be replaced with 1, then (1 == 42) will be checked
+		#   and will be repelaced with 0
+		$a = 42
+		$b = 42
+		$c = 42
+		func.printTerminal(4, func.condition($a == $b == $c))
+		# But ($a == $b == 1) will be true
+		func.printTerminal(4, func.condition($a == $b == 1))
+		# Use following to check if $a and $b and $c are the same:
+		func.printTerminal(3, func.condition(($a == $b) && ($b == $c))
+	}
+	
 	# Advanced conditions
 	con.if(1 || (1 && 0))
 		func.printTerminal(4, TRUE!)
