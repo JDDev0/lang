@@ -1397,15 +1397,10 @@ public class Lang {
 		public static void resetVars(final int DATA_ID) {
 			String[] keys = data.get(DATA_ID).varTmp.keySet().toArray(new String[0]);
 			for(int i = data.get(DATA_ID).varTmp.size() - 1;i > -1;i--) {
-				if(keys[i].startsWith("$")) {
+				if(keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) {
 					data.get(DATA_ID).varTmp.remove(keys[i]);
 				}
 			}
-			
-			//Final vars
-			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
-			data.get(DATA_ID).varTmp.put("$LANG_PATH", new DataObject(pathLangFile, true));
-			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", new DataObject("" + (Integer.MAX_VALUE - 1), true));
 			
 			//Not final vars
 			setErrno(0, DATA_ID); //Set $LANG_ERRNO
