@@ -318,15 +318,40 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		# But ($a == $b == 1) will be true
 		func.printTerminal(4, func.condition($a == $b == 1))
 		# Use following to check if $a and $b and $c are the same:
-		func.printTerminal(3, func.condition(($a == $b) && ($b == $c))
+		func.printTerminal(3, func.condition($a == $b && $b == $c))
 	}
 	
 	# Advanced conditions
-	con.if(1 || (1 && 0))
-		func.printTerminal(4, TRUE!)
-	con.else
-		func.printTerminal(4, FALSE!)
-	con.endif
+	{
+		func.printTerminal(4, func.condition(1 || (1 && 0))) #1
+		func.printTerminal(4, func.condition(1 || 1 && 0)) #0
+		func.printTerminal(4, func.condition((1 || 1) && 0)) #0
+		
+		func.printTerminal(4, func.condition(1 && (0 || 1))) #1
+		func.printTerminal(4, func.condition(1 && 0 || 1)) #1
+		func.printTerminal(4, func.condition((1 && 0) || 1)) #1
+		
+		func.printTerminal(4, func.condition(0 && (1 || 0))) #0
+		func.printTerminal(4, func.condition(0 && 1 || 0)) #0
+		func.printTerminal(4, func.condition((0 && 1) || 0)) #0
+		
+		func.printTerminal(4, func.condition(0 && (0 || 1))) #0
+		func.printTerminal(4, func.condition(0 && 0 || 1)) #0
+		func.printTerminal(4, func.condition((0 && 0) || 1)) #1
+		
+		func.printTerminal(4, func.condition(!(0 && (0 || 1)))) #1
+		func.printTerminal(4, func.condition(!(0 && 0 || 1))) #1
+		func.printTerminal(4, func.condition(!((0 && 0) || 1))) #0
+		
+		func.printTerminal(4, func.condition(!0 && (0 || 1))) #1
+		func.printTerminal(4, func.condition(!0 && 0 || 1)) #1
+		func.printTerminal(4, func.condition(!(0 && 0) || 1)) #1
+		
+		# Compiliation
+		# 1 && 1 || 0 && 1 -> (1) && (1 || 0 && 1) -> (1) && ((1 || 0) && (1)) ->
+		# (1) && (((1) || (0)) && (1)) -> (1) && ((1) && (1)) ->
+		# (1) && (1) -> 1
+	}
 
 	# Returns the folder where the lang is located
 	func.printTerminal(4, $LANG_PATH)

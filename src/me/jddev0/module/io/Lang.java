@@ -171,7 +171,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * For conditions:<br>
  * "!($x)" -> not $x<br>
  * "($x) && ($y)" -> $x and $y<br>
- * "($x) || ($y)" -> $x or $y<br> * 
+ * "($x) || ($y)" -> $x or $y<br>
  * <br>
  * <b>--- For Linker/Functions !NO SYNTAX!---</b><br>
  * [return]func/linker.funcName(args)<br>
@@ -1895,6 +1895,7 @@ public class Lang {
 						char c = ifCondition.charAt(i);
 						
 						if(c == '(') {
+							boolean invert = i > 0 && ifCondition.charAt(i - 1) == '!';
 							indexTmp = i;
 							while(true) { //While brackets count != 0 and not first run
 								c = ifCondition.charAt(i++); //Get char at indexEnd (increase later)
@@ -1903,9 +1904,13 @@ public class Lang {
 								}else if(c == ')') { //Else if char == ')' -> bracketsCount--;
 									bracketsCount--;
 									if(bracketsCount == 0) { //When all brackets have been closed -> check condition
-										int b = checkIf(ifCondition.substring(indexTmp+1, i-1))?1:0; //Check all between '(' and ')'
+										boolean b = checkIf(ifCondition.substring(indexTmp+1, i-1)); //Check all between '(' and ')'
+										if(invert) {
+											b = !b;
+											indexTmp--; //Include ! for replace
+										}
 										
-										ifCondition = ifCondition.substring(0, indexTmp) + b + ifCondition.substring(i); //Replace
+										ifCondition = ifCondition.substring(0, indexTmp) + (b?1:0) + ifCondition.substring(i); //Replace
 										
 										i = indexTmp; //Set i to old pos.
 										
@@ -1915,6 +1920,22 @@ public class Lang {
 							}
 						}
 					}
+				}
+				
+				//Replace AND with 0 or 1
+				if(ifCondition.contains("&&")) {
+					boolean leftSide = checkIf(ifCondition.substring(0, ifCondition.indexOf("&&")));
+					boolean rightSide = checkIf(ifCondition.substring(ifCondition.indexOf("&&") + 2));
+					
+					return leftSide && rightSide;
+				}
+				
+				//Replace OR with 0 or 1
+				if(ifCondition.contains("||")) {
+					boolean leftSide = checkIf(ifCondition.substring(0, ifCondition.indexOf("||")));
+					boolean rightSide = checkIf(ifCondition.substring(ifCondition.indexOf("||") + 2));
+					
+					return leftSide || rightSide;
 				}
 				
 				if(ifCondition.contains("=") || ifCondition.contains("<") || ifCondition.contains(">") || ifCondition.contains("!")) {
@@ -2036,7 +2057,7 @@ public class Lang {
 					}
 				}
 				
-				if(ifCondition.contains("!") || ifCondition.contains("&") || ifCondition.contains("|")) {
+				if(ifCondition.contains("!")) {
 					for(int i = 0;i < ifCondition.length();i++) {
 						char c = ifCondition.charAt(i);
 						
@@ -2055,60 +2076,6 @@ public class Lang {
 							ifCondition = ifCondition.substring(0, i) + num + ifCondition.substring(numIndexTmp-1); //Replace
 							
 							continue;
-						}
-						
-						if(c == '&' && ifCondition.charAt(i+1) == '&') { //Replace "and" with 0 or 1
-							int numIndexTmpLeft = i, numIndexTmpRight = i+2, numLeft = 0, numRight = 0;
-							while(true) {
-								try {
-									numRight = Integer.parseInt(ifCondition.substring(i+2, ++numIndexTmpRight));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							while(true) {
-								try {
-									numLeft = Integer.parseInt(ifCondition.substring(--numIndexTmpLeft, i));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							
-							numRight = checkIf(numRight + "")?1:0;
-							numLeft = checkIf(numLeft + "")?1:0;
-							
-							numRight = numRight & numLeft; //numLeft and numRight are 1
-							
-							ifCondition = ifCondition.substring(0, numIndexTmpLeft+1) + numRight + ifCondition.substring(numIndexTmpRight-1); //Replace
-							i = numIndexTmpLeft;
-							
-							continue;
-						}
-						
-						if(c == '|' && ifCondition.charAt(i+1) == '|') { //Replace "or" with 0 or 1
-							int numIndexTmpLeft = i, numIndexTmpRight = i+2, numLeft = 0, numRight = 0;
-							while(true) {
-								try {
-									numRight = Integer.parseInt(ifCondition.substring(i+2, ++numIndexTmpRight));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							while(true) {
-								try {
-									numLeft = Integer.parseInt(ifCondition.substring(--numIndexTmpLeft, i));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							
-							numRight = checkIf(numRight + "")?1:0;
-							numLeft = checkIf(numLeft + "")?1:0;
-							
-							numRight = numRight | numLeft; //numLeft or numRight is 1
-							
-							ifCondition = ifCondition.substring(0, numIndexTmpLeft+1) + numRight + ifCondition.substring(numIndexTmpRight-1); //Replace
-							i = numIndexTmpLeft;
 						}
 					}
 				}
