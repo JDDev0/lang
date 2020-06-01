@@ -221,6 +221,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [Text]func.toUpper(Text)<br>
  * [Text]func.toLower(Text)<br>
  * [Text]func.trim(Text)<br>
+ * [Text]func.replace(Text, Text, Text) //(Input, RegEx, Replacement)<br>
  * [Text]func.substring(Text, int, [int])<br>
  * [void]func.split(arrPtr, Text, Text, [int])<br>
  * <br><b>Math functions</b><br>
@@ -595,6 +596,16 @@ public class Lang {
 		funcs.put("toUpper", (lines, arg, DATA_ID) -> arg.toUpperCase());
 		funcs.put("toLower", (lines, arg, DATA_ID) -> arg.toLowerCase());
 		funcs.put("trim", (lines, arg, DATA_ID) -> arg.trim());
+		funcs.put("replace", (lines, arg, DATA_ID) -> {
+			String[] funcArgs = arg.split(",", 3);
+			if(funcArgs.length != 3) {
+				Compiler.setErrno(8, DATA_ID);
+				
+				return "Error";
+			}
+			
+			return funcArgs[0].trim().replaceAll(funcArgs[1].trim(), funcArgs[2].trim());
+		});
 		funcs.put("substring", (lines, arg, DATA_ID) -> {
 			String[] funcArgs = arg.split(",", 3);
 			if(funcArgs.length < 2) {
