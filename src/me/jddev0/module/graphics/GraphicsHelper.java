@@ -19,8 +19,7 @@ import javax.swing.text.StyleContext;
 public class GraphicsHelper {
 	private GraphicsHelper() {}
 	
-	//JTextPane
-		/**
+	/**
 	 * Adds text with color to a JTextPane
 	 * 
 	 * @param pane The JTextPane to add the text with color

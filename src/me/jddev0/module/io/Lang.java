@@ -171,7 +171,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * For conditions:<br>
  * "!($x)" -> not $x<br>
  * "($x) && ($y)" -> $x and $y<br>
- * "($x) || ($y)" -> $x or $y<br>
+ * "($x) || ($y)" -> $x or $y<br> * 
  * <br>
  * <b>--- For Linker/Functions !NO SYNTAX!---</b><br>
  * [return]func/linker.funcName(args)<br>
@@ -204,6 +204,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.repeatWhile(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns true<br>
  * [void]func.repeatUntil(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns false<br>
  * [Text]func.getLangRequest(Text)<br>
+ * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
@@ -461,6 +462,7 @@ public class Lang {
 			
 			return ret;
 		});
+		funcs.put("condition", (lines, arg, DATA_ID) -> Compiler.If.checkIf(arg)?"1":"0");
 		
 		//IO Functions
 		funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
@@ -1951,8 +1953,7 @@ public class Lang {
 								}
 							}
 							
-							ifCondition = ifCondition.substring(0, strIndexTmpLeft+1) + (((strRight.equals(strLeft))?1:0)^invert) + ifCondition.substring(
-							strIndexTmpRight-1); //Replace
+							ifCondition = ifCondition.substring(0, strIndexTmpLeft+1) + (((strRight.equals(strLeft))?1:0)^invert) + ifCondition.substring(strIndexTmpRight-1); //Replace
 							i = strIndexTmpLeft;
 							
 							continue;
