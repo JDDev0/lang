@@ -2668,7 +2668,7 @@ public class Lang {
 					}
 					
 					retTmp = func.substring(0, lastIndex); //retTmp is start to end of arguments
-					func = func.substring(lastIndex + 1); //Cuts all before the function end
+					func = func.substring(lastIndex); //Cuts all before the function end
 				}
 				
 				while(func.contains("func.")) { //While function contain nested functions
