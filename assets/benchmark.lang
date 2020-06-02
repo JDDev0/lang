@@ -1,0 +1,50 @@
+# Lang data
+lang.name = Benchmark
+lang.version = v0.2.0
+
+fp.benchmark = ($runs, fp.func) -> {
+	$time = 0
+	fp.run = ($i) -> {
+		$start = func.currentTimeMillis()
+		fp.func()
+		$end = func.currentTimeMillis()
+		$time = func.addl($time, func.subl($end, $start))
+		func.copyAfterFP($[time], $[time])
+	}
+	func.repeat(fp.run, $runs)
+	
+	return func.divd($time, $runs)
+}
+
+fp.add = () -> {
+	func.addi(func.rand(), func.rand())
+}
+fp.execFP = () -> {
+	fp.test = () -> {
+		test = test
+	}
+	fp.test()
+}
+fp.arrayCreation = () -> {
+	func.arrayMake(&a, 100)
+	func.arraySetAll(&a, 42)
+}
+fp.linker = () -> {
+	linker.link(items.lang)
+}
+fp.bindLib = () -> {
+	linker.bindLibrary(items.lang)
+}
+fp.sleep = () -> {
+	func.sleep(1)
+}
+
+func.printTerminal(2, \s      Test        |       Time       \s)
+func.printTerminal(2, -------------------|-------------------)
+func.printTerminal(2, Add                | fp.benchmark(1000, fp.add) ms)
+func.printTerminal(2, Execute FP         | fp.benchmark(1000, fp.execFP) ms)
+func.printTerminal(2, ArrayCreation      | fp.benchmark(1000, fp.arrayCreation) ms)
+func.printTerminal(2, Linker             | fp.benchmark(1000, fp.linker) ms)
+func.printTerminal(2, Bind Library       | fp.benchmark(1000, fp.bindLib) ms)
+func.printTerminal(2, Sleep (Should be 1)| fp.benchmark(1000, fp.sleep) ms)
+func.printTerminal(2, ---------------------------------------)
