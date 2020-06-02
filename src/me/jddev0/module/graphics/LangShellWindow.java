@@ -130,7 +130,7 @@ public class LangShellWindow extends JDialog {
 							String copied = copiedRaw.toString();
 							String[] lines = copied.split("\n");
 							for(int i = 0;i < lines.length;i++) {
-								String line = lines[i];
+								String line = lines[i].trim();
 								GraphicsHelper.addText(shell, line, Color.WHITE);
 								lineTmp.append(line);
 								if(i != lines.length - 1 || copied.endsWith("\n")) { //Line has an '\n' at end -> finished line
