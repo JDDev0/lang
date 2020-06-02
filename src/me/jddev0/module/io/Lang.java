@@ -207,6 +207,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.makeFinal(varPtr)<br>
  * [void]func.makeFinal(funcPtr)<br>
  * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
+ * [long]func.currentTimeMillis(void)<br>
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
@@ -489,6 +490,7 @@ public class Lang {
 			return "";
 		});
 		funcs.put("condition", (lines, arg, DATA_ID) -> Compiler.If.checkIf(arg)?"1":"0");
+		funcs.put("currentTimeMillis", (lines, arg, DATA_ID) -> System.currentTimeMillis() + "");
 		
 		//IO Functions
 		funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
