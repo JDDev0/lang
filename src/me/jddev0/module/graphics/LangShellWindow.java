@@ -209,11 +209,6 @@ public class LangShellWindow extends JDialog {
 		
 		//Gets Compiler class
 		compilerClass = Lang.class.getDeclaredClasses()[0];
-		for(Method m:compilerClass.getMethods()) {
-			if(m.getName().equals("compileLangFile")) {
-				
-			}
-		}
 		try {
 			//Gets compileLangFile method
 			compileLangFileMethod = compilerClass.getDeclaredMethod("compileLangFile", BufferedReader.class, int.class);
