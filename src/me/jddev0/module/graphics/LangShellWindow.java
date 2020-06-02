@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.swing.JDialog;
@@ -33,7 +35,6 @@ import javax.swing.text.Document;
 import me.jddev0.module.io.Lang;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
-import me.jddev0.startup.Startup;
 
 /**
  * Uses the io module<br>
@@ -152,9 +153,13 @@ public class LangShellWindow extends JDialog {
 		initShell();
 	}
 	
+	private Class<?> compilerClass;
+	private Method compileLangFileMethod;
+	private PrintStream oldOut;
+	
 	private void initShell() {
 		//Sets System.out
-		PrintStream out = System.out;
+		oldOut = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
 			//Tmp for the printing
 			private StringBuilder printingTmp = new StringBuilder();
@@ -164,7 +169,7 @@ public class LangShellWindow extends JDialog {
 			
 			@Override
 			public void write(int b) throws IOException {
-				out.write(b);
+				oldOut.write(b);
 				printingTmp.append((char)b);
 				
 				if((char)b == '\n') {//Sets color of message after new line
@@ -202,7 +207,25 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
-		Lang.Compiler.createDataMap(0);
+		//Gets Compiler class
+		compilerClass = Lang.class.getDeclaredClasses()[0];
+		for(Method m:compilerClass.getMethods()) {
+			if(m.getName().equals("compileLangFile")) {
+				
+			}
+		}
+		try {
+			//Gets compileLangFile method
+			compileLangFileMethod = compilerClass.getDeclaredMethod("compileLangFile", BufferedReader.class, int.class);
+			compileLangFileMethod.setAccessible(true);
+			
+			//Creates new DataMap
+			Method createDataMapMethod = compilerClass.getDeclaredMethod("createDataMap", int.class);
+			createDataMapMethod.setAccessible(true);
+			createDataMapMethod.invoke(null, 0);
+		}catch(NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
+			term.logStackTrace(e, LangShellWindow.class);
+		}
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + P)\n> ", Color.WHITE);
@@ -220,7 +243,7 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				try {
-					Lang.Compiler.compileLangFile(new BufferedReader(new StringReader(line)), 0);
+					compileLangFileMethod.invoke(null, new BufferedReader(new StringReader(line)), 0);
 				}catch(Exception e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
@@ -250,7 +273,7 @@ public class LangShellWindow extends JDialog {
 			
 			if(indent == 0) {
 				try {
-					Lang.Compiler.compileLangFile(new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
+					compileLangFileMethod.invoke(null, new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
 				}catch(Exception e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
@@ -270,15 +293,28 @@ public class LangShellWindow extends JDialog {
 		
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
 		try {
-			Field data = Lang.class.getDeclaredField("data");
-			data.setAccessible(true);
+			Field dataField = Lang.class.getDeclaredField("data");
+			dataField.setAccessible(true);
+			Map<?, ?> dataMaps = (Map<?, ?>)dataField.get(null);
+			Class<?> dataClass = null;
+			for(Class<?> c:compilerClass.getDeclaredClasses()) {
+				if(c.getSimpleName().equals("Data")) {
+					dataClass = c;
+					break;
+				}
+			}
+			Field langField = dataClass.getDeclaredField("lang");
+			langField.setAccessible(true);
 			@SuppressWarnings("unchecked")
-			Map<Integer, Lang.Compiler.Data> dataMaps = (Map<Integer, Lang.Compiler.Data>)data.get(null);
-			dataMaps.get(0).lang.forEach((key, value) -> {
-				term.logln(Level.DEBUG, key + " = " + value, Startup.class);
+			Map<String, String> lang = (Map<String, String>)langField.get(dataMaps.get(0));
+			lang.forEach((key, value) -> {
+				term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
 			});
-		}catch(NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
+		}catch(NullPointerException|NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
 			term.logStackTrace(e, LangShellWindow.class);
 		}
+		
+		//Reset the printStream output
+		System.setOut(oldOut);
 	}
 }
