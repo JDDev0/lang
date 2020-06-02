@@ -1616,7 +1616,7 @@ public class Lang {
 	}
 	
 	//Class for compiling lang file
-	private static class Compiler {
+	public static class Compiler {
 		private static TerminalIO term;
 		
 		private Compiler() {}
@@ -1990,7 +1990,7 @@ public class Lang {
 				return getText();
 			}
 		}
-		private static class Data {
+		public static class Data {
 			public Map<String, String> lang = new HashMap<>();
 			public Map<String, DataObject> varTmp = new HashMap<>();
 			public Map<String, String[]> varArrayTmp = new HashMap<>();

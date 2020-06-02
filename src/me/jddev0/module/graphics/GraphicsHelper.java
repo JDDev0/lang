@@ -43,4 +43,13 @@ public class GraphicsHelper {
 			doc.remove(start + length, length);
 		}catch(BadLocationException e) {}
 	}
+	public static void setBackgroundColor(JTextPane pane, int start, int length, Color c) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet as = sc.addAttribute(sc.getEmptySet(), StyleConstants.Background, c);
+		try {
+			Document doc = pane.getDocument();
+			doc.insertString(start, doc.getText(start, length), as);
+			doc.remove(start + length, length);
+		}catch(BadLocationException e) {}
+	}
 }
