@@ -207,6 +207,11 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
+		//Initializes static attributes of the Lang class
+		try {
+			Lang.getTranslationMap("", true, term);
+		}catch(Exception e) {}
+		
 		//Gets Compiler class
 		compilerClass = Lang.class.getDeclaredClasses()[0];
 		try {
