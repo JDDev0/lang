@@ -3,6 +3,7 @@ package me.jddev0.startup;
 import java.io.File;
 import java.util.Map;
 
+import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
 import me.jddev0.module.io.Lang;
 import me.jddev0.module.io.TerminalIO;
@@ -33,6 +34,13 @@ public class Startup {
 			}else {
 				term.logf(Level.ERROR, "To many arguments: %d/1!\n", Startup.class, input.length);
 			}
+		}).addCommand("startShell", input -> {
+			if(input.length == 0) {
+				LangShellWindow langShellWin = new LangShellWindow(termWin, term);
+				langShellWin.setVisible(true);
+			}else {
+				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
+			}
 		}).addCommand("exit", input -> {
 			if(input.length == 0) {
 				System.exit(0);
@@ -57,7 +65,12 @@ public class Startup {
 		termWin.setVisible(true);
 		
 		if(args.length == 1) {
-			term.getCommands().get("executeLang").action(args);
+			if(args[0].equals("-startShell")) {
+				LangShellWindow langShellWin = new LangShellWindow(termWin, term);
+				langShellWin.setVisible(true);
+			}else {
+				term.getCommands().get("executeLang").action(args);
+			}
 		}
 	}
 }
