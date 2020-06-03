@@ -168,6 +168,32 @@ ui.button.canel = Cancel
 		}
 		fp.retFP(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(0)(1)
 	}
+	
+	# FunctionPointer argument duplication
+	# If not enough arguments are provided, the compiler will copy the
+	#   last argument given. If no argument was given, all variables will be empty
+	# If too many arguments are given, the compiler will ignore them
+	fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g, $h) -> {
+		func.printTerminal(-1, $a)
+		func.printTerminal(0, $b)
+		func.printTerminal(1, $c)
+		func.printTerminal(2, $d)
+		func.printTerminal(3, $e)
+		func.printTerminal(4, $f)
+		func.printTerminal(5, $g)
+		func.printTerminal(6, $h)
+		func.printTerminal(-1, -----------------)
+	}
+	fp.manyArgs()
+	fp.manyArgs(A)
+	fp.manyArgs(A, B)
+	fp.manyArgs(A, B, C)
+	fp.manyArgs(A, B, C, D)
+	fp.manyArgs(A, B, C, D, E)
+	fp.manyArgs(A, B, C, D, E, F)
+	fp.manyArgs(A, B, C, D, E, F, G)
+	fp.manyArgs(A, B, C, D, E, F, G, H)
+	fp.manyArgs(A, B, C, D, E, F, G, H, I)
 }
 
 # \$ -> escape sequence for $
