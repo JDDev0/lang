@@ -133,6 +133,41 @@ ui.button.canel = Cancel
 		return $a - fp.a(func.addi($a, 1))
 	}
 	func.printTerminal(4, fp.a(10))
+	
+	# FunctionPointer as return value
+	{
+		fp.function = ($a, $b) -> {
+			func.printTerminal($a, $b)
+		}
+		fp.retFP = () -> {
+			return fp.function
+		}
+		
+		func.printTerminal(5, fp.retFP) # Will print "fp.retFP"
+		func.printTerminal(5, fp.retFP()) # Will print "fp.function"
+		fp.retFP()(-1, TESTED) # Call of returend function pointer
+		
+		# Changing of returned function pointer is not possible
+		fp.retFP() = () -> {
+			func.printTerminal(2, TAMPERED!)
+		}
+		fp.retFP()(1, 1)
+		
+		# Funny things you can do with this
+		fp.function = ($a) -> {
+			func.printTerminal(1, $a)
+		}
+		fp.retFP = ($con) -> {
+			func.printTerminal(1, fp.retFP was called!)
+			
+			con.if($con)
+				return fp.retFP
+			con.endif
+			
+			return fp.function
+		}
+		fp.retFP(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(1)(0)(1)
+	}
 }
 
 # \$ -> escape sequence for $
