@@ -2629,7 +2629,7 @@ public class Lang {
 					}
 					tmp = lineCopy.substring(0, indexEnd); //Copies function arguments
 					
-					//Replace func with solution of func
+					//Replace func with return value of func
 					line = line.substring(0, indexStart) + callFunc(lines, tmp, DATA_ID) + line.substring(indexEnd + indexStart);
 					
 					lineCopy = lineCopy.substring(indexEnd); //Go to the end of the function
@@ -2639,9 +2639,9 @@ public class Lang {
 				return line;
 			}
 			
-			private static String[] prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
+			private static String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
 				String retTmp = "";
-				func = func.substring(func.indexOf('(')+1); //Gets start of arguments
+				func = func.substring(func.indexOf('(') + 1); //Gets start of arguments
 				
 				if(!func.contains("func.")) { //No nested function
 					int lastIndex;
@@ -2697,37 +2697,21 @@ public class Lang {
 				}
 				
 				//Adds everything after function to retTmp
-				if(func.indexOf(')') != -1) {
-					String retTmpTmp = retTmp + func.substring(0, func.indexOf(')'));
-					func = func.substring(func.indexOf(')')+1);
-					
-					if(func.indexOf(')') != -1) {
-						retTmp += func.substring(0, func.indexOf(')'));
-						func = func.substring(func.indexOf(')')+1);
-					}else {
-						retTmp = retTmpTmp;
-					}
-				}
-				
-				return new String[] {func, retTmp};
+				retTmp += func.substring(0, func.lastIndexOf(')'));
+				return retTmp;
 			}
 			
 			private static String callFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String funcCopy = func;
-				String retTmp = "", funcName;
+				String retTmp = "";
 				
-				while(funcCopy.contains("func.") && funcCopy.contains("(") && funcCopy.contains(")")) {
-					funcCopy = funcCopy.substring(funcCopy.indexOf("func.") + 5, funcCopy.lastIndexOf(')')+1); //Cuts everything after and before "func."
-					
-					funcName = funcCopy.substring(0, funcCopy.indexOf('(')); //Get name of function
-					if(funcs.containsKey(funcName)) { //If function exists...
-						String[] args = prepareFunc(lines, funcCopy, DATA_ID); //Prepare function
-						funcCopy = args[0]; //Set funcCopy
-						
-						retTmp += funcs.get(funcName).callFunc(lines, args[1], DATA_ID); //Call Function
-					}else {
-						setErrno(22, DATA_ID);
-					}
+				func = func.substring(func.indexOf("func.") + 5); //Cuts everything before "func."
+				
+				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
+				if(funcs.containsKey(funcName)) { //If function exists...
+					String args = prepareFunc(lines, func, DATA_ID); //Prepare function
+					retTmp += funcs.get(funcName).callFunc(lines, args, DATA_ID); //Call Function
+				}else {
+					setErrno(22, DATA_ID);
 				}
 				
 				return retTmp;
@@ -2849,7 +2833,7 @@ public class Lang {
 				return line;
 			}
 			
-			private static String[] prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
+			private static String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
 				String retTmp = "";
 				func = func.substring(func.indexOf('(')+1); //Gets start of arguments
 				
@@ -2857,7 +2841,7 @@ public class Lang {
 					int lastIndex = func.lastIndexOf(')');
 					
 					retTmp = func.substring(0, lastIndex); //retTmp is start to end of arguments
-					func = func.substring(lastIndex + 1); //Cuts all before the function end
+					func = func.substring(lastIndex); //Cuts all before the function end
 				}
 				
 				while(func.contains("fp.")) { //While function contain nested functions
@@ -2897,35 +2881,20 @@ public class Lang {
 				}
 				
 				//Adds everything after function to retTmp
-				if(func.indexOf(')') != -1) {
-					String retTmpTmp = retTmp + func.substring(0, func.indexOf(')'));
-					func = func.substring(func.indexOf(')')+1);
-					
-					if(func.indexOf(')') != -1) {
-						retTmp += func.substring(0, func.indexOf(')'));
-						func = func.substring(func.indexOf(')')+1);
-					}else {
-						retTmp = retTmpTmp;
-					}
-				}
-				
-				return new String[] {func, Func.replaceFuncsWithValue(new BufferedReader(new StringReader(retTmp)), retTmp, DATA_ID)};
+				retTmp += func.substring(0, func.lastIndexOf(')'));
+				retTmp = Func.replaceFuncsWithValue(new BufferedReader(new StringReader(retTmp)), retTmp, DATA_ID);
+				return retTmp;
 			}
 			
 			private static String callFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String funcCopy = func;
-				String retTmp = "", funcName;
+				String retTmp = "";
 				
-				while(funcCopy.contains("fp.") && funcCopy.contains("(") && funcCopy.contains(")")) {
-					funcCopy = funcCopy.substring(funcCopy.indexOf("fp."), funcCopy.lastIndexOf(')') + 1); //Cuts everything after and before "fp."
-					
-					funcName = funcCopy.substring(0, funcCopy.indexOf('(')); //Get name of function with '.'
-					
-					String[] args = prepareFunc(lines, funcCopy, DATA_ID); //Prepare function
-					funcCopy = args[0]; //Set funcCopy
-					
-					retTmp += compileFunc(funcName, args[1], DATA_ID); //Call Function
-				}
+				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
+				
+				func = func.substring(func.indexOf("fp.") + 3); //Cuts everything before "fp."
+				
+				String args = prepareFunc(lines, func, DATA_ID); //Prepare function
+				retTmp += compileFunc(funcName, args, DATA_ID); //Call Function
 				
 				return retTmp;
 			}
