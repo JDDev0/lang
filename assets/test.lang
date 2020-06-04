@@ -49,9 +49,9 @@ ui.button.canel = Cancel
 			$num = func.subi($num, 1)
 			func.copyAfterFP($[num], $[num])
 		}
-		fp.test = () -> {
-			return func.condition($num > 41)
-		}
+		# One-line function pointer definition (New in v0.2.0)
+		fp.test = () -> return func.condition($num > 41)
+		
 		func.repeatWhile(fp.printFunc, fp.test)
 		
 		# Until (New in v0.2.0)
@@ -71,9 +71,7 @@ ui.button.canel = Cancel
 				func.printTerminal(2, You got the number $guess!)
 			con.endif
 		}
-		fp.test = () -> {
-			return $win
-		}
+		fp.test = () -> return $win
 		# While loop (Calls first parameter (Function pointer) while second
 		#   parameter returns true)
 		func.repeatUntil(fp.printFunc, fp.test)
