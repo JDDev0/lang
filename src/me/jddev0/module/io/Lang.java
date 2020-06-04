@@ -2771,6 +2771,14 @@ public class Lang {
 					}catch(IOException e) {
 						term.logStackTrace(e, FuncPtr.class);
 					}
+				}else if(line.contains(") -> ")) { //One-line function definition
+					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
+					funcHead = funcHead.substring(0, funcHead.indexOf(')'));
+					
+					build.append(funcHead);
+					build.append("\n");
+					
+					build.append(line.split("\\) -> ", 2)[1].trim());
 				}else { //Copy funcPtr
 					if(!(funcHead.startsWith("fp.") && data.get(DATA_ID).varTmp.containsKey(funcHead))) {
 						setErrno(5, DATA_ID);
