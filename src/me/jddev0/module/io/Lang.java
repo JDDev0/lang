@@ -1717,6 +1717,8 @@ public class Lang {
 		}
 		
 		public static void compileLine(BufferedReader lines, String line, final int DATA_ID) {
+			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
+			
 			//Comments
 			line = line.replace("\\#", "\\NoCommentTmp");
 			if(line.contains("#"))
@@ -1790,6 +1792,8 @@ public class Lang {
 		 * @return the modified line<br>if null -> continue
 		 */
 		public static String compileLineForIf(BufferedReader lines, String line, final int DATA_ID) {
+			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
+			
 			//Comments
 			line = line.replace("\\#", "\\NoCommentTmp");
 			if(line.contains("#"))
