@@ -25,9 +25,7 @@ fp.gameLoop = () -> {
 		$guesses = func.addi($guesses, 1)
 		func.copyAfterFP($[guesses], $[guesses])
 	}
-	fp.gameWin = () -> {
-		return $win
-	}
+	fp.gameWin = () -> return $win
 	func.repeatUntil(fp.game, fp.gameWin)
 	
 	func.printTerminal(1, You have won the game after $guesses guesses!)
@@ -38,7 +36,5 @@ fp.gameLoop = () -> {
 		func.printTerminal(2, Thanks for playing!)
 	con.endif
 }
-fp.gameEnd = () -> {
-	return $end
-}
+fp.gameEnd = () -> return $end
 func.repeatUntil(fp.gameLoop, fp.gameEnd)
