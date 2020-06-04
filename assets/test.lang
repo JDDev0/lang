@@ -346,9 +346,25 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 
 # Utility
 {
-	# Empty variable
-	$a
-	func.printTerminal(5, $a)
+	# Variables
+	{
+		# Empty variable
+		$a
+		func.printTerminal(5, $a)
+		
+		# Redirecting of var pointer
+		$var = T
+		func.printTerminal(4, $var)
+		func.printTerminal(4, $[var])
+		func.printTerminal(4, $[[var]])
+		func.printTerminal(4, $[[[var]]])
+		
+		$[[var]] = Not T # Modified the pointer to the var pointer
+		func.printTerminal(4, $var)
+		func.printTerminal(4, $[var])
+		func.printTerminal(4, $[[var]])
+		func.printTerminal(4, $[[[var]]])
+	}
 	
 	# Condition function (New in v0.2.0)
 	{
