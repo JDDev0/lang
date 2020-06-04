@@ -1237,7 +1237,7 @@ public class Lang {
 			String to = funcArgs[0].trim();
 			String from = funcArgs[1].trim();
 			
-			Compiler.FuncPtr.copyAfterFP.put(to, from);
+			Compiler.FuncPtr.copyAfterFP.get(DATA_ID).put(to, from);
 			
 			return "";
 		});
@@ -2720,7 +2720,7 @@ public class Lang {
 		
 		//Class for replacing funcPtrs with value
 		private static class FuncPtr {
-			public static Map<String, String> copyAfterFP = new HashMap<>(); //to, from
+			public static Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
 			
 			private static String funcReturnTmp = "";
 			
@@ -2923,7 +2923,10 @@ public class Lang {
 						data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
 				});
 				
-				//Set vars
+				//Initialize copyAfterFP
+				Compiler.FuncPtr.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+				
+				//Set function arguments
 				String[] funcVars = funcHead.split(",");
 				String tmp = funcArgs;
 				for(String var:funcVars) {
@@ -2959,7 +2962,7 @@ public class Lang {
 				data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
 				
 				//Add copyValue after call
-				copyAfterFP.forEach((to, from) -> {
+				copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
 					if(from != null && to != null) {
 						DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
 						if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
@@ -2992,7 +2995,7 @@ public class Lang {
 				});
 				
 				//Clear copyValue
-				copyAfterFP.clear();
+				copyAfterFP.remove(NEW_DATA_ID);
 				
 				//Remove data map
 				data.remove(NEW_DATA_ID);
