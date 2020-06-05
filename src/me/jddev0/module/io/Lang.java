@@ -1661,10 +1661,10 @@ public class Lang {
 			
 			data.get(DATA_ID).varTmp.get("$LANG_ERRNO").setText("" + errno);
 		}
-		public static ErrorObject setErrnoErrorObject(int errno, final int DATA_ID) {
+		public static DataObject setErrnoErrorObject(int errno, final int DATA_ID) {
 			setErrno(errno, DATA_ID);
 			
-			return new ErrorObject(errno);
+			return new DataObject().setError(new ErrorObject(errno));
 		}
 		public static int getAndClearErrno(final int DATA_ID) {
 			int ret = Integer.parseInt(data.get(DATA_ID).varTmp.get("$LANG_ERRNO").getText());
