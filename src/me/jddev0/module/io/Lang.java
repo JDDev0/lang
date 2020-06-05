@@ -1867,6 +1867,42 @@ public class Lang {
 		}
 		
 		//Classes for variable data
+		private static class FunctionPointerObject {
+			private final String head;
+			private final String body;
+			private final boolean provideRawInput;
+			
+			public FunctionPointerObject(String head, String body) {
+				this.head = head;
+				this.body = body;
+				this.provideRawInput = false;
+			}
+			/**
+			 * For pointer to predefined function
+			 */
+			public FunctionPointerObject(String langFuncObjectName) {
+				this.head = "$args";
+				this.body = "return " + langFuncObjectName + "($args)";
+				this.provideRawInput = true;
+			}
+			
+			public String getBody() {
+				return body;
+			}
+			
+			public String getHead() {
+				return head;
+			}
+			
+			public boolean isProvideRawInput() {
+				return provideRawInput;
+			}
+			
+			@Override
+			public String toString() {
+				return head + "\n" + body;
+			}
+		}
 		private static class ErrorObject {
 			private final int err;
 			
@@ -1893,12 +1929,15 @@ public class Lang {
 		private static class DataObject {
 			private DataType type;
 			private String txt;
+			private FunctionPointerObject fp;
 			private ErrorObject error;
 			private boolean finalData;
 			
 			public DataObject(DataObject dataObject) {
 				this.type = dataObject.type;
 				this.txt = dataObject.txt;
+				this.fp = dataObject.fp;
+				this.error = dataObject.error;
 				this.finalData = dataObject.finalData;
 			}
 			
@@ -1926,8 +1965,9 @@ public class Lang {
 			public String getText() {
 				switch(type) {
 					case TEXT:
-					case FUNCTION_POINTER:
 						return txt;
+					case FUNCTION_POINTER:
+						return fp.toString();
 					case ERROR:
 						return error.toString();
 					case NULL:
@@ -1939,14 +1979,18 @@ public class Lang {
 				return null;
 			}
 			
-			public DataObject setFunctionPointer(String txt) {
+			public DataObject setFunctionPointer(FunctionPointerObject fp) {
 				if(finalData)
 					return this;
 				
 				this.type = DataType.FUNCTION_POINTER;
-				this.txt = txt;
+				this.fp = fp;
 				
 				return this;
+			}
+			
+			public FunctionPointerObject getFunctionPointer() {
+				return fp;
 			}
 			
 			public DataObject setError(ErrorObject error) {
@@ -1957,6 +2001,10 @@ public class Lang {
 				this.error = error;
 				
 				return this;
+			}
+			
+			public ErrorObject getError() {
+				return error;
 			}
 			
 			public DataObject setNull() {
@@ -2742,13 +2790,11 @@ public class Lang {
 				}
 				
 				String funcHead = line.split(" = ")[1].trim();
+				FunctionPointerObject fp = null;
 				
 				if(line.contains(") -> {")) { //FuncPtr definition
 					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
 					funcHead = funcHead.substring(0, funcHead.indexOf(')'));
-					
-					build.append(funcHead);
-					build.append("\n");
 					
 					try {
 						int bracketsCount = 1; //First '{' is in head
@@ -2772,6 +2818,7 @@ public class Lang {
 						}
 						
 						build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
+						fp = new FunctionPointerObject(funcHead, build.toString());
 					}catch(IOException e) {
 						term.logStackTrace(e, FuncPtr.class);
 					}
@@ -2779,10 +2826,9 @@ public class Lang {
 					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
 					funcHead = funcHead.substring(0, funcHead.indexOf(')'));
 					
-					build.append(funcHead);
-					build.append("\n");
-					
-					build.append(line.split("\\) -> ", 2)[1].trim());
+					fp = new FunctionPointerObject(funcHead, line.split("\\) -> ", 2)[1].trim());
+				}else if(funcHead.startsWith("func.")) { //"Copy" predefined function
+					fp = new FunctionPointerObject(funcHead);
 				}else { //Copy funcPtr
 					if(!(funcHead.startsWith("fp.") && data.get(DATA_ID).varTmp.containsKey(funcHead))) {
 						setErrno(5, DATA_ID);
@@ -2790,7 +2836,7 @@ public class Lang {
 						return;
 					}
 					
-					build.append(data.get(DATA_ID).varTmp.get(funcHead));
+					fp = data.get(DATA_ID).varTmp.get(funcHead).getFunctionPointer();
 				}
 				
 				DataObject oldValue = data.get(DATA_ID).varTmp.get(funcName);
@@ -2800,9 +2846,9 @@ public class Lang {
 					return;
 				}
 				if(oldValue != null)
-					oldValue.setFunctionPointer(build.toString());
+					oldValue.setFunctionPointer(fp);
 				else
-					data.get(DATA_ID).varTmp.put(funcName, new DataObject().setFunctionPointer(build.toString()));
+					data.get(DATA_ID).varTmp.put(funcName, new DataObject().setFunctionPointer(fp));
 			}
 			
 			public static String executeFunc(BufferedReader lines, String line, final int DATA_ID) {
@@ -2920,9 +2966,10 @@ public class Lang {
 				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
-				String func = data.get(DATA_ID).varTmp.get(funcName).getText();
-				String funcHead = func.split("\n", 2)[0]; //Head
-				String funcBody = func.split("\n", 2)[1]; //Body
+				FunctionPointerObject func = data.get(DATA_ID).varTmp.get(funcName).getFunctionPointer();
+				String funcHead = func.getHead();
+				String funcBody = func.getBody();
+				boolean provideRawInput = func.isProvideRawInput();
 				
 				BufferedReader function = new BufferedReader(new StringReader(funcBody));
 				
@@ -2939,27 +2986,32 @@ public class Lang {
 				Compiler.FuncPtr.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
 				
 				//Set function arguments
-				String[] funcVars = funcHead.split(",");
-				String tmp = funcArgs;
-				for(String var:funcVars) {
-					var = var.trim();
-					
-					int index = tmp.indexOf(",");
-					String val = tmp.substring(0, (index == -1)?tmp.length():index);
-					
-					val = val.trim();
-					
-					if(var.startsWith("$")) {
-						data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
-					}else if(var.startsWith("fp.")) {
-						data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(data.get(DATA_ID).varTmp.get(val)).setFinalData(false));
-					}else if(var.startsWith("&")) {
-						data.get(NEW_DATA_ID).varArrayTmp.put(var, data.get(DATA_ID).varArrayTmp.get(val)); //Copy array to func as local params
-					}
-					
-					index = tmp.indexOf(",");
-					if(index != -1) {
-						tmp = tmp.substring(index + 1).trim();
+				if(provideRawInput) {
+					String var = funcHead;
+					data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(funcArgs));
+				}else {
+					String[] funcVars = funcHead.split(",");
+					String tmp = funcArgs;
+					for(String var:funcVars) {
+						var = var.trim();
+						
+						int index = tmp.indexOf(",");
+						String val = tmp.substring(0, (index == -1)?tmp.length():index);
+						
+						val = val.trim();
+						
+						if(var.startsWith("$")) {
+							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
+						}else if(var.startsWith("fp.")) {
+							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(data.get(DATA_ID).varTmp.get(val)).setFinalData(false));
+						}else if(var.startsWith("&")) {
+							data.get(NEW_DATA_ID).varArrayTmp.put(var, data.get(DATA_ID).varArrayTmp.get(val)); //Copy array to func as local params
+						}
+						
+						index = tmp.indexOf(",");
+						if(index != -1) {
+							tmp = tmp.substring(index + 1).trim();
+						}
 					}
 				}
 				
