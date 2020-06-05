@@ -1870,20 +1870,20 @@ public class Lang {
 		private static class FunctionPointerObject {
 			private final String head;
 			private final String body;
-			private final boolean provideRawInput;
+			private final boolean prefefinedFunction;
 			
 			public FunctionPointerObject(String head, String body) {
 				this.head = head;
 				this.body = body;
-				this.provideRawInput = false;
+				this.prefefinedFunction = false;
 			}
 			/**
 			 * For pointer to predefined function
 			 */
 			public FunctionPointerObject(String langFuncObjectName) {
-				this.head = "$args";
-				this.body = "return " + langFuncObjectName + "($args)";
-				this.provideRawInput = true;
+				this.head = "";
+				this.body = langFuncObjectName;
+				this.prefefinedFunction = true;
 			}
 			
 			public String getBody() {
@@ -1894,8 +1894,8 @@ public class Lang {
 				return head;
 			}
 			
-			public boolean isProvideRawInput() {
-				return provideRawInput;
+			public boolean isPredefinedFunction() {
+				return prefefinedFunction;
 			}
 			
 			@Override
@@ -2964,32 +2964,31 @@ public class Lang {
 					return "";
 				}
 				
-				final int NEW_DATA_ID = DATA_ID + 1;
-				
 				FunctionPointerObject func = data.get(DATA_ID).varTmp.get(funcName).getFunctionPointer();
 				String funcHead = func.getHead();
 				String funcBody = func.getBody();
-				boolean provideRawInput = func.isProvideRawInput();
-				
-				BufferedReader function = new BufferedReader(new StringReader(funcBody));
-				
-				//Add variables and local variables
-				createDataMap(NEW_DATA_ID);
-				data.get(NEW_DATA_ID).varArrayTmp.putAll(data.get(DATA_ID).varArrayTmp);
-				//Copies must not be final
-				data.get(DATA_ID).varTmp.forEach((key, val) -> {
-					if(!key.startsWith("$LANG_"))
-						data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
-				});
-				
-				//Initialize copyAfterFP
-				Compiler.FuncPtr.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+				boolean predefinedFunction = func.isPredefinedFunction();
 				
 				//Set function arguments
-				if(provideRawInput) {
-					String var = funcHead;
-					data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(funcArgs));
+				if(predefinedFunction) {
+					String funcCall = funcBody + "(" + funcArgs + ")";
+					funcReturnTmp = Func.replaceFuncsWithValue(new BufferedReader(new StringReader(funcCall)), funcCall, DATA_ID);
 				}else {
+					final int NEW_DATA_ID = DATA_ID + 1;
+					
+					BufferedReader function = new BufferedReader(new StringReader(funcBody));
+					
+					//Add variables and local variables
+					createDataMap(NEW_DATA_ID);
+					data.get(NEW_DATA_ID).varArrayTmp.putAll(data.get(DATA_ID).varArrayTmp);
+					//Copies must not be final
+					data.get(DATA_ID).varTmp.forEach((key, val) -> {
+						if(!key.startsWith("$LANG_"))
+							data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
+					});
+					//Initialize copyAfterFP
+					Compiler.FuncPtr.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+					
 					String[] funcVars = funcHead.split(",");
 					String tmp = funcArgs;
 					for(String var:funcVars) {
@@ -3013,56 +3012,56 @@ public class Lang {
 							tmp = tmp.substring(index + 1).trim();
 						}
 					}
-				}
-				
-				//Call function
-				try {
-					compileLangFile(function, NEW_DATA_ID);
-				}catch(IOException e) {
-					term.logStackTrace(e, FuncPtr.class);
-				}catch(Exception e) {}
-				
-				//Add lang after call
-				data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
-				
-				//Add copyValue after call
-				copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
-					if(from != null && to != null) {
-						DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
-						if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
-							if(to.startsWith("fp.") || to.startsWith("$")) {
-								DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
-								 //$LANG and final vars can't be change
-								if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
-									Compiler.setErrno(1, DATA_ID);
+					
+					//Call function
+					try {
+						compileLangFile(function, NEW_DATA_ID);
+					}catch(IOException e) {
+						term.logStackTrace(e, FuncPtr.class);
+					}catch(Exception e) {}
+					
+					//Add lang after call
+					data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
+					
+					//Add copyValue after call
+					copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
+						if(from != null && to != null) {
+							DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
+							if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
+								if(to.startsWith("fp.") || to.startsWith("$")) {
+									DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
+									 //$LANG and final vars can't be change
+									if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
+										Compiler.setErrno(1, DATA_ID);
+										
+										return;
+									}
+									
+									data.get(DATA_ID).varTmp.put(to, valFrom);
 									
 									return;
 								}
-								
-								data.get(DATA_ID).varTmp.put(to, valFrom);
-								
-								return;
-							}
-						}else { //arrPtr
-							String[] arr = data.get(NEW_DATA_ID).varArrayTmp.get(from);
-							if(arr != null) {
-								if(to.startsWith("&")) {
-									data.get(DATA_ID).varArrayTmp.put(to, arr);
-									
-									return;
+							}else { //arrPtr
+								String[] arr = data.get(NEW_DATA_ID).varArrayTmp.get(from);
+								if(arr != null) {
+									if(to.startsWith("&")) {
+										data.get(DATA_ID).varArrayTmp.put(to, arr);
+										
+										return;
+									}
 								}
 							}
 						}
-					}
+						
+						Compiler.setErrno(21, NEW_DATA_ID);
+					});
 					
-					Compiler.setErrno(21, NEW_DATA_ID);
-				});
-				
-				//Clear copyValue
-				copyAfterFP.remove(NEW_DATA_ID);
-				
-				//Remove data map
-				data.remove(NEW_DATA_ID);
+					//Clear copyValue
+					copyAfterFP.remove(NEW_DATA_ID);
+					
+					//Remove data map
+					data.remove(NEW_DATA_ID);
+				}
 				
 				String retTmp = funcReturnTmp; //Get func return or "" (empty)
 				funcReturnTmp = ""; //Reset func return for non return funcs
