@@ -2049,6 +2049,49 @@ public class Lang {
 				return getText();
 			}
 		}
+		private static class CombinedDataObject {
+			private List<DataObject> dataObjects;
+			
+			public CombinedDataObject() {
+				dataObjects = new LinkedList<>();
+			}
+			public CombinedDataObject(CombinedDataObject combinedDataObject) {
+				dataObjects = new LinkedList<>(combinedDataObject.dataObjects);
+			}
+			
+			public void addDataObject(DataObject object) {
+				dataObjects.add(object);
+			}
+			public void addDataObject(int index, DataObject object) {
+				dataObjects.add(index, object);
+			}
+			
+			public void remove(int index) {
+				dataObjects.remove(index);
+			}
+			public void clear() {
+				dataObjects.clear();
+			}
+			
+			public DataObject get(int index) {
+				return dataObjects.get(index);
+			}
+			
+			public int size() {
+				return dataObjects.size();
+			}
+			
+			public DataObject[] toArray() {
+				return dataObjects.toArray(new DataObject[dataObjects.size()]);
+			}
+			
+			@Override
+			public String toString() {
+				StringBuilder build = new StringBuilder();
+				dataObjects.forEach(build::append);
+				return build.toString();
+			}
+		}
 		private static class Data {
 			public Map<String, String> lang = new HashMap<>();
 			public Map<String, DataObject> varTmp = new HashMap<>();
