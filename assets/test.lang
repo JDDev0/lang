@@ -192,6 +192,28 @@ ui.button.canel = Cancel
 	fp.manyArgs(A, B, C, D, E, F, G)
 	fp.manyArgs(A, B, C, D, E, F, G, H)
 	fp.manyArgs(A, B, C, D, E, F, G, H, I)
+	
+	# Coping of functions
+	{
+		fp.a = ($i) -> {
+			func.printError($i)
+		}
+		func.repeat(fp.a, 10)
+		
+		func.printTerminal(1, \s\n\s)
+		
+		# Coping of function pointer
+		fp.b = fp.a
+		func.repeat(fp.b, 10)
+		
+		func.printTerminal(1, \s\n\s)
+		
+		# Coping of predefined functions (New in v0.2.0)
+		fp.c = func.printError
+		func.repeat(fp.c, 10)
+		
+		func.printTerminal(1, \s\n\s)
+	} 
 }
 
 # \$ -> escape sequence for $
