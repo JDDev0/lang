@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +193,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * <b>--- Lang Functions ---</b><br>
  * <b>Reset Functions</b><br>
  * [void]func.clearAllVars(void)<br>
- * [void]func.clearAllArrays(void)<br>
+ * [void]func.clearAllArrays(void) //Deprecated: use func.clearAllVars instead<br>
  * <br><b>Error functions</b><br>
  * [Text]func.getErrorString(void)<br>
  * <br><b>Compiler function</b><br>
@@ -205,6 +206,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.repeatUntil(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns false<br>
  * [Text]func.getLangRequest(Text)<br>
  * [void]func.makeFinal(varPtr)<br>
+ * [void]func.makeFinal(arrPtr) //Contents in final array can still be changed<br>
  * [void]func.makeFinal(funcPtr)<br>
  * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
  * [long]func.currentTimeMillis(void)<br>
@@ -319,7 +321,11 @@ public class Lang {
 			return "";
 		});
 		funcs.put("clearAllArrays", (lines, arg, DATA_ID) -> {
-			data.get(DATA_ID).varArrayTmp.clear();
+			new HashSet<String>(data.get(DATA_ID).varTmp.keySet()).forEach(key -> {
+				if(key.startsWith("&"))
+					data.get(DATA_ID).varTmp.remove(key);
+			});
+			Compiler.term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
 			
 			return "";
 		});
@@ -1265,9 +1271,20 @@ public class Lang {
 					return "Error";
 				}
 				
-				data.get(DATA_ID).varArrayTmp.put(funcArgs[0], new String[lenght]);
-				String[] arrPtr = data.get(DATA_ID).varArrayTmp.get(funcArgs[0]);
-				Arrays.fill(arrPtr, "null");
+				Compiler.DataObject oldData = data.get(DATA_ID).varTmp.get(funcArgs[0]);
+				if(oldData != null && oldData.isFinalData()) {
+					Compiler.setErrno(1, DATA_ID);
+					
+					return "Error";
+				}
+				Compiler.DataObject[] arr = new Compiler.DataObject[lenght];
+				if(oldData != null)
+					oldData.setArray(arr);
+				else
+					data.get(DATA_ID).varTmp.put(funcArgs[0], new Compiler.DataObject().setArray(arr));
+				
+				for(int i = 0;i < arr.length;i++)
+					arr[i] = new Compiler.DataObject().setNull();
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(17, DATA_ID);
 				
@@ -1279,16 +1296,17 @@ public class Lang {
 		funcs.put("arraySet", (lines, arg, DATA_ID) -> {
 			String[] funcArgs = arg.split(",", 3); //arrPtr, index, value
 			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(funcArgs[0])) {
+			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			
-			String[] arr = data.get(DATA_ID).varArrayTmp.get(funcArgs[0]);
-			int index = Integer.parseInt(funcArgs[1].trim());
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 			
 			try {
+				int index = Integer.parseInt(funcArgs[1].trim());
+				
 				if(index < 0) {
 					Compiler.setErrno(15, DATA_ID);
 					
@@ -1299,7 +1317,7 @@ public class Lang {
 					return "Error";
 				}
 				
-				arr[index] = funcArgs[2].trim();
+				arr[index].setText(funcArgs[2].trim());
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(17, DATA_ID);
 				
@@ -1311,21 +1329,21 @@ public class Lang {
 		funcs.put("arraySetAll", (lines, arg, DATA_ID) -> {
 			String[] funcArgs = arg.split(","); //arrPtr, value, ...
 			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(funcArgs[0])) {
+			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			funcArgs[1] = funcArgs[1].trim();
-			String[] arr = data.get(DATA_ID).varArrayTmp.get(funcArgs[0]);
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 			
 			if(funcArgs.length == 2) {
 				for(int i = 0;i < arr.length;i++) {
-					arr[i] = funcArgs[1].trim();
+					arr[i].setText(funcArgs[1].trim());
 				}
 			}else if(funcArgs.length == arr.length+1) {
 				for(int i = 0;i < arr.length;i++) {
-					arr[i] = funcArgs[i + 1].trim();
+					arr[i].setText(funcArgs[i + 1].trim());
 				}
 			}else {
 				Compiler.setErrno(19, DATA_ID);
@@ -1338,13 +1356,13 @@ public class Lang {
 		funcs.put("arrayGet", (lines, arg, DATA_ID) -> {
 			String[] funcArgs = arg.split(",", 2); //arrPtr, index
 			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(funcArgs[0])) {
+			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			
-			String[] arr = data.get(DATA_ID).varArrayTmp.get(funcArgs[0]);
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 			int index = Integer.parseInt(funcArgs[1].trim());
 			
 			try {
@@ -1359,19 +1377,19 @@ public class Lang {
 				return "Error";
 			}
 			
-			return arr[index];
+			return arr[index].getText();
 		});
 		funcs.put("arrayGetAll", (lines, arg, DATA_ID) -> {
 			String tmp = "";
 			
 			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arg)) {
+			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			
-			for(String val:data.get(DATA_ID).varArrayTmp.get(arg)) {
+			for(Compiler.DataObject val:data.get(DATA_ID).varTmp.get(arg).getArray()) {
 				tmp += val + ", ";
 			}
 			
@@ -1379,13 +1397,13 @@ public class Lang {
 		});
 		funcs.put("arrayLength", (lines, arg, DATA_ID) -> {
 			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arg)) {
+			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			
-			return data.get(DATA_ID).varArrayTmp.get(arg).length + "";
+			return data.get(DATA_ID).varTmp.get(arg).getArray().length + "";
 		});
 		funcs.put("arrayForEach", (lines, arg, DATA_ID) -> {
 			String[] funcArgs = arg.split(",", 2);
@@ -1396,7 +1414,7 @@ public class Lang {
 			}
 			
 			String arrName = funcArgs[0].trim();
-			if(!arrName.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arrName)) {
+			if(!arrName.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arrName)) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
@@ -1409,16 +1427,16 @@ public class Lang {
 				return "Error";
 			}
 			
-			String[] arr = data.get(DATA_ID).varArrayTmp.get(arrName);
-			for(String element:arr) {
-				Compiler.FuncPtr.compileFunc(funcPtr, element, DATA_ID);
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
+			for(Compiler.DataObject element:arr) {
+				Compiler.FuncPtr.compileFunc(funcPtr, element.getText(), DATA_ID);
 			}
 			
 			return "";
 		});
 		funcs.put("randChoice", (lines, arg, DATA_ID) -> {
 			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arg)) {
+			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
 				//No array Pointer
 				String[] funcArgs = arg.split(",");
 				if(funcArgs.length < 1) {
@@ -1431,38 +1449,39 @@ public class Lang {
 				return funcArgs[ran.nextInt(funcArgs.length)];
 			}
 			
-			String[] arrPtr = data.get(DATA_ID).varArrayTmp.get(arg);
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
 			
-			if(arrPtr.length < 1) {
+			if(arr.length < 1) {
 				Compiler.setErrno(16, DATA_ID);
 				
 				return "Error";
-			}else if(arrPtr.length == 1) {
-				return arrPtr[0];
+			}else if(arr.length == 1) {
+				return arr[0].getText();
 			}
-			return arrPtr[ran.nextInt(arrPtr.length)];
+			return arr[ran.nextInt(arr.length)].getText();
 		});
 		funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
 			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arg)) {
+			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
 			
-			String[] arr = data.get(DATA_ID).varArrayTmp.get(arg);
-			Arrays.fill(arr, "null");
+			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
+			for(Compiler.DataObject element:arr)
+				element.setNull();
 			
 			return ""; //No return func
 		});
 		funcs.put("arrayClear", (lines, arg, DATA_ID) -> {
 			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varArrayTmp.containsKey(arg)) {
+			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
 				Compiler.setErrno(10, DATA_ID);
 				
 				return "Error";
 			}
-			data.get(DATA_ID).varArrayTmp.remove(arg);
+			data.get(DATA_ID).varTmp.remove(arg);
 			
 			return ""; //No return func
 		});
@@ -1929,11 +1948,12 @@ public class Lang {
 			}
 		}
 		private static enum DataType {
-			TEXT, FUNCTION_POINTER, ERROR, NULL, VOID;
+			TEXT, ARRAY, FUNCTION_POINTER, ERROR, NULL, VOID;
 		}
 		private static class DataObject {
 			private DataType type;
 			private String txt;
+			private DataObject[] arr;
 			private FunctionPointerObject fp;
 			private ErrorObject error;
 			private boolean finalData;
@@ -1941,6 +1961,7 @@ public class Lang {
 			public DataObject(DataObject dataObject) {
 				this.type = dataObject.type;
 				this.txt = dataObject.txt;
+				this.arr = dataObject.arr; //Array won't be copied accurate, because function pointer should be able to change array data from inside
 				this.fp = dataObject.fp;
 				this.error = dataObject.error;
 				this.finalData = dataObject.finalData;
@@ -1971,6 +1992,8 @@ public class Lang {
 				switch(type) {
 					case TEXT:
 						return txt;
+					case ARRAY:
+						return Arrays.toString(arr);
 					case FUNCTION_POINTER:
 						return fp.toString();
 					case ERROR:
@@ -1996,6 +2019,20 @@ public class Lang {
 			
 			public FunctionPointerObject getFunctionPointer() {
 				return fp;
+			}
+			
+			public DataObject setArray(DataObject[] arr) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.ARRAY;
+				this.arr = arr;
+				
+				return this;
+			}
+			
+			public DataObject[] getArray() {
+				return arr;
 			}
 			
 			public DataObject setError(ErrorObject error) {
@@ -2102,7 +2139,6 @@ public class Lang {
 		private static class Data {
 			public Map<String, String> lang = new HashMap<>();
 			public Map<String, DataObject> varTmp = new HashMap<>();
-			public Map<String, String[]> varArrayTmp = new HashMap<>();
 		}
 		
 		//Classes for compiling lang file
@@ -2224,9 +2260,6 @@ public class Lang {
 						if(!name.startsWith("$LANG")) { //No LANG data vars
 							data.get(DATA_ID).varTmp.put(name, val);
 						}
-					});
-					data.get(NEW_DATA_ID).varArrayTmp.forEach((name, arr) -> {
-						data.get(DATA_ID).varArrayTmp.put(name, arr);
 					});
 				}
 				
@@ -3035,7 +3068,6 @@ public class Lang {
 					
 					//Add variables and local variables
 					createDataMap(NEW_DATA_ID);
-					data.get(NEW_DATA_ID).varArrayTmp.putAll(data.get(DATA_ID).varArrayTmp);
 					//Copies must not be final
 					data.get(DATA_ID).varTmp.forEach((key, val) -> {
 						if(!key.startsWith("$LANG_"))
@@ -3056,10 +3088,11 @@ public class Lang {
 						
 						if(var.startsWith("$")) {
 							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
-						}else if(var.startsWith("fp.")) {
-							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(data.get(DATA_ID).varTmp.get(val)).setFinalData(false));
-						}else if(var.startsWith("&")) {
-							data.get(NEW_DATA_ID).varArrayTmp.put(var, data.get(DATA_ID).varArrayTmp.get(val)); //Copy array to func as local params
+						}else if(var.startsWith("fp.") || var.startsWith("&")) {
+							DataObject dataFromCaller = data.get(DATA_ID).varTmp.get(val);
+							if(dataFromCaller == null)
+								dataFromCaller = new DataObject().setNull();
+							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(dataFromCaller).setFinalData(false));
 						}
 						
 						index = tmp.indexOf(",");
@@ -3083,7 +3116,7 @@ public class Lang {
 						if(from != null && to != null) {
 							DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
 							if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
-								if(to.startsWith("fp.") || to.startsWith("$")) {
+								if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
 									DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
 									 //$LANG and final vars can't be change
 									if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
@@ -3095,15 +3128,6 @@ public class Lang {
 									data.get(DATA_ID).varTmp.put(to, valFrom);
 									
 									return;
-								}
-							}else { //arrPtr
-								String[] arr = data.get(NEW_DATA_ID).varArrayTmp.get(from);
-								if(arr != null) {
-									if(to.startsWith("&")) {
-										data.get(DATA_ID).varArrayTmp.put(to, arr);
-										
-										return;
-									}
 								}
 							}
 						}
