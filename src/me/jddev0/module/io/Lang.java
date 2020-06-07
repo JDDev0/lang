@@ -2055,6 +2055,9 @@ public class Lang {
 			public CombinedDataObject() {
 				dataObjects = new LinkedList<>();
 			}
+			public CombinedDataObject(List<DataObject> dataObjects) {
+				this.dataObjects = new LinkedList<>(dataObjects);
+			}
 			public CombinedDataObject(CombinedDataObject combinedDataObject) {
 				dataObjects = new LinkedList<>(combinedDataObject.dataObjects);
 			}
@@ -2079,6 +2082,10 @@ public class Lang {
 			
 			public int size() {
 				return dataObjects.size();
+			}
+			
+			public CombinedDataObject subList(int fromIndex, int toIndex) {
+				return new CombinedDataObject(dataObjects.subList(fromIndex, toIndex));
 			}
 			
 			public DataObject[] toArray() {
