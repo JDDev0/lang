@@ -1527,7 +1527,8 @@ public class Lang {
 			
 			//Set data for LANG_* vars
 			{
-				pathLangFile = langFile.substring(0, langFile.lastIndexOf('/')); //Remove ending ("/*.lang") for $LANG_PATH
+				langFile = new File(langFile).getAbsolutePath();
+				pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
 			}
 			
 			//Create new data map with ID 0
@@ -1645,7 +1646,7 @@ public class Lang {
 		public static void setTerminalIO(TerminalIO term) {
 			Compiler.term = term;
 		}
-
+		
 		public static void createDataMap(final int DATA_ID) {
 			data.put(DATA_ID, new Data());
 			
@@ -2163,9 +2164,15 @@ public class Lang {
 					//Linker functions
 					if(tmp.startsWith("link(")) {
 						tmp = tmp.substring(tmp.indexOf('(') + 1); //After "linker.*("
-
+						
 						if(tmp.endsWith(".lang")) {
-							tmp = linkLangFile(data.get(DATA_ID).varTmp.get("$LANG_PATH") + "/" + tmp, DATA_ID);
+							String absolutePath;
+							if(new File(tmp).isAbsolute())
+								absolutePath = tmp;
+							else
+								absolutePath = data.get(DATA_ID).varTmp.get("$LANG_PATH") + File.separator + tmp;
+							
+							tmp = linkLangFile(absolutePath, DATA_ID);
 						}else { //No .lang file
 							setErrno(3, DATA_ID);
 							
@@ -2173,9 +2180,15 @@ public class Lang {
 						}
 					}else if(tmp.startsWith("bindLibrary(")) {
 						tmp = tmp.substring(tmp.indexOf('(') + 1); //After "linker.*("
-
+						
 						if(tmp.endsWith(".lang")) {
-							tmp = bindLibraryLangFile(data.get(DATA_ID).varTmp.get("$LANG_PATH") + "/" + tmp, DATA_ID);
+							String absolutePath;
+							if(new File(tmp).isAbsolute())
+								absolutePath = tmp;
+							else
+								absolutePath = data.get(DATA_ID).varTmp.get("$LANG_PATH") + File.separator + tmp;
+							
+							tmp = bindLibraryLangFile(absolutePath, DATA_ID);
 						}else { //No .lang file
 							setErrno(3, DATA_ID);
 							
