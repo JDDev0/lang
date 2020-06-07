@@ -1944,7 +1944,7 @@ public class Lang {
 			
 			@Override
 			public String toString() {
-				return errorStrings[err] + " (" + err + ")";
+				return "Error";
 			}
 		}
 		private static enum DataType {
