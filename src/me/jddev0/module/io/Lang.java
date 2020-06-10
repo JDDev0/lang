@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -1928,6 +1929,73 @@ public class Lang {
 				return head + "\n" + body;
 			}
 		}
+		private static class ClassObject {
+			private Map<String, DataObject> attributes = new HashMap<>();
+			private String packageName;
+			private ClassObject superClass;
+			private boolean classDefinition; //Is true if the class object is only an class definition else it is an actual instance of the class
+			
+			public ClassObject(String packageName, ClassObject superClass, boolean classDefinition) {
+				this.packageName = packageName;
+				this.superClass = superClass;
+				this.classDefinition = classDefinition;
+			}
+			
+			public void setAttribute(String name, DataObject data) {
+				attributes.put(name, data);
+			}
+			public DataObject getAttribute(String name) {
+				return attributes.get(name);
+			}
+			
+			public Map<String, DataObject> getAttributes() {
+				return attributes;
+			}
+			
+			public String getPackageName() {
+				return packageName;
+			}
+			
+			public ClassObject getSuperClass() {
+				return superClass;
+			}
+			
+			public boolean isClassDefinition() {
+				return classDefinition;
+			}
+			
+			public boolean isInstanceOf(ClassObject classObject) {
+				if(this.equals(classObject))
+					return true;
+				
+				if(superClass == null)
+					return classObject.superClass == null;
+				
+				return superClass.isInstanceOf(classObject);
+			}
+			
+			@Override
+			public String toString() {
+				return "Class";
+			}
+			
+			@Override
+			public boolean equals(Object obj) {
+				if(obj == null)
+					return false;
+				
+				if(this == obj)
+					return true;
+				
+				if(obj instanceof ClassObject) {
+					ClassObject that = (ClassObject)obj;
+					
+					return Objects.equals(this.attributes, that.attributes) && Objects.equals(this.packageName, that.packageName) && Objects.equals(this.superClass, that.superClass);
+				}
+				
+				return false;
+			}
+		}
 		private static class ErrorObject {
 			private final int err;
 			
@@ -1949,21 +2017,25 @@ public class Lang {
 			}
 		}
 		private static enum DataType {
-			TEXT, ARRAY, FUNCTION_POINTER, ERROR, NULL, VOID;
+			TEXT, ARRAY, FUNCTION_POINTER, CLASS, ERROR, NULL, VOID;
 		}
 		private static class DataObject {
 			private DataType type;
 			private String txt;
 			private DataObject[] arr;
 			private FunctionPointerObject fp;
+			private ClassObject classObject;
 			private ErrorObject error;
 			private boolean finalData;
 			
 			public DataObject(DataObject dataObject) {
 				this.type = dataObject.type;
 				this.txt = dataObject.txt;
-				this.arr = dataObject.arr; //Array won't be copied accurate, because function pointer should be able to change array data from inside
+				//Array won't be copied accurate, because function pointer should be able to change array data from inside
+				this.arr = dataObject.arr;
 				this.fp = dataObject.fp;
+				//Class won't be copied accurate, because function pointer should be able to change class data from inside
+				this.classObject = dataObject.classObject;
 				this.error = dataObject.error;
 				this.finalData = dataObject.finalData;
 			}
@@ -1997,6 +2069,8 @@ public class Lang {
 						return Arrays.toString(arr);
 					case FUNCTION_POINTER:
 						return fp.toString();
+					case CLASS:
+						return classObject.toString();
 					case ERROR:
 						return error.toString();
 					case NULL:
@@ -2006,6 +2080,20 @@ public class Lang {
 				}
 				
 				return null;
+			}
+			
+			public DataObject setArray(DataObject[] arr) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.ARRAY;
+				this.arr = arr;
+				
+				return this;
+			}
+			
+			public DataObject[] getArray() {
+				return arr;
 			}
 			
 			public DataObject setFunctionPointer(FunctionPointerObject fp) {
@@ -2022,18 +2110,18 @@ public class Lang {
 				return fp;
 			}
 			
-			public DataObject setArray(DataObject[] arr) {
+			public DataObject setClassObject(ClassObject classObject) {
 				if(finalData)
 					return this;
 				
-				this.type = DataType.ARRAY;
-				this.arr = arr;
+				this.type = DataType.CLASS;
+				this.classObject = classObject;
 				
 				return this;
 			}
 			
-			public DataObject[] getArray() {
-				return arr;
+			public ClassObject getClassObject() {
+				return classObject;
 			}
 			
 			public DataObject setError(ErrorObject error) {
