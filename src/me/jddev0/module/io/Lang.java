@@ -394,7 +394,7 @@ public class Lang {
 				}
 				
 				for(int i = 0;i < times;i++) {
-					Compiler.FuncPtr.compileFunc(funcPtr, "" + i, DATA_ID);
+					Compiler.Func.compileFunc(funcPtr, "" + i, DATA_ID);
 				}
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(9, DATA_ID);
@@ -422,14 +422,14 @@ public class Lang {
 				}
 				
 				while(true) {
-					String check = Compiler.FuncPtr.compileFunc(checkFunc, "", DATA_ID);
+					String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
 					try {
 						if(Integer.parseInt(check) == 0)
 							break;
 					}catch(NumberFormatException e) {
 						break;
 					}
-					Compiler.FuncPtr.compileFunc(execFunc, "", DATA_ID);
+					Compiler.Func.compileFunc(execFunc, "", DATA_ID);
 				}
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(9, DATA_ID);
@@ -457,14 +457,14 @@ public class Lang {
 				}
 				
 				while(true) {
-					String check = Compiler.FuncPtr.compileFunc(checkFunc, "", DATA_ID);
+					String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
 					try {
 						if(Integer.parseInt(check) != 0)
 							break;
 					}catch(NumberFormatException e) {
 						break;
 					}
-					Compiler.FuncPtr.compileFunc(execFunc, "", DATA_ID);
+					Compiler.Func.compileFunc(execFunc, "", DATA_ID);
 				}
 			}catch(NumberFormatException e) {
 				Compiler.setErrno(9, DATA_ID);
@@ -1244,7 +1244,7 @@ public class Lang {
 			String to = funcArgs[0].trim();
 			String from = funcArgs[1].trim();
 			
-			Compiler.FuncPtr.copyAfterFP.get(DATA_ID).put(to, from);
+			Compiler.Func.copyAfterFP.get(DATA_ID).put(to, from);
 			
 			return "";
 		});
@@ -1430,7 +1430,7 @@ public class Lang {
 			
 			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
 			for(Compiler.DataObject element:arr) {
-				Compiler.FuncPtr.compileFunc(funcPtr, element.getText(), DATA_ID);
+				Compiler.Func.compileFunc(funcPtr, element.getText(), DATA_ID);
 			}
 			
 			return "";
@@ -1759,7 +1759,7 @@ public class Lang {
 			
 			//Save funcPtr
 			if(line.startsWith("fp.") && line.contains(" = ")) {
-				FuncPtr.saveFuncPtr(lines, line, DATA_ID);
+				Func.saveFuncPtr(lines, line, DATA_ID);
 				
 				return;
 			}
@@ -1772,14 +1772,9 @@ public class Lang {
 					return;
 			}
 			
-			//Execute FuncPtr
-			if(line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = FuncPtr.executeFunc(lines, line, DATA_ID);
-			}
-			
-			//Functions
-			if(line.contains("func.") && line.contains("(") && line.contains(")")) {
-				line = Func.replaceFuncsWithValue(lines, line, DATA_ID);
+			//Execute Functions and FuncPtr
+			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
+				line = Func.executeFunc(lines, line, DATA_ID);
 			}
 			
 			//Linker
@@ -1790,9 +1785,9 @@ public class Lang {
 			//FuncPtr return
 			if(line.trim().startsWith("return")) {
 				if(line.trim().matches("return .*")) {
-					FuncPtr.funcReturnTmp = line.substring(7).trim(); //return func value
+					Func.funcReturnTmp = line.substring(7).trim(); //return func value
 				}else {
-					FuncPtr.funcReturnTmp = "";
+					Func.funcReturnTmp = "";
 				}
 				
 				//Go to end of stream (return)
@@ -1834,7 +1829,7 @@ public class Lang {
 			
 			//Save funcPtr
 			if(line.startsWith("fp.") && line.contains(" = ")) {
-				FuncPtr.saveFuncPtr(lines, line, DATA_ID);
+				Func.saveFuncPtr(lines, line, DATA_ID);
 				
 				return "0";
 			}
@@ -1851,15 +1846,9 @@ public class Lang {
 				return "0";
 			}
 			
-			//Execute FuncPtr
-			if(line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = FuncPtr.executeFunc(lines, line, DATA_ID);
-			}
-			
-			//Functions
-			if(line.contains("func.") && line.contains("(") && line.contains(")")) {
-				//Argument functions
-				line = Func.replaceFuncsWithValue(lines, line, DATA_ID);
+			//Execute Functions and FuncPtr
+			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
+				line = Func.executeFunc(lines, line, DATA_ID);
 			}
 			
 			//Linker
@@ -1870,9 +1859,9 @@ public class Lang {
 			//FuncPtr return
 			if(line.trim().startsWith("return")) {
 				if(line.trim().matches("return .*")) {
-					FuncPtr.funcReturnTmp = line.substring(7).trim(); //return func value
+					Func.funcReturnTmp = line.substring(7).trim(); //return func value
 				}else {
-					FuncPtr.funcReturnTmp = "";
+					Func.funcReturnTmp = "";
 				}
 				
 				//Go to end of stream (return)
@@ -2711,10 +2700,8 @@ public class Lang {
 						}
 						
 						string[1] = string[1].replace("$NULL", "$"); //Replace all "$NULL"s in string[1] with "$"s
-						if(string[1].contains("fp.") && string[1].contains("(") && string[1].contains(")"))
-							string[1] = FuncPtr.executeFunc(lines, string[1], DATA_ID);
-						if(string[1].contains("func.")) //If string[1] contains a function
-							string[1] = Func.replaceFuncsWithValue(lines, string[1], DATA_ID); //Execute function
+						if((string[1].contains("fp.") || string[1].contains("func.")) && string[1].contains("(") && string[1].contains(")"))
+							string[1] = Func.executeFunc(lines, string[1], DATA_ID);
 						if(string[1].contains("linker.")) //If string[1] contains a linker function
 							string[1] = Linker.compileLine(string[1], DATA_ID); //Execute linker functions
 						
@@ -2837,135 +2824,15 @@ public class Lang {
 			}
 		}
 		
-		//Class for replacing funcs with value
+		//Class for replacing funcPtrs and funcs with value
 		private static class Func {
-			private Func() {}
-			
-			/**
-			 * @return the modified line
-			 */
-			public static String replaceFuncsWithValue(BufferedReader lines, String line, final int DATA_ID) {
-				String lineCopy = line; //Copy pointer to line
-				String tmp; //String tmp for brackets count
-				int bracketsCount, indexStart, indexEnd, oldIndexStart = 0;
-				
-				//while line contains functions
-				while(lineCopy.contains("func.") && lineCopy.contains("(") && lineCopy.contains(")")) {
-					//Reset brackets count
-					bracketsCount = 0;
-					
-					//Set indexStart to start of first "func." and cut 0 to indexStart of lineCopy
-					lineCopy = lineCopy.substring(indexStart = lineCopy.indexOf("func."));
-					indexStart += oldIndexStart; //Add oldIndexStart for line
-					indexEnd = 0; //Reset indexEnd
-					
-					while(true) { //While brackets count != 0 and not first run
-						char c = lineCopy.charAt(indexEnd++); //Get char at indexEnd (increase later)
-						if(c == '(') { //If char == '(' -> bracketsCount++;
-							bracketsCount++;
-						}else if(c == ')') { //Else if char == ')' -> bracketsCount--;
-							bracketsCount--;
-							if(bracketsCount == 0) break; //When all brackets have been closed -> break
-						}
-					}
-					tmp = lineCopy.substring(0, indexEnd); //Copies function arguments
-					
-					//Replace func with return value of func
-					line = line.substring(0, indexStart) + callFunc(lines, tmp, DATA_ID) + line.substring(indexEnd + indexStart);
-					
-					lineCopy = lineCopy.substring(indexEnd); //Go to the end of the function
-					oldIndexStart = line.indexOf(lineCopy); //Gets indexStart of line
-				}
-				
-				return line;
-			}
-			
-			private static String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String retTmp = "";
-				func = func.substring(func.indexOf('(') + 1); //Gets start of arguments
-				
-				if(!func.contains("func.")) { //No nested function
-					int lastIndex;
-					
-					//e.g.: "func.x(T (X) T)" -> without: "T (X", with: "T (X) T"
-					if(func.contains("(")) {
-						int openCount = 0;
-						String funcCopy = func.substring(func.indexOf('('));
-						for(lastIndex = 0;lastIndex < funcCopy.length();lastIndex++) {
-							char c = funcCopy.charAt(lastIndex);
-							if(c == '(')
-								openCount++;
-							
-							if(c == ')')
-								openCount--;
-							
-							if(openCount == 0) {
-								break;
-							}
-						}
-						lastIndex += func.indexOf('(') + 1;
-					}else {
-						lastIndex = func.indexOf(')');
-					}
-					
-					retTmp = func.substring(0, lastIndex); //retTmp is start to end of arguments
-					func = func.substring(lastIndex); //Cuts all before the function end
-				}
-				
-				while(func.contains("func.")) { //While function contain nested functions
-					int index = func.indexOf("func."); //Gets index of first "func."
-					retTmp += func.substring(0, index); //Adds everything between start and "func." to retTmp
-					func = func.substring(index); //Cuts everything before "func."
-					
-					int lastIndex, openCount = 0;
-					String funcCopy = func.substring(func.indexOf('('));
-					for(lastIndex = 0;lastIndex < funcCopy.length();lastIndex++) {
-						char c = funcCopy.charAt(lastIndex);
-						if(c == '(')
-							openCount++;
-						
-						if(c == ')')
-							openCount--;
-						
-						if(openCount == 0) {
-							break;
-						}
-					}
-					lastIndex += func.indexOf('(') + 1;
-					
-					retTmp += callFunc(lines, func.substring(0, lastIndex), DATA_ID); //Adds result of nested function to retTmp
-					func = func.substring(lastIndex); //Cuts everything before end of nested function
-				}
-				
-				//Adds everything after function to retTmp
-				retTmp += func.substring(0, func.lastIndexOf(')'));
-				return retTmp;
-			}
-			
-			private static String callFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String retTmp = "";
-				
-				func = func.substring(func.indexOf("func.") + 5); //Cuts everything before "func."
-				
-				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
-				if(funcs.containsKey(funcName)) { //If function exists...
-					String args = prepareFunc(lines, func, DATA_ID); //Prepare function
-					retTmp += funcs.get(funcName).callFunc(lines, args, DATA_ID); //Call Function
-				}else {
-					setErrno(22, DATA_ID);
-				}
-				
-				return retTmp;
-			}
-		}
-		
-		//Class for replacing funcPtrs with value
-		private static class FuncPtr {
+			private static final BufferedReader lines = null;
+
 			public static Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
 			
 			private static String funcReturnTmp = "";
 			
-			private FuncPtr() {}
+			private Func() {}
 			
 			public static void saveFuncPtr(BufferedReader lines, String line, final int DATA_ID) {
 				StringBuilder build = new StringBuilder();
@@ -3009,7 +2876,7 @@ public class Lang {
 						build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
 						fp = new FunctionPointerObject(funcHead, build.toString());
 					}catch(IOException e) {
-						term.logStackTrace(e, FuncPtr.class);
+						term.logStackTrace(e, Func.class);
 					}
 				}else if(line.contains(") -> ")) { //One-line function definition
 					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
@@ -3046,12 +2913,20 @@ public class Lang {
 				int bracketsCount, indexStart, indexEnd, oldIndexStart = 0;
 				
 				//while line contains functions
-				while(lineCopy.matches(".*fp\\.\\w*\\(.*\\).*")) {
+				while(lineCopy.matches(".*(fp|func)\\.\\w*\\(.*\\).*")) {
 					//Reset brackets count
 					bracketsCount = 0;
 					
-					//Set indexStart to start of first "fp." and cut 0 to indexStart of lineCopy
-					lineCopy = lineCopy.substring(indexStart = lineCopy.indexOf("fp."));
+					//Set indexStart to start of first "fp." or "func." and cut 0 to indexStart of lineCopy
+					int indexStartFP = lineCopy.indexOf("fp.");
+					if(indexStartFP == -1)
+						indexStartFP = Integer.MAX_VALUE;
+					int indexStartFunc = lineCopy.indexOf("func.");
+					if(indexStartFunc == -1)
+						indexStartFunc = Integer.MAX_VALUE;
+					indexStart = Math.min(indexStartFP, indexStartFunc);
+					
+					lineCopy = lineCopy.substring(indexStart);
 					indexStart += oldIndexStart;
 					indexEnd = 0; //Reset indexEnd
 					
@@ -3074,7 +2949,7 @@ public class Lang {
 					oldIndexStart = line.indexOf(lineCopy); //Gets indexStart of line
 				}
 				
-				if(line.matches(".*fp\\.\\w*\\(.*\\).*")) //If a function returns a funcPtr -> call it
+				if(line.matches(".*(fp|func)\\.\\w*\\(.*\\).*")) //If a function returns a funcPtr -> call it
 					line = executeFunc(lines, line, DATA_ID);
 				
 				return line;
@@ -3084,17 +2959,23 @@ public class Lang {
 				String retTmp = "";
 				func = func.substring(func.indexOf('(')+1); //Gets start of arguments
 				
-				if(!func.contains("fp.")) { //No nested function
+				if(!func.contains("fp.") && !func.contains("func.")) { //No nested function
 					int lastIndex = func.lastIndexOf(')');
 					
 					retTmp = func.substring(0, lastIndex); //retTmp is start to end of arguments
 					func = func.substring(lastIndex); //Cuts all before the function end
 				}
 				
-				while(func.contains("fp.")) { //While function contain nested functions
-					int index = func.indexOf("fp."); //Gets index of first "fp."
-					retTmp += func.substring(0, index); //Adds everything between start and "fp." to retTmp
-					func = func.substring(index); //Cuts everything before "fp."
+				while(func.contains("fp.") || func.contains("func.")) { //While function contain nested functions
+					int indexStartFP = func.indexOf("fp.");
+					if(indexStartFP == -1)
+						indexStartFP = Integer.MAX_VALUE;
+					int indexStartFunc = func.indexOf("func.");
+					if(indexStartFunc == -1)
+						indexStartFunc = Integer.MAX_VALUE;
+					int index = Math.min(indexStartFP, indexStartFunc); //Gets index of first "fp." or "func."
+					retTmp += func.substring(0, index); //Adds everything between start and "fp." or "func." to retTmp
+					func = func.substring(index); //Cuts everything before "fp." or "func."
 					
 					int lastIndex = 0, openCount = 0;
 					if(func.indexOf('(') == -1) { //FuncPtr without call
@@ -3129,7 +3010,6 @@ public class Lang {
 				
 				//Adds everything after function to retTmp
 				retTmp += func.substring(0, func.lastIndexOf(')'));
-				retTmp = Func.replaceFuncsWithValue(new BufferedReader(new StringReader(retTmp)), retTmp, DATA_ID);
 				return retTmp;
 			}
 			
@@ -3138,7 +3018,8 @@ public class Lang {
 				
 				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
 				
-				func = func.substring(func.indexOf("fp.") + 3); //Cuts everything before "fp."
+				String prefix = func.substring(0, func.indexOf('.'));
+				func = func.substring(func.indexOf(prefix) + prefix.length() + 1); //Cuts everything before "fp." or "func."
 				
 				String args = prepareFunc(lines, func, DATA_ID); //Prepare function
 				retTmp += compileFunc(funcName, args, DATA_ID); //Call Function
@@ -3147,105 +3028,117 @@ public class Lang {
 			}
 			
 			private static String compileFunc(String funcName, String funcArgs, final int DATA_ID) {
-				if(!data.get(DATA_ID).varTmp.containsKey(funcName)) {
-					setErrno(5, DATA_ID);
-					
-					return "";
-				}
-				
-				FunctionPointerObject func = data.get(DATA_ID).varTmp.get(funcName).getFunctionPointer();
-				String funcHead = func.getHead();
-				String funcBody = func.getBody();
-				boolean predefinedFunction = func.isPredefinedFunction();
-				
-				//Set function arguments
-				if(predefinedFunction) {
-					String funcCall = funcBody + "(" + funcArgs + ")";
-					funcReturnTmp = Func.replaceFuncsWithValue(new BufferedReader(new StringReader(funcCall)), funcCall, DATA_ID);
-				}else {
-					final int NEW_DATA_ID = DATA_ID + 1;
-					
-					BufferedReader function = new BufferedReader(new StringReader(funcBody));
-					
-					//Add variables and local variables
-					createDataMap(NEW_DATA_ID);
-					//Copies must not be final
-					data.get(DATA_ID).varTmp.forEach((key, val) -> {
-						if(!key.startsWith("$LANG_"))
-							data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
-					});
-					//Initialize copyAfterFP
-					Compiler.FuncPtr.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
-					
-					String[] funcVars = funcHead.split(",");
-					String tmp = funcArgs;
-					for(String var:funcVars) {
-						var = var.trim();
+				if(funcName.startsWith("func.")) {
+					funcName = funcName.substring(funcName.indexOf("func.") + 5); //Cuts everything before "func."
+					if(funcs.containsKey(funcName)) { //If function exists...
+						return funcs.get(funcName).callFunc(lines, funcArgs, DATA_ID); //Call Function
+					}else {
+						setErrno(22, DATA_ID);
 						
-						int index = tmp.indexOf(",");
-						String val = tmp.substring(0, (index == -1)?tmp.length():index);
+						return "";
+					}
+				}else if(funcName.startsWith("fp.")) {
+					if(!data.get(DATA_ID).varTmp.containsKey(funcName)) {
+						setErrno(5, DATA_ID);
 						
-						val = val.trim();
-						
-						if(var.startsWith("$")) {
-							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
-						}else if(var.startsWith("fp.") || var.startsWith("&")) {
-							DataObject dataFromCaller = data.get(DATA_ID).varTmp.get(val);
-							if(dataFromCaller == null)
-								dataFromCaller = new DataObject().setNull();
-							data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(dataFromCaller).setFinalData(false));
-						}
-						
-						index = tmp.indexOf(",");
-						if(index != -1) {
-							tmp = tmp.substring(index + 1).trim();
-						}
+						return "";
 					}
 					
-					//Call function
-					try {
-						compileLangFile(function, NEW_DATA_ID);
-					}catch(IOException e) {
-						term.logStackTrace(e, FuncPtr.class);
-					}catch(Exception e) {}
+					FunctionPointerObject func = data.get(DATA_ID).varTmp.get(funcName).getFunctionPointer();
+					String funcHead = func.getHead();
+					String funcBody = func.getBody();
+					boolean predefinedFunction = func.isPredefinedFunction();
 					
-					//Add lang after call
-					data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
-					
-					//Add copyValue after call
-					copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
-						if(from != null && to != null) {
-							DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
-							if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
-								if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
-									DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
-									 //$LANG and final vars can't be change
-									if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
-										Compiler.setErrno(1, DATA_ID);
-										
-										return;
-									}
-									
-									data.get(DATA_ID).varTmp.put(to, valFrom);
-									
-									return;
-								}
+					//Set function arguments
+					if(predefinedFunction) {
+						funcReturnTmp = compileFunc(funcBody, funcArgs, DATA_ID);
+					}else {
+						final int NEW_DATA_ID = DATA_ID + 1;
+						
+						BufferedReader function = new BufferedReader(new StringReader(funcBody));
+						
+						//Add variables and local variables
+						createDataMap(NEW_DATA_ID);
+						//Copies must not be final
+						data.get(DATA_ID).varTmp.forEach((key, val) -> {
+							if(!key.startsWith("$LANG_"))
+								data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
+						});
+						//Initialize copyAfterFP
+						Compiler.Func.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+						
+						String[] funcVars = funcHead.split(",");
+						String tmp = funcArgs;
+						for(String var:funcVars) {
+							var = var.trim();
+							
+							int index = tmp.indexOf(",");
+							String val = tmp.substring(0, (index == -1)?tmp.length():index);
+							
+							val = val.trim();
+							
+							if(var.startsWith("$")) {
+								data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
+							}else if(var.startsWith("fp.") || var.startsWith("&")) {
+								DataObject dataFromCaller = data.get(DATA_ID).varTmp.get(val);
+								if(dataFromCaller == null)
+									dataFromCaller = new DataObject().setNull();
+								data.get(NEW_DATA_ID).varTmp.put(var, new DataObject(dataFromCaller).setFinalData(false));
+							}
+							
+							index = tmp.indexOf(",");
+							if(index != -1) {
+								tmp = tmp.substring(index + 1).trim();
 							}
 						}
 						
-						Compiler.setErrno(21, NEW_DATA_ID);
-					});
+						//Call function
+						try {
+							compileLangFile(function, NEW_DATA_ID);
+						}catch(IOException e) {
+							term.logStackTrace(e, Func.class);
+						}catch(Exception e) {}
+						
+						//Add lang after call
+						data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
+						
+						//Add copyValue after call
+						copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
+							if(from != null && to != null) {
+								DataObject valFrom = data.get(NEW_DATA_ID).varTmp.get(from);
+								if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
+									if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
+										DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
+										 //$LANG and final vars can't be change
+										if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
+											Compiler.setErrno(1, DATA_ID);
+											
+											return;
+										}
+										
+										data.get(DATA_ID).varTmp.put(to, valFrom);
+										
+										return;
+									}
+								}
+							}
+							
+							Compiler.setErrno(21, NEW_DATA_ID);
+						});
+						
+						//Clear copyValue
+						copyAfterFP.remove(NEW_DATA_ID);
+						
+						//Remove data map
+						data.remove(NEW_DATA_ID);
+					}
 					
-					//Clear copyValue
-					copyAfterFP.remove(NEW_DATA_ID);
-					
-					//Remove data map
-					data.remove(NEW_DATA_ID);
+					String retTmp = funcReturnTmp; //Get func return or "" (empty)
+					funcReturnTmp = ""; //Reset func return for non return funcs
+					return retTmp;
 				}
 				
-				String retTmp = funcReturnTmp; //Get func return or "" (empty)
-				funcReturnTmp = ""; //Reset func return for non return funcs
-				return retTmp;
+				return "";
 			}
 		}
 	}
