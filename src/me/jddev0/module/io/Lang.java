@@ -193,6 +193,9 @@ import me.jddev0.module.io.TerminalIO.Level;
  * <br>
  * <b>--- Lang Functions ---</b><br>
  * <b>Reset Functions</b><br>
+ * [void]func.clearVar(varPtr)<br>
+ * [void]func.clearVar(arrPtr)<br>
+ * [void]func.clearVar(funcPtr)<br>
  * [void]func.clearAllVars(void)<br>
  * [void]func.clearAllArrays(void) //Deprecated: use func.clearAllVars instead<br>
  * <br><b>Error functions</b><br>
@@ -207,7 +210,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.repeatUntil(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns false<br>
  * [Text]func.getLangRequest(Text)<br>
  * [void]func.makeFinal(varPtr)<br>
- * [void]func.makeFinal(arrPtr) //Contents in final array can still be changed<br>
+ * [void]func.makeFinal(arrPtr) //Content in final array can still be changed<br>
  * [void]func.makeFinal(funcPtr)<br>
  * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
  * [long]func.currentTimeMillis(void)<br>
@@ -299,11 +302,10 @@ public class Lang {
 	
 	//Error Strings
 	private static String[] errorStrings = new String[] {
-		"No error" /*errno = 0*/, "$LANG or final var can't be changed by lang file", "To many inner links", "No .lang-File", "File not found",
-		"FuncPtr is invalid", "Stack overflow", "No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num",
-		"No char", "No num", "Dividing by 0", "Negative array length", "Empty array", "Length NAN", "Array out of bounds", "Argument count is not array length",
-		"Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count", "Lang request doesn't exist",
-		"Function not supported"
+		"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow", "No terminal available",
+		"Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length", "Empty array", "Length NAN",
+		"Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count",
+		"Lang request doesn't exist", "Function not supported"
 	};
 	
 	//DATA
@@ -316,6 +318,29 @@ public class Lang {
 	private static Map<String, LangFunctionObject> funcs = new HashMap<>();
 	static {
 		//Reset Functions
+		funcs.put("clearVar", (lines, arg, DATA_ID) -> {
+			Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
+			if(dataObject == null) {
+				Compiler.setErrno(21, DATA_ID);
+				
+				return "Error";
+			}
+			
+			if(dataObject.isFinalData()) {
+				Compiler.setErrno(1, DATA_ID);
+				
+				return "Error";
+			}
+			
+			if(dataObject.getType().equals(Compiler.DataType.CLASS)) {
+				String line = arg.trim() + "[DELETE]";
+				Compiler.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
+			}else {
+				data.get(DATA_ID).varTmp.remove(arg.trim());
+			}
+			
+			return "";
+		});
 		funcs.put("clearAllVars", (lines, arg, DATA_ID) -> {
 			Compiler.resetVars(DATA_ID);
 			
@@ -2827,7 +2852,7 @@ public class Lang {
 		//Class for replacing funcPtrs and funcs with value
 		private static class Func {
 			private static final BufferedReader lines = null;
-
+			
 			public static Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
 			
 			private static String funcReturnTmp = "";
