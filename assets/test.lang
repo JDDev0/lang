@@ -490,6 +490,20 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 
 # New in version v0.2.0
 {
+	# Clear a var
+	{
+		func.printTerminal(1, $x) # Prints: "$x"
+		
+		$x
+		func.printTerminal(1, $x) # Prints: "null"
+		
+		$x = 42
+		func.printTerminal(1, $x) # Prints: "42"
+		
+		func.clearVar($[x])
+		func.printTerminal(1, $x) # Prints: "$x"
+	}
+	
 	# Final variables test
 	{
 		$a = DON't modify!
@@ -533,6 +547,11 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		fp.test = () -> { # Will result in an error
 			func.printTerminal(5, Modifyed!)
 		}
+		fp.test()
+		func.printError()
+		
+		# func.clearVar can only remove non final vars
+		func.clearVar(fp.test) # Will result in an error
 		fp.test()
 		func.printError()
 		
