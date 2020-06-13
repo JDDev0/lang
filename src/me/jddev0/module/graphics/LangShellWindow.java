@@ -104,6 +104,7 @@ public class LangShellWindow extends JDialog {
 							doc.remove(doc.getLength() - 1, 1);
 						}catch(BadLocationException e1) {}
 						lineTmp.deleteCharAt(lineTmp.length() - 1);
+						highlightSyntaxLastLine();
 					}
 				}else if(c != KeyEvent.CHAR_UNDEFINED) {
 					if(c == '\n') {
@@ -112,6 +113,7 @@ public class LangShellWindow extends JDialog {
 					}else {
 						lineTmp.append(c);
 						GraphicsHelper.addText(shell, c + "", Color.WHITE);
+						highlightSyntaxLastLine();
 					}
 				}
 			}
@@ -132,6 +134,7 @@ public class LangShellWindow extends JDialog {
 							for(int i = 0;i < lines.length;i++) {
 								String line = lines[i].trim();
 								GraphicsHelper.addText(shell, line, Color.WHITE);
+								highlightSyntaxLastLine();
 								lineTmp.append(line);
 								if(i != lines.length - 1 || copied.endsWith("\n")) { //Line has an '\n' at end -> finished line
 									addLine(lineTmp.toString());
@@ -229,6 +232,61 @@ public class LangShellWindow extends JDialog {
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + P)\n> ", Color.WHITE);
+	}
+	
+	private void highlightSyntaxLastLine() {
+		try {
+			Document doc = shell.getDocument();
+			int startOfLine;
+			for(startOfLine = doc.getLength() - 1;startOfLine > 0;startOfLine--)
+				if(doc.getText(startOfLine, 1).charAt(0) == '\n')
+					break;
+			startOfLine++; //The line starts on char after '\n'
+			
+			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
+			doc.remove(startOfLine, doc.getLength() - startOfLine);
+			
+			boolean commentFlag = false, varFlag = false, funcFlag = false;
+			for(int i = 0;i < line.length();i++) {
+				char c = line.charAt(i);
+				
+				if(!commentFlag && c == '#')
+					commentFlag = true;
+				
+				if(!varFlag && (c == '$' || c == '&'))
+					varFlag = true;
+				
+				if(!funcFlag) {
+					String checkTmp = line.substring(i);
+					if(checkTmp.startsWith("fp.") || checkTmp.startsWith("func."))
+						funcFlag = true;
+				}
+				
+				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '&'))
+					varFlag = false;
+				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
+					funcFlag = false;
+				
+				if((varFlag || commentFlag) && i > 0 && line.charAt(i - 1) == '\\')
+					varFlag = commentFlag = false;
+				
+				//Remove var highlighting if "&&"
+				if(line.substring(i).startsWith("&&") || (i > 0 && line.substring(i - 1).startsWith("&&")))
+					varFlag = false;
+				
+				Color col = Color.WHITE;
+				if(commentFlag)
+					col = Color.GREEN;
+				else if(funcFlag)
+					col = Color.CYAN;
+				else if(varFlag)
+					col = Color.MAGENTA;
+				else if(Character.isDigit(c))
+					col = Color.YELLOW;
+				
+				GraphicsHelper.addText(shell, c + "", col);
+			}
+		}catch(BadLocationException e) {}
 	}
 	
 	private void addLine(String line) {
