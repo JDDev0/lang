@@ -250,7 +250,7 @@ public class LangShellWindow extends JDialog {
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 				
-				if(!commentFlag && c == '#')
+				if(!commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
 					commentFlag = true;
 				
 				if(!varFlag && (c == '$' || c == '&'))
@@ -267,8 +267,8 @@ public class LangShellWindow extends JDialog {
 				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
 					funcFlag = false;
 				
-				if((varFlag || commentFlag) && i > 0 && line.charAt(i - 1) == '\\')
-					varFlag = commentFlag = false;
+				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
+					varFlag = false;
 				
 				//Remove var highlighting if "&&"
 				if(line.substring(i).startsWith("&&") || (i > 0 && line.substring(i - 1).startsWith("&&")))
