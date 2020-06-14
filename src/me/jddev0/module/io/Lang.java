@@ -1772,13 +1772,10 @@ public class Lang {
 			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
 			
 			//Comments
-			line = line.replace("\\#", "\\NoCommentTmp");
-			if(line.contains("#"))
-				if(line.startsWith("#"))
-					return;
-				else
-					line = line.substring(0, line.indexOf("#"));
-			line = line.replace("\\NoCommentTmp", "#");
+			if(line.startsWith("#"))
+				return;
+			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
+			line = line.replace("\\#", "#");
 			
 			//For newLine
 			line = line.replace("\\n", "\n");
@@ -1842,13 +1839,10 @@ public class Lang {
 			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
 			
 			//Comments
-			line = line.replace("\\#", "\\NoCommentTmp");
-			if(line.contains("#"))
-				if(line.startsWith("#"))
-					return "0";
-				else
-					line = line.substring(0, line.indexOf("#"));
-			line = line.replace("\\NoCommentTmp", "#");
+			if(line.startsWith("#"))
+				return "0";
+			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
+			line = line.replace("\\#", "#");
 			
 			//For newLine
 			line = line.replace("\\n", "\n");
