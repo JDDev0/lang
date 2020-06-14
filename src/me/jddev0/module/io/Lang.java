@@ -2677,6 +2677,8 @@ public class Lang {
 									If.executeIf(lines, "con.if(1)", DATA_ID); //Execute "else" as "if(1)"
 									
 									return;
+								}else if(tmp.startsWith("if")) {
+									If.executeIf(lines, "con." + tmp, DATA_ID); //Execute inner if statement
 								}
 							}
 							
