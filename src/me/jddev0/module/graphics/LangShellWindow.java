@@ -293,7 +293,7 @@ public class LangShellWindow extends JDialog {
 		if(indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			
-			if(line.trim().endsWith("{")) {
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))) {
 				indent++;
 				multiLineTmp.append(line);
 				multiLineTmp.append("\n");
@@ -308,14 +308,17 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 			}
 		}else {
-			if(line.trim().endsWith("{"))
+			if(line.trim().endsWith("{") || line.trim().startsWith("con.if"))
 				indent++;
 			
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
-			if(line.trim().startsWith("}")) {
+			if(line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if"))) {
 				indent--;
+				
+				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))
+					indent++;
 				
 				//Remove the first indent from actual line
 				try {
@@ -329,6 +332,7 @@ public class LangShellWindow extends JDialog {
 				}catch(BadLocationException e) {}
 			}
 			
+			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent == 0) {
 				try {
 					compileLangFileMethod.invoke(null, new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
@@ -339,7 +343,6 @@ public class LangShellWindow extends JDialog {
 				multiLineTmp = new StringBuilder();
 			}
 			
-			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			for(int i = 0;i < indent;i++)
 				GraphicsHelper.addText(shell, "    ", Color.WHITE);
 			GraphicsHelper.addText(shell, "> ", Color.WHITE);
