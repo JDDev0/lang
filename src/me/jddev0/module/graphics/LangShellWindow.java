@@ -258,7 +258,7 @@ public class LangShellWindow extends JDialog {
 				
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
-					if(checkTmp.startsWith("fp.") || checkTmp.startsWith("func."))
+					if(checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker."))
 						funcFlag = true;
 				}
 				
