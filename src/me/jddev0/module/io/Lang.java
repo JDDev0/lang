@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.BiFunction;
 
 import javax.swing.JOptionPane;
 
@@ -1908,14 +1909,29 @@ public class Lang {
 		
 		//Classes for variable data
 		private static class FunctionPointerObject {
+			/**
+			 * Normal function pointer
+			 */
+			private static int NORMAL = 0;
+			/**
+			 * Pointer to a predefined function
+			 */
+			private static int PREDEFINED = 1;
+			/**
+			 * Function which is defined in the language, were the Compiler/Interpreter is defined
+			 */
+			private static int EXTERNAL = 2;
+			
 			private final String head;
 			private final String body;
-			private final boolean prefefinedFunction;
+			private final BiFunction<String, Integer, String> externalFunction;
+			private final int functionPointerType;
 			
 			public FunctionPointerObject(String head, String body) {
 				this.head = head;
 				this.body = body;
-				this.prefefinedFunction = false;
+				this.externalFunction = null;
+				this.functionPointerType = NORMAL;
 			}
 			/**
 			 * For pointer to predefined function
@@ -1923,7 +1939,17 @@ public class Lang {
 			public FunctionPointerObject(String langFuncObjectName) {
 				this.head = "";
 				this.body = langFuncObjectName;
-				this.prefefinedFunction = true;
+				this.externalFunction = null;
+				this.functionPointerType = PREDEFINED;
+			}
+			/**
+			 * For pointer to external function
+			 */
+			public FunctionPointerObject(BiFunction<String, Integer, String> externalFunction) {
+				this.head = "";
+				this.body = "";
+				this.externalFunction = externalFunction;
+				this.functionPointerType = EXTERNAL;
 			}
 			
 			public String getBody() {
@@ -1934,8 +1960,12 @@ public class Lang {
 				return head;
 			}
 			
-			public boolean isPredefinedFunction() {
-				return prefefinedFunction;
+			public BiFunction<String, Integer, String> getExternalFunction() {
+				return externalFunction;
+			}
+			
+			public int getFunctionPointerType() {
+				return functionPointerType;
 			}
 			
 			@Override
@@ -3072,12 +3102,15 @@ public class Lang {
 					FunctionPointerObject func = data.get(DATA_ID).varTmp.get(funcName).getFunctionPointer();
 					String funcHead = func.getHead();
 					String funcBody = func.getBody();
-					boolean predefinedFunction = func.isPredefinedFunction();
+					BiFunction<String, Integer, String> externalFunction = func.getExternalFunction();
+					int functionPointerType = func.getFunctionPointerType();
 					
 					//Set function arguments
-					if(predefinedFunction) {
+					if(functionPointerType == FunctionPointerObject.EXTERNAL) {
+						funcReturnTmp = externalFunction.apply(funcArgs, DATA_ID);
+					}else if(functionPointerType == FunctionPointerObject.PREDEFINED) {
 						funcReturnTmp = compileFunc(funcBody, funcArgs, DATA_ID);
-					}else {
+					}else if(functionPointerType == FunctionPointerObject.NORMAL) {
 						final int NEW_DATA_ID = DATA_ID + 1;
 						
 						BufferedReader function = new BufferedReader(new StringReader(funcBody));
@@ -3148,7 +3181,7 @@ public class Lang {
 								}
 							}
 							
-							Compiler.setErrno(21, NEW_DATA_ID);
+							Compiler.setErrno(21, DATA_ID);
 						});
 						
 						//Clear copyValue
