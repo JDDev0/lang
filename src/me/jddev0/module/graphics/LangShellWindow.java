@@ -246,7 +246,7 @@ public class LangShellWindow extends JDialog {
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 			
-			boolean commentFlag = false, varFlag = false, funcFlag = false;
+			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, returnFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 				
@@ -262,10 +262,20 @@ public class LangShellWindow extends JDialog {
 						funcFlag = true;
 				}
 				
+				if(!returnFlag) {
+					String checkTmp = line.substring(i);
+					if(checkTmp.startsWith("return "))
+						returnFlag = true;
+				}
+				
+				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
+				
 				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '&'))
 					varFlag = false;
 				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
 					funcFlag = false;
+				if(returnFlag && i > 6 && line.substring(i - 6).startsWith("return "))
+					returnFlag = false;
 				
 				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
 					varFlag = false;
@@ -275,12 +285,16 @@ public class LangShellWindow extends JDialog {
 					varFlag = false;
 				
 				Color col = Color.WHITE;
-				if(commentFlag)
+				if(bracketsFlag)
+					col = Color.LIGHT_GRAY;
+				else if(commentFlag)
 					col = Color.GREEN;
 				else if(funcFlag)
 					col = Color.CYAN;
 				else if(varFlag)
 					col = Color.MAGENTA;
+				else if(returnFlag)
+					col = Color.LIGHT_GRAY;
 				else if(Character.isDigit(c))
 					col = Color.YELLOW;
 				
