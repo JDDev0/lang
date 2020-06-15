@@ -1968,12 +1968,14 @@ public class Lang {
 			}
 		}
 		private static class ClassObject {
-			private Map<String, DataObject> attributes = new HashMap<>();
-			private String packageName;
-			private ClassObject superClass;
-			private boolean classDefinition; //Is true if the class object is only an class definition else it is an actual instance of the class
+			private final Map<String, DataObject> attributes = new HashMap<>();
+			private final String className;
+			private final String packageName;
+			private final ClassObject superClass;
+			private final boolean classDefinition; //Is true if the class object is only an class definition else it is an actual instance of the class
 			
-			public ClassObject(String packageName, ClassObject superClass, boolean classDefinition) {
+			public ClassObject(String className, String packageName, ClassObject superClass, boolean classDefinition) {
+				this.className = className;
 				this.packageName = packageName;
 				this.superClass = superClass;
 				this.classDefinition = classDefinition;
@@ -2028,7 +2030,7 @@ public class Lang {
 				if(obj instanceof ClassObject) {
 					ClassObject that = (ClassObject)obj;
 					
-					return Objects.equals(this.attributes, that.attributes) && Objects.equals(this.packageName, that.packageName) && Objects.equals(this.superClass, that.superClass);
+					return Objects.equals(this.className, that.className) && Objects.equals(this.packageName, that.packageName);
 				}
 				
 				return false;
