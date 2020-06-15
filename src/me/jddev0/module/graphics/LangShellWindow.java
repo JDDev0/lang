@@ -285,10 +285,10 @@ public class LangShellWindow extends JDialog {
 					varFlag = false;
 				
 				Color col = Color.WHITE;
-				if(bracketsFlag)
-					col = Color.LIGHT_GRAY;
-				else if(commentFlag)
+				if(commentFlag)
 					col = Color.GREEN;
+				else if(bracketsFlag)
+					col = Color.LIGHT_GRAY;
 				else if(funcFlag)
 					col = Color.CYAN;
 				else if(varFlag)
