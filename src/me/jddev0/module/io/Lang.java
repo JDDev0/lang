@@ -306,7 +306,7 @@ public class Lang {
 		"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow", "No terminal available",
 		"Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length", "Empty array", "Length NAN",
 		"Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count",
-		"Lang request doesn't exist", "Function not supported"
+		"Lang request doesn't exist", "Function not supported", "Bracket count mismatch"
 	};
 	
 	//DATA
@@ -2991,6 +2991,13 @@ public class Lang {
 							bracketsCount--;
 							if(bracketsCount == 0) //When all brackets have been closed -> break
 								break;
+						}
+						
+						//If brackets are messed up (More "(" than ")") -> throw error
+						if(indexEnd == lineCopy.length()) {
+							setErrno(28, DATA_ID);
+							
+							return "Error";
 						}
 					}
 					tmp = lineCopy.substring(0, indexEnd); //Copies function arguments
