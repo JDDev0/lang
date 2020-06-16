@@ -339,21 +339,16 @@ public class Lang {
 				oldFile = langFile;
 			}
 			
-			//Set TerminalIO for (error) output
-			Compiler.setTerminalIO(term);
+			//Set path for Compiler
+			langFile = new File(langFile).getAbsolutePath();
+			pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
 			
-			//Set data for LANG_* vars
-			{
-				langFile = new File(langFile).getAbsolutePath();
-				pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-			}
-			
-			//Create new data map with ID 0
-			Compiler.createDataMap(0);
+			//Create new compiler instance
+			Compiler comp = new Compiler(pathLangFile, term);
 			
 			BufferedReader reader = new BufferedReader(new FileReader(new File(langFile)));
 			try {
-				Compiler.compileLangFile(reader, 0); //Compile lang file
+				comp.compileLangFile(reader, 0); //Compile lang file
 			}catch(Exception e) {
 				reader.close();
 				
@@ -362,10 +357,8 @@ public class Lang {
 			reader.close();
 			
 			//Copy lang
-			lang = Compiler.data.get(0).lang;
+			lang = comp.getData().get(0).lang;
 			
-			//Clear data
-			Compiler.data.clear();
 			return new HashMap<>(lang);
 		}
 	}
@@ -464,30 +457,37 @@ public class Lang {
 			"Negative repeat count", "Lang request doesn't exist", "Function not supported", "Bracket count mismatch"
 		};
 		
+		private String langPath;
+		private TerminalIO term;
+		private Linker linkerParser = new Linker();
+		private If ifParser = new If();
+		private Var varParser = new Var();
+		private Func funcParser = new Func();
+		
 		//DATA
-		private static Map<Integer, Compiler.Data> data = new HashMap<>();
+		private Map<Integer, Data> data = new HashMap<>();
 		
 		//INIT funcs
-		private static Map<String, LangFunctionObject> funcs = new HashMap<>();
-		static {
+		private Map<String, LangFunctionObject> funcs = new HashMap<>();
+		{
 			//Reset Functions
 			funcs.put("clearVar", (lines, arg, DATA_ID) -> {
 				Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
 				if(dataObject == null) {
-					Compiler.setErrno(21, DATA_ID);
+					setErrno(21, DATA_ID);
 					
 					return "Error";
 				}
 				
 				if(dataObject.isFinalData()) {
-					Compiler.setErrno(1, DATA_ID);
+					setErrno(1, DATA_ID);
 					
 					return "Error";
 				}
 				
 				if(dataObject.getType().equals(Compiler.DataType.CLASS)) {
 					String line = arg.trim() + "[DELETE]";
-					Compiler.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
+					compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
 				}else {
 					data.get(DATA_ID).varTmp.remove(arg.trim());
 				}
@@ -495,7 +495,7 @@ public class Lang {
 				return "";
 			});
 			funcs.put("clearAllVars", (lines, arg, DATA_ID) -> {
-				Compiler.resetVars(DATA_ID);
+				resetVars(DATA_ID);
 				
 				return "";
 			});
@@ -504,14 +504,14 @@ public class Lang {
 					if(key.startsWith("&"))
 						data.get(DATA_ID).varTmp.remove(key);
 				});
-				Compiler.term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
+				term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
 				
 				return "";
 			});
 			
 			//Error functions
 			funcs.put("getErrorString", (lines, arg, DATA_ID) -> {
-				int err = Compiler.getAndClearErrno(DATA_ID); //Reset and return error
+				int err = getAndClearErrno(DATA_ID); //Reset and return error
 				
 				return errorStrings[err];
 			});
@@ -536,12 +536,12 @@ public class Lang {
 					try {
 						Thread.sleep(sleepTime);
 					}catch(InterruptedException e) {
-						Compiler.setErrno(24, DATA_ID);
+						setErrno(24, DATA_ID);
 						
 						return "Error";
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(9, DATA_ID);
+					setErrno(9, DATA_ID);
 					
 					return "Error";
 				}
@@ -551,7 +551,7 @@ public class Lang {
 			funcs.put("repeat", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -559,23 +559,23 @@ public class Lang {
 				try {
 					String funcPtr = funcArgs[0].trim();
 					if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
-						Compiler.setErrno(20, DATA_ID);
+						setErrno(20, DATA_ID);
 						
 						return "Error";
 					}
 					
 					int times = Integer.parseInt(funcArgs[1].trim());
 					if(times < 0) {
-						Compiler.setErrno(25, DATA_ID);
+						setErrno(25, DATA_ID);
 						
 						return "Error";
 					}
 					
 					for(int i = 0;i < times;i++) {
-						Compiler.Func.compileFunc(funcPtr, "" + i, DATA_ID);
+						funcParser.compileFunc(funcPtr, "" + i, DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(9, DATA_ID);
+					setErrno(9, DATA_ID);
 					
 					return "Error";
 				}
@@ -585,7 +585,7 @@ public class Lang {
 			funcs.put("repeatWhile", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -594,23 +594,23 @@ public class Lang {
 					String execFunc = funcArgs[0].trim();
 					String checkFunc = funcArgs[1].trim();
 					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
-						Compiler.setErrno(20, DATA_ID);
+						setErrno(20, DATA_ID);
 						
 						return "Error";
 					}
 					
 					while(true) {
-						String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
+						String check = funcParser.compileFunc(checkFunc, "", DATA_ID);
 						try {
 							if(Integer.parseInt(check) == 0)
 								break;
 						}catch(NumberFormatException e) {
 							break;
 						}
-						Compiler.Func.compileFunc(execFunc, "", DATA_ID);
+						funcParser.compileFunc(execFunc, "", DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(9, DATA_ID);
+					setErrno(9, DATA_ID);
 					
 					return "Error";
 				}
@@ -620,7 +620,7 @@ public class Lang {
 			funcs.put("repeatUntil", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -629,23 +629,23 @@ public class Lang {
 					String execFunc = funcArgs[0].trim();
 					String checkFunc = funcArgs[1].trim();
 					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
-						Compiler.setErrno(20, DATA_ID);
+						setErrno(20, DATA_ID);
 						
 						return "Error";
 					}
 					
 					while(true) {
-						String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
+						String check = funcParser.compileFunc(checkFunc, "", DATA_ID);
 						try {
 							if(Integer.parseInt(check) != 0)
 								break;
 						}catch(NumberFormatException e) {
 							break;
 						}
-						Compiler.Func.compileFunc(execFunc, "", DATA_ID);
+						funcParser.compileFunc(execFunc, "", DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(9, DATA_ID);
+					setErrno(9, DATA_ID);
 					
 					return "Error";
 				}
@@ -655,7 +655,7 @@ public class Lang {
 			funcs.put("getLangRequest", (lines, arg, DATA_ID) -> {
 				String ret = data.get(DATA_ID).lang.get(arg.trim());
 				if(ret == null) {
-					Compiler.setErrno(26, DATA_ID);
+					setErrno(26, DATA_ID);
 					
 					return "Error";
 				}
@@ -663,9 +663,9 @@ public class Lang {
 				return ret;
 			});
 			funcs.put("makeFinal", (lines, arg, DATA_ID) -> {
-				Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
+				DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
 				if(dataObject == null || dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
-					Compiler.setErrno(21, DATA_ID);
+					setErrno(21, DATA_ID);
 					
 					return "Error";
 				}
@@ -674,7 +674,7 @@ public class Lang {
 				
 				return "";
 			});
-			funcs.put("condition", (lines, arg, DATA_ID) -> Compiler.If.checkIf(arg)?"1":"0");
+			funcs.put("condition", (lines, arg, DATA_ID) -> ifParser.checkIf(arg)?"1":"0");
 			funcs.put("currentTimeMillis", (lines, arg, DATA_ID) -> System.currentTimeMillis() + "");
 			
 			//IO Functions
@@ -687,9 +687,8 @@ public class Lang {
 					return input;
 			});
 			funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
-				TerminalIO term = Compiler.term;
 				if(term == null) {
-					Compiler.setErrno(7, DATA_ID);
+					setErrno(7, DATA_ID);
 					
 					return "Error";
 				}
@@ -697,7 +696,7 @@ public class Lang {
 				
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -717,7 +716,7 @@ public class Lang {
 						throw new NumberFormatException(); //...return error
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(9, DATA_ID);
+					setErrno(9, DATA_ID);
 					
 					return "Error";
 				}
@@ -733,9 +732,9 @@ public class Lang {
 				}
 				comp += "func.getErrorString())";
 				try {
-					Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID); //Compile like "perror"(C) -> (Text + ": " + Error-String)
+					compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID); //Compile like "perror"(C) -> (Text + ": " + Error-String)
 				}catch(NullPointerException e) {
-					Compiler.setErrno(21, DATA_ID);
+					setErrno(21, DATA_ID);
 					
 					return "Error";
 				}catch(Exception e) {}
@@ -750,7 +749,7 @@ public class Lang {
 					
 					return hex + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(11, DATA_ID);
+					setErrno(11, DATA_ID);
 					
 					return "Error";
 				}
@@ -759,7 +758,7 @@ public class Lang {
 			//Character functions
 			funcs.put("toValue", (lines, arg, DATA_ID) -> {
 				if(arg.trim().length() != 1) {
-					Compiler.setErrno(12, DATA_ID);
+					setErrno(12, DATA_ID);
 					
 					return "Error";
 				}
@@ -772,7 +771,7 @@ public class Lang {
 					
 					return (char)c + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -786,7 +785,7 @@ public class Lang {
 			funcs.put("replace", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 3);
 				if(funcArgs.length != 3) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -796,7 +795,7 @@ public class Lang {
 			funcs.put("substring", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 3);
 				if(funcArgs.length < 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -811,11 +810,11 @@ public class Lang {
 						return funcArgs[0].trim().substring(start, end);
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}catch(StringIndexOutOfBoundsException e) {
-					Compiler.setErrno(18, DATA_ID);
+					setErrno(18, DATA_ID);
 					
 					return "Error";
 				}
@@ -823,7 +822,7 @@ public class Lang {
 			funcs.put("split", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 4);
 				if(funcArgs.length < 3) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -839,7 +838,7 @@ public class Lang {
 					try{
 						arrTmp = str.split(splitStr, Integer.parseInt(funcArgs[3].trim()));
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -851,16 +850,16 @@ public class Lang {
 				}
 				comp += ")";
 				try {
-					Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID);
+					compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID);
 				}catch(NullPointerException e) {
-					Compiler.setErrno(21, DATA_ID);
+					setErrno(21, DATA_ID);
 					
 					return "Error";
 				}catch(Exception e) {}
 				
 				int err;
-				if((err = Compiler.getAndClearErrno(DATA_ID)) != 0) {
-					Compiler.setErrno(err, DATA_ID);
+				if((err = getAndClearErrno(DATA_ID)) != 0) {
+					setErrno(err, DATA_ID);
 					
 					return "Error";
 				}
@@ -880,7 +879,7 @@ public class Lang {
 					try {
 						sum += Integer.parseInt(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -891,14 +890,14 @@ public class Lang {
 			funcs.put("subi", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return Integer.parseInt(funcArgs[0].trim()) - Integer.parseInt(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -912,7 +911,7 @@ public class Lang {
 					try {
 						prod *= Integer.parseInt(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -923,19 +922,19 @@ public class Lang {
 			funcs.put("divi", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-							Compiler.setErrno(14, DATA_ID);
+							setErrno(14, DATA_ID);
 							
 							return "Error";
 						}
 						return Integer.parseInt(funcArgs[0].trim())/Integer.parseInt(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -944,19 +943,19 @@ public class Lang {
 			funcs.put("modi", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-							Compiler.setErrno(14, DATA_ID);
+							setErrno(14, DATA_ID);
 							
 							return "Error";
 						}
 						return Integer.parseInt(funcArgs[0].trim())%Integer.parseInt(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -965,14 +964,14 @@ public class Lang {
 			funcs.put("andi", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) & Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -981,14 +980,14 @@ public class Lang {
 			funcs.put("ori", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) | Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -997,14 +996,14 @@ public class Lang {
 			funcs.put("xori", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) ^ Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1013,14 +1012,14 @@ public class Lang {
 			funcs.put("noti", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 1) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return ~Integer.parseInt(funcArgs[0].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1029,14 +1028,14 @@ public class Lang {
 			funcs.put("lshifti", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) << Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1045,14 +1044,14 @@ public class Lang {
 			funcs.put("rshifti", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) >> Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1061,14 +1060,14 @@ public class Lang {
 			funcs.put("rzshifti", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Integer.parseInt(funcArgs[0].trim()) >>> Integer.parseInt(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1082,7 +1081,7 @@ public class Lang {
 					try {
 						sum += Long.parseLong(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1093,14 +1092,14 @@ public class Lang {
 			funcs.put("subl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return Long.parseLong(funcArgs[0].trim())-Long.parseLong(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1114,7 +1113,7 @@ public class Lang {
 					try {
 						prod *= Long.parseLong(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1125,19 +1124,19 @@ public class Lang {
 			funcs.put("divl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						if(Long.parseLong(funcArgs[1].trim()) == 0) {
-							Compiler.setErrno(14, DATA_ID);
+							setErrno(14, DATA_ID);
 							
 							return "Error";
 						}
 						return Long.parseLong(funcArgs[0].trim())/Long.parseLong(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1146,19 +1145,19 @@ public class Lang {
 			funcs.put("modl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						if(Long.parseLong(funcArgs[1].trim()) == 0) {
-							Compiler.setErrno(14, DATA_ID);
+							setErrno(14, DATA_ID);
 							
 							return "Error";
 						}
 						return Long.parseLong(funcArgs[0].trim()) % Long.parseLong(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1167,14 +1166,14 @@ public class Lang {
 			funcs.put("andl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) & Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1183,14 +1182,14 @@ public class Lang {
 			funcs.put("orl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) | Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1199,14 +1198,14 @@ public class Lang {
 			funcs.put("xorl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) ^ Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1215,14 +1214,14 @@ public class Lang {
 			funcs.put("notl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 1) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return ~Long.parseLong(funcArgs[0].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1231,14 +1230,14 @@ public class Lang {
 			funcs.put("lshiftl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) << Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1247,14 +1246,14 @@ public class Lang {
 			funcs.put("rshiftl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) >> Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1263,14 +1262,14 @@ public class Lang {
 			funcs.put("rzshiftl", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return (Long.parseLong(funcArgs[0].trim()) >>> Long.parseLong(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1284,7 +1283,7 @@ public class Lang {
 					try {
 						sum += Double.parseDouble(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1295,14 +1294,14 @@ public class Lang {
 			funcs.put("subd", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						return Double.parseDouble(funcArgs[0].trim())-Double.parseDouble(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1316,7 +1315,7 @@ public class Lang {
 					try {
 						prod *= Double.parseDouble(funcArgs[i].trim());
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1327,19 +1326,19 @@ public class Lang {
 			funcs.put("divd", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
 					try {
 						if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
-							Compiler.setErrno(14, DATA_ID);
+							setErrno(14, DATA_ID);
 							
 							return "Error";
 						}
 						return Double.parseDouble(funcArgs[0].trim())/Double.parseDouble(funcArgs[1].trim()) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1348,7 +1347,7 @@ public class Lang {
 			funcs.put("pow", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}else {
@@ -1358,7 +1357,7 @@ public class Lang {
 						}
 						return Math.pow(Double.parseDouble(funcArgs[0].trim()), Double.parseDouble(funcArgs[1].trim())) + "";
 					}catch(NumberFormatException e) {
-						Compiler.setErrno(13, DATA_ID);
+						setErrno(13, DATA_ID);
 						
 						return "Error";
 					}
@@ -1368,7 +1367,7 @@ public class Lang {
 				try {
 					return Math.sqrt(Double.parseDouble(arg.trim())) + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -1377,7 +1376,7 @@ public class Lang {
 				try {
 					return (int)Double.parseDouble(arg.trim()) + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -1386,7 +1385,7 @@ public class Lang {
 				try {
 					return (long)Double.parseDouble(arg.trim()) + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -1395,7 +1394,7 @@ public class Lang {
 				try {
 					return (long)Math.ceil(Double.parseDouble(arg.trim())) + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -1404,7 +1403,7 @@ public class Lang {
 				try {
 					return (long)Math.floor(Double.parseDouble(arg.trim())) + "";
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -1414,7 +1413,7 @@ public class Lang {
 			funcs.put("copyAfterFP", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
@@ -1422,7 +1421,7 @@ public class Lang {
 				String to = funcArgs[0].trim();
 				String from = funcArgs[1].trim();
 				
-				Compiler.Func.copyAfterFP.get(DATA_ID).put(to, from);
+				funcParser.copyAfterFP.get(DATA_ID).put(to, from);
 				
 				return "";
 			});
@@ -1432,7 +1431,7 @@ public class Lang {
 				String[] funcArgs = arg.split(",", 2); //arrPtr, length
 				funcArgs[0] = funcArgs[0].trim();
 				if(!funcArgs[0].startsWith("&")) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
@@ -1441,31 +1440,31 @@ public class Lang {
 					int lenght = Integer.parseInt(funcArgs[1].trim());
 					
 					if(lenght < 0) {
-						Compiler.setErrno(15, DATA_ID);
+						setErrno(15, DATA_ID);
 						
 						return "Error";
 					}else if(lenght == 0) {
-						Compiler.setErrno(16, DATA_ID);
+						setErrno(16, DATA_ID);
 						
 						return "Error";
 					}
 					
-					Compiler.DataObject oldData = data.get(DATA_ID).varTmp.get(funcArgs[0]);
+					DataObject oldData = data.get(DATA_ID).varTmp.get(funcArgs[0]);
 					if(oldData != null && oldData.isFinalData()) {
-						Compiler.setErrno(1, DATA_ID);
+						setErrno(1, DATA_ID);
 						
 						return "Error";
 					}
-					Compiler.DataObject[] arr = new Compiler.DataObject[lenght];
+					DataObject[] arr = new DataObject[lenght];
 					if(oldData != null)
 						oldData.setArray(arr);
 					else
-						data.get(DATA_ID).varTmp.put(funcArgs[0], new Compiler.DataObject().setArray(arr));
+						data.get(DATA_ID).varTmp.put(funcArgs[0], new DataObject().setArray(arr));
 					
 					for(int i = 0;i < arr.length;i++)
-						arr[i] = new Compiler.DataObject().setNull();
+						arr[i] = new DataObject().setNull();
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(17, DATA_ID);
+					setErrno(17, DATA_ID);
 					
 					return "Error";
 				}
@@ -1476,29 +1475,29 @@ public class Lang {
 				String[] funcArgs = arg.split(",", 3); //arrPtr, index, value
 				funcArgs[0] = funcArgs[0].trim();
 				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 				
 				try {
 					int index = Integer.parseInt(funcArgs[1].trim());
 					
 					if(index < 0) {
-						Compiler.setErrno(15, DATA_ID);
+						setErrno(15, DATA_ID);
 						
 						return "Error";
 					}else if(index >= arr.length) {
-						Compiler.setErrno(18, DATA_ID);
+						setErrno(18, DATA_ID);
 						
 						return "Error";
 					}
 					
 					arr[index].setText(funcArgs[2].trim());
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(17, DATA_ID);
+					setErrno(17, DATA_ID);
 					
 					return "Error";
 				}
@@ -1509,12 +1508,12 @@ public class Lang {
 				String[] funcArgs = arg.split(","); //arrPtr, value, ...
 				funcArgs[0] = funcArgs[0].trim();
 				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				funcArgs[1] = funcArgs[1].trim();
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 				
 				if(funcArgs.length == 2) {
 					for(int i = 0;i < arr.length;i++) {
@@ -1525,7 +1524,7 @@ public class Lang {
 						arr[i].setText(funcArgs[i + 1].trim());
 					}
 				}else {
-					Compiler.setErrno(19, DATA_ID);
+					setErrno(19, DATA_ID);
 					
 					return "Error";
 				}
@@ -1536,22 +1535,22 @@ public class Lang {
 				String[] funcArgs = arg.split(",", 2); //arrPtr, index
 				funcArgs[0] = funcArgs[0].trim();
 				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
 				int index = Integer.parseInt(funcArgs[1].trim());
 				
 				try {
 					if(index < 0 || index >= arr.length) {
-						Compiler.setErrno(18, DATA_ID);
+						setErrno(18, DATA_ID);
 						
 						return "Error";
 					}
 				}catch(NumberFormatException e) {
-					Compiler.setErrno(17, DATA_ID);
+					setErrno(17, DATA_ID);
 					
 					return "Error";
 				}
@@ -1563,12 +1562,12 @@ public class Lang {
 				
 				arg = arg.trim();
 				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				
-				for(Compiler.DataObject val:data.get(DATA_ID).varTmp.get(arg).getArray()) {
+				for(DataObject val:data.get(DATA_ID).varTmp.get(arg).getArray()) {
 					tmp += val + ", ";
 				}
 				
@@ -1577,7 +1576,7 @@ public class Lang {
 			funcs.put("arrayLength", (lines, arg, DATA_ID) -> {
 				arg = arg.trim();
 				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
@@ -1587,28 +1586,28 @@ public class Lang {
 			funcs.put("arrayForEach", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",", 2);
 				if(funcArgs.length != 2) {
-					Compiler.setErrno(8, DATA_ID);
+					setErrno(8, DATA_ID);
 					
 					return "Error";
 				}
 				
 				String arrName = funcArgs[0].trim();
 				if(!arrName.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arrName)) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				
 				String funcPtr = funcArgs[1].trim();
 				if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
-					Compiler.setErrno(20, DATA_ID);
+					setErrno(20, DATA_ID);
 					
 					return "Error";
 				}
 				
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
-				for(Compiler.DataObject element:arr) {
-					Compiler.Func.compileFunc(funcPtr, element.getText(), DATA_ID);
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
+				for(DataObject element:arr) {
+					funcParser.compileFunc(funcPtr, element.getText(), DATA_ID);
 				}
 				
 				return "";
@@ -1619,7 +1618,7 @@ public class Lang {
 					//No array Pointer
 					String[] funcArgs = arg.split(",");
 					if(funcArgs.length < 1) {
-						Compiler.setErrno(8, DATA_ID);
+						setErrno(8, DATA_ID);
 						
 						return "Error";
 					}else if(funcArgs.length == 1) {
@@ -1628,10 +1627,10 @@ public class Lang {
 					return funcArgs[ran.nextInt(funcArgs.length)];
 				}
 				
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
 				
 				if(arr.length < 1) {
-					Compiler.setErrno(16, DATA_ID);
+					setErrno(16, DATA_ID);
 					
 					return "Error";
 				}else if(arr.length == 1) {
@@ -1642,13 +1641,13 @@ public class Lang {
 			funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
 				arg = arg.trim();
 				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
 				
-				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
-				for(Compiler.DataObject element:arr)
+				DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
+				for(DataObject element:arr)
 					element.setNull();
 				
 				return ""; //No return func
@@ -1656,7 +1655,7 @@ public class Lang {
 			funcs.put("arrayClear", (lines, arg, DATA_ID) -> {
 				arg = arg.trim();
 				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-					Compiler.setErrno(10, DATA_ID);
+					setErrno(10, DATA_ID);
 					
 					return "Error";
 				}
@@ -1666,32 +1665,31 @@ public class Lang {
 			});
 		}
 		
-		private static TerminalIO term;
-		
-		private Compiler() {}
-		
-		public static void setTerminalIO(TerminalIO term) {
-			Compiler.term = term;
+		public Compiler(String langPath, TerminalIO term) {
+			this.langPath = langPath;
+			this.term = term;
+			
+			createDataMap(0);
 		}
 		
-		public static void createDataMap(final int DATA_ID) {
+		public void createDataMap(final int DATA_ID) {
 			data.put(DATA_ID, new Data());
 			
 			resetVarsAndFuncPtrs(DATA_ID);
 		}
 		
-		public static void resetVarsAndFuncPtrs(final int DATA_ID) {
+		public void resetVarsAndFuncPtrs(final int DATA_ID) {
 			data.get(DATA_ID).varTmp.clear();
 			
 			//Final vars
 			data.get(DATA_ID).varTmp.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
-			data.get(DATA_ID).varTmp.put("$LANG_PATH", new DataObject(pathLangFile, true));
+			data.get(DATA_ID).varTmp.put("$LANG_PATH", new DataObject(langPath, true));
 			data.get(DATA_ID).varTmp.put("$LANG_RAND_MAX", new DataObject("" + (Integer.MAX_VALUE - 1), true));
 			
 			//Not final vars
 			setErrno(0, DATA_ID); //Set $LANG_ERRNO
 		}
-		public static void resetVars(final int DATA_ID) {
+		public void resetVars(final int DATA_ID) {
 			String[] keys = data.get(DATA_ID).varTmp.keySet().toArray(new String[0]);
 			for(int i = data.get(DATA_ID).varTmp.size() - 1;i > -1;i--) {
 				if(keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) {
@@ -1703,17 +1701,17 @@ public class Lang {
 			setErrno(0, DATA_ID); //Set $LANG_ERRNO
 		}
 		
-		public static void setErrno(int errno, final int DATA_ID) {
+		public void setErrno(int errno, final int DATA_ID) {
 			data.get(DATA_ID).varTmp.computeIfAbsent("$LANG_ERRNO", key -> new DataObject());
 			
 			data.get(DATA_ID).varTmp.get("$LANG_ERRNO").setText("" + errno);
 		}
-		public static DataObject setErrnoErrorObject(int errno, final int DATA_ID) {
+		public DataObject setErrnoErrorObject(int errno, final int DATA_ID) {
 			setErrno(errno, DATA_ID);
 			
 			return new DataObject().setError(new ErrorObject(errno));
 		}
-		public static int getAndClearErrno(final int DATA_ID) {
+		public int getAndClearErrno(final int DATA_ID) {
 			int ret = Integer.parseInt(data.get(DATA_ID).varTmp.get("$LANG_ERRNO").getText());
 			
 			setErrno(0, DATA_ID); //Reset errno
@@ -1721,15 +1719,18 @@ public class Lang {
 			return ret;
 		}
 		
+		public Map<Integer, Data> getData() {
+			return data;
+		}
+		
 		/**
 		 * Method for compiling lang files
 		 */
-		public static void compileLangFile(BufferedReader lines, final int DATA_ID) throws Exception {
+		public void compileLangFile(BufferedReader lines, final int DATA_ID) throws Exception {
 			while(lines.ready()) {
 				String str = lines.readLine();
-				if(str == null) {
+				if(str == null)
 					break;
-				}
 				
 				if(str.trim().length() > 0 && !str.trim().isEmpty()) {
 					str = str.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
@@ -1737,7 +1738,7 @@ public class Lang {
 					//Lang data and compiler args
 					if(str.startsWith("lang.")) {
 						if(str.startsWith("lang.version = ")) {
-							Compiler.compileLine(lines, str, DATA_ID);
+							compileLine(lines, str, DATA_ID);
 							String langVer = data.get(DATA_ID).lang.get("lang.version");
 							
 							if(!langVer.equals(VERSION)) {
@@ -1758,17 +1759,17 @@ public class Lang {
 					
 					//If, elif, else, endif
 					if(str.startsWith("con.")) {
-						If.executeIf(lines, str, DATA_ID);
+						ifParser.executeIf(lines, str, DATA_ID);
 						
 						continue; //Compile next Line
 					}
 					
-					Compiler.compileLine(lines, str, DATA_ID);
+					compileLine(lines, str, DATA_ID);
 				}
 			}
 		}
 		
-		public static void compileLine(BufferedReader lines, String line, final int DATA_ID) {
+		public void compileLine(BufferedReader lines, String line, final int DATA_ID) {
 			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
 			
 			//Comments
@@ -1782,14 +1783,14 @@ public class Lang {
 			
 			//Save funcPtr
 			if(line.startsWith("fp.") && line.contains(" = ")) {
-				Func.saveFuncPtr(lines, line, DATA_ID);
+				funcParser.saveFuncPtr(lines, line, DATA_ID);
 				
 				return;
 			}
 			
 			//Var
 			if(line.contains("$")) {
-				line = Var.replaceVarsWithValue(lines, line, DATA_ID);
+				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
 				
 				if(line == null)
 					return;
@@ -1797,20 +1798,20 @@ public class Lang {
 			
 			//Execute Functions and FuncPtr
 			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = Func.executeFunc(lines, line, DATA_ID);
+				line = funcParser.executeFunc(lines, line, DATA_ID);
 			}
 			
 			//Linker
 			if(line.contains("linker.")) {
-				line = Linker.compileLine(line, DATA_ID);
+				line = linkerParser.compileLine(line, DATA_ID);
 			}
 			
 			//FuncPtr return
 			if(line.trim().startsWith("return")) {
 				if(line.trim().matches("return .*")) {
-					Func.funcReturnTmp = line.substring(7).trim(); //return func value
+					funcParser.funcReturnTmp = line.substring(7).trim(); //return func value
 				}else {
-					Func.funcReturnTmp = "";
+					funcParser.funcReturnTmp = "";
 				}
 				
 				//Go to end of stream (return)
@@ -1835,7 +1836,7 @@ public class Lang {
 		/**
 		 * @return the modified line<br>if null -> continue
 		 */
-		public static String compileLineForIf(BufferedReader lines, String line, final int DATA_ID) {
+		public String compileLineForIf(BufferedReader lines, String line, final int DATA_ID) {
 			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
 			
 			//Comments
@@ -1849,14 +1850,14 @@ public class Lang {
 			
 			//Save funcPtr
 			if(line.startsWith("fp.") && line.contains(" = ")) {
-				Func.saveFuncPtr(lines, line, DATA_ID);
+				funcParser.saveFuncPtr(lines, line, DATA_ID);
 				
 				return "0";
 			}
 			
 			//Var
 			if(line.contains("$")) {
-				line = Var.replaceVarsWithValue(lines, line, DATA_ID);
+				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
 				
 				if(line == null)
 					return "0";
@@ -1868,20 +1869,20 @@ public class Lang {
 			
 			//Execute Functions and FuncPtr
 			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = Func.executeFunc(lines, line, DATA_ID);
+				line = funcParser.executeFunc(lines, line, DATA_ID);
 			}
 			
 			//Linker
 			if(line.contains("linker.")) {
-				line = Linker.compileLine(line, DATA_ID);
+				line = linkerParser.compileLine(line, DATA_ID);
 			}
 			
 			//FuncPtr return
 			if(line.trim().startsWith("return")) {
 				if(line.trim().matches("return .*")) {
-					Func.funcReturnTmp = line.substring(7).trim(); //return func value
+					funcParser.funcReturnTmp = line.substring(7).trim(); //return func value
 				}else {
-					Func.funcReturnTmp = "";
+					funcParser.funcReturnTmp = "";
 				}
 				
 				//Go to end of stream (return)
@@ -2273,10 +2274,10 @@ public class Lang {
 		//Classes for compiling lang file
 		
 		//Class for linker
-		private static class Linker {
+		private class Linker {
 			private Linker() {}
 			
-			private static String compileLine(String line, final int DATA_ID) {
+			private String compileLine(String line, final int DATA_ID) {
 				int indexStart, indexEnd, indexEndForLine;
 				
 				while(line.contains("linker.")) {
@@ -2298,7 +2299,7 @@ public class Lang {
 							if(new File(tmp).isAbsolute())
 								absolutePath = tmp;
 							else
-								absolutePath = data.get(DATA_ID).varTmp.get("$LANG_PATH") + File.separator + tmp;
+								absolutePath = langPath + File.separator + tmp;
 							
 							tmp = linkLangFile(absolutePath, DATA_ID);
 						}else { //No .lang file
@@ -2314,7 +2315,7 @@ public class Lang {
 							if(new File(tmp).isAbsolute())
 								absolutePath = tmp;
 							else
-								absolutePath = data.get(DATA_ID).varTmp.get("$LANG_PATH") + File.separator + tmp;
+								absolutePath = langPath + File.separator + tmp;
 							
 							tmp = bindLibraryLangFile(absolutePath, DATA_ID);
 						}else { //No .lang file
@@ -2330,21 +2331,23 @@ public class Lang {
 				return line;
 			}
 			
-			private static String linkLangFile(String linkLangFile, final int DATA_ID) {
+			private String linkLangFile(String linkLangFile, final int DATA_ID) {
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
 				String ret = "0";
 				
-				Compiler.createDataMap(NEW_DATA_ID);
-
 				String langPathTmp = linkLangFile;
 				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", new DataObject(langPathTmp, true)); //Set lang path to "new" lang path
+				
+				//Change lang path for createDataMap
+				String oldLangPath = langPath;
+				langPath = langPathTmp;
+				createDataMap(NEW_DATA_ID);
 				
 				try {
 					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
 					try {
-						Compiler.compileLangFile(reader, NEW_DATA_ID);
+						compileLangFile(reader, NEW_DATA_ID);
 					}catch(Exception e) {
 						setErrno(4, DATA_ID);
 						ret = "-1";
@@ -2366,24 +2369,29 @@ public class Lang {
 				
 				//Remove data map
 				data.remove(NEW_DATA_ID);
+				
+				//Set lang path to old lang path
+				langPath = oldLangPath;
 				return ret;
 			}
 			
-			private static String bindLibraryLangFile(String linkLangFile, final int DATA_ID) {
+			private String bindLibraryLangFile(String linkLangFile, final int DATA_ID) {
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
 				String ret = "0";
 				
-				Compiler.createDataMap(NEW_DATA_ID);
-
 				String langPathTmp = linkLangFile;
 				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-				data.get(NEW_DATA_ID).varTmp.put("$LANG_PATH", new DataObject(langPathTmp, true)); //Set lang path to "new" lang path
+				
+				//Change lang path for createDataMap
+				String oldLangPath = langPath;
+				langPath = langPathTmp;
+				createDataMap(NEW_DATA_ID);
 				
 				try {
 					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
 					try {
-						Compiler.compileLangFile(reader, NEW_DATA_ID);
+						compileLangFile(reader, NEW_DATA_ID);
 					}catch(Exception e) {
 						setErrno(4, DATA_ID);
 						ret = "-1";
@@ -2398,7 +2406,8 @@ public class Lang {
 				if(ret.equals("0")) { //If no error
 					//Copy all vars, arrPtrs and funcPtrs
 					data.get(NEW_DATA_ID).varTmp.forEach((name, val) -> {
-						if(!name.startsWith("$LANG")) { //No LANG data vars
+						DataObject oldData = data.get(DATA_ID).varTmp.get(name);
+						if(!name.startsWith("$LANG") && (oldData == null || !oldData.isFinalData())) { //No LANG data vars and no final data
 							data.get(DATA_ID).varTmp.put(name, val);
 						}
 					});
@@ -2406,15 +2415,18 @@ public class Lang {
 				
 				//Remove data map
 				data.remove(NEW_DATA_ID);
+				
+				//Set lang path to old lang path
+				langPath = oldLangPath;
 				return ret;
 			}
 		}
 		
 		//Class for executing if
-		private static class If {
+		private class If {
 			private If() {}
 			
-			private static boolean checkIf(String ifCondition) {
+			private boolean checkIf(String ifCondition) {
 				ifCondition = ifCondition.replaceAll("\\s*", ""); //Remove Whitespace
 				
 				//Replace brackets with 0 or 1
@@ -2617,11 +2629,11 @@ public class Lang {
 				}
 			}
 			
-			public static void executeIf(BufferedReader lines, String line, final int DATA_ID) throws Exception {
+			public void executeIf(BufferedReader lines, String line, final int DATA_ID) throws Exception {
 				line = line.trim().substring(4); //Remove whitespace and "con."
 				
 				if(line.startsWith("if(")) {
-					line = Compiler.compileLineForIf(lines, line, DATA_ID);
+					line = compileLineForIf(lines, line, DATA_ID);
 					line = line.substring(3, line.lastIndexOf(')'));
 					
 					String tmp = lines.readLine();
@@ -2632,10 +2644,10 @@ public class Lang {
 							}
 							
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = Compiler.compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
 								
 								if(tmp.trim().substring(4).startsWith("if")) {
-									If.executeIf(lines, tmp, DATA_ID); //Execute inner if
+									executeIf(lines, tmp, DATA_ID); //Execute inner if
 								}
 								
 								tmp = tmp.trim().substring(4);
@@ -2654,7 +2666,7 @@ public class Lang {
 									return;
 								}
 							}else {
-								Compiler.compileLine(lines, tmp, DATA_ID); //Compile lines
+								compileLine(lines, tmp, DATA_ID); //Compile lines
 							}
 							
 							if(lines.ready()) {
@@ -2666,21 +2678,21 @@ public class Lang {
 					}else { //False
 						while(true) {
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = Compiler.compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
 								
 								tmp = tmp.trim().substring(4);
 								if(tmp.startsWith("endif")) {
 									return;
 								}else if(tmp.startsWith("elif")) {
-									If.executeIf(lines, "con." + tmp.substring(2), DATA_ID); //Execute "elif" as "if"
+									executeIf(lines, "con." + tmp.substring(2), DATA_ID); //Execute "elif" as "if"
 									
 									return;
 								}else if(tmp.startsWith("else")) {
-									If.executeIf(lines, "con.if(1)", DATA_ID); //Execute "else" as "if(1)"
+									executeIf(lines, "con.if(1)", DATA_ID); //Execute "else" as "if(1)"
 									
 									return;
 								}else if(tmp.startsWith("if")) {
-									If.executeIf(lines, "con." + tmp, DATA_ID); //Execute inner if statement
+									executeIf(lines, "con." + tmp, DATA_ID); //Execute inner if statement
 								}
 							}
 							
@@ -2696,13 +2708,13 @@ public class Lang {
 		}
 		
 		//Class for replacing vars with value
-		private static class Var {
+		private class Var {
 			private Var() {}
 			
 			/**
 			 * @return the modified line<br>if null -> continue
 			 */
-			public static String replaceVarsWithValue(BufferedReader lines, String line, final int DATA_ID) {
+			public String replaceVarsWithValue(BufferedReader lines, String line, final int DATA_ID) {
 				line = line.trim();
 				
 				//If not tmp contains " = " -> var is null
@@ -2754,11 +2766,11 @@ public class Lang {
 						
 						string[1] = string[1].replace("$NULL", "$"); //Replace all "$NULL"s in string[1] with "$"s
 						if((string[1].contains("fp.") || string[1].contains("func.")) && string[1].contains("(") && string[1].contains(")"))
-							string[1] = Func.executeFunc(lines, string[1], DATA_ID);
+							string[1] = funcParser.executeFunc(lines, string[1], DATA_ID);
 						if(string[1].contains("linker.")) //If string[1] contains a linker function
-							string[1] = Linker.compileLine(string[1], DATA_ID); //Execute linker functions
+							string[1] = linkerParser.compileLine(string[1], DATA_ID); //Execute linker functions
 						
-						string[1] = VarPtr.replaceAllVarPtrsWithVar(string[1]); //Replace all varPtrs
+						string[1] = replaceAllVarPtrsWithVar(string[1]); //Replace all varPtrs
 						
 						//Put var name and var value to the var tmp map
 						DataObject oldValue = data.get(DATA_ID).varTmp.get(string[0]);
@@ -2835,7 +2847,7 @@ public class Lang {
 							}
 						}
 						
-						val[i] = VarPtr.replaceAllVarPtrsWithVar(val[i]); //Replace all varPtrs
+						val[i] = replaceAllVarPtrsWithVar(val[i]); //Replace all varPtrs
 						
 						line += val[i].replace("$NULL", "$"); //Replace "$NULL" with "$"
 						if(i != val.length - 1)
@@ -2846,48 +2858,41 @@ public class Lang {
 				}
 			}
 			
-			//Class for replacing varPtrs with var
-			private static class VarPtr {
-				private VarPtr() {}
+			private String replaceAllVarPtrsWithVar(String line) {
+				StringBuilder newLine = new StringBuilder();
 				
-				private static String replaceAllVarPtrsWithVar(String line) {
-					StringBuilder newLine = new StringBuilder();
+				while(!line.isEmpty()) {
+					char c = line.charAt(0);
+					newLine.append(c);
+					line = line.substring(1);
 					
-					while(!line.isEmpty()) {
-						char c = line.charAt(0);
-						newLine.append(c);
-						line = line.substring(1);
-						
-						if(c == '$' && !line.isEmpty()) {
-							if(line.charAt(0) == '[' && line.contains("]")) {
-								line = line.substring(1); //Remove '['
-								
-								while((c = line.charAt(0)) != ']') { //Add all to ']' to "newLine"
-									newLine.append(c);
-									line = line.substring(1);
-								}
-								
-								line = line.substring(1); //Remove ']'
+					if(c == '$' && !line.isEmpty()) {
+						if(line.charAt(0) == '[' && line.contains("]")) {
+							line = line.substring(1); //Remove '['
+							
+							while((c = line.charAt(0)) != ']') { //Add all to ']' to "newLine"
+								newLine.append(c);
+								line = line.substring(1);
 							}
+							
+							line = line.substring(1); //Remove ']'
 						}
 					}
-					
-					return newLine.toString();
 				}
+				
+				return newLine.toString();
 			}
 		}
 		
 		//Class for replacing funcPtrs and funcs with value
-		private static class Func {
-			private static final BufferedReader lines = null;
+		private class Func {
+			public Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
 			
-			public static Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
-			
-			private static String funcReturnTmp = "";
+			private String funcReturnTmp = "";
 			
 			private Func() {}
 			
-			public static void saveFuncPtr(BufferedReader lines, String line, final int DATA_ID) {
+			public void saveFuncPtr(BufferedReader lines, String line, final int DATA_ID) {
 				StringBuilder build = new StringBuilder();
 				String tmp;
 				
@@ -2960,7 +2965,7 @@ public class Lang {
 					data.get(DATA_ID).varTmp.put(funcName, new DataObject().setFunctionPointer(fp));
 			}
 			
-			public static String executeFunc(BufferedReader lines, String line, final int DATA_ID) {
+			public String executeFunc(BufferedReader lines, String line, final int DATA_ID) {
 				String lineCopy = line; //Copy pointer to line
 				String tmp; //String tmp for brackets count
 				int bracketsCount, indexStart, indexEnd, oldIndexStart = 0;
@@ -3015,7 +3020,7 @@ public class Lang {
 				return line;
 			}
 			
-			private static String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
+			private String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
 				String retTmp = "";
 				func = func.substring(func.indexOf('(')+1); //Gets start of arguments
 				
@@ -3073,7 +3078,7 @@ public class Lang {
 				return retTmp;
 			}
 			
-			private static String callFunc(BufferedReader lines, String func, final int DATA_ID) {
+			private String callFunc(BufferedReader lines, String func, final int DATA_ID) {
 				String retTmp = "";
 				
 				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
@@ -3087,11 +3092,11 @@ public class Lang {
 				return retTmp;
 			}
 			
-			private static String compileFunc(String funcName, String funcArgs, final int DATA_ID) {
+			private String compileFunc(String funcName, String funcArgs, final int DATA_ID) {
 				if(funcName.startsWith("func.")) {
 					funcName = funcName.substring(funcName.indexOf("func.") + 5); //Cuts everything before "func."
 					if(funcs.containsKey(funcName)) { //If function exists...
-						return funcs.get(funcName).callFunc(lines, funcArgs, DATA_ID); //Call Function
+						return funcs.get(funcName).callFunc(null, funcArgs, DATA_ID); //Call Function
 					}else {
 						setErrno(22, DATA_ID);
 						
@@ -3128,7 +3133,7 @@ public class Lang {
 								data.get(NEW_DATA_ID).varTmp.put(key, new DataObject(val).setFinalData(false));
 						});
 						//Initialize copyAfterFP
-						Compiler.Func.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+						copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
 						
 						String[] funcVars = funcHead.split(",");
 						String tmp = funcArgs;
@@ -3174,7 +3179,7 @@ public class Lang {
 										DataObject dataTo = data.get(DATA_ID).varTmp.get(to);
 										 //$LANG and final vars can't be change
 										if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
-											Compiler.setErrno(1, DATA_ID);
+											setErrno(1, DATA_ID);
 											
 											return;
 										}
@@ -3186,7 +3191,7 @@ public class Lang {
 								}
 							}
 							
-							Compiler.setErrno(21, DATA_ID);
+							setErrno(21, DATA_ID);
 						});
 						
 						//Clear copyValue

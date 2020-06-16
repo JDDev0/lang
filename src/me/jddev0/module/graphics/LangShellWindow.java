@@ -13,10 +13,12 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -157,6 +159,7 @@ public class LangShellWindow extends JDialog {
 	}
 	
 	private Class<?> compilerClass;
+	private Object compilerInstance;
 	private Method compileLangFileMethod;
 	private PrintStream oldOut;
 	
@@ -210,23 +213,17 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
-		//Initializes static attributes of the Lang class
 		try {
-			Lang.getTranslationMap("LANG_SHELL", true, term);
-		}catch(Exception e) {}
-		
-		//Gets Compiler class
-		compilerClass = Lang.class.getDeclaredClasses()[0];
-		try {
+			//Gets Compiler class
+			compilerClass = Lang.class.getDeclaredClasses()[0];
+			Constructor<?> compilerConstructor = compilerClass.getDeclaredConstructor(String.class, TerminalIO.class);
+			compilerConstructor.setAccessible(true);
+			compilerInstance = compilerConstructor.newInstance(new File("").getAbsolutePath(), term);
+			
 			//Gets compileLangFile method
 			compileLangFileMethod = compilerClass.getDeclaredMethod("compileLangFile", BufferedReader.class, int.class);
 			compileLangFileMethod.setAccessible(true);
-			
-			//Creates new DataMap
-			Method createDataMapMethod = compilerClass.getDeclaredMethod("createDataMap", int.class);
-			createDataMapMethod.setAccessible(true);
-			createDataMapMethod.invoke(null, 0);
-		}catch(NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
+		}catch(NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|InstantiationException e) {
 			term.logStackTrace(e, LangShellWindow.class);
 		}
 		
@@ -315,7 +312,7 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				try {
-					compileLangFileMethod.invoke(null, new BufferedReader(new StringReader(line)), 0);
+					compileLangFileMethod.invoke(compilerInstance, new BufferedReader(new StringReader(line)), 0);
 				}catch(Exception e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
@@ -349,7 +346,7 @@ public class LangShellWindow extends JDialog {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent == 0) {
 				try {
-					compileLangFileMethod.invoke(null, new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
+					compileLangFileMethod.invoke(compilerInstance, new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
 				}catch(Exception e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
@@ -370,7 +367,7 @@ public class LangShellWindow extends JDialog {
 		try {
 			Field dataField = compilerClass.getDeclaredField("data");
 			dataField.setAccessible(true);
-			Map<?, ?> dataMaps = (Map<?, ?>)dataField.get(null);
+			Map<?, ?> dataMaps = (Map<?, ?>)dataField.get(compilerInstance);
 			Class<?> dataClass = null;
 			for(Class<?> c:compilerClass.getDeclaredClasses()) {
 				if(c.getSimpleName().equals("Data")) {
