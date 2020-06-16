@@ -228,7 +228,7 @@ public class LangShellWindow extends JDialog {
 		}
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
-		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + P)\n> ", Color.WHITE);
+		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n> ", Color.WHITE);
 	}
 	
 	private void highlightSyntaxLastLine() {

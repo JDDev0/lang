@@ -3042,19 +3042,15 @@ public class Lang {
 					retTmp += func.substring(0, index); //Adds everything between start and "fp." or "func." to retTmp
 					func = func.substring(index); //Cuts everything before "fp." or "func."
 					
-					int lastIndex = 0, openCount = 0;
-					if(func.indexOf('(') == -1) { //FuncPtr without call
-						if(func.contains(",")) {
-							lastIndex += func.indexOf(",");
-						}else {
-							lastIndex += func.indexOf(')');
-						}
-						
-						retTmp += func.substring(0, lastIndex); //Adds result of nested function to retTmp
-						func = func.substring(lastIndex); //Cuts everything before end of nested function
+					if(!func.matches("(fp|func)\\.\\w*\\(.*")) { //FuncPtr without call
+						 //Remove first char from func string and add to retTmp -> won't be recognized as func anymore
+						retTmp += func.substring(0, 1);
+						func = func.substring(1);
 						continue;
 					}
+					
 					String funcCopy = func.substring(func.indexOf('('));
+					int lastIndex = 0, openCount = 0;
 					for(lastIndex = 0;lastIndex < funcCopy.length();lastIndex++) {
 						char c = funcCopy.charAt(lastIndex);
 						if(c == '(')
@@ -3063,9 +3059,8 @@ public class Lang {
 						if(c == ')')
 							openCount--;
 						
-						if(openCount == 0) {
+						if(openCount == 0)
 							break;
-						}
 					}
 					lastIndex += func.indexOf('(') + 1;
 					
