@@ -296,7 +296,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  */
 public class Lang {
 	private static final String VERSION = "v0.2.0";
-	private static final Random ran = new Random();
+	private static final Random RAN = new Random();
 	
 	private static String oldFile;
 	private static String pathLangFile; //$LANG_PATH
@@ -450,7 +450,7 @@ public class Lang {
 	//Class for compiling lang file
 	private static class Compiler {
 		//Error Strings
-		private static String[] errorStrings = new String[] {
+		private final static String[] ERROR_STRINGS = new String[] {
 			"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow",
 			"No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length",
 			"Empty array", "Length NAN", "Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error",
@@ -513,7 +513,7 @@ public class Lang {
 			funcs.put("getErrorString", (lines, arg, DATA_ID) -> {
 				int err = getAndClearErrno(DATA_ID); //Reset and return error
 				
-				return errorStrings[err];
+				return ERROR_STRINGS[err];
 			});
 			
 			//Compiler function
@@ -869,7 +869,7 @@ public class Lang {
 			
 			//Math functions
 			funcs.put("rand", (lines, arg, DATA_ID) -> {
-				return "" + ran.nextInt(Integer.MAX_VALUE);
+				return "" + RAN.nextInt(Integer.MAX_VALUE);
 			});
 			funcs.put("addi", (lines, arg, DATA_ID) -> {
 				String[] funcArgs = arg.split(",");
@@ -1624,7 +1624,7 @@ public class Lang {
 					}else if(funcArgs.length == 1) {
 						return funcArgs[0];
 					}
-					return funcArgs[ran.nextInt(funcArgs.length)];
+					return funcArgs[RAN.nextInt(funcArgs.length)];
 				}
 				
 				DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
@@ -1636,7 +1636,7 @@ public class Lang {
 				}else if(arr.length == 1) {
 					return arr[0].getText();
 				}
-				return arr[ran.nextInt(arr.length)].getText();
+				return arr[RAN.nextInt(arr.length)].getText();
 			});
 			funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
 				arg = arg.trim();
@@ -2049,7 +2049,7 @@ public class Lang {
 			}
 			
 			public String getErrmsg() {
-				return errorStrings[err];
+				return ERROR_STRINGS[err];
 			}
 			
 			@Override
