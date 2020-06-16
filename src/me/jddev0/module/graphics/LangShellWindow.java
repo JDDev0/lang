@@ -368,7 +368,7 @@ public class LangShellWindow extends JDialog {
 		
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
 		try {
-			Field dataField = Lang.class.getDeclaredField("data");
+			Field dataField = compilerClass.getDeclaredField("data");
 			dataField.setAccessible(true);
 			Map<?, ?> dataMaps = (Map<?, ?>)dataField.get(null);
 			Class<?> dataClass = null;

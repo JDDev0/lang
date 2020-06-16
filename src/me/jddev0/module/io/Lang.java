@@ -301,1218 +301,8 @@ public class Lang {
 	private static String oldFile;
 	private static String pathLangFile; //$LANG_PATH
 	
-	//Error Strings
-	private static String[] errorStrings = new String[] {
-		"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow", "No terminal available",
-		"Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length", "Empty array", "Length NAN",
-		"Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error", "Negative repeat count",
-		"Lang request doesn't exist", "Function not supported", "Bracket count mismatch"
-	};
-	
-	//DATA
-	private static Map<Integer, Compiler.Data> data = new HashMap<>();
-	
 	//Lang tmp
 	private static Map<String, String> lang = new HashMap<>(); //ID, data
-	
-	//INIT funcs
-	private static Map<String, LangFunctionObject> funcs = new HashMap<>();
-	static {
-		//Reset Functions
-		funcs.put("clearVar", (lines, arg, DATA_ID) -> {
-			Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
-			if(dataObject == null) {
-				Compiler.setErrno(21, DATA_ID);
-				
-				return "Error";
-			}
-			
-			if(dataObject.isFinalData()) {
-				Compiler.setErrno(1, DATA_ID);
-				
-				return "Error";
-			}
-			
-			if(dataObject.getType().equals(Compiler.DataType.CLASS)) {
-				String line = arg.trim() + "[DELETE]";
-				Compiler.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
-			}else {
-				data.get(DATA_ID).varTmp.remove(arg.trim());
-			}
-			
-			return "";
-		});
-		funcs.put("clearAllVars", (lines, arg, DATA_ID) -> {
-			Compiler.resetVars(DATA_ID);
-			
-			return "";
-		});
-		funcs.put("clearAllArrays", (lines, arg, DATA_ID) -> {
-			new HashSet<String>(data.get(DATA_ID).varTmp.keySet()).forEach(key -> {
-				if(key.startsWith("&"))
-					data.get(DATA_ID).varTmp.remove(key);
-			});
-			Compiler.term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
-			
-			return "";
-		});
-		
-		//Error functions
-		funcs.put("getErrorString", (lines, arg, DATA_ID) -> {
-			int err = Compiler.getAndClearErrno(DATA_ID); //Reset and return error
-			
-			return errorStrings[err];
-		});
-		
-		//Compiler function
-		funcs.put("isCompilerVersionNewer", (lines, arg, DATA_ID) -> {
-			String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
-			
-			return (VERSION.compareTo(langVer) > 0)?"1":"0";
-		});
-		funcs.put("isCompilerVersionOlder", (lines, arg, DATA_ID) -> {
-			String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
-			
-			return (VERSION.compareTo(langVer) < 0)?"1":"0";
-		});
-		
-		//System Functions
-		funcs.put("sleep", (lines, arg, DATA_ID) -> {
-			try {
-				int sleepTime = Integer.parseInt(arg.trim());
-				
-				try {
-					Thread.sleep(sleepTime);
-				}catch(InterruptedException e) {
-					Compiler.setErrno(24, DATA_ID);
-					
-					return "Error";
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(9, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return "";
-		});
-		funcs.put("repeat", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				String funcPtr = funcArgs[0].trim();
-				if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
-					Compiler.setErrno(20, DATA_ID);
-					
-					return "Error";
-				}
-				
-				int times = Integer.parseInt(funcArgs[1].trim());
-				if(times < 0) {
-					Compiler.setErrno(25, DATA_ID);
-					
-					return "Error";
-				}
-				
-				for(int i = 0;i < times;i++) {
-					Compiler.Func.compileFunc(funcPtr, "" + i, DATA_ID);
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(9, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return "";
-		});
-		funcs.put("repeatWhile", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				String execFunc = funcArgs[0].trim();
-				String checkFunc = funcArgs[1].trim();
-				if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
-					Compiler.setErrno(20, DATA_ID);
-					
-					return "Error";
-				}
-				
-				while(true) {
-					String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
-					try {
-						if(Integer.parseInt(check) == 0)
-							break;
-					}catch(NumberFormatException e) {
-						break;
-					}
-					Compiler.Func.compileFunc(execFunc, "", DATA_ID);
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(9, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return "";
-		});
-		funcs.put("repeatUntil", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				String execFunc = funcArgs[0].trim();
-				String checkFunc = funcArgs[1].trim();
-				if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
-					Compiler.setErrno(20, DATA_ID);
-					
-					return "Error";
-				}
-				
-				while(true) {
-					String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
-					try {
-						if(Integer.parseInt(check) != 0)
-							break;
-					}catch(NumberFormatException e) {
-						break;
-					}
-					Compiler.Func.compileFunc(execFunc, "", DATA_ID);
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(9, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return "";
-		});
-		funcs.put("getLangRequest", (lines, arg, DATA_ID) -> {
-			String ret = data.get(DATA_ID).lang.get(arg.trim());
-			if(ret == null) {
-				Compiler.setErrno(26, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return ret;
-		});
-		funcs.put("makeFinal", (lines, arg, DATA_ID) -> {
-			Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
-			if(dataObject == null || dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
-				Compiler.setErrno(21, DATA_ID);
-				
-				return "Error";
-			}
-			
-			dataObject.setFinalData(true);
-			
-			return "";
-		});
-		funcs.put("condition", (lines, arg, DATA_ID) -> Compiler.If.checkIf(arg)?"1":"0");
-		funcs.put("currentTimeMillis", (lines, arg, DATA_ID) -> System.currentTimeMillis() + "");
-		
-		//IO Functions
-		funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
-			String input = JOptionPane.showInputDialog(null, arg, "Lang input", JOptionPane.PLAIN_MESSAGE);
-			
-			if(input == null)
-				return "";
-			else
-				return input;
-		});
-		funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
-			TerminalIO term = Compiler.term;
-			if(term == null) {
-				Compiler.setErrno(7, DATA_ID);
-				
-				return "Error";
-			}
-			Level lvl = null;
-			
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				int logLevel = Integer.parseInt(funcArgs[0].trim());
-				
-				for(Level l:Level.values()) {
-					if(l.getLevel() == logLevel) {
-						lvl = l;
-						
-						break;
-					}
-				}
-				
-				if(lvl == null) { //If invalid log level...
-					throw new NumberFormatException(); //...return error
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(9, DATA_ID);
-				
-				return "Error";
-			}
-			
-			term.logln(lvl, "[From lang file]: " + funcArgs[1].trim().replaceAll("\\\\s", " "), Lang.class);
-			
-			return "";
-		});
-		funcs.put("printError", (lines, arg, DATA_ID) -> {
-			String comp = "func.printTerminal(" + Level.ERROR.getLevel() + ", ";
-			if(arg.trim().length() > 0) { //If argCount != 0
-				 comp += arg.trim() + ": ";
-			}
-			comp += "func.getErrorString())";
-			try {
-				Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID); //Compile like "perror"(C) -> (Text + ": " + Error-String)
-			}catch(NullPointerException e) {
-				Compiler.setErrno(21, DATA_ID);
-				
-				return "Error";
-			}catch(Exception e) {}
-			
-			return "";
-		});
-		
-		//Num Functions
-		funcs.put("hexToDez", (lines, arg, DATA_ID) -> {
-			try {
-				int hex = Integer.parseInt(arg.trim().substring(2), 16);
-				
-				return hex + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(11, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		
-		//Character functions
-		funcs.put("toValue", (lines, arg, DATA_ID) -> {
-			if(arg.trim().length() != 1) {
-				Compiler.setErrno(12, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return (int)arg.trim().charAt(0) + "";
-		});
-		funcs.put("toChar", (lines, arg, DATA_ID) -> {
-			try {
-				int c = Integer.parseInt(arg.trim());
-				
-				return (char)c + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		
-		//String functions
-		funcs.put("strlen", (lines, arg, DATA_ID) -> arg.trim().length() + "");
-		funcs.put("toUpper", (lines, arg, DATA_ID) -> arg.toUpperCase());
-		funcs.put("toLower", (lines, arg, DATA_ID) -> arg.toLowerCase());
-		funcs.put("trim", (lines, arg, DATA_ID) -> arg.trim());
-		funcs.put("replace", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 3);
-			if(funcArgs.length != 3) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return funcArgs[0].trim().replaceAll(funcArgs[1].trim(), funcArgs[2].trim());
-		});
-		funcs.put("substring", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 3);
-			if(funcArgs.length < 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				int start = Integer.parseInt(funcArgs[1].trim());
-				
-				if(funcArgs.length == 2) {
-					return funcArgs[0].trim().substring(start);
-				}else {
-					int end = Integer.parseInt(funcArgs[2].trim());
-					return funcArgs[0].trim().substring(start, end);
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}catch(StringIndexOutOfBoundsException e) {
-				Compiler.setErrno(18, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		funcs.put("split", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 4);
-			if(funcArgs.length < 3) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			String arrPtr = funcArgs[0].trim();
-			String str = funcArgs[1].trim();
-			String splitStr = funcArgs[2].trim();
-			
-			String[] arrTmp;
-			if(funcArgs.length == 3) {
-				arrTmp = str.split(splitStr);
-			}else {
-				try{
-					arrTmp = str.split(splitStr, Integer.parseInt(funcArgs[3].trim()));
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			String comp = "func.arrayMake(" + arrPtr + ", " + arrTmp.length + ")\nfunc.arraySetAll(" + arrPtr;
-			for(String s:arrTmp) {
-				comp += ", " + s;
-			}
-			comp += ")";
-			try {
-				Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID);
-			}catch(NullPointerException e) {
-				Compiler.setErrno(21, DATA_ID);
-				
-				return "Error";
-			}catch(Exception e) {}
-			
-			int err;
-			if((err = Compiler.getAndClearErrno(DATA_ID)) != 0) {
-				Compiler.setErrno(err, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return "";
-		});
-		
-		//Math functions
-		funcs.put("rand", (lines, arg, DATA_ID) -> {
-			return "" + ran.nextInt(Integer.MAX_VALUE);
-		});
-		funcs.put("addi", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			int sum = 0;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					sum += Integer.parseInt(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return sum + "";
-		});
-		funcs.put("subi", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return Integer.parseInt(funcArgs[0].trim()) - Integer.parseInt(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("muli", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			int prod = 1;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					prod *= Integer.parseInt(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return prod + "";
-		});
-		funcs.put("divi", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-						Compiler.setErrno(14, DATA_ID);
-						
-						return "Error";
-					}
-					return Integer.parseInt(funcArgs[0].trim())/Integer.parseInt(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("modi", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-						Compiler.setErrno(14, DATA_ID);
-						
-						return "Error";
-					}
-					return Integer.parseInt(funcArgs[0].trim())%Integer.parseInt(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("andi", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) & Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("ori", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) | Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("xori", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) ^ Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("noti", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 1) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return ~Integer.parseInt(funcArgs[0].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("lshifti", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) << Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("rshifti", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) >> Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("rzshifti", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Integer.parseInt(funcArgs[0].trim()) >>> Integer.parseInt(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("addl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			long sum = 0L;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					sum += Long.parseLong(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return sum + "";
-		});
-		funcs.put("subl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return Long.parseLong(funcArgs[0].trim())-Long.parseLong(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("mull", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			long prod = 1L;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					prod *= Long.parseLong(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return prod + "";
-		});
-		funcs.put("divl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Long.parseLong(funcArgs[1].trim()) == 0) {
-						Compiler.setErrno(14, DATA_ID);
-						
-						return "Error";
-					}
-					return Long.parseLong(funcArgs[0].trim())/Long.parseLong(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("modl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Long.parseLong(funcArgs[1].trim()) == 0) {
-						Compiler.setErrno(14, DATA_ID);
-						
-						return "Error";
-					}
-					return Long.parseLong(funcArgs[0].trim()) % Long.parseLong(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("andl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) & Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("orl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) | Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("xorl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) ^ Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("notl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 1) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return ~Long.parseLong(funcArgs[0].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("lshiftl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) << Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("rshiftl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) >> Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("rzshiftl", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return (Long.parseLong(funcArgs[0].trim()) >>> Long.parseLong(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("addd", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			double sum = 0.;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					sum += Double.parseDouble(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return sum + "";
-		});
-		funcs.put("subd", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					return Double.parseDouble(funcArgs[0].trim())-Double.parseDouble(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("muld", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",");
-			double prod = 1.;
-			for(int i = 0;i < funcArgs.length;i++) {
-				funcArgs[i] = funcArgs[i].trim();
-				try {
-					prod *= Double.parseDouble(funcArgs[i].trim());
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-			
-			return prod + "";
-		});
-		funcs.put("divd", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
-						Compiler.setErrno(14, DATA_ID);
-						
-						return "Error";
-					}
-					return Double.parseDouble(funcArgs[0].trim())/Double.parseDouble(funcArgs[1].trim()) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("pow", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}else {
-				try {
-					if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
-						return "1";
-					}
-					return Math.pow(Double.parseDouble(funcArgs[0].trim()), Double.parseDouble(funcArgs[1].trim())) + "";
-				}catch(NumberFormatException e) {
-					Compiler.setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			}
-		});
-		funcs.put("sqrt", (lines, arg, DATA_ID) -> {
-			try {
-				return Math.sqrt(Double.parseDouble(arg.trim())) + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		funcs.put("dtoi", (lines, arg, DATA_ID) -> {
-			try {
-				return (int)Double.parseDouble(arg.trim()) + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		funcs.put("dtol", (lines, arg, DATA_ID) -> {
-			try {
-				return (long)Double.parseDouble(arg.trim()) + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		funcs.put("ceil", (lines, arg, DATA_ID) -> {
-			try {
-				return (long)Math.ceil(Double.parseDouble(arg.trim())) + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		funcs.put("floor", (lines, arg, DATA_ID) -> {
-			try {
-				return (long)Math.floor(Double.parseDouble(arg.trim())) + "";
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(13, DATA_ID);
-				
-				return "Error";
-			}
-		});
-		
-		//FuncPtr functions
-		funcs.put("copyAfterFP", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			String to = funcArgs[0].trim();
-			String from = funcArgs[1].trim();
-			
-			Compiler.Func.copyAfterFP.get(DATA_ID).put(to, from);
-			
-			return "";
-		});
-		
-		//Array functions
-		funcs.put("arrayMake", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2); //arrPtr, length
-			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&")) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			try {
-				int lenght = Integer.parseInt(funcArgs[1].trim());
-				
-				if(lenght < 0) {
-					Compiler.setErrno(15, DATA_ID);
-					
-					return "Error";
-				}else if(lenght == 0) {
-					Compiler.setErrno(16, DATA_ID);
-					
-					return "Error";
-				}
-				
-				Compiler.DataObject oldData = data.get(DATA_ID).varTmp.get(funcArgs[0]);
-				if(oldData != null && oldData.isFinalData()) {
-					Compiler.setErrno(1, DATA_ID);
-					
-					return "Error";
-				}
-				Compiler.DataObject[] arr = new Compiler.DataObject[lenght];
-				if(oldData != null)
-					oldData.setArray(arr);
-				else
-					data.get(DATA_ID).varTmp.put(funcArgs[0], new Compiler.DataObject().setArray(arr));
-				
-				for(int i = 0;i < arr.length;i++)
-					arr[i] = new Compiler.DataObject().setNull();
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(17, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return ""; //No return func
-		});
-		funcs.put("arraySet", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 3); //arrPtr, index, value
-			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
-			
-			try {
-				int index = Integer.parseInt(funcArgs[1].trim());
-				
-				if(index < 0) {
-					Compiler.setErrno(15, DATA_ID);
-					
-					return "Error";
-				}else if(index >= arr.length) {
-					Compiler.setErrno(18, DATA_ID);
-					
-					return "Error";
-				}
-				
-				arr[index].setText(funcArgs[2].trim());
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(17, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return ""; //No return func
-		});
-		funcs.put("arraySetAll", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(","); //arrPtr, value, ...
-			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			funcArgs[1] = funcArgs[1].trim();
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
-			
-			if(funcArgs.length == 2) {
-				for(int i = 0;i < arr.length;i++) {
-					arr[i].setText(funcArgs[1].trim());
-				}
-			}else if(funcArgs.length == arr.length+1) {
-				for(int i = 0;i < arr.length;i++) {
-					arr[i].setText(funcArgs[i + 1].trim());
-				}
-			}else {
-				Compiler.setErrno(19, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return ""; //No return func
-		});
-		funcs.put("arrayGet", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2); //arrPtr, index
-			funcArgs[0] = funcArgs[0].trim();
-			if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
-			int index = Integer.parseInt(funcArgs[1].trim());
-			
-			try {
-				if(index < 0 || index >= arr.length) {
-					Compiler.setErrno(18, DATA_ID);
-					
-					return "Error";
-				}
-			}catch(NumberFormatException e) {
-				Compiler.setErrno(17, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return arr[index].getText();
-		});
-		funcs.put("arrayGetAll", (lines, arg, DATA_ID) -> {
-			String tmp = "";
-			
-			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			for(Compiler.DataObject val:data.get(DATA_ID).varTmp.get(arg).getArray()) {
-				tmp += val + ", ";
-			}
-			
-			return tmp.substring(0, tmp.lastIndexOf(", "));
-		});
-		funcs.put("arrayLength", (lines, arg, DATA_ID) -> {
-			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			return data.get(DATA_ID).varTmp.get(arg).getArray().length + "";
-		});
-		funcs.put("arrayForEach", (lines, arg, DATA_ID) -> {
-			String[] funcArgs = arg.split(",", 2);
-			if(funcArgs.length != 2) {
-				Compiler.setErrno(8, DATA_ID);
-				
-				return "Error";
-			}
-			
-			String arrName = funcArgs[0].trim();
-			if(!arrName.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arrName)) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			String funcPtr = funcArgs[1].trim();
-			if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
-				Compiler.setErrno(20, DATA_ID);
-				
-				return "Error";
-			}
-			
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
-			for(Compiler.DataObject element:arr) {
-				Compiler.Func.compileFunc(funcPtr, element.getText(), DATA_ID);
-			}
-			
-			return "";
-		});
-		funcs.put("randChoice", (lines, arg, DATA_ID) -> {
-			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-				//No array Pointer
-				String[] funcArgs = arg.split(",");
-				if(funcArgs.length < 1) {
-					Compiler.setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else if(funcArgs.length == 1) {
-					return funcArgs[0];
-				}
-				return funcArgs[ran.nextInt(funcArgs.length)];
-			}
-			
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
-			
-			if(arr.length < 1) {
-				Compiler.setErrno(16, DATA_ID);
-				
-				return "Error";
-			}else if(arr.length == 1) {
-				return arr[0].getText();
-			}
-			return arr[ran.nextInt(arr.length)].getText();
-		});
-		funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
-			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			
-			Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
-			for(Compiler.DataObject element:arr)
-				element.setNull();
-			
-			return ""; //No return func
-		});
-		funcs.put("arrayClear", (lines, arg, DATA_ID) -> {
-			arg = arg.trim();
-			if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
-				Compiler.setErrno(10, DATA_ID);
-				
-				return "Error";
-			}
-			data.get(DATA_ID).varTmp.remove(arg);
-			
-			return ""; //No return func
-		});
-	}
 	
 	private Lang() {}
 	
@@ -1572,10 +362,10 @@ public class Lang {
 			reader.close();
 			
 			//Copy lang
-			lang = data.get(0).lang;
+			lang = Compiler.data.get(0).lang;
 			
 			//Clear data
-			data.clear();
+			Compiler.data.clear();
 			return new HashMap<>(lang);
 		}
 	}
@@ -1666,6 +456,1216 @@ public class Lang {
 	
 	//Class for compiling lang file
 	private static class Compiler {
+		//Error Strings
+		private static String[] errorStrings = new String[] {
+			"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow",
+			"No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length",
+			"Empty array", "Length NAN", "Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error",
+			"Negative repeat count", "Lang request doesn't exist", "Function not supported", "Bracket count mismatch"
+		};
+		
+		//DATA
+		private static Map<Integer, Compiler.Data> data = new HashMap<>();
+		
+		//INIT funcs
+		private static Map<String, LangFunctionObject> funcs = new HashMap<>();
+		static {
+			//Reset Functions
+			funcs.put("clearVar", (lines, arg, DATA_ID) -> {
+				Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
+				if(dataObject == null) {
+					Compiler.setErrno(21, DATA_ID);
+					
+					return "Error";
+				}
+				
+				if(dataObject.isFinalData()) {
+					Compiler.setErrno(1, DATA_ID);
+					
+					return "Error";
+				}
+				
+				if(dataObject.getType().equals(Compiler.DataType.CLASS)) {
+					String line = arg.trim() + "[DELETE]";
+					Compiler.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
+				}else {
+					data.get(DATA_ID).varTmp.remove(arg.trim());
+				}
+				
+				return "";
+			});
+			funcs.put("clearAllVars", (lines, arg, DATA_ID) -> {
+				Compiler.resetVars(DATA_ID);
+				
+				return "";
+			});
+			funcs.put("clearAllArrays", (lines, arg, DATA_ID) -> {
+				new HashSet<String>(data.get(DATA_ID).varTmp.keySet()).forEach(key -> {
+					if(key.startsWith("&"))
+						data.get(DATA_ID).varTmp.remove(key);
+				});
+				Compiler.term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
+				
+				return "";
+			});
+			
+			//Error functions
+			funcs.put("getErrorString", (lines, arg, DATA_ID) -> {
+				int err = Compiler.getAndClearErrno(DATA_ID); //Reset and return error
+				
+				return errorStrings[err];
+			});
+			
+			//Compiler function
+			funcs.put("isCompilerVersionNewer", (lines, arg, DATA_ID) -> {
+				String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
+				
+				return (VERSION.compareTo(langVer) > 0)?"1":"0";
+			});
+			funcs.put("isCompilerVersionOlder", (lines, arg, DATA_ID) -> {
+				String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
+				
+				return (VERSION.compareTo(langVer) < 0)?"1":"0";
+			});
+			
+			//System Functions
+			funcs.put("sleep", (lines, arg, DATA_ID) -> {
+				try {
+					int sleepTime = Integer.parseInt(arg.trim());
+					
+					try {
+						Thread.sleep(sleepTime);
+					}catch(InterruptedException e) {
+						Compiler.setErrno(24, DATA_ID);
+						
+						return "Error";
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(9, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return "";
+			});
+			funcs.put("repeat", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					String funcPtr = funcArgs[0].trim();
+					if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
+						Compiler.setErrno(20, DATA_ID);
+						
+						return "Error";
+					}
+					
+					int times = Integer.parseInt(funcArgs[1].trim());
+					if(times < 0) {
+						Compiler.setErrno(25, DATA_ID);
+						
+						return "Error";
+					}
+					
+					for(int i = 0;i < times;i++) {
+						Compiler.Func.compileFunc(funcPtr, "" + i, DATA_ID);
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(9, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return "";
+			});
+			funcs.put("repeatWhile", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					String execFunc = funcArgs[0].trim();
+					String checkFunc = funcArgs[1].trim();
+					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
+						Compiler.setErrno(20, DATA_ID);
+						
+						return "Error";
+					}
+					
+					while(true) {
+						String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
+						try {
+							if(Integer.parseInt(check) == 0)
+								break;
+						}catch(NumberFormatException e) {
+							break;
+						}
+						Compiler.Func.compileFunc(execFunc, "", DATA_ID);
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(9, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return "";
+			});
+			funcs.put("repeatUntil", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					String execFunc = funcArgs[0].trim();
+					String checkFunc = funcArgs[1].trim();
+					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(execFunc) || !data.get(DATA_ID).varTmp.containsKey(checkFunc)) {
+						Compiler.setErrno(20, DATA_ID);
+						
+						return "Error";
+					}
+					
+					while(true) {
+						String check = Compiler.Func.compileFunc(checkFunc, "", DATA_ID);
+						try {
+							if(Integer.parseInt(check) != 0)
+								break;
+						}catch(NumberFormatException e) {
+							break;
+						}
+						Compiler.Func.compileFunc(execFunc, "", DATA_ID);
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(9, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return "";
+			});
+			funcs.put("getLangRequest", (lines, arg, DATA_ID) -> {
+				String ret = data.get(DATA_ID).lang.get(arg.trim());
+				if(ret == null) {
+					Compiler.setErrno(26, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return ret;
+			});
+			funcs.put("makeFinal", (lines, arg, DATA_ID) -> {
+				Compiler.DataObject dataObject = data.get(DATA_ID).varTmp.get(arg.trim());
+				if(dataObject == null || dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
+					Compiler.setErrno(21, DATA_ID);
+					
+					return "Error";
+				}
+				
+				dataObject.setFinalData(true);
+				
+				return "";
+			});
+			funcs.put("condition", (lines, arg, DATA_ID) -> Compiler.If.checkIf(arg)?"1":"0");
+			funcs.put("currentTimeMillis", (lines, arg, DATA_ID) -> System.currentTimeMillis() + "");
+			
+			//IO Functions
+			funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
+				String input = JOptionPane.showInputDialog(null, arg, "Lang input", JOptionPane.PLAIN_MESSAGE);
+				
+				if(input == null)
+					return "";
+				else
+					return input;
+			});
+			funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
+				TerminalIO term = Compiler.term;
+				if(term == null) {
+					Compiler.setErrno(7, DATA_ID);
+					
+					return "Error";
+				}
+				Level lvl = null;
+				
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					int logLevel = Integer.parseInt(funcArgs[0].trim());
+					
+					for(Level l:Level.values()) {
+						if(l.getLevel() == logLevel) {
+							lvl = l;
+							
+							break;
+						}
+					}
+					
+					if(lvl == null) { //If invalid log level...
+						throw new NumberFormatException(); //...return error
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(9, DATA_ID);
+					
+					return "Error";
+				}
+				
+				term.logln(lvl, "[From lang file]: " + funcArgs[1].trim().replaceAll("\\\\s", " "), Lang.class);
+				
+				return "";
+			});
+			funcs.put("printError", (lines, arg, DATA_ID) -> {
+				String comp = "func.printTerminal(" + Level.ERROR.getLevel() + ", ";
+				if(arg.trim().length() > 0) { //If argCount != 0
+					 comp += arg.trim() + ": ";
+				}
+				comp += "func.getErrorString())";
+				try {
+					Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID); //Compile like "perror"(C) -> (Text + ": " + Error-String)
+				}catch(NullPointerException e) {
+					Compiler.setErrno(21, DATA_ID);
+					
+					return "Error";
+				}catch(Exception e) {}
+				
+				return "";
+			});
+			
+			//Num Functions
+			funcs.put("hexToDez", (lines, arg, DATA_ID) -> {
+				try {
+					int hex = Integer.parseInt(arg.trim().substring(2), 16);
+					
+					return hex + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(11, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			
+			//Character functions
+			funcs.put("toValue", (lines, arg, DATA_ID) -> {
+				if(arg.trim().length() != 1) {
+					Compiler.setErrno(12, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return (int)arg.trim().charAt(0) + "";
+			});
+			funcs.put("toChar", (lines, arg, DATA_ID) -> {
+				try {
+					int c = Integer.parseInt(arg.trim());
+					
+					return (char)c + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			
+			//String functions
+			funcs.put("strlen", (lines, arg, DATA_ID) -> arg.trim().length() + "");
+			funcs.put("toUpper", (lines, arg, DATA_ID) -> arg.toUpperCase());
+			funcs.put("toLower", (lines, arg, DATA_ID) -> arg.toLowerCase());
+			funcs.put("trim", (lines, arg, DATA_ID) -> arg.trim());
+			funcs.put("replace", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 3);
+				if(funcArgs.length != 3) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return funcArgs[0].trim().replaceAll(funcArgs[1].trim(), funcArgs[2].trim());
+			});
+			funcs.put("substring", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 3);
+				if(funcArgs.length < 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					int start = Integer.parseInt(funcArgs[1].trim());
+					
+					if(funcArgs.length == 2) {
+						return funcArgs[0].trim().substring(start);
+					}else {
+						int end = Integer.parseInt(funcArgs[2].trim());
+						return funcArgs[0].trim().substring(start, end);
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}catch(StringIndexOutOfBoundsException e) {
+					Compiler.setErrno(18, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			funcs.put("split", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 4);
+				if(funcArgs.length < 3) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				String arrPtr = funcArgs[0].trim();
+				String str = funcArgs[1].trim();
+				String splitStr = funcArgs[2].trim();
+				
+				String[] arrTmp;
+				if(funcArgs.length == 3) {
+					arrTmp = str.split(splitStr);
+				}else {
+					try{
+						arrTmp = str.split(splitStr, Integer.parseInt(funcArgs[3].trim()));
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				String comp = "func.arrayMake(" + arrPtr + ", " + arrTmp.length + ")\nfunc.arraySetAll(" + arrPtr;
+				for(String s:arrTmp) {
+					comp += ", " + s;
+				}
+				comp += ")";
+				try {
+					Compiler.compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID);
+				}catch(NullPointerException e) {
+					Compiler.setErrno(21, DATA_ID);
+					
+					return "Error";
+				}catch(Exception e) {}
+				
+				int err;
+				if((err = Compiler.getAndClearErrno(DATA_ID)) != 0) {
+					Compiler.setErrno(err, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return "";
+			});
+			
+			//Math functions
+			funcs.put("rand", (lines, arg, DATA_ID) -> {
+				return "" + ran.nextInt(Integer.MAX_VALUE);
+			});
+			funcs.put("addi", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				int sum = 0;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						sum += Integer.parseInt(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return sum + "";
+			});
+			funcs.put("subi", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return Integer.parseInt(funcArgs[0].trim()) - Integer.parseInt(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("muli", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				int prod = 1;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						prod *= Integer.parseInt(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return prod + "";
+			});
+			funcs.put("divi", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
+							Compiler.setErrno(14, DATA_ID);
+							
+							return "Error";
+						}
+						return Integer.parseInt(funcArgs[0].trim())/Integer.parseInt(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("modi", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
+							Compiler.setErrno(14, DATA_ID);
+							
+							return "Error";
+						}
+						return Integer.parseInt(funcArgs[0].trim())%Integer.parseInt(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("andi", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) & Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("ori", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) | Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("xori", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) ^ Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("noti", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 1) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return ~Integer.parseInt(funcArgs[0].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("lshifti", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) << Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("rshifti", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) >> Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("rzshifti", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Integer.parseInt(funcArgs[0].trim()) >>> Integer.parseInt(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("addl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				long sum = 0L;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						sum += Long.parseLong(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return sum + "";
+			});
+			funcs.put("subl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return Long.parseLong(funcArgs[0].trim())-Long.parseLong(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("mull", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				long prod = 1L;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						prod *= Long.parseLong(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return prod + "";
+			});
+			funcs.put("divl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Long.parseLong(funcArgs[1].trim()) == 0) {
+							Compiler.setErrno(14, DATA_ID);
+							
+							return "Error";
+						}
+						return Long.parseLong(funcArgs[0].trim())/Long.parseLong(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("modl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Long.parseLong(funcArgs[1].trim()) == 0) {
+							Compiler.setErrno(14, DATA_ID);
+							
+							return "Error";
+						}
+						return Long.parseLong(funcArgs[0].trim()) % Long.parseLong(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("andl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) & Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("orl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) | Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("xorl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) ^ Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("notl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 1) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return ~Long.parseLong(funcArgs[0].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("lshiftl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) << Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("rshiftl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) >> Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("rzshiftl", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return (Long.parseLong(funcArgs[0].trim()) >>> Long.parseLong(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("addd", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				double sum = 0.;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						sum += Double.parseDouble(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return sum + "";
+			});
+			funcs.put("subd", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						return Double.parseDouble(funcArgs[0].trim())-Double.parseDouble(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("muld", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",");
+				double prod = 1.;
+				for(int i = 0;i < funcArgs.length;i++) {
+					funcArgs[i] = funcArgs[i].trim();
+					try {
+						prod *= Double.parseDouble(funcArgs[i].trim());
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+				
+				return prod + "";
+			});
+			funcs.put("divd", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
+							Compiler.setErrno(14, DATA_ID);
+							
+							return "Error";
+						}
+						return Double.parseDouble(funcArgs[0].trim())/Double.parseDouble(funcArgs[1].trim()) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("pow", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}else {
+					try {
+						if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
+							return "1";
+						}
+						return Math.pow(Double.parseDouble(funcArgs[0].trim()), Double.parseDouble(funcArgs[1].trim())) + "";
+					}catch(NumberFormatException e) {
+						Compiler.setErrno(13, DATA_ID);
+						
+						return "Error";
+					}
+				}
+			});
+			funcs.put("sqrt", (lines, arg, DATA_ID) -> {
+				try {
+					return Math.sqrt(Double.parseDouble(arg.trim())) + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			funcs.put("dtoi", (lines, arg, DATA_ID) -> {
+				try {
+					return (int)Double.parseDouble(arg.trim()) + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			funcs.put("dtol", (lines, arg, DATA_ID) -> {
+				try {
+					return (long)Double.parseDouble(arg.trim()) + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			funcs.put("ceil", (lines, arg, DATA_ID) -> {
+				try {
+					return (long)Math.ceil(Double.parseDouble(arg.trim())) + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			funcs.put("floor", (lines, arg, DATA_ID) -> {
+				try {
+					return (long)Math.floor(Double.parseDouble(arg.trim())) + "";
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(13, DATA_ID);
+					
+					return "Error";
+				}
+			});
+			
+			//FuncPtr functions
+			funcs.put("copyAfterFP", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				String to = funcArgs[0].trim();
+				String from = funcArgs[1].trim();
+				
+				Compiler.Func.copyAfterFP.get(DATA_ID).put(to, from);
+				
+				return "";
+			});
+			
+			//Array functions
+			funcs.put("arrayMake", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2); //arrPtr, length
+				funcArgs[0] = funcArgs[0].trim();
+				if(!funcArgs[0].startsWith("&")) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				try {
+					int lenght = Integer.parseInt(funcArgs[1].trim());
+					
+					if(lenght < 0) {
+						Compiler.setErrno(15, DATA_ID);
+						
+						return "Error";
+					}else if(lenght == 0) {
+						Compiler.setErrno(16, DATA_ID);
+						
+						return "Error";
+					}
+					
+					Compiler.DataObject oldData = data.get(DATA_ID).varTmp.get(funcArgs[0]);
+					if(oldData != null && oldData.isFinalData()) {
+						Compiler.setErrno(1, DATA_ID);
+						
+						return "Error";
+					}
+					Compiler.DataObject[] arr = new Compiler.DataObject[lenght];
+					if(oldData != null)
+						oldData.setArray(arr);
+					else
+						data.get(DATA_ID).varTmp.put(funcArgs[0], new Compiler.DataObject().setArray(arr));
+					
+					for(int i = 0;i < arr.length;i++)
+						arr[i] = new Compiler.DataObject().setNull();
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(17, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return ""; //No return func
+			});
+			funcs.put("arraySet", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 3); //arrPtr, index, value
+				funcArgs[0] = funcArgs[0].trim();
+				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				
+				try {
+					int index = Integer.parseInt(funcArgs[1].trim());
+					
+					if(index < 0) {
+						Compiler.setErrno(15, DATA_ID);
+						
+						return "Error";
+					}else if(index >= arr.length) {
+						Compiler.setErrno(18, DATA_ID);
+						
+						return "Error";
+					}
+					
+					arr[index].setText(funcArgs[2].trim());
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(17, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return ""; //No return func
+			});
+			funcs.put("arraySetAll", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(","); //arrPtr, value, ...
+				funcArgs[0] = funcArgs[0].trim();
+				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				funcArgs[1] = funcArgs[1].trim();
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				
+				if(funcArgs.length == 2) {
+					for(int i = 0;i < arr.length;i++) {
+						arr[i].setText(funcArgs[1].trim());
+					}
+				}else if(funcArgs.length == arr.length+1) {
+					for(int i = 0;i < arr.length;i++) {
+						arr[i].setText(funcArgs[i + 1].trim());
+					}
+				}else {
+					Compiler.setErrno(19, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return ""; //No return func
+			});
+			funcs.put("arrayGet", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2); //arrPtr, index
+				funcArgs[0] = funcArgs[0].trim();
+				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(funcArgs[0])) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(funcArgs[0]).getArray();
+				int index = Integer.parseInt(funcArgs[1].trim());
+				
+				try {
+					if(index < 0 || index >= arr.length) {
+						Compiler.setErrno(18, DATA_ID);
+						
+						return "Error";
+					}
+				}catch(NumberFormatException e) {
+					Compiler.setErrno(17, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return arr[index].getText();
+			});
+			funcs.put("arrayGetAll", (lines, arg, DATA_ID) -> {
+				String tmp = "";
+				
+				arg = arg.trim();
+				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				for(Compiler.DataObject val:data.get(DATA_ID).varTmp.get(arg).getArray()) {
+					tmp += val + ", ";
+				}
+				
+				return tmp.substring(0, tmp.lastIndexOf(", "));
+			});
+			funcs.put("arrayLength", (lines, arg, DATA_ID) -> {
+				arg = arg.trim();
+				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				return data.get(DATA_ID).varTmp.get(arg).getArray().length + "";
+			});
+			funcs.put("arrayForEach", (lines, arg, DATA_ID) -> {
+				String[] funcArgs = arg.split(",", 2);
+				if(funcArgs.length != 2) {
+					Compiler.setErrno(8, DATA_ID);
+					
+					return "Error";
+				}
+				
+				String arrName = funcArgs[0].trim();
+				if(!arrName.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arrName)) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				String funcPtr = funcArgs[1].trim();
+				if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).varTmp.containsKey(funcPtr)) {
+					Compiler.setErrno(20, DATA_ID);
+					
+					return "Error";
+				}
+				
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arrName).getArray();
+				for(Compiler.DataObject element:arr) {
+					Compiler.Func.compileFunc(funcPtr, element.getText(), DATA_ID);
+				}
+				
+				return "";
+			});
+			funcs.put("randChoice", (lines, arg, DATA_ID) -> {
+				arg = arg.trim();
+				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
+					//No array Pointer
+					String[] funcArgs = arg.split(",");
+					if(funcArgs.length < 1) {
+						Compiler.setErrno(8, DATA_ID);
+						
+						return "Error";
+					}else if(funcArgs.length == 1) {
+						return funcArgs[0];
+					}
+					return funcArgs[ran.nextInt(funcArgs.length)];
+				}
+				
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
+				
+				if(arr.length < 1) {
+					Compiler.setErrno(16, DATA_ID);
+					
+					return "Error";
+				}else if(arr.length == 1) {
+					return arr[0].getText();
+				}
+				return arr[ran.nextInt(arr.length)].getText();
+			});
+			funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
+				arg = arg.trim();
+				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				
+				Compiler.DataObject[] arr = data.get(DATA_ID).varTmp.get(arg).getArray();
+				for(Compiler.DataObject element:arr)
+					element.setNull();
+				
+				return ""; //No return func
+			});
+			funcs.put("arrayClear", (lines, arg, DATA_ID) -> {
+				arg = arg.trim();
+				if(!arg.startsWith("&") || !data.get(DATA_ID).varTmp.containsKey(arg)) {
+					Compiler.setErrno(10, DATA_ID);
+					
+					return "Error";
+				}
+				data.get(DATA_ID).varTmp.remove(arg);
+				
+				return ""; //No return func
+			});
+		}
+		
 		private static TerminalIO term;
 		
 		private Compiler() {}
