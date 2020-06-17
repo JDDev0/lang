@@ -447,7 +447,158 @@ public class Lang {
 		}
 	}
 	
+	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term) throws Exception {
+		langFile = new File(langFile).getAbsolutePath();
+		String pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator));
+		
+		Compiler comp = new Compiler(pathLangFile, term);
+		
+		BufferedReader reader = new BufferedReader(new FileReader(new File(langFile)));
+		try {
+			comp.compileLangFile(reader, 0); //Compile lang file
+		}catch(Exception e) {
+			reader.close();
+			
+			throw e;
+		}
+		reader.close();
+		
+		return new LangCompilerInterface(comp);
+	}
+	public static LangCompilerInterface createCompilerInterface(TerminalIO term) {
+		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term));
+	}
+	
 	//Class for compiling lang file
+	public static class LangCompilerInterface {
+		private Compiler comp;
+		
+		private LangCompilerInterface(Compiler comp) {
+			this.comp = comp;
+		}
+		
+		public Map<Integer, Compiler.Data> getData() {
+			return comp.getData();
+		}
+		public Compiler.Data getData(final int DATA_ID) {
+			return comp.getData().get(DATA_ID);
+		}
+		
+		public Map<String, String> getTranslationMap(final int DATA_ID) {
+			Compiler.Data data = getData(DATA_ID);
+			if(data == null)
+				return null;
+			
+			return data.lang;
+		}
+		public String getTranslation(final int DATA_ID, String key) {
+			Map<String, String> translations = getTranslationMap(DATA_ID);
+			if(translations == null)
+				return null;
+			
+			return translations.get(key);
+		}
+		
+		public void setTranslation(final int DATA_ID, String key, String value) {
+			Map<String, String> translations = getTranslationMap(DATA_ID);
+			if(translations != null)
+				translations.put(key, value);
+		}
+		
+		public Map<String, Compiler.DataObject> getVarMap(final int DATA_ID) {
+			Compiler.Data data = getData(DATA_ID);
+			if(data == null)
+				return null;
+			
+			return data.varTmp;
+		}
+		public Compiler.DataObject getVar(final int DATA_ID, String varName) {
+			Map<String, Compiler.DataObject> vars = getVarMap(DATA_ID);
+			if(vars == null)
+				return null;
+			
+			return vars.get(varName);
+		}
+		
+		private void setVar(final int DATA_ID, String varName, Compiler.DataObject data, boolean ignoreFinal) {
+			Map<String, Compiler.DataObject> vars = getVarMap(DATA_ID);
+			if(vars != null) {
+				if(ignoreFinal) {
+					vars.put(varName, data);
+				}else {
+					Compiler.DataObject oldData = vars.get(varName);
+					if(oldData == null)
+						vars.put(varName, data);
+					else if(!oldData.isFinalData())
+						oldData.setData(data);
+				}
+			}
+		}
+		public void setVar(final int DATA_ID, String varName, String text) {
+			setVar(DATA_ID, varName, text, false);
+		}
+		public void setVar(final int DATA_ID, String varName, String text, boolean ignoreFinal) {
+			setVar(DATA_ID, varName, new Compiler.DataObject(text), ignoreFinal);
+		}
+		public void setVar(final int DATA_ID, String varName, Compiler.DataObject[] arr) {
+			setVar(DATA_ID, varName, arr, false);
+		}
+		public void setVar(final int DATA_ID, String varName, Compiler.DataObject[] arr, boolean ignoreFinal) {
+			setVar(DATA_ID, varName, new Compiler.DataObject().setArray(arr), ignoreFinal);
+		}
+		/**
+		 * @param function Call: function(String funcArgs, int DATA_ID): String
+		 */
+		public void setVar(final int DATA_ID, String varName, BiFunction<String, Integer, String> function) {
+			setVar(DATA_ID, varName, function, false);
+		}
+		/**
+		 * @param function Call: function(String funcArgs, int DATA_ID): String
+		 */
+		public void setVar(final int DATA_ID, String varName, BiFunction<String, Integer, String> function, boolean ignoreFinal) {
+			setVar(DATA_ID, varName, new Compiler.DataObject().setFunctionPointer(new Compiler.FunctionPointerObject(function)), ignoreFinal);
+		}
+		public void setVar(final int DATA_ID, String varName, int errno) {
+			setVar(DATA_ID, varName, errno, false);
+		}
+		public void setVar(final int DATA_ID, String varName, int errno, boolean ignoreFinal) {
+			if(errno < 0 || errno >= Compiler.ERROR_STRINGS.length)
+				return;
+			
+			setVar(DATA_ID, varName, new Compiler.DataObject().setError(new Compiler.ErrorObject(errno)), false);
+		}
+		/**
+		 * @param voidNull Sets the var to null if voidNull else void
+		 */
+		public void setVar(final int DATA_ID, String varName, boolean voidNull) {
+			setVar(DATA_ID, varName, voidNull, false);
+		}
+		/**
+		 * @param voidNull Sets the var to null if voidNull else void
+		 */
+		public void setVar(final int DATA_ID, String varName, boolean voidNull, boolean ignoreFinal) {
+			Compiler.DataObject dataObject = new Compiler.DataObject();
+			if(voidNull)
+				dataObject.setNull();
+			else
+				dataObject.setVoid();
+			
+			setVar(DATA_ID, varName, dataObject, ignoreFinal);
+		}
+		
+		public void exec(final int DATA_ID, BufferedReader lines) throws Exception {
+			comp.compileLangFile(lines, DATA_ID);
+		}
+		public void exec(final int DATA_ID, String lines) throws Exception {
+			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
+		}
+		public String execLine(final int DATA_ID, String line) {
+			return comp.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
+		}
+		public String callFunction(final int DATA_ID, String funcName, String funcArgs) {
+			return execLine(DATA_ID, funcName + ".(" + funcArgs + ")");
+		}
+	}
 	private static class Compiler {
 		//Error Strings
 		private final static String[] ERROR_STRINGS = new String[] {
@@ -1769,12 +1920,12 @@ public class Lang {
 			}
 		}
 		
-		public void compileLine(BufferedReader lines, String line, final int DATA_ID) {
+		public String compileLine(BufferedReader lines, String line, final int DATA_ID) {
 			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
 			
 			//Comments
 			if(line.startsWith("#"))
-				return;
+				return "";
 			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
 			line = line.replace("\\#", "#");
 			
@@ -1785,7 +1936,7 @@ public class Lang {
 			if(line.startsWith("fp.") && line.contains(" = ")) {
 				funcParser.saveFuncPtr(lines, line, DATA_ID);
 				
-				return;
+				return "";
 			}
 			
 			//Var
@@ -1793,7 +1944,7 @@ public class Lang {
 				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
 				
 				if(line == null)
-					return;
+					return "";
 			}
 			
 			//Execute Functions and FuncPtr
@@ -1825,13 +1976,15 @@ public class Lang {
 					term.logStackTrace(e, Compiler.class);
 				}
 				
-				return;
+				return "";
 			}
 			
 			if(line.contains(" = ")) {
 				String[] string = line.split(" = ", 2);
 				data.get(DATA_ID).lang.put(string[0], string[1].replaceAll("\\\\s", " ")); //Put lang key and lang value in lang map
 			}
+			
+			return line;
 		}
 		/**
 		 * @return the modified line<br>if null -> continue
@@ -2070,15 +2223,7 @@ public class Lang {
 			private boolean finalData;
 			
 			public DataObject(DataObject dataObject) {
-				this.type = dataObject.type;
-				this.txt = dataObject.txt;
-				//Array won't be copied accurate, because function pointer should be able to change array data from inside
-				this.arr = dataObject.arr;
-				this.fp = dataObject.fp;
-				//Class won't be copied accurate, because function pointer should be able to change class data from inside
-				this.classObject = dataObject.classObject;
-				this.error = dataObject.error;
-				this.finalData = dataObject.finalData;
+				setData(dataObject);
 			}
 			
 			public DataObject() {
@@ -2090,6 +2235,21 @@ public class Lang {
 			public DataObject(String txt, boolean finalData) {
 				setText(txt);
 				setFinalData(finalData);
+			}
+			
+			/**
+			 * This method <b>ignores</b> the final state of the data object
+			 */
+			private void setData(DataObject dataObject) {
+				this.type = dataObject.type;
+				this.txt = dataObject.txt;
+				//Array won't be copied accurate, because function pointer should be able to change array data from inside
+				this.arr = dataObject.arr;
+				this.fp = dataObject.fp;
+				//Class won't be copied accurate, because function pointer should be able to change class data from inside
+				this.classObject = dataObject.classObject;
+				this.error = dataObject.error;
+				this.finalData = dataObject.finalData;
 			}
 			
 			public DataObject setText(String txt) {
@@ -2267,8 +2427,8 @@ public class Lang {
 			}
 		}
 		private static class Data {
-			public Map<String, String> lang = new HashMap<>();
-			public Map<String, DataObject> varTmp = new HashMap<>();
+			public final Map<String, String> lang = new HashMap<>();
+			public final Map<String, DataObject> varTmp = new HashMap<>();
 		}
 		
 		//Classes for compiling lang file

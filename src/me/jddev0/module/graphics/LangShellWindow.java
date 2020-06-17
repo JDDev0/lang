@@ -12,16 +12,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.swing.JDialog;
@@ -158,9 +151,7 @@ public class LangShellWindow extends JDialog {
 		initShell();
 	}
 	
-	private Class<?> compilerClass;
-	private Object compilerInstance;
-	private Method compileLangFileMethod;
+	private Lang.LangCompilerInterface lci;
 	private PrintStream oldOut;
 	
 	private void initShell() {
@@ -213,19 +204,7 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
-		try {
-			//Gets Compiler class
-			compilerClass = Lang.class.getDeclaredClasses()[0];
-			Constructor<?> compilerConstructor = compilerClass.getDeclaredConstructor(String.class, TerminalIO.class);
-			compilerConstructor.setAccessible(true);
-			compilerInstance = compilerConstructor.newInstance(new File("").getAbsolutePath(), term);
-			
-			//Gets compileLangFile method
-			compileLangFileMethod = compilerClass.getDeclaredMethod("compileLangFile", BufferedReader.class, int.class);
-			compileLangFileMethod.setAccessible(true);
-		}catch(NoSuchMethodException|SecurityException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|InstantiationException e) {
-			term.logStackTrace(e, LangShellWindow.class);
-		}
+		lci = Lang.createCompilerInterface(term);
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n> ", Color.WHITE);
@@ -311,11 +290,7 @@ public class LangShellWindow extends JDialog {
 				
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
-				try {
-					compileLangFileMethod.invoke(compilerInstance, new BufferedReader(new StringReader(line)), 0);
-				}catch(Exception e) {
-					term.logStackTrace(e, LangShellWindow.class);
-				}
+				lci.execLine(0, line);
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 			}
 		}else {
@@ -346,7 +321,7 @@ public class LangShellWindow extends JDialog {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent == 0) {
 				try {
-					compileLangFileMethod.invoke(compilerInstance, new BufferedReader(new StringReader(multiLineTmp.toString())), 0);
+					lci.exec(0, multiLineTmp.toString());
 				}catch(Exception e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
@@ -364,27 +339,11 @@ public class LangShellWindow extends JDialog {
 		flagEnd = true;
 		
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
-		try {
-			Field dataField = compilerClass.getDeclaredField("data");
-			dataField.setAccessible(true);
-			Map<?, ?> dataMaps = (Map<?, ?>)dataField.get(compilerInstance);
-			Class<?> dataClass = null;
-			for(Class<?> c:compilerClass.getDeclaredClasses()) {
-				if(c.getSimpleName().equals("Data")) {
-					dataClass = c;
-					break;
-				}
-			}
-			Field langField = dataClass.getDeclaredField("lang");
-			langField.setAccessible(true);
-			@SuppressWarnings("unchecked")
-			Map<String, String> lang = (Map<String, String>)langField.get(dataMaps.get(0));
-			lang.forEach((key, value) -> {
-				term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
-			});
-		}catch(NullPointerException|NoSuchFieldException|SecurityException|IllegalArgumentException|IllegalAccessException e) {
-			term.logStackTrace(e, LangShellWindow.class);
-		}
+		
+		Map<String, String> lang = lci.getTranslationMap(0);
+		lang.forEach((key, value) -> {
+			term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
+		});
 		
 		//Reset the printStream output
 		System.setOut(oldOut);
