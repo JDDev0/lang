@@ -2931,7 +2931,8 @@ public class Lang {
 							build.append("\n");
 						}
 						
-						build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
+						if(build.length() > 0) //Fix for empty function body
+							build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
 						fp = new FunctionPointerObject(funcHead, build.toString());
 					}catch(IOException e) {
 						term.logStackTrace(e, Func.class);
