@@ -12,7 +12,7 @@ ui.button.canel = Cancel
 	# Variable assignment (" = ", Spaces are important)
 	$a = Hello\s
 	$b =  World
-} # "Block" end (Variables declared in block will be set after block)
+} # "Block" end (Variables declared in block will be available after block)
 
 # Text concatenation
 {
@@ -35,7 +35,7 @@ ui.button.canel = Cancel
 			
 			# func.printTerminal(Log Level [-1 - 6] (= Color), Text)
 			func.printTerminal($i, $i: $c)
-		} # Variables declared or changed in block won't be set after block
+		} # Variables declared or changed in block won't be available after block
 
 		# Simple for loop (Calls first parameter (Function pointer) with (0)
 		#   to (count - 1)
@@ -462,7 +462,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	func.printTerminal(-1, $a: $b)
 
 	func.clearAllVars()
-	func.clearAllArrays()
+	func.clearAllArrays() # Deprecated since v0.2.0: use "func.clearAllVars()" instead
 
 	func.printTerminal(-1, $a: $b)
 	
@@ -506,7 +506,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	
 	# Final variables test
 	{
-		$a = DON't modify!
+		$a = DO NOT modify!
 		# Makes $a final
 		func.makeFinal($[a])
 		
