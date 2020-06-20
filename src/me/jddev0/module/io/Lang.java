@@ -2882,49 +2882,13 @@ public class Lang {
 					
 					if(line.contains(" = ")) {
 						String[] string = line.split(" = ", 2); //Split tmp to var name and var value
-						string[1] = string[1].replace("\\$", "$NULL"); //Replace "\$" with "$NULL"
 						
-						String[] copy = {string[1]};
-						string[1] = "";
-						while(copy[0].length() > 0) {
-							int indexVarStart = copy[0].indexOf('$');
-							if(indexVarStart == 0) {
-								boolean[] noVarFound = {true};
-								data.get(DATA_ID).varTmp.keySet().stream().filter(varName -> {
-									return varName.startsWith("$") && copy[0].startsWith(varName);
-								}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $ab and $abc)
-									if(s0.length() == s1.length())
-										return 0;
-									
-									return (s0.length() < s1.length())?1:-1;
-								}).limit(1).forEach(varName -> {
-									noVarFound[0] = false;
-									
-									string[1] += data.get(DATA_ID).varTmp.get(varName);
-									copy[0] = copy[0].substring(varName.length());
-								});
-								
-								if(noVarFound[0]) {
-									string[1] += "$";
-									copy[0] = copy[0].substring(1);
-								}
-							}else if(indexVarStart == -1) {
-								string[1] += copy[0];
-								
-								break;
-							}else {
-								string[1] += copy[0].substring(0, indexVarStart);
-								copy[0] = copy[0].substring(indexVarStart);
-							}
-						}
-						
-						string[1] = string[1].replace("$NULL", "$"); //Replace all "$NULL"s in string[1] with "$"s
+						string[1] = replaceVarsWithValue(string[1], DATA_ID);
+						string[1] = replaceAllVarPtrsWithVar(string[1]);
 						if((string[1].contains("fp.") || string[1].contains("func.")) && string[1].contains("(") && string[1].contains(")"))
 							string[1] = funcParser.executeFunc(lines, string[1], DATA_ID);
 						if(string[1].contains("linker.")) //If string[1] contains a linker function
 							string[1] = linkerParser.compileLine(string[1], DATA_ID); //Execute linker functions
-						
-						string[1] = replaceAllVarPtrsWithVar(string[1]); //Replace all varPtrs
 						
 						//Put var name and var value to the var tmp map
 						DataObject oldValue = data.get(DATA_ID).varTmp.get(string[0]);
@@ -2952,64 +2916,61 @@ public class Lang {
 					
 					return null;
 				}else { //Get var
-					//Replace "%$" with "$" for start
-					if(line.startsWith("%$")) {
-						line = line.substring(1);
-					}
-					
-					//Replace var names with var value
-					String[] string = line.split(" = ", 2);
-					//Reset line for later
-					line = "";
-					String[] val = new String[string.length];
-					//Get value and replace "\$" with "$NULL"
-					for(int i = 0;i < val.length;i++) {
-						val[i] = string[i].replace("\\$", "$NULL");
-						
-						String[] copy = {val[i]};
-						val[i] = "";
-						while(copy[0].length() > 0) {
-							int indexVarStart = copy[0].indexOf('$');
-							if(indexVarStart == 0) {
-								boolean[] noVarFound = {true};
-								final int index = i;
-								data.get(DATA_ID).varTmp.keySet().stream().filter(varName -> {
-									return varName.startsWith("$") && copy[0].startsWith(varName);
-								}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $ab and $abc)
-									if(s0.length() == s1.length())
-										return 0;
-									
-									return (s0.length() < s1.length())?1:-1;
-								}).limit(1).forEach(varName -> {
-									noVarFound[0] = false;
-									
-									val[index] += data.get(DATA_ID).varTmp.get(varName);
-									copy[0] = copy[0].substring(varName.length());
-								});
-								
-								if(noVarFound[0]) {
-									val[i] += "$";
-									copy[0] = copy[0].substring(1);
-								}
-							}else if(indexVarStart == -1) {
-								val[i] += copy[0];
-								
-								break;
-							}else {
-								val[i] += copy[0].substring(0, indexVarStart);
-								copy[0] = copy[0].substring(indexVarStart);
-							}
-						}
-						
-						val[i] = replaceAllVarPtrsWithVar(val[i]); //Replace all varPtrs
-						
-						line += val[i].replace("$NULL", "$"); //Replace "$NULL" with "$"
-						if(i != val.length - 1)
-							line += " = "; //Add " = ", because of "split"
-					}
-					
+					line = replaceVarsWithValue(line, DATA_ID);
+					line = replaceAllVarPtrsWithVar(line);
 					return line;
 				}
+			}
+			
+			private String replaceVarsWithValue(String line, final int DATA_ID) {
+				//Replace "%$" with "$" for start
+				if(line.startsWith("%$"))
+					line = line.substring(1);
+				
+				//[line, returnValue]
+				String[] lineCopy = new String[] {line, ""};
+				boolean[] varNotReplacedFlag = new boolean[1];
+				while(lineCopy[0].length() > 0) {
+					int indexStartVar = lineCopy[0].indexOf('$');
+					//Contains no "$"
+					if(indexStartVar == -1) {
+						lineCopy[1] += lineCopy[0];
+						break;
+					}
+					
+					lineCopy[1] += lineCopy[0].substring(0, indexStartVar);
+					//Escaped "$" -> Remove "$" from line
+					if(lineCopy[1].endsWith("\\")) {
+						indexStartVar++;
+						lineCopy[1] = lineCopy[1].substring(0, lineCopy[1].length() - 1) + "$";
+					}
+					lineCopy[0] = lineCopy[0].substring(indexStartVar);
+					
+					if(lineCopy[0].startsWith("$")) {
+						varNotReplacedFlag[0] = true;
+						data.get(DATA_ID).varTmp.keySet().stream().filter(varName -> {
+							return lineCopy[0].startsWith(varName);
+						}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $ab and $abc)
+							if(s0.length() == s1.length())
+								return 0;
+							
+							return (s0.length() < s1.length())?1:-1;
+						}).findFirst().ifPresent(varName -> {
+							varNotReplacedFlag[0] = false;
+							
+							lineCopy[1] += data.get(DATA_ID).varTmp.get(varName);
+							lineCopy[0] = lineCopy[0].substring(varName.length());
+						});
+						
+						//Skip "$" if no var was found
+						if(varNotReplacedFlag[0]) {
+							lineCopy[0] = lineCopy[0].substring(1);
+							lineCopy[1] += "$";
+						}
+					}
+				}
+				
+				return lineCopy[1];
 			}
 			
 			private String replaceAllVarPtrsWithVar(String line) {
