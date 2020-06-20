@@ -469,7 +469,7 @@ public class Lang {
 		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term));
 	}
 	
-	//Class for compiling lang file
+	//Classes for compiling lang file
 	public static class LangCompilerInterface {
 		private Compiler comp;
 		
@@ -610,10 +610,10 @@ public class Lang {
 		
 		private String langPath;
 		private TerminalIO term;
-		private Linker linkerParser = new Linker();
-		private If ifParser = new If();
-		private Var varParser = new Var();
-		private Func funcParser = new Func();
+		private LinkerParser linkerParser = new LinkerParser();
+		private IfParser ifParser = new IfParser();
+		private VarParser varParser = new VarParser();
+		private FuncParser funcParser = new FuncParser();
 		
 		//DATA
 		private Map<Integer, Data> data = new HashMap<>();
@@ -2432,10 +2432,8 @@ public class Lang {
 		}
 		
 		//Classes for compiling lang file
-		
-		//Class for linker
-		private class Linker {
-			private Linker() {}
+		private class LinkerParser {
+			private LinkerParser() {}
 			
 			private String compileLine(String line, final int DATA_ID) {
 				int indexStart, indexEnd, indexEndForLine;
@@ -2581,10 +2579,8 @@ public class Lang {
 				return ret;
 			}
 		}
-		
-		//Class for executing if
-		private class If {
-			private If() {}
+		private class IfParser {
+			private IfParser() {}
 			
 			private boolean checkIf(String ifCondition) {
 				ifCondition = ifCondition.replaceAll("\\s*", ""); //Remove Whitespace
@@ -2866,10 +2862,8 @@ public class Lang {
 				}
 			}
 		}
-		
-		//Class for replacing vars with value
-		private class Var {
-			private Var() {}
+		private class VarParser {
+			private VarParser() {}
 			
 			/**
 			 * @return the modified line<br>if null -> continue
@@ -3043,14 +3037,12 @@ public class Lang {
 				return newLine.toString();
 			}
 		}
-		
-		//Class for replacing funcPtrs and funcs with value
-		private class Func {
+		private class FuncParser {
 			public Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
 			
 			private String funcReturnTmp = "";
 			
-			private Func() {}
+			private FuncParser() {}
 			
 			public void saveFuncPtr(BufferedReader lines, String line, final int DATA_ID) {
 				StringBuilder build = new StringBuilder();
@@ -3095,7 +3087,7 @@ public class Lang {
 							build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
 						fp = new FunctionPointerObject(funcHead, build.toString());
 					}catch(IOException e) {
-						term.logStackTrace(e, Func.class);
+						term.logStackTrace(e, FuncParser.class);
 					}
 				}else if(line.contains(") -> ")) { //One-line function definition
 					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
@@ -3320,7 +3312,7 @@ public class Lang {
 						try {
 							compileLangFile(function, NEW_DATA_ID);
 						}catch(IOException e) {
-							term.logStackTrace(e, Func.class);
+							term.logStackTrace(e, FuncParser.class);
 						}catch(Exception e) {}
 						
 						//Add lang after call
