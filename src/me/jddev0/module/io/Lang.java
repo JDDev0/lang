@@ -600,7 +600,6 @@ public class Lang {
 		}
 	}
 	private static class Compiler {
-		//Error Strings
 		private final static String[] ERROR_STRINGS = new String[] {
 			"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow",
 			"No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length",
@@ -1874,9 +1873,6 @@ public class Lang {
 			return data;
 		}
 		
-		/**
-		 * Method for compiling lang files
-		 */
 		public void compileLangFile(BufferedReader lines, final int DATA_ID) throws Exception {
 			while(lines.ready()) {
 				String str = lines.readLine();
@@ -1985,74 +1981,6 @@ public class Lang {
 			}
 			
 			return line;
-		}
-		/**
-		 * @return the modified line<br>if null -> continue
-		 */
-		public String compileLineForIf(BufferedReader lines, String line, final int DATA_ID) {
-			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
-			
-			//Comments
-			if(line.startsWith("#"))
-				return "0";
-			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
-			line = line.replace("\\#", "#");
-			
-			//For newLine
-			line = line.replace("\\n", "\n");
-			
-			//Save funcPtr
-			if(line.startsWith("fp.") && line.contains(" = ")) {
-				funcParser.saveFuncPtr(lines, line, DATA_ID);
-				
-				return "0";
-			}
-			
-			//Var
-			if(line.contains("$")) {
-				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
-				
-				if(line == null)
-					return "0";
-			}
-			
-			if(line.contains(" = ")) {
-				return "0";
-			}
-			
-			//Execute Functions and FuncPtr
-			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = funcParser.executeFunc(lines, line, DATA_ID);
-			}
-			
-			//Linker
-			if(line.contains("linker.")) {
-				line = linkerParser.compileLine(line, DATA_ID);
-			}
-			
-			//FuncPtr return
-			if(line.trim().startsWith("return")) {
-				if(line.trim().matches("return .*")) {
-					funcParser.funcReturnTmp = line.substring(7).trim(); //return func value
-				}else {
-					funcParser.funcReturnTmp = "";
-				}
-				
-				//Go to end of stream (return)
-				try {
-					while(lines.ready()) {
-						if(lines.readLine() == null) {
-							break;
-						}
-					}
-				}catch(IOException e) {
-					term.logStackTrace(e, Compiler.class);
-				}
-				
-				return "0";
-			}
-			
-			return (line == null)?"0":line; //If line is null -> return "false"
 		}
 		
 		//Classes for variable data
@@ -2789,8 +2717,11 @@ public class Lang {
 				line = line.trim().substring(4); //Remove whitespace and "con."
 				
 				if(line.startsWith("if(")) {
-					line = compileLineForIf(lines, line, DATA_ID);
-					line = line.substring(3, line.lastIndexOf(')'));
+					line = compileLine(lines, line, DATA_ID);
+					if(line.isEmpty())
+						line = "0";
+					else
+						line = line.substring(3, line.lastIndexOf(')'));
 					
 					String tmp = lines.readLine();
 					if(checkIf(line)) { //True
@@ -2800,7 +2731,9 @@ public class Lang {
 							}
 							
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLine(lines, tmp, DATA_ID);
+								if(tmp.isEmpty())
+									continue;
 								
 								if(tmp.trim().substring(4).startsWith("if")) {
 									executeIf(lines, tmp, DATA_ID); //Execute inner if
@@ -2834,7 +2767,9 @@ public class Lang {
 					}else { //False
 						while(true) {
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLine(lines, tmp, DATA_ID);
+								if(tmp.isEmpty())
+									continue;
 								
 								tmp = tmp.trim().substring(4);
 								if(tmp.startsWith("endif")) {
