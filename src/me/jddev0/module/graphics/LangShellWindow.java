@@ -206,8 +206,64 @@ public class LangShellWindow extends JDialog {
 		
 		lci = Lang.createCompilerInterface(term);
 		
+		//Add debug functions
+		lci.addPredefinedFunction("printHelp", (arg, DATA_ID) -> {
+			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
+			"func.printDebug(ptr) # Prints debug information about the provided DataObject", LangShellWindow.class);
+			
+			return "";
+		});
+		lci.addPredefinedFunction("printDebug", (arg, DATA_ID) -> {
+			StringBuilder builder = new StringBuilder();
+			builder.append("Debug[");
+			builder.append(arg);
+			builder.append("]:\n");
+			
+			if(lci.getVar(DATA_ID, arg) == null) {
+				builder.append("Not in DataMap");
+			}else {
+				builder.append("Raw Text: ");
+				builder.append(lci.getVar(DATA_ID, arg).toString());
+				builder.append("\nType: ");
+				builder.append(lci.getVar(DATA_ID, arg).getType());
+				builder.append("\nFinal: ");
+				builder.append(lci.getVar(DATA_ID, arg).isFinalData());
+				switch(lci.getVar(DATA_ID, arg).getType()) {
+					case ARRAY:
+						builder.append("\nSize: ");
+						builder.append(lci.getVar(DATA_ID, arg).getArray().length);
+						
+						break;
+					case FUNCTION_POINTER:
+						builder.append("\nFunction-Type: ");
+						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getFunctionPointerType());
+						builder.append("\nHead: ");
+						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getHead());
+						builder.append("\nBody: ");
+						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getBody());
+						
+						break;
+					case ERROR:
+						builder.append("\nError-Code: ");
+						builder.append(lci.getVar(DATA_ID, arg).getError().getErrno());
+						builder.append("\nError-Text: ");
+						builder.append(lci.getVar(DATA_ID, arg).getError().getErrmsg());
+						
+						break;
+					
+					default:
+						break;
+				}
+			}
+			
+			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
+			
+			return "";
+		});
+		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
-		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n> ", Color.WHITE);
+		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
+		"Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
 	
 	private void highlightSyntaxLastLine() {
