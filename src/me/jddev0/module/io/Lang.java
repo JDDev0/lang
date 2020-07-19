@@ -586,6 +586,15 @@ public class Lang {
 			setVar(DATA_ID, varName, dataObject, ignoreFinal);
 		}
 		
+		/**
+		 * Creates an function which is accessible globaly in the Compiler (= in all DATA_IDs)<br>
+		 * If function already exists, it will be overridden<br>
+		 * Function can be accessed with "func.[funcName]" and can't be removed nor changed by the lang file
+		 */
+		public void addPredefinedFunction(String funcName, BiFunction<String, Integer, String> function) {
+			comp.funcs.put(funcName, (lines, arg, DATA_ID) -> function.apply(arg, DATA_ID));
+		}
+		
 		public void exec(final int DATA_ID, BufferedReader lines) throws Exception {
 			comp.compileLangFile(lines, DATA_ID);
 		}
@@ -600,7 +609,6 @@ public class Lang {
 		}
 	}
 	private static class Compiler {
-		//Error Strings
 		private final static String[] ERROR_STRINGS = new String[] {
 			"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow",
 			"No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length",
@@ -1874,9 +1882,6 @@ public class Lang {
 			return data;
 		}
 		
-		/**
-		 * Method for compiling lang files
-		 */
 		public void compileLangFile(BufferedReader lines, final int DATA_ID) throws Exception {
 			while(lines.ready()) {
 				String str = lines.readLine();
@@ -1986,89 +1991,21 @@ public class Lang {
 			
 			return line;
 		}
-		/**
-		 * @return the modified line<br>if null -> continue
-		 */
-		public String compileLineForIf(BufferedReader lines, String line, final int DATA_ID) {
-			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
-			
-			//Comments
-			if(line.startsWith("#"))
-				return "0";
-			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
-			line = line.replace("\\#", "#");
-			
-			//For newLine
-			line = line.replace("\\n", "\n");
-			
-			//Save funcPtr
-			if(line.startsWith("fp.") && line.contains(" = ")) {
-				funcParser.saveFuncPtr(lines, line, DATA_ID);
-				
-				return "0";
-			}
-			
-			//Var
-			if(line.contains("$")) {
-				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
-				
-				if(line == null)
-					return "0";
-			}
-			
-			if(line.contains(" = ")) {
-				return "0";
-			}
-			
-			//Execute Functions and FuncPtr
-			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = funcParser.executeFunc(lines, line, DATA_ID);
-			}
-			
-			//Linker
-			if(line.contains("linker.")) {
-				line = linkerParser.compileLine(line, DATA_ID);
-			}
-			
-			//FuncPtr return
-			if(line.trim().startsWith("return")) {
-				if(line.trim().matches("return .*")) {
-					funcParser.funcReturnTmp = line.substring(7).trim(); //return func value
-				}else {
-					funcParser.funcReturnTmp = "";
-				}
-				
-				//Go to end of stream (return)
-				try {
-					while(lines.ready()) {
-						if(lines.readLine() == null) {
-							break;
-						}
-					}
-				}catch(IOException e) {
-					term.logStackTrace(e, Compiler.class);
-				}
-				
-				return "0";
-			}
-			
-			return (line == null)?"0":line; //If line is null -> return "false"
-		}
 		
 		//Classes for variable data
-		private static class FunctionPointerObject {
+		public static class FunctionPointerObject {
 			/**
 			 * Normal function pointer
 			 */
-			private static int NORMAL = 0;
+			public static int NORMAL = 0;
 			/**
 			 * Pointer to a predefined function
 			 */
-			private static int PREDEFINED = 1;
+			public static int PREDEFINED = 1;
 			/**
 			 * Function which is defined in the language, were the Compiler/Interpreter is defined
 			 */
-			private static int EXTERNAL = 2;
+			public static int EXTERNAL = 2;
 			
 			private final String head;
 			private final String body;
@@ -2121,7 +2058,7 @@ public class Lang {
 				return head + "\n" + body;
 			}
 		}
-		private static class ClassObject {
+		public static class ClassObject {
 			private final Map<String, DataObject> attributes = new HashMap<>();
 			private final String className;
 			private final String packageName;
@@ -2190,7 +2127,7 @@ public class Lang {
 				return false;
 			}
 		}
-		private static class ErrorObject {
+		public static class ErrorObject {
 			private final int err;
 			
 			public ErrorObject(int err) {
@@ -2210,10 +2147,10 @@ public class Lang {
 				return "Error";
 			}
 		}
-		private static enum DataType {
+		public static enum DataType {
 			TEXT, ARRAY, FUNCTION_POINTER, CLASS, ERROR, NULL, VOID;
 		}
-		private static class DataObject {
+		public static class DataObject {
 			private DataType type;
 			private String txt;
 			private DataObject[] arr;
@@ -2376,7 +2313,7 @@ public class Lang {
 				return getText();
 			}
 		}
-		private static class CombinedDataObject {
+		public static class CombinedDataObject {
 			private List<DataObject> dataObjects;
 			
 			public CombinedDataObject() {
@@ -2426,7 +2363,7 @@ public class Lang {
 				return build.toString();
 			}
 		}
-		private static class Data {
+		public static class Data {
 			public final Map<String, String> lang = new HashMap<>();
 			public final Map<String, DataObject> varTmp = new HashMap<>();
 		}
@@ -2789,8 +2726,11 @@ public class Lang {
 				line = line.trim().substring(4); //Remove whitespace and "con."
 				
 				if(line.startsWith("if(")) {
-					line = compileLineForIf(lines, line, DATA_ID);
-					line = line.substring(3, line.lastIndexOf(')'));
+					line = compileLine(lines, line, DATA_ID);
+					if(line.isEmpty())
+						line = "0";
+					else
+						line = line.substring(3, line.lastIndexOf(')'));
 					
 					String tmp = lines.readLine();
 					if(checkIf(line)) { //True
@@ -2800,7 +2740,9 @@ public class Lang {
 							}
 							
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLine(lines, tmp, DATA_ID);
+								if(tmp.isEmpty())
+									continue;
 								
 								if(tmp.trim().substring(4).startsWith("if")) {
 									executeIf(lines, tmp, DATA_ID); //Execute inner if
@@ -2834,7 +2776,9 @@ public class Lang {
 					}else { //False
 						while(true) {
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLineForIf(lines, tmp, DATA_ID); //Compile lines
+								tmp = compileLine(lines, tmp, DATA_ID);
+								if(tmp.isEmpty())
+									continue;
 								
 								tmp = tmp.trim().substring(4);
 								if(tmp.startsWith("endif")) {
