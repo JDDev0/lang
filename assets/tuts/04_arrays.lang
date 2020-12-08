@@ -1,0 +1,50 @@
+lang.name = Arrays
+lang.version = v0.2.0
+
+# Creation of an array
+# func.arrayMake(arrPtr, int)
+func.arrayMake(&arr, 10) # Will create the array &arr with the lenght of 10
+
+# Get the lenght of an array
+# func.arrayLength(arrPtr)
+$len = func.arrayLength(&arr) # Will return the length of the array &arr
+func.printTerminal(-1, $len)
+
+# Get all elements of an array
+# func.arrayGetAll(arrPtr)
+$arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " seperators
+func.printTerminal(-1, $arr)
+
+# Set a element of an array
+# func.arraySet(arrPtr, int, Text)
+func.arraySet(&arr, 7, THIS IS A CAPS TEST!) # Will set the element at the index 7 of the array &arr to "THIS IS A CAPS TEST!"
+func.printTerminal(-1, func.arrayGetAll(&arr))
+
+# Set all elements of an array
+# func.arraySetAll(arrPtr, Text)
+func.arraySetAll(&arr, value) # Will set all elements of the array &arr to "value"
+func.printTerminal(-1, func.arrayGetAll(&arr))
+
+# func.arraySetAll(arrPtr, Text[len]) //len = length of arrPtr
+func.arraySetAll(&arr, value1, 2, 3, test, 6, 5, 10, 42, test, 10th Element) # Will set all elements of the array &arr
+func.printTerminal(-1, func.arrayGetAll(&arr))
+
+# Get a element of an array
+# func.arrayGet(arrPtr, int)
+$ele = func.arrayGet(&arr, 7) # Will return the element at the index 7 from the array &arr
+func.printTerminal(-1, $ele)
+
+# Get a random element of an array
+# func.randChoice(arrPtr)
+$ele = func.randChoice(&arr) # Will return a random element of the array &arr
+func.printTerminal(-1, $ele)
+
+# Set all elements to null
+# func.arrayDelete(arrPtr)
+func.arrayDelete(&arr)
+func.printTerminal(-1, func.arrayGetAll(&arr))
+
+# Remove an array
+# func.arrayClear(arrPtr)
+func.arrayClear(&arr)
+func.printTerminal(-1, func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore

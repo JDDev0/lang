@@ -19,7 +19,7 @@ ui.button.canel = Cancel
 	hello.world = $a$b	
 	
 	$c = $a-$b
-	# /n: escape sequence for "new line"
+	# \n: escape sequence for "new line"
 	$c = ---Test---\n$c
 }
 

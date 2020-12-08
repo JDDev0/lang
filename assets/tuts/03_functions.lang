@@ -1,0 +1,156 @@
+lang.name = Functions
+lang.version = v0.2.0
+
+# Functions:
+# func.name() # Call function
+# func.name(arg1, $arg2, &arg3, fp.arg4) # Call function with arguments
+
+# Compiler functions
+# func.isCompilerVersionNewer # Returns 1 if compiler version is newer else 0
+$isCVN = func.isCompilerVersionNewer()
+func.printTerminal(-1, $isCVN)
+
+# func.isCompilerVersionOlder # Returns 1 if compiler version is older else 0
+$isCVO = func.isCompilerVersionOlder()
+func.printTerminal(-1, $isCVO)
+
+# System functions
+# func.currentTimeMillis(void) # Returns the system date in ms since midnight 1.1.1970 UTC
+$startTime = func.currentTimeMillis()
+
+# func.sleep(millis) # Sleeps for millis ms
+func.sleep(1000) # Will sleep 1 second
+
+$endTime = func.currentTimeMillis()
+func.printTerminal(-1, func.subl($endTime, $startTime) ms)
+
+# IO functions
+# func.readTerminal(Text) # Will read a user input, the user will see the text {Function is not supported by all compilers: If not supported -> $LANG_ERRNO will be set}
+$input = func.readTerminal(Enter something:)
+func.printTerminal(-1, Your input: $input)
+
+# func.printTerminal(loglevel, Text) # Will print the text with the log level log level [-1 - 6]
+func.printTerminal(-1, Test) # Not set/Unset
+func.printTerminal(0, Test) # User
+func.printTerminal(1, Test) # Debug
+func.printTerminal(2, Test) # Config
+func.printTerminal(3, Test) # Info
+func.printTerminal(4, Test) # Warning
+func.printTerminal(5, Test) # Error
+func.printTerminal(6, Test) # Critical
+
+# Number functions
+# func.hexToDez(Text) # Will convert a base 16 number to a base 10 integer
+$num = func.hexToDez(0x2A)
+func.printTerminal(-1, $num)
+
+# Character functions
+# func.toValue(char) # Will return the Unicode value of a char
+$valA = func.toValue(a)
+func.printTerminal(-1, $valA)
+
+$valEur = func.toValue(€) # Be careful! The lang language accepts UNICODE chars, but the TermIO and the LangShell windows will only support ASSCI
+func.printTerminal(-1, $valEur)
+
+# func.toChar(int) # Will return the Unicode char with the value of the parameter
+$char1 = func.toChar(42)
+func.printTerminal(-1, $char1)
+
+$char2 = func.toChar(8364)
+func.printTerminal(-1, $char2)
+
+# String functions
+# func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
+$len = func.strlen(How long I'm? [€¤$])
+func.printTerminal(-1, $len)
+
+# func.toUpper(Text) # Will return the upper case version of a string
+$upper = func.toUpper(I'm not in caps - I think...)
+func.printTerminal(-1, $upper)
+
+# func.toLower(Text) # Will return the lower case version of a string
+$lower = func.toLower(I'm not in caps - I think...)
+func.printTerminal(-1, $lower)
+
+# func.trim(Text) # Will remove leading and trailing wihtespaces of the string
+$trimed = func.trim(     Text with many withspaces!         )
+func.printTerminal(-1, $trimed)
+
+# func.replace(Text, Text, Text) # Will replace the in the first parameter matched (second parameter {RegEx}) sequences with the replacement (thrid paramter)
+$noWihteSpaces = func.replace(A text with many	withspaces!, \s, -)
+func.printTerminal(-1, $noWihteSpaces)
+
+# func.substring(Text, int, [int]) # Will return the Text from the index (2nd parameter) to the index (3rd parameter) or to the end if no 3rd parameter is provided
+$sub1 = func.substring(Not yours!, 4)
+func.printTerminal(-1, $sub1)
+
+$sub2 = func.substring(This is a long text!, 15, 19)
+func.printTerminal(-1, $sub2)
+
+# Math functions
+# func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
+func.printTerminal(-1, func.rand())
+
+# func.add[i/l/d](int/long/double, (int/long/double)) # Will add 1 or more values toghter
+$addi = func.addi(49, 200, 2003)
+$addl = func.addl(-10)
+$addd = func.addd(.4, .5, .6)
+func.printTerminal(-1, |$addi|$addl|$addd|)
+
+# func.sub[i/l/d](int/long/double, int/long/double) # Will substract the second argument form the first argument
+$subi = func.subi(42, 38)
+$subl = func.subl(10, -69)
+$subd = func.subd(1, 1.42)
+func.printTerminal(-1, |$subi|$subl|$subd|)
+
+# func.mul[i/l/d](int/long/double, (int/long/double)) # Will multiply 1 or more values toghter
+$mul = func.mull(10, 42)
+func.printTerminal(-1, |$mul|)
+
+# func.div[i/l/d](int/long/double, int/long/double) # Will divide the second argument form the first argument
+$divi = func.divi(20, 12)
+$divd = func.divd(20, 12)
+$divNull = func.divi(1, 0)
+func.printTerminal(-1, |$divi|$divd|$divNull|)
+
+# func.mod[i/l](int/long, int/long) # Will return the modulus of the second and the first argument
+$mod = func.modi(20, 12)
+$modNull = func.modi(1, 0)
+func.printTerminal(-1, |$mod|$modNull|)
+
+# func.pow(double, double) # Will return the power of the first and the second argument
+$pow1 = func.pow(2, 10)
+$pow2 = func.pow(10, 2)
+$pow3 = func.pow(10, -2)
+$pow4 = func.pow(10, 0)
+$pow5 = func.pow(0, 0)
+$pow6 = func.pow(16, .5)
+func.printTerminal(-1, |$pow1|$pow2|$pow3|$pow4|$pow5|$pow6|)
+
+# func.sqrt(double) # Will return the square root of the argument
+func.printTerminal(-1, func.sqrt(16))
+
+# func.dto[i/l](double) # Will return either an int or a long
+$var1 = func.dtoi(10.2)
+$var2 = func.dtoi(10.8)
+$var3 = func.dtol(10.2)
+$var4 = func.dtol(10.8)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+
+# func.ceil(double) # Will return the ceil of the parameter
+$var1 = func.ceil(10.2)
+$var2 = func.ceil(10.8)
+func.printTerminal(-1, |$var1|$var2|)
+
+# func.floor(double) # Will return the floor of the parameter
+$var1 = func.floor(10.2)
+$var2 = func.floor(10.8)
+func.printTerminal(-1, |$var1|$var2|)
+
+# Get a random text from a parameter list
+# func.randChoice(Text, (Text)) # Will return a random element
+$rand1 = func.randChoice(1,42,Your Choice,42-The 2nd!)
+$rand2 = func.randChoice(1,42,Your Choice,42-The 2nd!)
+$rand3 = func.randChoice(1)
+$rand4 = func.randChoice()
+func.printTerminal(-1, |$rand1|$rand2|$rand3|$rand4|)

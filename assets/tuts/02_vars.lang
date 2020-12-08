@@ -1,0 +1,98 @@
+lang.name = Vars
+lang.version = v0.2.0
+
+# Var: $name = value
+$var = Text
+$null # Null value var
+
+func.printTerminal(-1, $var)  # Will print "Text"
+func.printTerminal(-1, \$var2) # Will print "$var2"
+func.printTerminal(-1, $null) # Will print "null"
+
+func.printTerminal(-1, -----------------)
+
+# Var types:
+# Null
+$var1
+
+# Text
+$var2 = Test
+
+# Char
+$var3 = C
+
+# Int, Long, Double
+$var4 = 42
+
+# Double
+$var5 = 42.42
+$var6 = 42.
+$var7 = .42
+$var8 = 42e-2
+$var9 = 42E3
+$var10 = 42E-3
+
+func.printTerminal(-1, $var1)
+func.printTerminal(-1, $var2)
+func.printTerminal(-1, $var3)
+func.printTerminal(-1, $var4)
+func.printTerminal(-1, $var5)
+func.printTerminal(-1, $var6)
+func.printTerminal(-1, $var7)
+func.printTerminal(-1, $var8)
+func.printTerminal(-1, $var9)
+func.printTerminal(-1, $var10)
+
+func.printTerminal(-1, -----------------)
+
+# Override values
+$var5 = New value
+
+func.printTerminal(-1, $var5)
+
+func.printTerminal(-1, -----------------)
+
+# Copy values
+$var11 = $var5
+
+func.printTerminal(-1, $var11)
+
+func.printTerminal(-1, -----------------)
+
+# Concatination [vars]
+$a = Text\s
+$b = & Test
+
+$c = $a$b
+func.printTerminal(-1, $c)
+
+func.printTerminal(-1, -----------------)
+
+# Concatination [vars & non vars]
+$a = ABC-a
+func.printTerminal(-1, $abc) # Will append "bc" after $a
+
+$abc = VALUE
+func.printTerminal(-1, $abc) # Appends nothing to $a, because $abc already exists
+
+$abc = $a
+$abc = $abcbc # Will append "bc" after $abc which is a copy of $a
+func.printTerminal(-1, $abc)
+
+func.printTerminal(-1, -----------------)
+
+# $LANG vars
+func.printTerminal(-1, $LANG_COMPILER_VERSION) # Will print the compiler version
+func.printTerminal(-1, $LANG_PATH) # Will print the path to the lang file
+func.printTerminal(-1, $LANG_RAND_MAX) # Will print the maximal value for func.rand
+func.printTerminal(-1, $LANG_ERRNO) # Will print the errno value or 0 if no error
+
+func.printTerminal(-1, -----------------)
+
+$LANG_COMPILER_VERSION = TEST # $LANG vars can't be changed by the lang file
+func.printTerminal(-1, $LANG_COMPILER_VERSION)
+
+$LANG_TEST = TEST # $LANG vars can't be created either
+func.printTerminal(-1, $LANG_TEST)
+
+func.printTerminal(-1, $LANG_ERRNO) # $LANG vars can be changed by the compiler

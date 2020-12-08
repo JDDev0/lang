@@ -1,0 +1,27 @@
+lang.name = Translations
+lang.version = v0.2.0
+
+# Lang Translations: langRequest = langValue
+ui.ok = Ok
+ui.cancel = Cancel
+ui.exit = Exit
+
+# Lang request with leading "$"
+%$test = TEST
+\$test2 = TEST2
+
+# Get a lang request value: func.getLangRequest(langRequest)
+func.printTerminal(-1, func.getLangRequest(ui.ok))
+func.printTerminal(-1, func.getLangRequest($test))
+func.printTerminal(-1, func.getLangRequest($test2))
+
+ui.test = func.getLangRequest($test)
+
+# Escape chars
+esc.dol = \$ Dollar
+esc.new_line = \n
+esc.comment = \#
+esc.space = \s # Only for output [func.printTerminal]
+
+# Empty translation [trailing SPACE is important!]
+empty.nothing = 

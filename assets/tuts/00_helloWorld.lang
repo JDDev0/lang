@@ -1,0 +1,11 @@
+# Comments: Starts with "#"
+
+# Setup
+# Name of the lang file
+lang.name = Hello World
+# Compiler Version the lang file is written for
+lang.version = v0.2.0
+
+# Code
+# func.printTerminal(loglevel, text)
+func.printTerminal(-1, Hello World!)
