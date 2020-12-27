@@ -1,0 +1,208 @@
+lang.name = If Statement
+lang.version = v0.2.0
+
+# If statement:
+# con.if("condition") # (Can be used only once)
+#     ... # Will be executed if condition is true (!= 0) else
+#         # it skips to the next block
+# con.elif("condition") # Optional (Can be used more than once)
+#     ... # Will be executed if condtion is true
+# con.else # Optional (Can be used only once)
+#     ... #Will be executed if none of the above conditions is true
+# con.endif # End of if statement
+$var = 42
+con.if($var)
+	func.printTerminal(-1, $var => True)
+con.else
+	func.printTerminal(-1, $var => False)
+con.endif
+
+$var = 0
+con.if($var)
+	func.printTerminal(-1, $var => True)
+con.else
+	func.printTerminal(-1, $var => False)
+con.endif
+
+$var = -1
+con.if($var)
+	func.printTerminal(-1, $var => True)
+con.else
+	func.printTerminal(-1, $var => False)
+con.endif
+
+fp.testElif = ($varA, $varB, $varC) -> {
+	func.printTerminal(0, Testing: $varA, $varB, $varC)
+	func.printTerminal(-1, 1st)
+	con.if($varA)
+		func.printTerminal(1, \$varA => True)
+	con.endif
+	con.if($varB)
+		func.printTerminal(1, \$varB => True)
+	con.endif
+	con.if($varC)
+		func.printTerminal(1, \$varC => True)
+	con.else
+		func.printTerminal(1, No var is True)
+	con.endif
+	
+	func.printTerminal(-1, 2nd)
+	con.if($varA)
+		func.printTerminal(2, \$varA => True)
+	con.elif($varB)
+		func.printTerminal(2, \$varB => True)
+	con.elif($varC)
+		func.printTerminal(2, \$varC => True)
+	con.else
+		func.printTerminal(2, No var is True)
+	con.endif
+	
+	func.printTerminal(-1, End)
+}
+fp.testElif(0, 0, 0)
+fp.testElif(0, 0, 1)
+fp.testElif(0, 1, 0)
+fp.testElif(0, 1, 1)
+fp.testElif(1, 0, 0)
+fp.testElif(1, 0, 1)
+fp.testElif(1, 1, 0)
+fp.testElif(1, 1, 1)
+
+# If statetment inside if statement
+# con.if("condition")
+#     con.if("condition")
+#         ...
+#     con.else
+#         ...
+#     con.endif
+# con.else
+#     ...
+# con.endif
+
+$var1 = 42
+$var2 = 0
+con.if($var1)
+	con.if($var2)
+		func.printTerminal(-1, \$var1 and \$var2)
+	con.else
+		func.printTerminal(-1, \$var1 only)
+	con.endif
+con.else
+	func.printTerminal(-1, not \$var1)
+con.endif
+
+$var1 = 42
+$var2 = 12
+con.if($var1)
+	con.if($var2)
+		func.printTerminal(-1, \$var1 and \$var2)
+	con.else
+		func.printTerminal(-1, \$var1 only)
+	con.endif
+con.else
+	func.printTerminal(-1, not \$var1)
+con.endif
+
+$var1 = 0
+$var2 = 12
+con.if($var1)
+	con.if($var2)
+		func.printTerminal(-1, \$var1 and \$var2)
+	con.else
+		func.printTerminal(-1, \$var1 only)
+	con.endif
+con.else
+	func.printTerminal(-1, not \$var1)
+con.endif
+
+# Condition function
+# func.condition("condition") # Will return 1 if true else 0
+func.printTerminal(-1, func.condition(0))
+func.printTerminal(-1, func.condition(-1))
+func.printTerminal(-1, func.condition(42))
+func.printTerminal(-1, func.condition(1))
+
+# Operators
+#     For all types:
+#         "==": Equals
+#         "!=": Not equals
+#     For int, long, double:
+#         "<":  Less than
+#         ">":  Greater than
+#         "<=": Less than or equals
+#         ">=": Greater than or equals
+#     For Operators:
+#         "!":  Not
+#         "&&": And
+#         "||": Or
+#         "()": Execute as an unit
+func.printTerminal(2, a in relation to a)
+func.printTerminal(3, func.condition(a == a))
+func.printTerminal(3, func.condition(a != a))
+func.printTerminal(2, a in relation to d)
+func.printTerminal(3, func.condition(a == d))
+func.printTerminal(3, func.condition(a != d))
+
+func.printTerminal(2, abc in relation to abc)
+func.printTerminal(3, func.condition(abc == abc))
+func.printTerminal(3, func.condition(abc != abc))
+func.printTerminal(2, abc in relation to def)
+func.printTerminal(3, func.condition(abc == def))
+func.printTerminal(3, func.condition(abc != def))
+
+func.printTerminal(2, 0 in relation to 5)
+func.printTerminal(3, func.condition(0 == 5))
+func.printTerminal(3, func.condition(0 != 5))
+func.printTerminal(3, func.condition(0 < 5))
+func.printTerminal(3, func.condition(0 > 5))
+func.printTerminal(3, func.condition(0 <= 5))
+func.printTerminal(3, func.condition(0 >= 5))
+func.printTerminal(2, 5 in relation to 5)
+func.printTerminal(3, func.condition(5 == 5))
+func.printTerminal(3, func.condition(5 != 5))
+func.printTerminal(3, func.condition(5 < 5))
+func.printTerminal(3, func.condition(5 > 5))
+func.printTerminal(3, func.condition(5 <= 5))
+func.printTerminal(3, func.condition(5 >= 5))
+
+func.printTerminal(-1, 5 == 5 == 5:    func.condition(5 == 5 == 5))
+func.printTerminal(-1, 5 == 5 == 1:    func.condition(5 == 5 == 1))
+func.printTerminal(-1, (5 == 5) == 5:  func.condition((5 == 5) == 5))
+func.printTerminal(-1, (5 == 5) == 1:  func.condition((5 == 5) == 1))
+func.printTerminal(-1, 5 == (5 == 5):  func.condition(5 == (5 == 5)))
+func.printTerminal(-1, 5 == (5 == 1):  func.condition(5 == (5 == 1)))
+func.printTerminal(-1, 5 == (5 == 5):  func.condition(5 == (5 == 5)))
+func.printTerminal(-1, 1 == (5 == 5):  func.condition(1 == (5 == 5)))
+
+func.printTerminal(4, func.condition(1 || (1 && 0))) #1
+func.printTerminal(4, func.condition(1 || 1 && 0)) #0
+func.printTerminal(4, func.condition((1 || 1) && 0)) #0
+
+func.printTerminal(4, func.condition(1 && (0 || 1))) #1
+func.printTerminal(4, func.condition(1 && 0 || 1)) #1
+func.printTerminal(4, func.condition((1 && 0) || 1)) #1
+
+func.printTerminal(4, func.condition(0 && (1 || 0))) #0
+func.printTerminal(4, func.condition(0 && 1 || 0)) #0
+func.printTerminal(4, func.condition((0 && 1) || 0)) #0
+
+func.printTerminal(4, func.condition(0 && (0 || 1))) #0
+func.printTerminal(4, func.condition(0 && 0 || 1)) #0
+func.printTerminal(4, func.condition((0 && 0) || 1)) #1
+
+func.printTerminal(4, func.condition(!(0 && (0 || 1)))) #1
+func.printTerminal(4, func.condition(!(0 && 0 || 1))) #1
+func.printTerminal(4, func.condition(!((0 && 0) || 1))) #0
+
+func.printTerminal(4, func.condition(!0 && (0 || 1))) #1
+func.printTerminal(4, func.condition(!0 && 0 || 1)) #1
+func.printTerminal(4, func.condition(!(0 && 0) || 1)) #1
+
+# Check for null values
+$var = Not null
+$var2 = null
+$var3
+
+func.printTerminal(2, $var  -> func.condition($var == null)) #0
+func.printTerminal(2, $var2 -> func.condition($var2 == null)) #0
+func.printTerminal(2, $var3 -> func.condition($var3 == null)) #1

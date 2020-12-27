@@ -1,0 +1,128 @@
+lang.name = Function Pointer
+lang.version = v0.2.0
+
+# Function Pointer
+# Create function
+# fp.name = ($var) -> { # Function head: Name & Parameter definition
+#     [CODE...] # Function body: Code execution
+# } # Function end
+# Call function:
+# fp.name($var)
+
+# Create:
+{ # Normal
+	# Without vars:
+	# fp.name = () -> {
+	fp.test = () -> {
+		func.printTerminal(2, This is a Test!)
+		func.printTerminal(1, Ok...)
+	}
+	fp.test()
+	
+	# With vars:
+	#             Var    Array  Function pointer
+	# fp.name = ($var1,  &var2,     fp.var3) -> {
+	fp.printRandom = ($min, $max) -> {
+		$rand = func.addi(func.modi(func.rand(), func.addi(func.subi($max, $min), 1)), $min)
+		func.printTerminal(4, Random number: $rand!)
+	}
+	fp.printRandom(42, 42)
+	fp.printRandom(41, 42)
+	fp.printRandom(0, 42)
+}
+{ # One-Line
+	# fp.name = () -> [CODE...]
+	fp.printNormal = ($text) -> func.printTerminal(-1, $text)
+	fp.printNormal(100 - TESTed!)
+}
+
+# Return:
+fp.testRet = () -> {
+	func.printTerminal(1, I was executed!)
+	return # Will return -> Everything after won't be executed
+	func.printTerminal(1, Hello?)
+}
+fp.testRet()
+
+fp.getRandom = () -> return func.rand() # Will return a value to the function caller
+$ran = fp.getRandom()
+func.printTerminal(-1, $ran)
+func.printTerminal(-1, fp.getRandom())
+
+# Function Pointer as return value
+fp.func = () -> return YES!
+fp.get = () -> {
+	return fp.func
+}
+$g = fp.get()
+func.printTerminal(4, $g)
+$g = fp.get()()
+func.printTerminal(4, $g)
+
+# Copy function pointer
+# Function Pointer
+# fp.name = fp.name
+fp.orig = () -> {
+	func.printTerminal(5, A function)
+}
+fp.orig() # Prints: "A function"
+fp.copy = fp.orig # Copying
+fp.copy() # Prints: "A function"
+# Changing original function
+fp.orig = () -> func.printTerminal(2, A other function)
+fp.orig() # Prints: "A other function"
+fp.copy() # Should still print "A function"
+
+# Predifined function
+# fp.name = func.name
+fp.pt = func.printTerminal
+fp.pt(-1, Function Pointer!)
+func.printTerminal(-1, Function Pointer!)
+
+# Function Poitner argument duplication
+# If not enough arguments are provided, the compiler will copy the
+#   last argument given. If no argument was given, all variables will be empty
+# If too many arguments are given, the compiler will ignore them
+fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g, $h) -> {
+	func.printTerminal(1, |$a  $b  $c  $d  $e  $f  $g|)
+}
+fp.manyArgs()
+fp.manyArgs(A)
+fp.manyArgs(A, B)
+fp.manyArgs(A, B, C)
+fp.manyArgs(A, B, C, D)
+fp.manyArgs(A, B, C, D, E)
+fp.manyArgs(A, B, C, D, E, F)
+fp.manyArgs(A, B, C, D, E, F, G)
+fp.manyArgs(A, B, C, D, E, F, G, H)
+fp.manyArgs(A, B, C, D, E, F, G, H, I)
+
+# Every value at function call will be copied to function pointer:
+# Changed values
+{
+	$a = 42
+	fp.mod = ($a) -> {
+		$a = 43
+		func.printTerminal(-1, Local: $a)
+	}
+	fp.mod($a)
+	fp.mod = () -> {
+		$a = 44
+		func.printTerminal(-1, Inner: $a)
+	}
+	fp.mod()
+	func.printTerminal(-1, Outer: $a)
+	
+	# If you want to copy a local variable to the caller: See [07_loops.lang: func.copyAfterFP]
+}
+
+# Use values that are defined after function pointer definition
+{
+	fp.printNot = () -> {
+		func.printTerminal(2, $not)
+	}
+	
+	fp.printNot() # Will print "$not"
+	$not = I'm defined!
+	fp.printNot() # Will print "I'm defined!"
+}

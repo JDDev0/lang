@@ -1,0 +1,139 @@
+lang.name = Error Handling
+lang.version = v0.2.0
+
+# Print Error function
+# func.printError([Text]) # Prints the acutal error
+#                           Will reset $LANG_ERRNO to 0
+func.printError()
+func.printError(Error)
+
+# Error String function
+# func.getErrorString(void) # Returns the actual error string
+#                             Will reset $LANG_ERRNO to 0
+func.printTerminal(-1, Error String: func.getErrorString())
+
+# Actual Error code
+# $LANG_ERRNO # Error code number
+func.printTerminal(-1, Error code: $LANG_ERRNO)
+
+# Error codes (v0.2.0):
+#    No error
+#        0:  No error
+#    Variable Set error
+#        1:  $LANG or final var mustn't be changed
+#    Linking errors
+#        2:  To many inner links [Unused]
+#        3:  No .lang-File
+#        4:  File not found
+#    Function Pointer errors
+#        5:  FuncPtr is invalid
+#    System errors
+#        6:  Stack overflow [Unsused]
+#        7:  No terminal available
+#    Function errors
+#        8:  Invalid argument count
+#        9:  Invalid log level
+#    Array errors:
+#        10: Invalid array pointer
+#    Number errors:
+#        11: No hex num
+#        12: No char
+#        13: No num
+#        14: Dividing by 0
+#    Array errors:
+#        15: Negative array length
+#        16: Empty array
+#        17: Length NAN
+#        18: Array out of bounds
+#        19: Argument count is not array length
+#    Loop function errors:
+#        20: Invalid function pointer
+#    Function errors:
+#        21: Invalid arguments
+#        22: Function not found
+#        23: EOF
+#    Compiler errors:
+#        24: System Error
+#    Loop function errors:
+#        25: Negative repeat count
+#    Function errors:
+#        26: Lang request doesn't exist
+#        27: Function not supported
+#        28: Bracket count mismatch
+
+# Error Handling example
+$value = func.divi(42, 0)
+con.if($LANG_ERRNO != 0)
+	func.printError(An error occurred)
+	func.printError($LANG_ERRNO was reseted) # Will print "No Error"
+con.else
+	# Do something
+con.endif
+
+func.printTerminal(-1, \s)
+
+func.arrayMake(&a, -1)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+func.printTerminal(-1, \s)
+
+func.arraySetAll(&a, 10, 32, 42)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+$LANG_VER = 42
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+fp.test(Test1)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+func.repeat(fp.test, 42)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+func.repeat(fp.abc)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+func.printTerminal(-1, ((Test))
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
+
+$value = func.hexToDez(0xG42)
+con.if($LANG_ERRNO != 0)
+	$errCode = $LANG_ERRNO
+	func.printTerminal(5, An error occurred: func.getErrorString() [Code: $errCode])
+con.else
+	# Do something
+con.endif
