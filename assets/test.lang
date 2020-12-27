@@ -57,8 +57,7 @@ ui.button.canel = Cancel
 		# Until (New in v0.2.0)
 		func.printTerminal(2, Until loop test!)
 		$win = 0
-		$num = func.addi(func.modi(func.rand(), 10))
-		$maxTries = 3
+		$num = func.modi(func.rand(), 10)
 		fp.printFunc = () -> {
 			$guess = func.addi(func.modi(func.rand(), 10))
 			con.if($guess < $num)
@@ -115,7 +114,7 @@ ui.button.canel = Cancel
 		return func.mull($num, fp.fac(func.subi($num, 1)))
 	}
 	fp.printFac = ($i) -> {
-		func.printTerminal(3, Faculty of $i is fp.fac($i)!)
+		func.printTerminal(3, Factorial of $i is fp.fac($i)!)
 	}
 	func.repeat(fp.printFac, 25) # Long precision is not enough for 21! and beyond
 	

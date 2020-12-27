@@ -1,0 +1,29 @@
+lang.name = Recursion
+lang.version = v0.2.0
+
+# Recursion
+fp.factorial = ($num) -> {
+	con.if($num < 2)
+		return 1
+	con.endif
+	
+	# Recursive call: fp.factorial(...)
+	return func.mull($num, fp.factorial(func.subi($num, 1)))
+}
+fp.printFactorial = ($i) -> {
+	func.printTerminal(3, $i! = fp.factorial($i))
+}
+func.repeat(fp.printFactorial, 25) # Long precision is not enough for 21! and beyond
+
+# Indirect recursion (Uses variable definition after function pointer definition)
+fp.a = ($a) -> {
+	return $a - fp.b(func.subi($a, 2))
+}
+fp.b = ($a) -> {
+	con.if($a < 0)
+		return END
+	con.endif
+	
+	return $a - fp.a(func.addi($a, 1))
+}
+func.printTerminal(4, fp.a(10))

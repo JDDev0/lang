@@ -1,0 +1,20 @@
+lang.name = Link Test Translations
+lang.version = v0.2.0
+
+func.printTerminal(1, 0 - test)
+test.name = Name
+test.age = 42
+test.data = [DATA]
+
+func.printTerminal(1, 0 - test2)
+test2.name = Name2
+test2.age = 420
+test2.data = MY
+
+func.printTerminal(1, 0 - Vars & FuncPtrs)
+$var = Variable
+fp.printTest = ($var) -> {
+	func.printTerminal(-1, Var: $var)
+}
+
+func.printTerminal(1, 0 - Finished)

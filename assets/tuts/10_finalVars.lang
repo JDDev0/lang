@@ -1,0 +1,112 @@
+lang.name = Final Vars
+lang.version = v0.2.0
+
+# Final vars
+# func.makeFinal(varPtr)
+# func.makeFinal(arrPtr)
+# func.makeFinal(funcPtr) # Will make the variable final
+#                           (= not overrideable)
+#                           The content of a final arrPtr
+#                           can be changed
+# Final var
+$a = DO NOT modify!
+func.makeFinal($[a])
+
+$a = I have modified you! # Will result in an error
+func.printTerminal(2, $a)
+func.printError()
+
+$a # Will also result in an error
+func.printTerminal(2, $a)
+func.printError()
+
+$b = $a # No Error
+$b = TEST # Also no error ($b is not final)
+func.printTerminal(2, $a: $b)
+func.printError()
+
+fp.test = () -> {
+	# No error, because $a is an local variable of the function
+	$a = 100
+	func.printTerminal(2, $a)
+	func.printError()
+	
+	# Will also result in an error
+	func.copyAfterFP($[a], $[a])
+}
+fp.test()
+func.printTerminal(2, $a)
+func.printError()
+
+# Final arrPtrs
+func.arrayMake(&a, 2)
+func.arraySetAll(&a, 10, 42)
+func.makeFinal(&a)
+func.printTerminal(3, func.arrayGetAll(&a))
+
+func.arraySetAll(&a, 42, 40) # No Error
+func.printTerminal(3, func.arrayGetAll(&a))
+func.printError()
+
+func.arrayMake(&a, 3) # Will result in an error
+func.printError()
+func.printTerminal(3, func.arrayGetAll(&a))
+
+func.arrayDelete(&a) # No Error
+func.printError()
+func.printTerminal(3, func.arrayGetAll(&a))
+
+# Final funcPtrs
+fp.test = () -> {
+	func.printTerminal(2, TESTED!)
+}
+func.makeFinal(fp.test)
+fp.test() # Will produce no error
+func.printError()
+
+fp.test = () -> { # Will result in an error
+	func.printTerminal(5, Modifyed!)
+}
+fp.test()
+func.printError()
+
+# func.clearVar can only remove non final vars
+func.clearVar(fp.test) # Will result in an error
+fp.test()
+func.printError()
+
+# Clear var
+# func.clearVar(varPtr)
+# func.clearVar(arrPtr)
+# func.clearVar(funcPtr) # Will remove a variable
+$var = Test
+func.printTerminal(-1, $var)
+func.clearVar($[var])
+func.printTerminal(-1, $var)
+
+func.clearVar($[a]) # Will result in an error
+                    # [Final vars can't be removed]
+func.printTerminal(2, $a)
+func.printError()
+
+func.clearVar(fp.test) # Will also result in an error
+fp.test()
+func.printError()
+
+func.clearVar(&a) # Will also result in an error
+func.printTerminal(3, func.arrayGetAll(&a))
+func.printError()
+
+# Clear all vars
+# func.clearAllVars() # Will remove ALL vars (inculding
+#                       final vars)
+#                       -> Only way to remove final vars
+func.clearAllVars()
+
+$a # Will produce no error
+func.printTerminal(2, $a)
+func.printError()
+
+$a = New variable # Will also produce no error
+func.printTerminal(2, $a)
+func.printError()

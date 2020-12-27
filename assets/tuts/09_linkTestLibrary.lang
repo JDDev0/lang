@@ -1,0 +1,13 @@
+lang.name = Link Test Library
+lang.version = v0.2.0
+
+func.printTerminal(1, 1 - Translation)
+lib.name = LIB_42
+
+func.printTerminal(1, 1 - Vars & FuncPtrs)
+$lib.var = Variable of LIB
+fp.libTest = ($var) -> {
+	func.printTerminal(-1, Var: $var)
+}
+
+func.printTerminal(1, 1 - Finished)
