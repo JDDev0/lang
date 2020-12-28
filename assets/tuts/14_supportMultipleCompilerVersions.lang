@@ -1,0 +1,41 @@
+lang.name = Support Multiple Compiler Versions
+lang.version = v0.1.8 # Set to the lowest supported version
+
+$ver = $LANG_COMPILER_VERSION # Get lang compiler version
+con.if($ver == v0.1.8)
+	func.printTerminal(2, This is Code for the compiler version v0.1.8!)
+	
+	func.printTerminal(2, Are you crazy? This version of the lang compiler isn't even public!)
+con.elif($ver == v0.1.9)
+	func.printTerminal(2, This is Code for the compiler version v0.1.9!)
+	
+	$a = A non final variable
+	func.printTerminal(2, $a)
+	$a = New var
+	func.printTerminal(2, $a)
+	func.printError()
+con.elif($ver == v0.2.0)
+	func.printTerminal(2, This is Code for the compiler version v0.2.0!)
+	
+	$a = A final variable
+	func.makeFinal($[a])
+	func.printTerminal(2, $a)
+	$a = New var
+	func.printTerminal(2, $a)
+	func.printError()
+con.else
+	func.printTerminal(5, The Compiler version $ver is not supported!)
+con.endif
+
+# Good practice: Use different lang files for different compiler version dependent functions: # Example: Contains different version of function "fp.test"
+con.if($ver == v0.1.8)
+	linker.bindLibrary(14_utilsLibrary018.lang)
+con.elif($ver == v0.1.9)
+	linker.bindLibrary(14_utilsLibrary019.lang)
+con.elif($ver == v0.2.0)
+	linker.bindLibrary(14_utilsLibrary020.lang)
+con.else
+	func.printTerminal(5, The Compiler version $ver is not supported!)
+con.endif
+
+fp.test(A test text)

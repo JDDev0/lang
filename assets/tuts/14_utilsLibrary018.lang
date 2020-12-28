@@ -1,0 +1,6 @@
+lang.name = Utils Library for v0.1.8
+lang.version = v0.1.8
+
+fp.test = ($var) -> {
+	func.printTerminal(1, $var in v0.1.8)
+}

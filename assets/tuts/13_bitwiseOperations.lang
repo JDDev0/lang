@@ -1,0 +1,35 @@
+lang.name = Bitwise Operations
+lang.version = v0.2.0
+
+# Bitwise functions
+# func.and[i/l](int/long, int/long) - Bitwise and
+func.printTerminal(2, func.andi(84, 42))
+func.printTerminal(2, func.andl(84, 42))
+
+# func.or[i/l](int/long, int/long) - Bitwise or
+func.printTerminal(2, func.ori(84, 42))
+func.printTerminal(2, func.orl(84, 42))
+
+# func.xor[i/l](int/long, int/long) - Bitwise xor
+func.printTerminal(2, func.xori(84, 42))
+func.printTerminal(2, func.xorl(84, 42))
+
+# func.not[i/l](int/long) - Bitwise not
+func.printTerminal(2, func.noti(84))
+func.printTerminal(2, func.notl(84))
+
+# func.lshift[i/l](int/long, int/long) - Bitwise left shift
+func.printTerminal(2, func.lshifti(84, 1))
+func.printTerminal(2, func.lshiftl(84, 1))
+
+# func.rshift[i/l](int/long, int/long) - Bitwise right shift
+func.printTerminal(2, func.rshifti(84, 1))
+func.printTerminal(2, func.rshiftl(84, 1))
+
+# func.rshift[i/l](int/long, int/long) - Bitwise zero fill right shift
+func.printTerminal(2, func.rzshifti(84, 1))
+func.printTerminal(2, func.rzshiftl(84, 1))
+
+# Difference between rshift and rzshift
+func.printTerminal(2, func.rshifti(-84, 1) - func.rzshifti(-84, 1))
+func.printTerminal(2, func.rshiftl(-84, 1) - func.rzshiftl(-84, 1))
