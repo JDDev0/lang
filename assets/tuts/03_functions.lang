@@ -6,11 +6,11 @@ lang.version = v0.2.0
 # func.name(arg1, $arg2, &arg3, fp.arg4) # Call function with arguments
 
 # Compiler functions
-# func.isCompilerVersionNewer # Returns 1 if compiler version is newer else 0
+# func.isCompilerVersionNewer(void) # Returns 1 if compiler version is newer else 0
 $isCVN = func.isCompilerVersionNewer()
 func.printTerminal(-1, $isCVN)
 
-# func.isCompilerVersionOlder # Returns 1 if compiler version is older else 0
+# func.isCompilerVersionOlder(void) # Returns 1 if compiler version is older else 0
 $isCVO = func.isCompilerVersionOlder()
 func.printTerminal(-1, $isCVO)
 

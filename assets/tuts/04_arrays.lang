@@ -48,3 +48,14 @@ func.printTerminal(-1, func.arrayGetAll(&arr))
 # func.arrayClear(arrPtr)
 func.arrayClear(&arr)
 func.printTerminal(-1, func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore
+
+# Split a Text
+#func.split(arrPtr, Text, Text, [int]) # Creates arrPtr and splits
+#                                        the 2nd argument at the 3rd
+#                                        argument [RegEx] (Optional:
+#                                        It will split maximal n times)
+func.split(&splited, Test;42;1243;fdsds;xyz;f, ;)
+func.printTerminal(-1, func.arrayGetAll(&splited))
+
+func.split(&splited, Test;42;1243;fdsds;xyz;f, ;, 3)
+func.printTerminal(-1, func.arrayGetAll(&splited))
