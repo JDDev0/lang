@@ -28,6 +28,7 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.text.Document;
 
 import me.jddev0.module.io.Lang;
+import me.jddev0.module.io.LangPlatformAPI;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 
@@ -48,6 +49,7 @@ public class LangShellWindow extends JDialog {
 	private boolean flagEnd = false;
 	private int indent = 0;
 	private StringBuilder multiLineTmp = new StringBuilder();
+	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public LangShellWindow(JFrame owner, TerminalIO term) {
 		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
@@ -204,7 +206,7 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
-		lci = Lang.createCompilerInterface(term);
+		lci = Lang.createCompilerInterface(term, langPlatformAPI);
 		
 		//Add debug functions
 		lci.addPredefinedFunction("printHelp", (arg, DATA_ID) -> {

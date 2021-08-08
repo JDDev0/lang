@@ -1,5 +1,5 @@
 lang.name = Arrays
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 # Creation of an array
 # func.arrayMake(arrPtr, int)

@@ -1,5 +1,5 @@
 lang.name = Link Test Translations
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 func.printTerminal(1, 0 - test)
 test.name = Name

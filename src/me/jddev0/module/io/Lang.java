@@ -19,8 +19,6 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.BiFunction;
 
-import javax.swing.JOptionPane;
-
 import me.jddev0.module.io.TerminalIO.Level;
 
 /**
@@ -292,10 +290,10 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.arrayClear(arrPtr) //Free arrPtr<br>
  * 
  * @author JDDev0
- * @version v0.2.0
+ * @version v0.2.1
  */
 public class Lang {
-	private static final String VERSION = "v0.2.0";
+	private static final String VERSION = "v0.2.1";
 	private static final Random RAN = new Random();
 	
 	private static String oldFile;
@@ -305,10 +303,12 @@ public class Lang {
 	private static Map<String, String> lang = new HashMap<>(); //ID, data
 	
 	private Lang() {}
-	
+
 	/**
+	 * @deprecated Will be removed in a future release
 	 * @return Returns all available lang files
 	 */
+	@Deprecated
 	public static List<String> getLangFiles(String langPath) {
 		List<String> files = new LinkedList<>();
 		
@@ -326,8 +326,17 @@ public class Lang {
 	}
 	
 	/**
+	 * @return Returns all available lang files
+	 */
+	public static List<String> getLangFiles(String langPath, LangPlatformAPI langPlatformAPI) {
+		return langPlatformAPI.getLangFiles(langPath);
+	}
+	
+	/**
+	 * @deprecated Will be removed in a future release
 	 * @return Returns all translations of <b>langFile</b>
 	 */
+	@Deprecated
 	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term) throws Exception {
 		synchronized(lang) {
 			if(langFile.equals(oldFile)) {
@@ -362,11 +371,49 @@ public class Lang {
 			return new HashMap<>(lang);
 		}
 	}
+	/**
+	 * @return Returns all translations of <b>langFile</b>
+	 */
+	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term, LangPlatformAPI langPlatformAPI) throws Exception {
+		synchronized(lang) {
+			if(langFile.equals(oldFile)) {
+				if(lang.containsKey("lang.name") && !reload) {
+					return new HashMap<>(lang);
+				}
+			}else {
+				lang.clear(); //Remove old data
+				oldFile = langFile;
+			}
+			
+			//Set path for Compiler
+			pathLangFile = langPlatformAPI.getLangPath(langFile);
+			
+			//Create new compiler instance
+			Compiler comp = new Compiler(pathLangFile, term, langPlatformAPI);
+			
+			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
+			try {
+				comp.compileLangFile(reader, 0); //Compile lang file
+			}catch(Exception e) {
+				reader.close();
+				
+				throw e;
+			}
+			reader.close();
+			
+			//Copy lang
+			lang = comp.getData().get(0).lang;
+			
+			return new HashMap<>(lang);
+		}
+	}
 	
 	/**
+	 * @deprecated Will be removed in a future release
 	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
 	 * If key wasn't found -> <code>return key;</code>
 	 */
+	@Deprecated
 	public static String getTranslation(String langFile, String key) throws Exception {
 		synchronized(lang) {
 			if(getTranslationMap(langFile, false, null).get(key) == null) {
@@ -376,11 +423,26 @@ public class Lang {
 			return getTranslationMap(langFile, false, null).get(key);
 		}
 	}
-	
 	/**
 	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
 	 * If key wasn't found -> <code>return key;</code>
 	 */
+	public static String getTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws Exception {
+		synchronized(lang) {
+			if(getTranslationMap(langFile, false, null, langPlatformAPI).get(key) == null) {
+				return key;
+			}
+			
+			return getTranslationMap(langFile, false, null, langPlatformAPI).get(key);
+		}
+	}
+	
+	/**
+	 * @deprecated Will be removed in a future release
+	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	@Deprecated
 	public static String getTranslationFormat(String langFile, String key, Object... args) throws Exception {
 		synchronized(lang) {
 			if(getTranslation(langFile, key) == null) {
@@ -394,32 +456,73 @@ public class Lang {
 			}
 		}
 	}
+	/**
+	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslationFormat(String langFile, String key, LangPlatformAPI langPlatformAPI, Object... args) throws Exception {
+		synchronized(lang) {
+			if(getTranslation(langFile, key, langPlatformAPI) == null) {
+				return key;
+			}
+			
+			try {
+				return String.format(getTranslation(langFile, key, langPlatformAPI), args);
+			}catch(Exception e) {
+				return getTranslation(langFile, key, langPlatformAPI);
+			}
+		}
+	}
 	
 	/**
+	 * @deprecated Will be removed in a future release
 	 * @return Returns language name of <b>langFile</b><br>
 	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
+	@Deprecated
 	public static String getLangName(String langFile) throws Exception {
 		synchronized(lang) {
 			return getTranslation(langFile, "lang.name");
 		}
 	}
+	/**
+	 * @return Returns language name of <b>langFile</b><br>
+	 * <code>return getTranslation(langFile, "lang.name");</code>
+	 */
+	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws Exception {
+		synchronized(lang) {
+			return getTranslation(langFile, "lang.name", langPlatformAPI);
+		}
+	}
 	
 	/**
+	 * @deprecated Will be removed in a future release
 	 * @return Returns language version of <b>langFile</b><br>
 	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
+	@Deprecated
 	public static String getLangVersion(String langFile) throws Exception {
 		synchronized(lang) {
 			return getTranslation(langFile, "lang.version");
 		}
 	}
+	/**
+	 * @return Returns language version of <b>langFile</b><br>
+	 * <code>return getTranslation(langFile, "lang.name");</code>
+	 */
+	public static String getLangVersion(String langFile, LangPlatformAPI langPlatformAPI) throws Exception {
+		synchronized(lang) {
+			return getTranslation(langFile, "lang.version", langPlatformAPI);
+		}
+	}
 	
 	/**
+	 * @deprecated Will be removed in a future release
 	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
 	 * 
 	 * @return Returns true if successful, false otherwise
 	 */
+	@Deprecated
 	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term) {
 		synchronized(lang) {
 			lang.clear();
@@ -446,7 +549,22 @@ public class Lang {
 			return true;
 		}
 	}
-	
+	/**
+	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
+	 * 
+	 * @return Returns true if successful, false otherwise
+	 */
+	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		synchronized(lang) {
+			lang.clear();
+			
+			return langPlatformAPI.writeLangFile(langFile, translationMap, term);
+		}
+	}
+	/**
+	 * @deprecated Will be removed in a future release
+	 */
+	@Deprecated
 	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term) throws Exception {
 		langFile = new File(langFile).getAbsolutePath();
 		String pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator));
@@ -465,8 +583,32 @@ public class Lang {
 		
 		return new LangCompilerInterface(comp);
 	}
+	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws Exception {
+		String pathLangFile = langPlatformAPI.getLangPath(langFile);
+		
+		Compiler comp = new Compiler(pathLangFile, term, langPlatformAPI);
+		
+		BufferedReader reader = langPlatformAPI.getLangReader(pathLangFile);
+		try {
+			comp.compileLangFile(reader, 0); //Compile lang file
+		}catch(Exception e) {
+			reader.close();
+			
+			throw e;
+		}
+		reader.close();
+		
+		return new LangCompilerInterface(comp);
+	}
+	/**
+	 * @deprecated Will be removed in a future release
+	 */
+	@Deprecated
 	public static LangCompilerInterface createCompilerInterface(TerminalIO term) {
 		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term));
+	}
+	public static LangCompilerInterface createCompilerInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term, langPlatformAPI));
 	}
 	
 	//Classes for compiling lang file
@@ -618,6 +760,7 @@ public class Lang {
 		
 		private String langPath;
 		private TerminalIO term;
+		private LangPlatformAPI langPlatformAPI;
 		private LinkerParser linkerParser = new LinkerParser();
 		private IfParser ifParser = new IfParser();
 		private VarParser varParser = new VarParser();
@@ -638,7 +781,7 @@ public class Lang {
 					return "Error";
 				}
 				
-				if(dataObject.isFinalData()) {
+				if(dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
 					setErrno(1, DATA_ID);
 					
 					return "Error";
@@ -700,7 +843,7 @@ public class Lang {
 						return "Error";
 					}
 				}catch(NumberFormatException e) {
-					setErrno(9, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -734,7 +877,7 @@ public class Lang {
 						funcParser.compileFunc(funcPtr, "" + i, DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					setErrno(9, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -769,7 +912,7 @@ public class Lang {
 						funcParser.compileFunc(execFunc, "", DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					setErrno(9, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -804,7 +947,7 @@ public class Lang {
 						funcParser.compileFunc(execFunc, "", DATA_ID);
 					}
 				}catch(NumberFormatException e) {
-					setErrno(9, DATA_ID);
+					setErrno(13, DATA_ID);
 					
 					return "Error";
 				}
@@ -838,12 +981,13 @@ public class Lang {
 			
 			//IO Functions
 			funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
-				String input = JOptionPane.showInputDialog(null, arg, "Lang input", JOptionPane.PLAIN_MESSAGE);
-				
-				if(input == null)
-					return "";
-				else
-					return input;
+				try {
+					return langPlatformAPI.showInputDialog(arg);
+				}catch(Exception e) {
+					setErrno(27, DATA_ID);
+					
+					return "Error";
+				}
 			});
 			funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
 				if(term == null) {
@@ -1824,9 +1968,21 @@ public class Lang {
 			});
 		}
 		
+		/**
+		 * @deprecated Will be removed in a future release
+		 */
+		@Deprecated
 		public Compiler(String langPath, TerminalIO term) {
 			this.langPath = langPath;
 			this.term = term;
+			this.langPlatformAPI = new LangPlatformAPI();
+			
+			createDataMap(0);
+		}
+		public Compiler(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+			this.langPath = langPath;
+			this.term = term;
+			this.langPlatformAPI = langPlatformAPI;
 			
 			createDataMap(0);
 		}
@@ -2382,7 +2538,7 @@ public class Lang {
 				String ret = "0";
 				
 				String langPathTmp = linkLangFile;
-				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
+				langPathTmp = langPlatformAPI.getLangPath(langPathTmp);
 				
 				//Change lang path for createDataMap
 				String oldLangPath = langPath;
@@ -2390,7 +2546,7 @@ public class Lang {
 				createDataMap(NEW_DATA_ID);
 				
 				try {
-					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
+					BufferedReader reader = langPlatformAPI.getLangReader(linkLangFile);
 					try {
 						compileLangFile(reader, NEW_DATA_ID);
 					}catch(Exception e) {
@@ -2426,7 +2582,7 @@ public class Lang {
 				String ret = "0";
 				
 				String langPathTmp = linkLangFile;
-				langPathTmp = langPathTmp.substring(0, langPathTmp.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
+				langPathTmp = langPlatformAPI.getLangPath(langPathTmp);
 				
 				//Change lang path for createDataMap
 				String oldLangPath = langPath;
@@ -2434,7 +2590,7 @@ public class Lang {
 				createDataMap(NEW_DATA_ID);
 				
 				try {
-					BufferedReader reader = new BufferedReader(new FileReader(new File(linkLangFile)));
+					BufferedReader reader = langPlatformAPI.getLangReader(linkLangFile);
 					try {
 						compileLangFile(reader, NEW_DATA_ID);
 					}catch(Exception e) {
@@ -2724,6 +2880,7 @@ public class Lang {
 							}
 						}
 					}else { //False
+						int innerIfCounter = 0;
 						while(true) {
 							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
 								tmp = compileLine(lines, tmp, DATA_ID);
@@ -2732,17 +2889,19 @@ public class Lang {
 								
 								tmp = tmp.trim().substring(4);
 								if(tmp.startsWith("endif")) {
-									return;
-								}else if(tmp.startsWith("elif")) {
+									innerIfCounter--;
+									if(innerIfCounter < 0)
+										return;
+								}else if(tmp.startsWith("elif") && innerIfCounter == 0) {
 									executeIf(lines, "con." + tmp.substring(2), DATA_ID); //Execute "elif" as "if"
 									
 									return;
-								}else if(tmp.startsWith("else")) {
+								}else if(tmp.startsWith("else") && innerIfCounter == 0) {
 									executeIf(lines, "con.if(1)", DATA_ID); //Execute "else" as "if(1)"
 									
 									return;
 								}else if(tmp.startsWith("if")) {
-									executeIf(lines, "con." + tmp, DATA_ID); //Execute inner if statement
+									innerIfCounter++;
 								}
 							}
 							

@@ -1,6 +1,6 @@
 # "lang." translations
 lang.name = Translations
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 # Lang Translations: langRequest = langValue
 ui.ok = Ok

@@ -1,6 +1,6 @@
 # Lang data
 lang.name = Benchmark
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 fp.benchmark = ($runs, fp.func) -> {
 	$time = 0

@@ -1,5 +1,5 @@
 lang.name = Recursion
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 # Recursion
 fp.factorial = ($num) -> {

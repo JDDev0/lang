@@ -6,11 +6,13 @@ import java.util.Map;
 import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
 import me.jddev0.module.io.Lang;
+import me.jddev0.module.io.LangPlatformAPI;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 
 public class Startup {
 	public static void main(String[] args) {
+		LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 		TerminalWindow termWin = new TerminalWindow();
 		TerminalIO term = new TerminalIO(new File("assets/log.txt"));
 		term.addCommand("executeLang", input -> {
@@ -19,7 +21,7 @@ public class Startup {
 				if(lang.exists()) {
 					try {
 						term.logln(Level.DEBUG, "------------- Start of Lang --------------", Startup.class);
-						Map<String, String> translations = Lang.getTranslationMap(input[0], true, term);
+						Map<String, String> translations = Lang.getTranslationMap(input[0], true, term, langPlatformAPI);
 						term.logln(Level.DEBUG, "-------------- Translations --------------", Startup.class);
 						translations.forEach((key, value) -> {
 							term.logln(Level.DEBUG, key + " = " + value, Startup.class);

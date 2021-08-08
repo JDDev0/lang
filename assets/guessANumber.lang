@@ -1,6 +1,6 @@
 # Lang data
 lang.name = GuessANumber
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 $end = 0
 $low = 1
@@ -17,9 +17,11 @@ fp.gameLoop = () -> {
 			func.printTerminal(1, The number is heigher than your input!)
 		con.elif($in > $num)
 			func.printTerminal(1, The number is lower than your input!)
-		con.else
+		con.elif($in == $num)
 			$win = 1
 			func.copyAfterFP($[win], $[win])
+		con.else
+			func.printTerminal(5, Invalid Input!)
 		con.endif
 		
 		$guesses = func.addi($guesses, 1)

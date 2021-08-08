@@ -1,5 +1,5 @@
 lang.name = Variable Scope
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 $a = test # "Global Scope Variable"
 func.printTerminal(-1, Global scope)

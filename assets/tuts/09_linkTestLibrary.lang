@@ -1,5 +1,5 @@
 lang.name = Link Test Library
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 func.printTerminal(1, 1 - Translation)
 lib.name = LIB_42

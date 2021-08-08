@@ -1,5 +1,5 @@
 lang.name = If Statement
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 # If statement:
 # con.if("condition") # (Can be used only once)

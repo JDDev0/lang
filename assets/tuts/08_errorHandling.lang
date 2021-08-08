@@ -1,5 +1,5 @@
 lang.name = Error Handling
-lang.version = v0.2.0
+lang.version = v0.2.1
 
 # Print Error function
 # func.printError([Text]) # Prints the acutal error
