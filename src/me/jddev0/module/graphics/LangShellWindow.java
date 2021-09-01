@@ -15,6 +15,8 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JDialog;
@@ -49,10 +51,14 @@ public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
 
 	private JTextPane shell;
+	
+	private List<String> history = new LinkedList<String>();
+	private int historyPos = 0;
+	private String currentCommand = "";
+	private StringBuilder multiLineTmp = new StringBuilder();
 	private TerminalIO term;
 	private boolean flagEnd = false;
 	private int indent = 0;
-	private StringBuilder multiLineTmp = new StringBuilder();
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public LangShellWindow(JFrame owner, TerminalIO term) {
@@ -93,6 +99,7 @@ public class LangShellWindow extends JDialog {
 		shell.setMargin(new Insets(3, 5, 0, 5));
 		shell.addKeyListener(new KeyAdapter() {
 			private StringBuilder lineTmp = new StringBuilder();
+			private String lastHistoryEntryUsed = "";
 			
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -113,7 +120,8 @@ public class LangShellWindow extends JDialog {
 				}else if(c != KeyEvent.CHAR_UNDEFINED) {
 					if(c == '\n') {
 						addLine(lineTmp.toString());
-						lineTmp = new StringBuilder();
+						lineTmp.delete(0, lineTmp.length());
+						lastHistoryEntryUsed = "";
 					}else {
 						lineTmp.append(c);
 						GraphicsHelper.addText(shell, c + "", Color.WHITE);
@@ -142,7 +150,7 @@ public class LangShellWindow extends JDialog {
 								lineTmp.append(line);
 								if(i != lines.length - 1 || copied.endsWith("\n")) { //Line has an '\n' at end -> finished line
 									addLine(lineTmp.toString());
-									lineTmp = new StringBuilder();
+									lineTmp.delete(0, lineTmp.length());
 								}
 							}
 						}
@@ -152,6 +160,49 @@ public class LangShellWindow extends JDialog {
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
 					end();
 					return;
+				}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+					if(historyPos < history.size() - 1) {
+						historyPos++;
+						
+						String historyRet = history.get(historyPos);
+						String[] lines = historyRet.split("\n");
+						String lastLine = lines[lines.length - 1];
+						
+						lineTmp.delete(0, lineTmp.length());
+						lineTmp.append(lastLine);
+						
+						removeLines(lastHistoryEntryUsed);
+						lastHistoryEntryUsed = historyRet;
+						addLinesWithoutExec(historyRet);
+					}else {
+						if(historyPos == history.size() - 1)
+							historyPos++;
+						
+						lineTmp.delete(0, lineTmp.length());
+						lineTmp.append(currentCommand);
+						
+						removeLines(lastHistoryEntryUsed);
+						lastHistoryEntryUsed = currentCommand;
+						addLinesWithoutExec(currentCommand);
+					}
+				}else if(e.getKeyCode() == KeyEvent.VK_UP) {
+					if(historyPos > 0) {
+						if(historyPos == history.size())
+							currentCommand = lineTmp.toString();
+						
+						historyPos--;
+						
+						String historyRet = history.get(historyPos);
+						String[] lines = historyRet.split("\n");
+						String lastLine = lines[lines.length - 1];
+						
+						lineTmp.delete(0, lineTmp.length());
+						lineTmp.append(lastLine);
+						
+						removeLines(lastHistoryEntryUsed);
+						lastHistoryEntryUsed = historyRet;
+						addLinesWithoutExec(historyRet);
+					}
 				}
 			}
 		});
@@ -406,6 +457,50 @@ public class LangShellWindow extends JDialog {
 		}catch(BadLocationException e) {}
 	}
 	
+	private void addToHistory(String str) {
+		if(!str.trim().isEmpty() && (history.isEmpty() || !history.get(history.size() - 1).equals(str)))
+			history.add(str);
+		
+		historyPos = history.size();
+		currentCommand = "";
+	}
+	
+	private void removeLines(String str) {
+		multiLineTmp.delete(0, multiLineTmp.length());
+		indent = 0;
+		
+		String[] lines = str.split("\n");
+		for(int i = 0;i < lines.length;i++) {
+			try {
+				Document doc = shell.getDocument();
+				int startOfLine;
+				for(startOfLine = doc.getLength() - 1;startOfLine > 0;startOfLine--)
+					if(doc.getText(startOfLine, 1).charAt(0) == '\n')
+						break;
+				doc.remove(startOfLine, doc.getLength() - startOfLine);
+			}catch(BadLocationException e) {}
+		}
+		
+		GraphicsHelper.addText(shell, "\n> ", Color.WHITE);
+	}
+	private void addLinesWithoutExec(String str) {
+		String lastLine = str;
+		if(str.contains("\n")) {
+			String[] lines = str.split("\n");
+			for(int i = 0;i < lines.length - 1;i++) {
+				String line = lines[i];
+				
+				GraphicsHelper.addText(shell, line, Color.WHITE);
+				highlightSyntaxLastLine();
+				
+				addLine(line);
+			}
+			lastLine = lines[lines.length - 1];
+		}
+		
+		GraphicsHelper.addText(shell, lastLine, Color.WHITE);
+		highlightSyntaxLastLine();
+	}
 	private void addLine(String line) {
 		if(indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
@@ -418,6 +513,8 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				try {
+					addToHistory(line);
+					
 					lii.exec(0, line);
 				}catch(IOException e) {
 					term.logStackTrace(e, LangShellWindow.class);
@@ -451,13 +548,17 @@ public class LangShellWindow extends JDialog {
 			
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent == 0) {
+				String multiLineTmpString = multiLineTmp.toString();
+				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
+				
 				try {
 					lii.exec(0, multiLineTmp.toString());
 				}catch(IOException e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
 				
-				multiLineTmp = new StringBuilder();
+				multiLineTmp.delete(0, multiLineTmp.length());
+				currentCommand = "";
 			}
 			
 			for(int i = 0;i < indent;i++)

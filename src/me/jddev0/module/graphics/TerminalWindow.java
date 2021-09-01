@@ -44,7 +44,7 @@ public class TerminalWindow extends JFrame {
 	private JTextPane term;
 	
 	private List<String> history = new LinkedList<String>();
-	private int historyPos = -1;
+	private int historyPos = 0;
 	private String currentCommand = "";
 	private boolean b = false;
 	//Tmp for System.in
@@ -76,7 +76,7 @@ public class TerminalWindow extends JFrame {
 					if(flag) {
 						currentCommand = txtEnterCommands.getText();
 					}
-					if(e.getKeyCode() == KeyEvent.VK_ENTER && !b) {//Starts sending command to TerminalIO
+					if(e.getKeyCode() == KeyEvent.VK_ENTER && !b) { //Starts sending command to TerminalIO
 						readingTmp = new StringBuilder(txtEnterCommands.getText() + "");
 						history.add(readingTmp.toString());
 						historyPos = history.size();
@@ -84,7 +84,7 @@ public class TerminalWindow extends JFrame {
 						
 						txtEnterCommands.setText(null);
 						b = true;
-					}else if(e.getKeyCode() == KeyEvent.VK_TAB) {//Auto completion
+					}else if(e.getKeyCode() == KeyEvent.VK_TAB) { //Auto completion
 						Map<String, ReaderActionObject> commands = termIO.getCommands();
 						List<String> tmp = new LinkedList<String>();
 						String in = txtEnterCommands.getText();
@@ -124,13 +124,13 @@ public class TerminalWindow extends JFrame {
 							termIO.log(Level.USER, out, TerminalWindow.class);
 						}
 					}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-						if(historyPos < history.size()-1) {
+						if(historyPos < history.size() - 1) {
 							flag = false;
 							historyPos++;
 							txtEnterCommands.setText(history.get(historyPos));
 						}else {
 							flag = true;
-							if(historyPos <= history.size()-1)
+							if(historyPos == history.size() - 1)
 								historyPos++;
 							txtEnterCommands.setText(currentCommand);
 						}
@@ -139,11 +139,6 @@ public class TerminalWindow extends JFrame {
 							flag = false;
 							historyPos--;
 							txtEnterCommands.setText(history.get(historyPos));
-						}else {
-							flag = true;
-							if(historyPos >= 0)
-								historyPos--;
-							txtEnterCommands.setText(currentCommand);
 						}
 					}else {
 						flag = true;
