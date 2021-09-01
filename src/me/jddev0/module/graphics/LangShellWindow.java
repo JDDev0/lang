@@ -90,11 +90,6 @@ public class LangShellWindow extends JDialog {
 		shell.setBackground(Color.BLACK);
 		shell.setEditable(false);
 		shell.setAutoscrolls(true);
-		{
-			//Auto Scroll
-			DefaultCaret caret = (DefaultCaret)shell.getCaret();
-			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		}
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		shell.setMargin(new Insets(3, 5, 0, 5));
 		shell.addKeyListener(new KeyAdapter() {
@@ -215,6 +210,9 @@ public class LangShellWindow extends JDialog {
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		
 		revalidate();
+		
+		//Auto scroll
+		shell.setCaretPosition(shell.getDocument().getLength());
 	}
 	
 	private LangInterpreter.LangInterpreterInterface lii;
@@ -263,6 +261,9 @@ public class LangShellWindow extends JDialog {
 					}else {
 						GraphicsHelper.addText(shell, printStr, colors[type]);
 					}
+					
+					//Auto scroll
+					shell.setCaretPosition(shell.getDocument().getLength());
 					
 					//Clears tmp for the printing
 					printingTmp.delete(0, printingTmp.length());
@@ -455,6 +456,9 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, c + "", col);
 			}
 		}catch(BadLocationException e) {}
+		
+		//Auto scroll
+		shell.setCaretPosition(shell.getDocument().getLength());
 	}
 	
 	private void addToHistory(String str) {

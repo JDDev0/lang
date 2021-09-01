@@ -160,11 +160,6 @@ public class TerminalWindow extends JFrame {
 		term.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		term.setBackground(Color.BLACK);
 		term.setEditable(false);
-		{
-			//Auto Scroll
-			DefaultCaret caret = (DefaultCaret)term.getCaret();
-			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		}
 		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		term.setMargin(new Insets(3, 5, 0, 5));
 		term.addKeyListener(new KeyListener() {
@@ -261,6 +256,9 @@ public class TerminalWindow extends JFrame {
 						GraphicsHelper.addText(term, printStr, colors[type]);
 					}
 					
+					//Auto scroll
+					term.setCaretPosition(term.getDocument().getLength());
+					
 					//Clears tmp for the printing
 					printingTmp.delete(0, printingTmp.length());
 				}
@@ -273,6 +271,9 @@ public class TerminalWindow extends JFrame {
 		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		
 		revalidate();
+		
+		//Auto scroll
+		term.setCaretPosition(term.getDocument().getLength());
 	}
 	
 	public void setTerminalIO(TerminalIO termIO) {
