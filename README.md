@@ -13,6 +13,6 @@ You can also run "java -jar LangCompiler.jar -startShell" in a terminal or conso
 
 ### Breaking changes
 - **v1.0.0**:
- - Arrays variable names starting with "&LANG_" are no longer allowed
- - Var/Array pointer names
- - Many deprecated methods and classes in the Lang class won't work as expected
+  - Arrays variable names starting with "&LANG_" are no longer allowed
+  - Var/Array pointer names
+  - Many deprecated methods and classes in the Lang class won't work as expected
