@@ -28,8 +28,12 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.text.Document;
 
 import me.jddev0.module.io.Lang;
+import me.jddev0.module.io.LangInterpreter;
 import me.jddev0.module.io.LangPlatformAPI;
+import me.jddev0.module.io.LangPredefinedFunctionObject;
 import me.jddev0.module.io.TerminalIO;
+import me.jddev0.module.io.LangInterpreter.DataObject;
+import me.jddev0.module.io.LangInterpreter.InterpretingError;
 import me.jddev0.module.io.TerminalIO.Level;
 
 /**
@@ -39,7 +43,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * Lang Shell
  * 
  * @author JDDev0
- * @version v0.1
+ * @version v1.0.0
  */
 public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
@@ -153,7 +157,7 @@ public class LangShellWindow extends JDialog {
 		initShell();
 	}
 	
-	private Lang.LangCompilerInterface lci;
+	private LangInterpreter.LangInterpreterInterface lii;
 	private PrintStream oldOut;
 	
 	private void initShell() {
@@ -206,66 +210,122 @@ public class LangShellWindow extends JDialog {
 			}
 		}));
 		
-		lci = Lang.createCompilerInterface(term, langPlatformAPI);
+		lii = Lang.createInterpreterInterface(term, langPlatformAPI);
 		
 		//Add debug functions
-		lci.addPredefinedFunction("printHelp", (arg, DATA_ID) -> {
+		lii.addPredefinedFunction("printHelp", (argumentList, DATA_ID) -> {
 			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 			"func.printDebug(ptr) # Prints debug information about the provided DataObject", LangShellWindow.class);
 			
-			return "";
+			return null;
 		});
-		lci.addPredefinedFunction("printDebug", (arg, DATA_ID) -> {
+		lii.addPredefinedFunction("printDebug", (argumentList, DATA_ID) -> {
+			DataObject dataObject = lii.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
 			StringBuilder builder = new StringBuilder();
 			builder.append("Debug[");
-			builder.append(arg);
+			builder.append(dataObject.getVariableName() == null?"<ANONYMOUS>":dataObject.getVariableName());
 			builder.append("]:\n");
-			
-			if(lci.getVar(DATA_ID, arg) == null) {
-				builder.append("Not in DataMap");
-			}else {
-				builder.append("Raw Text: ");
-				builder.append(lci.getVar(DATA_ID, arg).toString());
-				builder.append("\nType: ");
-				builder.append(lci.getVar(DATA_ID, arg).getType());
-				builder.append("\nFinal: ");
-				builder.append(lci.getVar(DATA_ID, arg).isFinalData());
-				switch(lci.getVar(DATA_ID, arg).getType()) {
-					case ARRAY:
-						builder.append("\nSize: ");
-						builder.append(lci.getVar(DATA_ID, arg).getArray().length);
-						
-						break;
-					case FUNCTION_POINTER:
-						builder.append("\nFunction-Type: ");
-						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getFunctionPointerType());
-						builder.append("\nHead: ");
-						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getHead());
-						builder.append("\nBody: ");
-						builder.append(lci.getVar(DATA_ID, arg).getFunctionPointer().getBody());
-						
-						break;
-					case ERROR:
-						builder.append("\nError-Code: ");
-						builder.append(lci.getVar(DATA_ID, arg).getError().getErrno());
-						builder.append("\nError-Text: ");
-						builder.append(lci.getVar(DATA_ID, arg).getError().getErrmsg());
-						
-						break;
-					
-					default:
-						break;
-				}
-			}
+			builder.append(getDebugString(dataObject));
 			
 			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
 			
-			return "";
+			return null;
 		});
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
 		"Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
+	}
+	
+	private String getDebugString(LangInterpreter.DataObject dataObject) {
+		if(dataObject == null)
+			return "<NULL>";
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("Raw Text: ");
+		builder.append(dataObject.getText());
+		builder.append("\nType: ");
+		builder.append(dataObject.getType());
+		builder.append("\nFinal: ");
+		builder.append(dataObject.isFinalData());
+		builder.append("\nVariable Name: ");
+		builder.append(dataObject.getVariableName());
+		switch(dataObject.getType()) {
+			case VAR_POINTER:
+				builder.append("\nPointing to: {\n");
+				String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar()).toString().split("\\n");
+				for(String debugStringLine:debugStringLines) {
+					builder.append("    ");
+					builder.append(debugStringLine);
+					builder.append("\n");
+				}
+				builder.append("}");
+				break;
+			
+			case ARRAY:
+				builder.append("\nSize: ");
+				builder.append(dataObject.getArray().length);
+				builder.append("\nElements:");
+				for(int i = 0;i < dataObject.getArray().length;i++) {
+					DataObject ele = dataObject.getArray()[i];
+					builder.append("\n    arr(");
+					builder.append(i);
+					builder.append("): {\n");
+					debugStringLines = getDebugString(ele).toString().split("\\n");
+					for(String debugStringLine:debugStringLines) {
+						builder.append("       ");
+						builder.append(debugStringLine);
+						builder.append("\n");
+					}
+					builder.append("   }");
+				}
+				break;
+			
+			case FUNCTION_POINTER:
+				builder.append("\nFunction-Type: ");
+				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
+				builder.append("\nParameter List: ");
+				builder.append(dataObject.getFunctionPointer().getParameterList());
+				builder.append("\nFunction Body: ");
+				builder.append(dataObject.getFunctionPointer().getFunctionBody());
+				builder.append("\nPredefined Function: ");
+				LangPredefinedFunctionObject predefinedFunction = dataObject.getFunctionPointer().getPredefinedFunction();
+				if(predefinedFunction == null) {
+					builder.append(predefinedFunction);
+				}else {
+					builder.append("{");
+					builder.append("\n    Raw String: ");
+					builder.append(predefinedFunction);
+					builder.append("\n    Deprecated: ");
+					boolean deprecated = predefinedFunction.isDeprecated();
+					builder.append(deprecated);
+					if(deprecated) {
+						builder.append("\n        Will be removed in: ");
+						builder.append(predefinedFunction.getDeprecatedRemoveVersion());
+						builder.append("\n        Replacement function: ");
+						builder.append(predefinedFunction.getDeprecatedReplacementFunction());
+					}
+					builder.append("\n}");
+				}
+				builder.append("\nExternal Function: ");
+				builder.append(dataObject.getFunctionPointer().getExternalFunction());
+				break;
+			
+			case ERROR:
+				builder.append("\nError-Code: ");
+				builder.append(dataObject.getError().getErrno());
+				builder.append("\nError-Text: ");
+				builder.append(dataObject.getError().getErrmsg());
+				break;
+			
+			default:
+				break;
+		}
+		
+		return builder.toString();
 	}
 	
 	private void highlightSyntaxLastLine() {
@@ -348,7 +408,11 @@ public class LangShellWindow extends JDialog {
 				
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
-				lci.execLine(0, line);
+				try {
+					lii.exec(0, line);
+				}catch(IOException e) {
+					term.logStackTrace(e, LangShellWindow.class);
+				}
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 			}
 		}else {
@@ -379,8 +443,8 @@ public class LangShellWindow extends JDialog {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent == 0) {
 				try {
-					lci.exec(0, multiLineTmp.toString());
-				}catch(Exception e) {
+					lii.exec(0, multiLineTmp.toString());
+				}catch(IOException e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}
 				
@@ -398,7 +462,7 @@ public class LangShellWindow extends JDialog {
 		
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
 		
-		Map<String, String> lang = lci.getTranslationMap(0);
+		Map<String, String> lang = lii.getTranslationMap(0);
 		lang.forEach((key, value) -> {
 			term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
 		});

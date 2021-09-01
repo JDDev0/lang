@@ -4,22 +4,29 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
-import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.io.LangInterpreter.InterpretingError;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.AssignmentNode;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.FunctionDefinitionNode;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.Node;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.NodeType;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.ParsingErrorNode;
+import me.jddev0.module.io.LangParser.AbstractSyntaxTree.VariableNameNode;
+import me.jddev0.module.io.LangParser.ParsingError;
 
 /**
  * IO-Module<br>
@@ -41,10 +48,21 @@ import me.jddev0.module.io.TerminalIO.Level;
  * func.arrayFunc(arrPtr, args) //Array Function<br>
  * <br>
  * <b>--- Escape Characters ---</b><br>
+ * \0 -> ASCII NUL<br>
  * \n -> newLine<br>
- * \s -> space (only in function "printTerminal" and for "langValue")<br>
+ * \r -> carriage return<br>
+ * \f -> form feed<br>
+ * \s -> space<br>
+ * \b -> backspace<br>
+ * \t -> tab<br>
  * \$ -> $<br>
  * \# -> #<br>
+ * \( -> (<br>
+ * \) -> )<br>
+ * \{ -> {<br>
+ * \} -> }<br>
+ * \! -> forced node split<br>
+ * \\ -> \<br>
  * <br>
  * <b>--- Lang data and compiler args ---</b><br>
  * needed = (*)lang.xxxx<br>
@@ -59,13 +77,13 @@ import me.jddev0.module.io.TerminalIO.Level;
  * Test //Text<br>
  * c //char (Text with length of 1)<br>
  * <br>
- * 42 //int, long, double<br>
- * 42.42 ; 42. ; .42 ; 42e2 ; 42e-2 ; 42E2 ; 42E-2 //double<br>
+ * 42 //int, long, float, double<br>
+ * 42.42 ; 42. ; .42 ; 42e2 ; 42e-2 ; 42E2 ; 42E-2 //float, double<br>
  * <br>
  * FILE //Text to location of file:<br>
  * //<b>important</b>: file separator ('/') will be changed by file separator of OS<br>
  * //absolute: (e.g.: /home/user/"File name")(e.g.: C:/"File name")<br>
- * //relative: (e.g.: "file name")(e.g.: ../"File name")(e.g.: "Folder name"/"File name")<br>
+ * //relative: (e.g.: "File name")(e.g.: ../"File name")(e.g.: "Folder name"/"File name")<br>
  * <br>
  * $varName //var<br>
  * $[varName] //varPtr (Pointer to var)<br>
@@ -163,7 +181,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * "$x == $y" -> $x is equal $y<br>
  * "$x != $y" -> $x is not equal $y<br>
  * <br>
- * For int, long, double:<br>
+ * For int, float, long, double:<br>
  * "$x < $y" -> $x is less than $y <br>
  * "$x <= $y" -> $x is less or equal $y <br>
  * "$x > $y" -> $x is greater than $y <br>
@@ -196,14 +214,16 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.clearVar(arrPtr)<br>
  * [void]func.clearVar(funcPtr)<br>
  * [void]func.clearAllVars(void)<br>
- * [void]func.clearAllArrays(void) //Deprecated: use func.clearAllVars instead<br>
+ * [void]func.clearAllArrays(void) //Deprecated [Will be removed in v1.2.0]: use func.clearAllVars instead<br>
  * <br><b>Error functions</b><br>
- * [Text]func.getErrorString(void)<br>
+ * [Text]func.getErrorString(void) //Deprecated [Will be removed in v1.2.0]: use func.getErrorText instead<br>
+ * [Text]func.getErrorText(void)<br>
  * <br><b>Compiler function</b><br>
  * [int]func.isCompilerVersionNewer(void)<br>
  * [int]func.isCompilerVersionOlder(void)<br>
  * <br><b>System Functions</b><br>
  * [void]func.sleep(int)<br>
+ * [long]func.currentTimeMillis(void)<br>
  * [void]func.repeat(funcPtr, int)<br>
  * [void]func.repeatWhile(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns true<br>
  * [void]func.repeatUntil(funcPtr, funcPtr) //Calls first function pointer while second function pointer returns false<br>
@@ -212,13 +232,13 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.makeFinal(arrPtr) //Content in final array can still be changed<br>
  * [void]func.makeFinal(funcPtr)<br>
  * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
- * [long]func.currentTimeMillis(void)<br>
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
  * [void]func.printError([Text]) //"func.printTerminal" with "func.getErrorString"<br>
  * <br><b>Num Functions</b><br>
- * [int]func.hexToDez(Text)<br>
+ * [int]func.hexToDec(Text) //Deprecated [Will be removed in v1.2.0]: use func.hexToDec instead<br>
+ * [int]func.hexToDec(Text)<br>
  * <br><b>Character functions</b><br>
  * [int]func.toValue(char)<br>
  * [char]func.toChar(int)<br>
@@ -268,6 +288,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  * <br><i>Convert functions</i><br>
  * [int]func.dtoi(double)<br>
  * [long]func.dtol(double)<br>
+ * [num]func.toNumber(any)<br>
  * <br><i>Round functions</i><br>
  * [long]func.ceil(double)<br>
  * [long]func.floor(double)<br>
@@ -290,12 +311,9 @@ import me.jddev0.module.io.TerminalIO.Level;
  * [void]func.arrayClear(arrPtr) //Free arrPtr<br>
  * 
  * @author JDDev0
- * @version v0.2.1
+ * @version v1.0.0
  */
 public class Lang {
-	private static final String VERSION = "v0.2.1";
-	private static final Random RAN = new Random();
-	
 	private static String oldFile;
 	private static String pathLangFile; //$LANG_PATH
 	
@@ -303,9 +321,140 @@ public class Lang {
 	private static Map<String, String> lang = new HashMap<>(); //ID, data
 	
 	private Lang() {}
-
+	
 	/**
-	 * @deprecated Will be removed in a future release
+	 * @return Returns all available lang files
+	 */
+	public static List<String> getLangFiles(String langPath, LangPlatformAPI langPlatformAPI) {
+		return langPlatformAPI.getLangFiles(langPath);
+	}
+	
+	/**
+	 * @return Returns all translations of <b>langFile</b>
+	 */
+	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(lang) {
+			if(langFile.equals(oldFile)) {
+				if(lang.containsKey("lang.name") && !reload) {
+					return new HashMap<>(lang);
+				}
+			}else {
+				lang.clear(); //Remove old data
+				oldFile = langFile;
+			}
+			
+			//Set path for Interpreter
+			pathLangFile = langPlatformAPI.getLangPath(langFile);
+			
+			//Create new Interpreter instance
+			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
+			
+			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
+			try {
+				interpreter.interpretLines(reader);
+			}catch(IOException e) {
+				reader.close();
+				
+				throw e;
+			}
+			reader.close();
+			
+			//Copy lang
+			lang = interpreter.getData().get(0).lang;
+			
+			return new HashMap<>(lang);
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(lang) {
+			if(getTranslationMap(langFile, false, null, langPlatformAPI).get(key) == null) {
+				return key;
+			}
+			
+			return getTranslationMap(langFile, false, null, langPlatformAPI).get(key);
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslationFormat(String langFile, String key, LangPlatformAPI langPlatformAPI, Object... args) throws IOException {
+		synchronized(lang) {
+			if(getTranslation(langFile, key, langPlatformAPI) == null) {
+				return key;
+			}
+			
+			try {
+				return String.format(getTranslation(langFile, key, langPlatformAPI), args);
+			}catch(Exception e) {
+				return getTranslation(langFile, key, langPlatformAPI);
+			}
+		}
+	}
+	
+	/**
+	 * @return Returns language name of <b>langFile</b><br>
+	 * <code>return getTranslation(langFile, "lang.name");</code>
+	 */
+	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(lang) {
+			return getTranslation(langFile, "lang.name", langPlatformAPI);
+		}
+	}
+	
+	/**
+	 * @return Returns language version of <b>langFile</b><br>
+	 * <code>return getTranslation(langFile, "lang.name");</code>
+	 */
+	public static String getLangVersion(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(lang) {
+			return getTranslation(langFile, "lang.version", langPlatformAPI);
+		}
+	}
+	
+	/**
+	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
+	 * 
+	 * @return Returns true if successful, false otherwise
+	 */
+	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		synchronized(lang) {
+			lang.clear();
+			
+			return langPlatformAPI.writeLangFile(langFile, translationMap, term);
+		}
+	}
+	
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		String pathLangFile = langPlatformAPI.getLangPath(langFile);
+		
+		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
+		
+		BufferedReader reader = langPlatformAPI.getLangReader(pathLangFile);
+		try {
+			interpreter.interpretLines(reader);
+		}catch(IOException e) {
+			reader.close();
+			
+			throw e;
+		}
+		reader.close();
+		
+		return new LangInterpreter.LangInterpreterInterface(interpreter);
+	}
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI));
+	}
+	
+	//DEPRACTED methods and classes
+	/**
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns all available lang files
 	 */
 	@Deprecated
@@ -324,92 +473,16 @@ public class Lang {
 		
 		return files;
 	}
-	
 	/**
-	 * @return Returns all available lang files
-	 */
-	public static List<String> getLangFiles(String langPath, LangPlatformAPI langPlatformAPI) {
-		return langPlatformAPI.getLangFiles(langPath);
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns all translations of <b>langFile</b>
 	 */
 	@Deprecated
 	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term) throws Exception {
-		synchronized(lang) {
-			if(langFile.equals(oldFile)) {
-				if(lang.containsKey("lang.name") && !reload) {
-					return new HashMap<>(lang);
-				}
-			}else {
-				lang.clear(); //Remove old data
-				oldFile = langFile;
-			}
-			
-			//Set path for Compiler
-			langFile = new File(langFile).getAbsolutePath();
-			pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
-			
-			//Create new compiler instance
-			Compiler comp = new Compiler(pathLangFile, term);
-			
-			BufferedReader reader = new BufferedReader(new FileReader(new File(langFile)));
-			try {
-				comp.compileLangFile(reader, 0); //Compile lang file
-			}catch(Exception e) {
-				reader.close();
-				
-				throw e;
-			}
-			reader.close();
-			
-			//Copy lang
-			lang = comp.getData().get(0).lang;
-			
-			return new HashMap<>(lang);
-		}
+		return getTranslationMap(langFile, reload, term, new LangPlatformAPI());
 	}
 	/**
-	 * @return Returns all translations of <b>langFile</b>
-	 */
-	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term, LangPlatformAPI langPlatformAPI) throws Exception {
-		synchronized(lang) {
-			if(langFile.equals(oldFile)) {
-				if(lang.containsKey("lang.name") && !reload) {
-					return new HashMap<>(lang);
-				}
-			}else {
-				lang.clear(); //Remove old data
-				oldFile = langFile;
-			}
-			
-			//Set path for Compiler
-			pathLangFile = langPlatformAPI.getLangPath(langFile);
-			
-			//Create new compiler instance
-			Compiler comp = new Compiler(pathLangFile, term, langPlatformAPI);
-			
-			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-			try {
-				comp.compileLangFile(reader, 0); //Compile lang file
-			}catch(Exception e) {
-				reader.close();
-				
-				throw e;
-			}
-			reader.close();
-			
-			//Copy lang
-			lang = comp.getData().get(0).lang;
-			
-			return new HashMap<>(lang);
-		}
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
 	 * If key wasn't found -> <code>return key;</code>
 	 */
@@ -424,21 +497,7 @@ public class Lang {
 		}
 	}
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return key;</code>
-	 */
-	public static String getTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws Exception {
-		synchronized(lang) {
-			if(getTranslationMap(langFile, false, null, langPlatformAPI).get(key) == null) {
-				return key;
-			}
-			
-			return getTranslationMap(langFile, false, null, langPlatformAPI).get(key);
-		}
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
 	 * If key wasn't found -> <code>return key;</code>
 	 */
@@ -457,25 +516,7 @@ public class Lang {
 		}
 	}
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return key;</code>
-	 */
-	public static String getTranslationFormat(String langFile, String key, LangPlatformAPI langPlatformAPI, Object... args) throws Exception {
-		synchronized(lang) {
-			if(getTranslation(langFile, key, langPlatformAPI) == null) {
-				return key;
-			}
-			
-			try {
-				return String.format(getTranslation(langFile, key, langPlatformAPI), args);
-			}catch(Exception e) {
-				return getTranslation(langFile, key, langPlatformAPI);
-			}
-		}
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns language name of <b>langFile</b><br>
 	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
@@ -486,17 +527,7 @@ public class Lang {
 		}
 	}
 	/**
-	 * @return Returns language name of <b>langFile</b><br>
-	 * <code>return getTranslation(langFile, "lang.name");</code>
-	 */
-	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws Exception {
-		synchronized(lang) {
-			return getTranslation(langFile, "lang.name", langPlatformAPI);
-		}
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * @return Returns language version of <b>langFile</b><br>
 	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
@@ -507,17 +538,7 @@ public class Lang {
 		}
 	}
 	/**
-	 * @return Returns language version of <b>langFile</b><br>
-	 * <code>return getTranslation(langFile, "lang.name");</code>
-	 */
-	public static String getLangVersion(String langFile, LangPlatformAPI langPlatformAPI) throws Exception {
-		synchronized(lang) {
-			return getTranslation(langFile, "lang.version", langPlatformAPI);
-		}
-	}
-	
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.2.0
 	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
 	 * 
 	 * @return Returns true if successful, false otherwise
@@ -550,80 +571,64 @@ public class Lang {
 		}
 	}
 	/**
-	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
-	 * 
-	 * @return Returns true if successful, false otherwise
-	 */
-	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term, LangPlatformAPI langPlatformAPI) {
-		synchronized(lang) {
-			lang.clear();
-			
-			return langPlatformAPI.writeLangFile(langFile, translationMap, term);
-		}
-	}
-	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.1.0
 	 */
 	@Deprecated
 	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term) throws Exception {
-		langFile = new File(langFile).getAbsolutePath();
-		String pathLangFile = langFile.substring(0, langFile.lastIndexOf(File.separator));
-		
-		Compiler comp = new Compiler(pathLangFile, term);
-		
-		BufferedReader reader = new BufferedReader(new FileReader(new File(langFile)));
-		try {
-			comp.compileLangFile(reader, 0); //Compile lang file
-		}catch(Exception e) {
-			reader.close();
-			
-			throw e;
-		}
-		reader.close();
-		
-		return new LangCompilerInterface(comp);
-	}
-	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws Exception {
-		String pathLangFile = langPlatformAPI.getLangPath(langFile);
-		
-		Compiler comp = new Compiler(pathLangFile, term, langPlatformAPI);
-		
-		BufferedReader reader = langPlatformAPI.getLangReader(pathLangFile);
-		try {
-			comp.compileLangFile(reader, 0); //Compile lang file
-		}catch(Exception e) {
-			reader.close();
-			
-			throw e;
-		}
-		reader.close();
-		
-		return new LangCompilerInterface(comp);
+		return createCompilerInterface(langFile, term, new LangPlatformAPI());
 	}
 	/**
-	 * @deprecated Will be removed in a future release
+	 * @deprecated Will be removed in v1.1.0
+	 */
+	@Deprecated
+	public static LangCompilerInterface createCompilerInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws Exception {
+		return new LangCompilerInterface(createInterpreterInterface(langFile, term, langPlatformAPI));
+	}
+	/**
+	 * @deprecated Will be removed in v1.1.0
 	 */
 	@Deprecated
 	public static LangCompilerInterface createCompilerInterface(TerminalIO term) {
-		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term));
+		return createCompilerInterface(term, new LangPlatformAPI());
 	}
+	/**
+	 * @deprecated Will be removed in v1.1.0
+	 */
+	@Deprecated
 	public static LangCompilerInterface createCompilerInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
-		return new LangCompilerInterface(new Compiler(new File("").getAbsolutePath(), term, langPlatformAPI));
+		return new LangCompilerInterface(createInterpreterInterface(term, langPlatformAPI));
 	}
 	
+	
 	//Classes for compiling lang file
+	/**
+	 * @deprecated Will be removed in v1.1.0
+	 */
+	@Deprecated
 	public static class LangCompilerInterface {
-		private Compiler comp;
+		private LangInterpreter.LangInterpreterInterface lii;
 		
-		private LangCompilerInterface(Compiler comp) {
-			this.comp = comp;
+		private LangCompilerInterface(LangInterpreter.LangInterpreterInterface lii) {
+			this.lii = lii;
 		}
 		
 		public Map<Integer, Compiler.Data> getData() {
-			return comp.getData();
+			HashMap<Integer, Compiler.Data> convertedDataMap = new HashMap<>();
+			
+			Map<Integer, LangInterpreter.Data> dataMap = lii.getData();
+			dataMap.forEach((DATA_ID, data) -> {
+				Compiler.Data convertedData = new Compiler.Data();
+				convertedData.lang = data.lang;
+				convertedData.var = new HashMap<>();
+				data.var.forEach((varName, varData) -> convertedData.var.put(varName, Compiler.DataObject.convert(varData, lii)));
+				
+				convertedDataMap.put(DATA_ID, convertedData);
+			});
+			
+			return convertedDataMap;
 		}
 		public Compiler.Data getData(final int DATA_ID) {
-			return comp.getData().get(DATA_ID);
+			return getData().get(DATA_ID);
 		}
 		
 		public Map<String, String> getTranslationMap(final int DATA_ID) {
@@ -663,18 +668,7 @@ public class Lang {
 		}
 		
 		private void setVar(final int DATA_ID, String varName, Compiler.DataObject data, boolean ignoreFinal) {
-			Map<String, Compiler.DataObject> vars = getVarMap(DATA_ID);
-			if(vars != null) {
-				if(ignoreFinal) {
-					vars.put(varName, data);
-				}else {
-					Compiler.DataObject oldData = vars.get(varName);
-					if(oldData == null)
-						vars.put(varName, data);
-					else if(!oldData.isFinalData())
-						oldData.setData(data);
-				}
-			}
+			lii.setVar(DATA_ID, varName, data.convert(lii), ignoreFinal);
 		}
 		public void setVar(final int DATA_ID, String varName, String text) {
 			setVar(DATA_ID, varName, text, false);
@@ -704,9 +698,6 @@ public class Lang {
 			setVar(DATA_ID, varName, errno, false);
 		}
 		public void setVar(final int DATA_ID, String varName, int errno, boolean ignoreFinal) {
-			if(errno < 0 || errno >= Compiler.ERROR_STRINGS.length)
-				return;
-			
 			setVar(DATA_ID, varName, new Compiler.DataObject().setError(new Compiler.ErrorObject(errno)), false);
 		}
 		/**
@@ -734,1449 +725,95 @@ public class Lang {
 		 * Function can be accessed with "func.[funcName]" and can't be removed nor changed by the lang file
 		 */
 		public void addPredefinedFunction(String funcName, BiFunction<String, Integer, String> function) {
-			comp.funcs.put(funcName, (lines, arg, DATA_ID) -> function.apply(arg, DATA_ID));
+			lii.addPredefinedFunction(funcName, new Compiler.DataObject().setFunctionPointer(new Lang.Compiler.FunctionPointerObject(function)).convert(lii).
+			getFunctionPointer().getPredefinedFunction());
 		}
 		
-		public void exec(final int DATA_ID, BufferedReader lines) throws Exception {
-			comp.compileLangFile(lines, DATA_ID);
+		public void exec(final int DATA_ID, BufferedReader lines) throws IOException {
+			lii.exec(DATA_ID, lines);
 		}
-		public void exec(final int DATA_ID, String lines) throws Exception {
+		public void exec(final int DATA_ID, String lines) throws IOException {
 			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
 		}
 		public String execLine(final int DATA_ID, String line) {
-			return comp.compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
+			try {
+				exec(DATA_ID, line);
+			}catch(IOException e) {
+				return "Error";
+			}
+			
+			return "";
 		}
 		public String callFunction(final int DATA_ID, String funcName, String funcArgs) {
-			return execLine(DATA_ID, funcName + ".(" + funcArgs + ")");
+			List<Node> argumentList = new LinkedList<>();
+			String code = "func.abc(" + funcArgs + ")";
+			try {
+				AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(code)));
+				argumentList.addAll(ast.getChildren().get(0).getChildren());
+			}catch(Exception e) {
+				argumentList.add(new ParsingErrorNode(ParsingError.EOF));
+			}
+			
+			LangInterpreter.FunctionPointerObject fp;
+			if(funcName.startsWith("func.") || funcName.startsWith("linker.")) {
+				boolean isLinkerFunction = funcName.startsWith("l");
+				
+				funcName = funcName.substring(funcName.indexOf('.') + 1);
+				String funcNameCopy = funcName;
+				Optional<LangPredefinedFunctionObject> predefinedFunction = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
+					return entry.getValue().isLinkerFunction() == isLinkerFunction;
+				}).filter(entry -> {
+					return entry.getKey().equals(funcNameCopy);
+				}).map(Map.Entry<String, LangPredefinedFunctionObject>::getValue).findFirst();
+				fp = new LangInterpreter.FunctionPointerObject(predefinedFunction.orElse(null));
+			}else {
+				LangInterpreter.DataObject dataObject = lii.getData(DATA_ID).var.get(funcName);
+				fp = dataObject == null?null:dataObject.getFunctionPointer();
+			}
+			
+			return lii.interpretFunctionPointer(fp, funcName, argumentList, DATA_ID).getText();
 		}
 	}
+	/**
+	 * @deprecated Will be removed in v1.1.0
+	 */
+	@Deprecated
 	private static class Compiler {
-		private final static String[] ERROR_STRINGS = new String[] {
-			"No error" /*errno = 0*/, "$LANG or final var mustn't be changed", "To many inner links", "No .lang-File", "File not found", "FuncPtr is invalid", "Stack overflow",
-			"No terminal available", "Invalid argument count", "Invalid log level", "Invalid array pointer", "No hex num", "No char", "No num", "Dividing by 0", "Negative array length",
-			"Empty array", "Length NAN", "Array out of bounds", "Argument count is not array length", "Invalid function pointer", "Invalid arguments", "Function not found", "EOF", "System Error",
-			"Negative repeat count", "Lang request doesn't exist", "Function not supported", "Bracket count mismatch"
-		};
-		
-		private String langPath;
-		private TerminalIO term;
-		private LangPlatformAPI langPlatformAPI;
-		private LinkerParser linkerParser = new LinkerParser();
-		private IfParser ifParser = new IfParser();
-		private VarParser varParser = new VarParser();
-		private FuncParser funcParser = new FuncParser();
-		
-		//DATA
-		private Map<Integer, Data> data = new HashMap<>();
-		
-		//INIT funcs
-		private Map<String, LangFunctionObject> funcs = new HashMap<>();
-		{
-			//Reset Functions
-			funcs.put("clearVar", (lines, arg, DATA_ID) -> {
-				Compiler.DataObject dataObject = data.get(DATA_ID).var.get(arg.trim());
-				if(dataObject == null) {
-					setErrno(21, DATA_ID);
-					
-					return "Error";
-				}
-				
-				if(dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
-					setErrno(1, DATA_ID);
-					
-					return "Error";
-				}
-				
-				if(dataObject.getType().equals(Compiler.DataType.CLASS)) {
-					String line = arg.trim() + "[DELETE]";
-					compileLine(new BufferedReader(new StringReader(line)), line, DATA_ID);
-				}else {
-					data.get(DATA_ID).var.remove(arg.trim());
-				}
-				
-				return "";
-			});
-			funcs.put("clearAllVars", (lines, arg, DATA_ID) -> {
-				resetVars(DATA_ID);
-				
-				return "";
-			});
-			funcs.put("clearAllArrays", (lines, arg, DATA_ID) -> {
-				new HashSet<String>(data.get(DATA_ID).var.keySet()).forEach(key -> {
-					if(key.startsWith("&"))
-						data.get(DATA_ID).var.remove(key);
-				});
-				term.logln(Level.WARNING, "Use of deprecated function \"clearAllArays\", this function won't be supported in future releases! Use \"clearAllVars\" instead!", Compiler.class);
-				
-				return "";
-			});
-			
-			//Error functions
-			funcs.put("getErrorString", (lines, arg, DATA_ID) -> {
-				int err = getAndClearErrno(DATA_ID); //Reset and return error
-				
-				return ERROR_STRINGS[err];
-			});
-			
-			//Compiler function
-			funcs.put("isCompilerVersionNewer", (lines, arg, DATA_ID) -> {
-				String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
-				
-				return (VERSION.compareTo(langVer) > 0)?"1":"0";
-			});
-			funcs.put("isCompilerVersionOlder", (lines, arg, DATA_ID) -> {
-				String langVer = data.get(DATA_ID).lang.getOrDefault("lang.version", VERSION); //If lang.version = null -> return false
-				
-				return (VERSION.compareTo(langVer) < 0)?"1":"0";
-			});
-			
-			//System Functions
-			funcs.put("sleep", (lines, arg, DATA_ID) -> {
-				try {
-					int sleepTime = Integer.parseInt(arg.trim());
-					
-					try {
-						Thread.sleep(sleepTime);
-					}catch(InterruptedException e) {
-						setErrno(24, DATA_ID);
-						
-						return "Error";
-					}
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return "";
-			});
-			funcs.put("repeat", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					String funcPtr = funcArgs[0].trim();
-					if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).var.containsKey(funcPtr)) {
-						setErrno(20, DATA_ID);
-						
-						return "Error";
-					}
-					
-					int times = Integer.parseInt(funcArgs[1].trim());
-					if(times < 0) {
-						setErrno(25, DATA_ID);
-						
-						return "Error";
-					}
-					
-					for(int i = 0;i < times;i++) {
-						funcParser.compileFunc(funcPtr, "" + i, DATA_ID);
-					}
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return "";
-			});
-			funcs.put("repeatWhile", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					String execFunc = funcArgs[0].trim();
-					String checkFunc = funcArgs[1].trim();
-					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).var.containsKey(execFunc) || !data.get(DATA_ID).var.containsKey(checkFunc)) {
-						setErrno(20, DATA_ID);
-						
-						return "Error";
-					}
-					
-					while(true) {
-						String check = funcParser.compileFunc(checkFunc, "", DATA_ID);
-						try {
-							if(Integer.parseInt(check) == 0)
-								break;
-						}catch(NumberFormatException e) {
-							break;
-						}
-						funcParser.compileFunc(execFunc, "", DATA_ID);
-					}
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return "";
-			});
-			funcs.put("repeatUntil", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					String execFunc = funcArgs[0].trim();
-					String checkFunc = funcArgs[1].trim();
-					if(!execFunc.startsWith("fp.") || !checkFunc.startsWith("fp.") || !data.get(DATA_ID).var.containsKey(execFunc) || !data.get(DATA_ID).var.containsKey(checkFunc)) {
-						setErrno(20, DATA_ID);
-						
-						return "Error";
-					}
-					
-					while(true) {
-						String check = funcParser.compileFunc(checkFunc, "", DATA_ID);
-						try {
-							if(Integer.parseInt(check) != 0)
-								break;
-						}catch(NumberFormatException e) {
-							break;
-						}
-						funcParser.compileFunc(execFunc, "", DATA_ID);
-					}
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return "";
-			});
-			funcs.put("getLangRequest", (lines, arg, DATA_ID) -> {
-				String ret = data.get(DATA_ID).lang.get(arg.trim());
-				if(ret == null) {
-					setErrno(26, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return ret;
-			});
-			funcs.put("makeFinal", (lines, arg, DATA_ID) -> {
-				DataObject dataObject = data.get(DATA_ID).var.get(arg.trim());
-				if(dataObject == null || dataObject.isFinalData() || arg.trim().startsWith("$LANG_")) {
-					setErrno(21, DATA_ID);
-					
-					return "Error";
-				}
-				
-				dataObject.setFinalData(true);
-				
-				return "";
-			});
-			funcs.put("condition", (lines, arg, DATA_ID) -> ifParser.checkIf(arg)?"1":"0");
-			funcs.put("currentTimeMillis", (lines, arg, DATA_ID) -> System.currentTimeMillis() + "");
-			
-			//IO Functions
-			funcs.put("readTerminal", (lines, arg, DATA_ID) -> {
-				try {
-					return langPlatformAPI.showInputDialog(arg);
-				}catch(Exception e) {
-					setErrno(27, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("printTerminal", (lines, arg, DATA_ID) -> {
-				if(term == null) {
-					setErrno(7, DATA_ID);
-					
-					return "Error";
-				}
-				Level lvl = null;
-				
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					int logLevel = Integer.parseInt(funcArgs[0].trim());
-					
-					for(Level l:Level.values()) {
-						if(l.getLevel() == logLevel) {
-							lvl = l;
-							
-							break;
-						}
-					}
-					
-					if(lvl == null) { //If invalid log level...
-						throw new NumberFormatException(); //...return error
-					}
-				}catch(NumberFormatException e) {
-					setErrno(9, DATA_ID);
-					
-					return "Error";
-				}
-				
-				term.logln(lvl, "[From lang file]: " + funcArgs[1].trim().replaceAll("\\\\s", " "), Lang.class);
-				
-				return "";
-			});
-			funcs.put("printError", (lines, arg, DATA_ID) -> {
-				String comp = "func.printTerminal(" + Level.ERROR.getLevel() + ", ";
-				if(arg.trim().length() > 0) { //If argCount != 0
-					 comp += arg.trim() + ": ";
-				}
-				comp += "func.getErrorString())";
-				try {
-					compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID); //Compile like "perror"(C) -> (Text + ": " + Error-String)
-				}catch(NullPointerException e) {
-					setErrno(21, DATA_ID);
-					
-					return "Error";
-				}catch(Exception e) {}
-				
-				return "";
-			});
-			
-			//Num Functions
-			funcs.put("hexToDez", (lines, arg, DATA_ID) -> {
-				try {
-					int hex = Integer.parseInt(arg.trim().substring(2), 16);
-					
-					return hex + "";
-				}catch(NumberFormatException e) {
-					setErrno(11, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			
-			//Character functions
-			funcs.put("toValue", (lines, arg, DATA_ID) -> {
-				if(arg.trim().length() != 1) {
-					setErrno(12, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return (int)arg.trim().charAt(0) + "";
-			});
-			funcs.put("toChar", (lines, arg, DATA_ID) -> {
-				try {
-					int c = Integer.parseInt(arg.trim());
-					
-					return (char)c + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			
-			//String functions
-			funcs.put("strlen", (lines, arg, DATA_ID) -> arg.trim().length() + "");
-			funcs.put("toUpper", (lines, arg, DATA_ID) -> arg.toUpperCase());
-			funcs.put("toLower", (lines, arg, DATA_ID) -> arg.toLowerCase());
-			funcs.put("trim", (lines, arg, DATA_ID) -> arg.trim());
-			funcs.put("replace", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 3);
-				if(funcArgs.length != 3) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return funcArgs[0].trim().replaceAll(funcArgs[1].trim(), funcArgs[2].trim());
-			});
-			funcs.put("substring", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 3);
-				if(funcArgs.length < 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					int start = Integer.parseInt(funcArgs[1].trim());
-					
-					if(funcArgs.length == 2) {
-						return funcArgs[0].trim().substring(start);
-					}else {
-						int end = Integer.parseInt(funcArgs[2].trim());
-						return funcArgs[0].trim().substring(start, end);
-					}
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}catch(StringIndexOutOfBoundsException e) {
-					setErrno(18, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("split", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 4);
-				if(funcArgs.length < 3) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				String arrPtr = funcArgs[0].trim();
-				String str = funcArgs[1].trim();
-				String splitStr = funcArgs[2].trim();
-				
-				String[] arrTmp;
-				if(funcArgs.length == 3) {
-					arrTmp = str.split(splitStr);
-				}else {
-					try{
-						arrTmp = str.split(splitStr, Integer.parseInt(funcArgs[3].trim()));
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				String comp = "func.arrayMake(" + arrPtr + ", " + arrTmp.length + ")\nfunc.arraySetAll(" + arrPtr;
-				for(String s:arrTmp) {
-					comp += ", " + s;
-				}
-				comp += ")";
-				try {
-					compileLangFile(new BufferedReader(new StringReader(comp)), DATA_ID);
-				}catch(NullPointerException e) {
-					setErrno(21, DATA_ID);
-					
-					return "Error";
-				}catch(Exception e) {}
-				
-				int err;
-				if((err = getAndClearErrno(DATA_ID)) != 0) {
-					setErrno(err, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return "";
-			});
-			
-			//Math functions
-			funcs.put("rand", (lines, arg, DATA_ID) -> {
-				return "" + RAN.nextInt(Integer.MAX_VALUE);
-			});
-			funcs.put("addi", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				int sum = 0;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						sum += Integer.parseInt(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return sum + "";
-			});
-			funcs.put("subi", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return Integer.parseInt(funcArgs[0].trim()) - Integer.parseInt(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("muli", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				int prod = 1;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						prod *= Integer.parseInt(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return prod + "";
-			});
-			funcs.put("divi", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-							setErrno(14, DATA_ID);
-							
-							return "Error";
-						}
-						return Integer.parseInt(funcArgs[0].trim())/Integer.parseInt(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("modi", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Integer.parseInt(funcArgs[1].trim()) == 0) {
-							setErrno(14, DATA_ID);
-							
-							return "Error";
-						}
-						return Integer.parseInt(funcArgs[0].trim())%Integer.parseInt(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("andi", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) & Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("ori", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) | Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("xori", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) ^ Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("noti", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 1) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return ~Integer.parseInt(funcArgs[0].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("lshifti", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) << Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("rshifti", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) >> Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("rzshifti", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Integer.parseInt(funcArgs[0].trim()) >>> Integer.parseInt(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("addl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				long sum = 0L;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						sum += Long.parseLong(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return sum + "";
-			});
-			funcs.put("subl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return Long.parseLong(funcArgs[0].trim())-Long.parseLong(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("mull", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				long prod = 1L;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						prod *= Long.parseLong(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return prod + "";
-			});
-			funcs.put("divl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Long.parseLong(funcArgs[1].trim()) == 0) {
-							setErrno(14, DATA_ID);
-							
-							return "Error";
-						}
-						return Long.parseLong(funcArgs[0].trim())/Long.parseLong(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("modl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Long.parseLong(funcArgs[1].trim()) == 0) {
-							setErrno(14, DATA_ID);
-							
-							return "Error";
-						}
-						return Long.parseLong(funcArgs[0].trim()) % Long.parseLong(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("andl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) & Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("orl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) | Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("xorl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) ^ Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("notl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 1) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return ~Long.parseLong(funcArgs[0].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("lshiftl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) << Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("rshiftl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) >> Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("rzshiftl", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return (Long.parseLong(funcArgs[0].trim()) >>> Long.parseLong(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("addd", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				double sum = 0.;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						sum += Double.parseDouble(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return sum + "";
-			});
-			funcs.put("subd", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						return Double.parseDouble(funcArgs[0].trim())-Double.parseDouble(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("muld", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",");
-				double prod = 1.;
-				for(int i = 0;i < funcArgs.length;i++) {
-					funcArgs[i] = funcArgs[i].trim();
-					try {
-						prod *= Double.parseDouble(funcArgs[i].trim());
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-				
-				return prod + "";
-			});
-			funcs.put("divd", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
-							setErrno(14, DATA_ID);
-							
-							return "Error";
-						}
-						return Double.parseDouble(funcArgs[0].trim())/Double.parseDouble(funcArgs[1].trim()) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("pow", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}else {
-					try {
-						if(Double.parseDouble(funcArgs[1].trim()) == 0.) {
-							return "1";
-						}
-						return Math.pow(Double.parseDouble(funcArgs[0].trim()), Double.parseDouble(funcArgs[1].trim())) + "";
-					}catch(NumberFormatException e) {
-						setErrno(13, DATA_ID);
-						
-						return "Error";
-					}
-				}
-			});
-			funcs.put("sqrt", (lines, arg, DATA_ID) -> {
-				try {
-					return Math.sqrt(Double.parseDouble(arg.trim())) + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("dtoi", (lines, arg, DATA_ID) -> {
-				try {
-					return (int)Double.parseDouble(arg.trim()) + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("dtol", (lines, arg, DATA_ID) -> {
-				try {
-					return (long)Double.parseDouble(arg.trim()) + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("ceil", (lines, arg, DATA_ID) -> {
-				try {
-					return (long)Math.ceil(Double.parseDouble(arg.trim())) + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			funcs.put("floor", (lines, arg, DATA_ID) -> {
-				try {
-					return (long)Math.floor(Double.parseDouble(arg.trim())) + "";
-				}catch(NumberFormatException e) {
-					setErrno(13, DATA_ID);
-					
-					return "Error";
-				}
-			});
-			
-			//FuncPtr functions
-			funcs.put("copyAfterFP", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				String to = funcArgs[0].trim();
-				String from = funcArgs[1].trim();
-				
-				funcParser.copyAfterFP.get(DATA_ID).put(to, from);
-				
-				return "";
-			});
-			
-			//Array functions
-			funcs.put("arrayMake", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2); //arrPtr, length
-				funcArgs[0] = funcArgs[0].trim();
-				if(!funcArgs[0].startsWith("&")) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				try {
-					int lenght = Integer.parseInt(funcArgs[1].trim());
-					
-					if(lenght < 0) {
-						setErrno(15, DATA_ID);
-						
-						return "Error";
-					}else if(lenght == 0) {
-						setErrno(16, DATA_ID);
-						
-						return "Error";
-					}
-					
-					DataObject oldData = data.get(DATA_ID).var.get(funcArgs[0]);
-					if(oldData != null && oldData.isFinalData()) {
-						setErrno(1, DATA_ID);
-						
-						return "Error";
-					}
-					DataObject[] arr = new DataObject[lenght];
-					if(oldData != null)
-						oldData.setArray(arr);
-					else
-						data.get(DATA_ID).var.put(funcArgs[0], new DataObject().setArray(arr));
-					
-					for(int i = 0;i < arr.length;i++)
-						arr[i] = new DataObject().setNull();
-				}catch(NumberFormatException e) {
-					setErrno(17, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return ""; //No return func
-			});
-			funcs.put("arraySet", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 3); //arrPtr, index, value
-				funcArgs[0] = funcArgs[0].trim();
-				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).var.containsKey(funcArgs[0])) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				DataObject[] arr = data.get(DATA_ID).var.get(funcArgs[0]).getArray();
-				
-				try {
-					int index = Integer.parseInt(funcArgs[1].trim());
-					
-					if(index < 0) {
-						setErrno(15, DATA_ID);
-						
-						return "Error";
-					}else if(index >= arr.length) {
-						setErrno(18, DATA_ID);
-						
-						return "Error";
-					}
-					
-					arr[index].setText(funcArgs[2].trim());
-				}catch(NumberFormatException e) {
-					setErrno(17, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return ""; //No return func
-			});
-			funcs.put("arraySetAll", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(","); //arrPtr, value, ...
-				funcArgs[0] = funcArgs[0].trim();
-				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).var.containsKey(funcArgs[0])) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				funcArgs[1] = funcArgs[1].trim();
-				DataObject[] arr = data.get(DATA_ID).var.get(funcArgs[0]).getArray();
-				
-				if(funcArgs.length == 2) {
-					for(int i = 0;i < arr.length;i++) {
-						arr[i].setText(funcArgs[1].trim());
-					}
-				}else if(funcArgs.length == arr.length+1) {
-					for(int i = 0;i < arr.length;i++) {
-						arr[i].setText(funcArgs[i + 1].trim());
-					}
-				}else {
-					setErrno(19, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return ""; //No return func
-			});
-			funcs.put("arrayGet", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2); //arrPtr, index
-				funcArgs[0] = funcArgs[0].trim();
-				if(!funcArgs[0].startsWith("&") || !data.get(DATA_ID).var.containsKey(funcArgs[0])) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				DataObject[] arr = data.get(DATA_ID).var.get(funcArgs[0]).getArray();
-				int index = Integer.parseInt(funcArgs[1].trim());
-				
-				try {
-					if(index < 0 || index >= arr.length) {
-						setErrno(18, DATA_ID);
-						
-						return "Error";
-					}
-				}catch(NumberFormatException e) {
-					setErrno(17, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return arr[index].getText();
-			});
-			funcs.put("arrayGetAll", (lines, arg, DATA_ID) -> {
-				String tmp = "";
-				
-				arg = arg.trim();
-				if(!arg.startsWith("&") || !data.get(DATA_ID).var.containsKey(arg)) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				for(DataObject val:data.get(DATA_ID).var.get(arg).getArray()) {
-					tmp += val + ", ";
-				}
-				
-				return tmp.substring(0, tmp.lastIndexOf(", "));
-			});
-			funcs.put("arrayLength", (lines, arg, DATA_ID) -> {
-				arg = arg.trim();
-				if(!arg.startsWith("&") || !data.get(DATA_ID).var.containsKey(arg)) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				return data.get(DATA_ID).var.get(arg).getArray().length + "";
-			});
-			funcs.put("arrayForEach", (lines, arg, DATA_ID) -> {
-				String[] funcArgs = arg.split(",", 2);
-				if(funcArgs.length != 2) {
-					setErrno(8, DATA_ID);
-					
-					return "Error";
-				}
-				
-				String arrName = funcArgs[0].trim();
-				if(!arrName.startsWith("&") || !data.get(DATA_ID).var.containsKey(arrName)) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				String funcPtr = funcArgs[1].trim();
-				if(!funcPtr.startsWith("fp.") || !data.get(DATA_ID).var.containsKey(funcPtr)) {
-					setErrno(20, DATA_ID);
-					
-					return "Error";
-				}
-				
-				DataObject[] arr = data.get(DATA_ID).var.get(arrName).getArray();
-				for(DataObject element:arr) {
-					funcParser.compileFunc(funcPtr, element.getText(), DATA_ID);
-				}
-				
-				return "";
-			});
-			funcs.put("randChoice", (lines, arg, DATA_ID) -> {
-				arg = arg.trim();
-				if(!arg.startsWith("&") || !data.get(DATA_ID).var.containsKey(arg)) {
-					//No array Pointer
-					String[] funcArgs = arg.split(",");
-					if(funcArgs.length < 1) {
-						setErrno(8, DATA_ID);
-						
-						return "Error";
-					}else if(funcArgs.length == 1) {
-						return funcArgs[0];
-					}
-					return funcArgs[RAN.nextInt(funcArgs.length)];
-				}
-				
-				DataObject[] arr = data.get(DATA_ID).var.get(arg).getArray();
-				
-				if(arr.length < 1) {
-					setErrno(16, DATA_ID);
-					
-					return "Error";
-				}else if(arr.length == 1) {
-					return arr[0].getText();
-				}
-				return arr[RAN.nextInt(arr.length)].getText();
-			});
-			funcs.put("arrayDelete", (lines, arg, DATA_ID) -> {
-				arg = arg.trim();
-				if(!arg.startsWith("&") || !data.get(DATA_ID).var.containsKey(arg)) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				
-				DataObject[] arr = data.get(DATA_ID).var.get(arg).getArray();
-				for(DataObject element:arr)
-					element.setNull();
-				
-				return ""; //No return func
-			});
-			funcs.put("arrayClear", (lines, arg, DATA_ID) -> {
-				arg = arg.trim();
-				if(!arg.startsWith("&") || !data.get(DATA_ID).var.containsKey(arg)) {
-					setErrno(10, DATA_ID);
-					
-					return "Error";
-				}
-				data.get(DATA_ID).var.remove(arg);
-				
-				return ""; //No return func
-			});
-		}
-		
-		/**
-		 * @deprecated Will be removed in a future release
-		 */
-		@Deprecated
-		public Compiler(String langPath, TerminalIO term) {
-			this.langPath = langPath;
-			this.term = term;
-			this.langPlatformAPI = new LangPlatformAPI();
-			
-			createDataMap(0);
-		}
-		public Compiler(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI) {
-			this.langPath = langPath;
-			this.term = term;
-			this.langPlatformAPI = langPlatformAPI;
-			
-			createDataMap(0);
-		}
-		
-		public void createDataMap(final int DATA_ID) {
-			data.put(DATA_ID, new Data());
-			
-			resetVarsAndFuncPtrs(DATA_ID);
-		}
-		
-		public void resetVarsAndFuncPtrs(final int DATA_ID) {
-			data.get(DATA_ID).var.clear();
-			
-			//Final vars
-			data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
-			data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(langPath, true));
-			data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject("" + (Integer.MAX_VALUE - 1), true));
-			
-			//Not final vars
-			setErrno(0, DATA_ID); //Set $LANG_ERRNO
-		}
-		public void resetVars(final int DATA_ID) {
-			String[] keys = data.get(DATA_ID).var.keySet().toArray(new String[0]);
-			for(int i = data.get(DATA_ID).var.size() - 1;i > -1;i--) {
-				if(keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) {
-					data.get(DATA_ID).var.remove(keys[i]);
-				}
-			}
-			
-			//Not final vars
-			setErrno(0, DATA_ID); //Set $LANG_ERRNO
-		}
-		
-		public void setErrno(int errno, final int DATA_ID) {
-			data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject());
-			
-			data.get(DATA_ID).var.get("$LANG_ERRNO").setText("" + errno);
-		}
-		public DataObject setErrnoErrorObject(int errno, final int DATA_ID) {
-			setErrno(errno, DATA_ID);
-			
-			return new DataObject().setError(new ErrorObject(errno));
-		}
-		public int getAndClearErrno(final int DATA_ID) {
-			int ret = Integer.parseInt(data.get(DATA_ID).var.get("$LANG_ERRNO").getText());
-			
-			setErrno(0, DATA_ID); //Reset errno
-			
-			return ret;
-		}
-		
-		public Map<Integer, Data> getData() {
-			return data;
-		}
-		
-		public void compileLangFile(BufferedReader lines, final int DATA_ID) throws Exception {
-			while(lines.ready()) {
-				String str = lines.readLine();
-				if(str == null)
-					break;
-				
-				if(str.trim().length() > 0 && !str.trim().isEmpty()) {
-					str = str.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
-					
-					//Lang data and compiler args
-					if(str.startsWith("lang.")) {
-						if(str.startsWith("lang.version = ")) {
-							compileLine(lines, str, DATA_ID);
-							String langVer = data.get(DATA_ID).lang.get("lang.version");
-							
-							if(!langVer.equals(VERSION)) {
-								if(term != null) {
-									if(VERSION.compareTo(langVer) > 0) {
-										term.logln(Level.WARNING, "Lang file's version is older than this version! Maybe the lang file won't be compile right!",
-										Compiler.class);
-									}else {
-										term.logln(Level.ERROR, "Lang file's version is newer than this version! Maybe the lang file won't be compile right!",
-										Compiler.class);
-									}
-								}
-							}
-							
-							continue;
-						}
-					}
-					
-					//If, elif, else, endif
-					if(str.startsWith("con.")) {
-						ifParser.executeIf(lines, str, DATA_ID);
-						
-						continue; //Compile next Line
-					}
-					
-					compileLine(lines, str, DATA_ID);
-				}
-			}
-		}
-		
-		public String compileLine(BufferedReader lines, String line, final int DATA_ID) {
-			line = line.replaceAll("^\\s*", ""); //Remove whitespaces at the beginning
-			
-			//Comments
-			if(line.startsWith("#"))
-				return "";
-			line = line.split("(?<!\\\\)#")[0]; //Splits at #, but not at \# (RegEx look behind)
-			line = line.replace("\\#", "#");
-			
-			//For newLine
-			line = line.replace("\\n", "\n");
-			
-			//Save funcPtr
-			if(line.startsWith("fp.") && line.contains(" = ")) {
-				funcParser.saveFuncPtr(lines, line, DATA_ID);
-				
-				return "";
-			}
-			
-			//Var
-			if(line.contains("$")) {
-				line = varParser.replaceVarsWithValue(lines, line, DATA_ID);
-				
-				if(line == null)
-					return "";
-			}
-			
-			//Execute Functions and FuncPtr
-			if(line.contains("func.") || line.contains("fp.")) { //... .funcName(params/nothing) ...
-				line = funcParser.executeFunc(lines, line, DATA_ID);
-			}
-			
-			//Linker
-			if(line.contains("linker.")) {
-				line = linkerParser.compileLine(line, DATA_ID);
-			}
-			
-			//FuncPtr return
-			if(line.trim().startsWith("return")) {
-				if(line.trim().matches("return .*")) {
-					funcParser.funcReturnTmp = line.substring(7).trim(); //return func value
-				}else {
-					funcParser.funcReturnTmp = "";
-				}
-				
-				//Go to end of stream (return)
-				try {
-					while(lines.ready()) {
-						if(lines.readLine() == null) {
-							break;
-						}
-					}
-				}catch(IOException e) {
-					term.logStackTrace(e, Compiler.class);
-				}
-				
-				return "";
-			}
-			
-			if(line.contains(" = ")) {
-				String[] string = line.split(" = ", 2);
-				data.get(DATA_ID).lang.put(string[0], string[1].replaceAll("\\\\s", " ")); //Put lang key and lang value in lang map
-			}
-			
-			return line;
-		}
+		private Compiler() {}
 		
 		//Classes for variable data
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static class FunctionPointerObject {
 			/**
 			 * Normal function pointer
 			 */
-			public static int NORMAL = 0;
+			public static final int NORMAL = 0;
 			/**
 			 * Pointer to a predefined function
 			 */
-			public static int PREDEFINED = 1;
+			public static final int PREDEFINED = 1;
 			/**
 			 * Function which is defined in the language, were the Compiler/Interpreter is defined
 			 */
-			public static int EXTERNAL = 2;
+			public static final int EXTERNAL = 2;
+			/**
+			 * Pointer to a linker function
+			 */
+			public static final int LINKER = 3;
 			
 			private final String head;
 			private final String body;
 			private final BiFunction<String, Integer, String> externalFunction;
 			private final int functionPointerType;
 			
-			public FunctionPointerObject(String head, String body) {
-				this.head = head;
-				this.body = body;
-				this.externalFunction = null;
-				this.functionPointerType = NORMAL;
-			}
 			/**
+			 * @deprecated Will be removed in v1.1.0
 			 * For pointer to predefined function
 			 */
+			@Deprecated
 			public FunctionPointerObject(String langFuncObjectName) {
 				this.head = "";
 				this.body = langFuncObjectName;
@@ -2214,6 +851,36 @@ public class Lang {
 				return head + "\n" + body;
 			}
 		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
+		public static class VarPointerObject {
+			private final String varName;
+			private final DataObject var;
+			
+			public VarPointerObject(String varName, DataObject var) {
+				this.varName = varName;
+				this.var = var;
+			}
+			
+			public String getVarName() {
+				return varName;
+			}
+			
+			public DataObject getVar() {
+				return var;
+			}
+			
+			@Override
+			public String toString() {
+				return varName;
+			}
+		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static class ClassObject {
 			private final Map<String, DataObject> attributes = new HashMap<>();
 			private final String className;
@@ -2221,36 +888,84 @@ public class Lang {
 			private final ClassObject superClass;
 			private final boolean classDefinition; //Is true if the class object is only an class definition else it is an actual instance of the class
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public ClassObject(String className, String packageName, ClassObject superClass, boolean classDefinition) {
 				this.className = className;
 				this.packageName = packageName;
 				this.superClass = superClass;
 				this.classDefinition = classDefinition;
 			}
-			
+
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public void setAttribute(String name, DataObject data) {
 				attributes.put(name, data);
 			}
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public DataObject getAttribute(String name) {
 				return attributes.get(name);
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public Map<String, DataObject> getAttributes() {
 				return attributes;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public String getPackageName() {
 				return packageName;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public ClassObject getSuperClass() {
 				return superClass;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public boolean isClassDefinition() {
 				return classDefinition;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public boolean isInstanceOf(ClassObject classObject) {
 				if(this.equals(classObject))
 					return true;
@@ -2283,6 +998,10 @@ public class Lang {
 				return false;
 			}
 		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static class ErrorObject {
 			private final int err;
 			
@@ -2294,8 +1013,14 @@ public class Lang {
 				return err;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public String getErrmsg() {
-				return ERROR_STRINGS[err];
+				return InterpretingError.getErrorFromErrorCode(err).getErrorText();
 			}
 			
 			@Override
@@ -2303,18 +1028,38 @@ public class Lang {
 				return "Error";
 			}
 		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static enum DataType {
-			TEXT, ARRAY, FUNCTION_POINTER, CLASS, ERROR, NULL, VOID;
+			TEXT, ARRAY, VAR_POINTER, FUNCTION_POINTER, VOID, NULL, INT, LONG, DOUBLE, FLOAT, CHAR, CLASS, ERROR;
 		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static class DataObject {
 			private DataType type;
 			private String txt;
 			private DataObject[] arr;
+			private VarPointerObject vp;
 			private FunctionPointerObject fp;
+			private int intValue;
+			private long longValue;
+			private float floatValue;
+			private double doubleValue;
+			private char charValue;
 			private ClassObject classObject;
 			private ErrorObject error;
 			private boolean finalData;
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public DataObject(DataObject dataObject) {
 				setData(dataObject);
 			}
@@ -2338,7 +1083,13 @@ public class Lang {
 				this.txt = dataObject.txt;
 				//Array won't be copied accurate, because function pointer should be able to change array data from inside
 				this.arr = dataObject.arr;
+				this.vp = dataObject.vp;
 				this.fp = dataObject.fp;
+				this.intValue = dataObject.intValue;
+				this.longValue = dataObject.longValue;
+				this.floatValue = dataObject.floatValue;
+				this.doubleValue = dataObject.doubleValue;
+				this.charValue = dataObject.charValue;
 				//Class won't be copied accurate, because function pointer should be able to change class data from inside
 				this.classObject = dataObject.classObject;
 				this.error = dataObject.error;
@@ -2361,16 +1112,28 @@ public class Lang {
 						return txt;
 					case ARRAY:
 						return Arrays.toString(arr);
+					case VAR_POINTER:
+						return vp.toString();
 					case FUNCTION_POINTER:
 						return fp.toString();
+					case VOID:
+						return "";
+					case NULL:
+						return "null";
+					case INT:
+						return intValue + "";
+					case LONG:
+						return longValue + "";
+					case FLOAT:
+						return floatValue + "";
+					case DOUBLE:
+						return doubleValue + "";
+					case CHAR:
+						return charValue + "";
 					case CLASS:
 						return classObject.toString();
 					case ERROR:
 						return error.toString();
-					case NULL:
-						return "null";
-					case VOID:
-						return "";
 				}
 				
 				return null;
@@ -2390,6 +1153,20 @@ public class Lang {
 				return arr;
 			}
 			
+			public DataObject setVarPointer(VarPointerObject vp) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.VAR_POINTER;
+				this.vp = vp;
+				
+				return this;
+			}
+			
+			public VarPointerObject getVarPointer() {
+				return vp;
+			}
+			
 			public DataObject setFunctionPointer(FunctionPointerObject fp) {
 				if(finalData)
 					return this;
@@ -2402,34 +1179,6 @@ public class Lang {
 			
 			public FunctionPointerObject getFunctionPointer() {
 				return fp;
-			}
-			
-			public DataObject setClassObject(ClassObject classObject) {
-				if(finalData)
-					return this;
-				
-				this.type = DataType.CLASS;
-				this.classObject = classObject;
-				
-				return this;
-			}
-			
-			public ClassObject getClassObject() {
-				return classObject;
-			}
-			
-			public DataObject setError(ErrorObject error) {
-				if(finalData)
-					return this;
-				
-				this.type = DataType.ERROR;
-				this.error = error;
-				
-				return this;
-			}
-			
-			public ErrorObject getError() {
-				return error;
 			}
 			
 			public DataObject setNull() {
@@ -2450,6 +1199,116 @@ public class Lang {
 				return this;
 			}
 			
+			public DataObject setInt(int intValue) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.INT;
+				this.intValue = intValue;
+				
+				return this;
+			}
+			
+			public int getInt() {
+				return intValue;
+			}
+			
+			public DataObject setLong(long longValue) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.LONG;
+				this.longValue = longValue;
+				
+				return this;
+			}
+			
+			public long getLong() {
+				return longValue;
+			}
+			
+			public DataObject setFloat(float floatValue) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.FLOAT;
+				this.floatValue = floatValue;
+				
+				return this;
+			}
+			
+			public float getFloat() {
+				return floatValue;
+			}
+			
+			public DataObject setDouble(double doubleValue) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.DOUBLE;
+				this.doubleValue = doubleValue;
+				
+				return this;
+			}
+			
+			public double getDouble() {
+				return doubleValue;
+			}
+			
+			public DataObject setChar(char charValue) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.CHAR;
+				this.charValue = charValue;
+				
+				return this;
+			}
+			
+			public char getChar() {
+				return charValue;
+			}
+			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
+			public DataObject setClassObject(ClassObject classObject) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.CLASS;
+				this.classObject = classObject;
+				
+				return this;
+			}
+			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
+			public ClassObject getClassObject() {
+				return classObject;
+			}
+			
+			public DataObject setError(ErrorObject error) {
+				if(finalData)
+					return this;
+				
+				this.type = DataType.ERROR;
+				this.error = error;
+				
+				return this;
+			}
+			
+			public ErrorObject getError() {
+				return error;
+			}
+			
 			public DataObject setFinalData(boolean finalData) {
 				this.finalData = finalData;
 				
@@ -2460,8 +1319,204 @@ public class Lang {
 				return finalData;
 			}
 			
+			/**
+			 * @deprecated Will be removed in v1.1.0
+			 * For pointer to predefined function
+			 */
+			@SuppressWarnings("unused")
+			@Deprecated
 			public DataType getType() {
 				return type;
+			}
+			
+			public LangInterpreter.DataObject convert(LangInterpreter.LangInterpreterInterface lii) {
+				LangInterpreter.DataObject convertedDataObject = new LangInterpreter.DataObject();
+				switch(type) {
+					case ARRAY:
+						DataObject[] arr = getArray();
+						LangInterpreter.DataObject[] convertedArr = new LangInterpreter.DataObject[arr.length];
+						for(int i = 0;i < arr.length;i++)
+							convertedArr[i] = arr[i] == null?null:arr[i].convert(lii);
+						convertedDataObject.setArray(convertedArr);
+						break;
+					case CHAR:
+						convertedDataObject.setChar(getChar());
+						break;
+					case DOUBLE:
+						convertedDataObject.setDouble(getDouble());
+						break;
+					case ERROR:
+						ErrorObject err = getError();
+						LangInterpreter.ErrorObject convertedErr = new LangInterpreter.ErrorObject(InterpretingError.getErrorFromErrorCode(err.getErrno()));
+						convertedDataObject.setError(convertedErr);
+						break;
+					case FLOAT:
+						convertedDataObject.setFloat(getFloat());
+						break;
+					case FUNCTION_POINTER:
+						FunctionPointerObject fp = getFunctionPointer();
+						LangInterpreter.FunctionPointerObject convertedFP = null;
+						switch(fp.getFunctionPointerType()) {
+							case FunctionPointerObject.NORMAL:
+								convertedFP = new LangInterpreter.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, DATA_ID) -> {
+									String function = "fp.abc = (" + fp.getHead() + ") -> {\n" + fp.getBody() + "}";
+									try {
+										AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(function)));
+										FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode)((AssignmentNode)(ast.getChildren().get(0))).getRvalue();
+										AbstractSyntaxTree functionBody = functionDefinitionNode.getFunctionBody();
+										
+										List<VariableNameNode> parameterList = new ArrayList<>();
+										List<Node> children = functionDefinitionNode.getChildren();
+										for(Node child:children) {
+											if(child.getNodeType() != NodeType.VARIABLE_NAME)
+												continue;
+											
+											VariableNameNode parameter = (VariableNameNode)child;
+											if(!parameter.getVariableName().matches("(\\$|&|fp\\.)\\w+") || parameter.getVariableName().matches("(\\$|&)LANG_.*")) 
+												continue;
+											
+											parameterList.add(parameter);
+										}
+										
+										return lii.callFunctionPointer(new LangInterpreter.FunctionPointerObject(parameterList, functionBody), null, argumentList, DATA_ID);
+									}catch(ClassCastException|IOException e) {
+										return new LangInterpreter.DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.INVALID_AST_NODE));
+									}
+								});
+								break;
+							case FunctionPointerObject.PREDEFINED:
+							case FunctionPointerObject.LINKER:
+								String funcName = getFunctionPointer().getBody();
+								if(funcName.startsWith("func.") || funcName.startsWith("linker.")) {
+									boolean isLinkerFunction = funcName.startsWith("l");
+									
+									funcName = funcName.substring(funcName.indexOf('.') + 1);
+									String funcNameCopy = funcName;
+									Optional<LangPredefinedFunctionObject> predefinedFunction = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
+										return entry.getValue().isLinkerFunction() == isLinkerFunction;
+									}).filter(entry -> {
+										return entry.getKey().equals(funcNameCopy);
+									}).map(Map.Entry<String, LangPredefinedFunctionObject>::getValue).findFirst();
+									convertedFP = new LangInterpreter.FunctionPointerObject(predefinedFunction.orElse(null));
+								}
+								break;
+							case FunctionPointerObject.EXTERNAL:
+								LangExternalFunctionObject convertedExternalFunction = (argumentList, DATA_ID) -> {
+									String args = lii.combineDataObjects(argumentList).getText();
+									return new LangInterpreter.DataObject(fp.getExternalFunction().apply(args, DATA_ID));
+								};
+								
+								convertedFP = new LangInterpreter.FunctionPointerObject(convertedExternalFunction);
+								break;
+						}
+						convertedDataObject.setFunctionPointer(convertedFP);
+						break;
+					case INT:
+						convertedDataObject.setInt(getInt());
+						break;
+					case LONG:
+						convertedDataObject.setLong(getLong());
+						break;
+					case NULL:
+						convertedDataObject.setNull();
+						break;
+					case TEXT:
+					case CLASS:
+						convertedDataObject.setText(getText());
+						break;
+					case VAR_POINTER:
+						DataObject var = getVarPointer().getVar();
+						LangInterpreter.VarPointerObject convertedVarPtr = new LangInterpreter.VarPointerObject(var == null?null:var.convert(lii).setVariableName(getVarPointer().getVarName()));
+						convertedDataObject.setVarPointer(convertedVarPtr);
+						break;
+					case VOID:
+						convertedDataObject.setVoid();
+						break;
+				}
+				
+				return convertedDataObject.setFinalData(isFinalData());
+			}
+			
+			public static DataObject convert(LangInterpreter.DataObject dataObject, LangInterpreter.LangInterpreterInterface lii) {
+				if(dataObject == null)
+					return null;
+				
+				DataObject convertedDataObject = new DataObject();
+				
+				switch(dataObject.getType()) {
+					case ARRAY:
+						LangInterpreter.DataObject[] arr = dataObject.getArray();
+						DataObject[] convertedArr = new DataObject[arr.length];
+						for(int i = 0;i < arr.length;i++)
+							convertedArr[i] = convert(arr[i], lii);
+						convertedDataObject.setArray(convertedArr);
+						break;
+					case CHAR:
+						convertedDataObject.setChar(dataObject.getChar());
+						break;
+					case DOUBLE:
+						convertedDataObject.setDouble(dataObject.getDouble());
+						break;
+					case ERROR:
+						LangInterpreter.ErrorObject err = dataObject.getError();
+						ErrorObject convertedErr = new ErrorObject(err.getErrno());
+						convertedDataObject.setError(convertedErr);
+						break;
+					case FLOAT:
+						convertedDataObject.setFloat(dataObject.getFloat());
+						break;
+					case FUNCTION_POINTER:
+						LangInterpreter.FunctionPointerObject fp = dataObject.getFunctionPointer();
+						FunctionPointerObject convertedFP = null;
+						switch(fp.getFunctionPointerType()) {
+							case LangInterpreter.FunctionPointerObject.NORMAL:
+							case LangInterpreter.FunctionPointerObject.PREDEFINED:
+								convertedFP = new FunctionPointerObject(dataObject.getVariableName());
+								break;
+							case LangInterpreter.FunctionPointerObject.EXTERNAL:
+								BiFunction<String, Integer, String> convertedExternalFunction = (args, DATA_ID) -> {
+									List<Node> argumentList = new LinkedList<>();
+									String code = "func.abc(" + args + ")";
+									try {
+										AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(code)));
+										argumentList.addAll(ast.getChildren().get(0).getChildren());
+									}catch(Exception e) {
+										argumentList.add(new ParsingErrorNode(ParsingError.EOF));
+									}
+									
+									LangInterpreter.DataObject ret = lii.interpretFunctionPointer(fp, dataObject.getVariableName(), argumentList, DATA_ID);
+									return ret == null?"":ret.getText();
+								};
+								
+								convertedFP = new FunctionPointerObject(convertedExternalFunction);
+								break;
+						}
+						convertedDataObject.setFunctionPointer(convertedFP);
+						break;
+					case INT:
+						convertedDataObject.setInt(dataObject.getInt());
+						break;
+					case LONG:
+						convertedDataObject.setLong(dataObject.getLong());
+						break;
+					case NULL:
+						convertedDataObject.setNull();
+						break;
+					case TEXT:
+					case ARGUMENT_SEPARATOR:
+						convertedDataObject.setText(dataObject.getText());
+						break;
+					case VAR_POINTER:
+						LangInterpreter.DataObject var = dataObject.getVarPointer().getVar();
+						VarPointerObject convertedVarPtr = new VarPointerObject(var == null?null:var.getVariableName(), var == null?null:convert(var, lii));
+						convertedDataObject.setVarPointer(convertedVarPtr);
+						break;
+					case VOID:
+						convertedDataObject.setVoid();
+						break;
+				}
+				
+				return convertedDataObject.setFinalData(dataObject.isFinalData());
 			}
 			
 			@Override
@@ -2469,907 +1524,13 @@ public class Lang {
 				return getText();
 			}
 		}
+		/**
+		 * @deprecated Will be removed in v1.1.0
+		 */
+		@Deprecated
 		public static class Data {
-			public final Map<String, String> lang = new HashMap<>();
-			public final Map<String, DataObject> var = new HashMap<>();
-		}
-		
-		//Classes for compiling lang file
-		private class LinkerParser {
-			private LinkerParser() {}
-			
-			private String compileLine(String line, final int DATA_ID) {
-				int indexStart, indexEnd, indexEndForLine;
-				
-				while(line.contains("linker.")) {
-					indexStart = line.indexOf("linker.");
-					String tmp = line.substring(indexStart + 7);
-					indexEndForLine = indexStart + 7;
-					
-					indexEnd = tmp.indexOf(')'); //First ')' after "linker."
-					tmp = tmp.substring(0, indexEnd);
-					
-					indexEndForLine += indexEnd + 1; //"tmp.indexOf(')')" -> after "linker.*(*)"
-					
-					//Linker functions
-					if(tmp.startsWith("link(")) {
-						tmp = tmp.substring(tmp.indexOf('(') + 1); //After "linker.*("
-						
-						if(tmp.endsWith(".lang")) {
-							String absolutePath;
-							if(new File(tmp).isAbsolute())
-								absolutePath = tmp;
-							else
-								absolutePath = langPath + File.separator + tmp;
-							
-							tmp = linkLangFile(absolutePath, DATA_ID);
-						}else { //No .lang file
-							setErrno(3, DATA_ID);
-							
-							tmp = "-1";
-						}
-					}else if(tmp.startsWith("bindLibrary(")) {
-						tmp = tmp.substring(tmp.indexOf('(') + 1); //After "linker.*("
-						
-						if(tmp.endsWith(".lang")) {
-							String absolutePath;
-							if(new File(tmp).isAbsolute())
-								absolutePath = tmp;
-							else
-								absolutePath = langPath + File.separator + tmp;
-							
-							tmp = bindLibraryLangFile(absolutePath, DATA_ID);
-						}else { //No .lang file
-							setErrno(3, DATA_ID);
-							
-							tmp = "-1";
-						}
-					}
-					
-					line = line.substring(0, indexStart) + tmp + line.substring(indexEndForLine);
-				}
-				
-				return line;
-			}
-			
-			private String linkLangFile(String linkLangFile, final int DATA_ID) {
-				final int NEW_DATA_ID = DATA_ID + 1;
-				
-				String ret = "0";
-				
-				String langPathTmp = linkLangFile;
-				langPathTmp = langPlatformAPI.getLangPath(langPathTmp);
-				
-				//Change lang path for createDataMap
-				String oldLangPath = langPath;
-				langPath = langPathTmp;
-				createDataMap(NEW_DATA_ID);
-				
-				try {
-					BufferedReader reader = langPlatformAPI.getLangReader(linkLangFile);
-					try {
-						compileLangFile(reader, NEW_DATA_ID);
-					}catch(Exception e) {
-						setErrno(4, DATA_ID);
-						ret = "-1";
-					}finally {
-						reader.close();
-					}
-				}catch(IOException e) {
-					setErrno(4, DATA_ID);
-					ret = "-1";
-				}
-				
-				if(ret.equals("0")) { //If no error
-					data.get(NEW_DATA_ID).lang.forEach((k, v) -> { //Copy linked translation map (not "lang.* = *") to the "link caller"'s translation map
-						if(!k.startsWith("lang.")) {
-							data.get(DATA_ID).lang.put(k, v); //Copy to "old" DATA_ID
-						}
-					});
-				}
-				
-				//Remove data map
-				data.remove(NEW_DATA_ID);
-				
-				//Set lang path to old lang path
-				langPath = oldLangPath;
-				return ret;
-			}
-			
-			private String bindLibraryLangFile(String linkLangFile, final int DATA_ID) {
-				final int NEW_DATA_ID = DATA_ID + 1;
-				
-				String ret = "0";
-				
-				String langPathTmp = linkLangFile;
-				langPathTmp = langPlatformAPI.getLangPath(langPathTmp);
-				
-				//Change lang path for createDataMap
-				String oldLangPath = langPath;
-				langPath = langPathTmp;
-				createDataMap(NEW_DATA_ID);
-				
-				try {
-					BufferedReader reader = langPlatformAPI.getLangReader(linkLangFile);
-					try {
-						compileLangFile(reader, NEW_DATA_ID);
-					}catch(Exception e) {
-						setErrno(4, DATA_ID);
-						ret = "-1";
-					}finally {
-						reader.close();
-					}
-				}catch(IOException e) {
-					setErrno(4, DATA_ID);
-					ret = "-1";
-				}
-				
-				if(ret.equals("0")) { //If no error
-					//Copy all vars, arrPtrs and funcPtrs
-					data.get(NEW_DATA_ID).var.forEach((name, val) -> {
-						DataObject oldData = data.get(DATA_ID).var.get(name);
-						if(!name.startsWith("$LANG") && (oldData == null || !oldData.isFinalData())) { //No LANG data vars and no final data
-							data.get(DATA_ID).var.put(name, val);
-						}
-					});
-				}
-				
-				//Remove data map
-				data.remove(NEW_DATA_ID);
-				
-				//Set lang path to old lang path
-				langPath = oldLangPath;
-				return ret;
-			}
-		}
-		private class IfParser {
-			private IfParser() {}
-			
-			private boolean checkIf(String ifCondition) {
-				ifCondition = ifCondition.replaceAll("\\s*", ""); //Remove Whitespace
-				
-				//Replace brackets with 0 or 1
-				if(ifCondition.contains("(") && ifCondition.contains(")")) {
-					int bracketsCount = 0, indexTmp;
-					for(int i = 0;i < ifCondition.length();i++) {
-						char c = ifCondition.charAt(i);
-						
-						if(c == '(') {
-							boolean invert = i > 0 && ifCondition.charAt(i - 1) == '!';
-							indexTmp = i;
-							while(true) { //While brackets count != 0 and not first run
-								c = ifCondition.charAt(i++); //Get char at indexEnd (increase later)
-								if(c == '(') { //If char == '(' -> bracketsCount++;
-									bracketsCount++;
-								}else if(c == ')') { //Else if char == ')' -> bracketsCount--;
-									bracketsCount--;
-									if(bracketsCount == 0) { //When all brackets have been closed -> check condition
-										boolean b = checkIf(ifCondition.substring(indexTmp+1, i-1)); //Check all between '(' and ')'
-										if(invert) {
-											b = !b;
-											indexTmp--; //Include ! for replace
-										}
-										
-										ifCondition = ifCondition.substring(0, indexTmp) + (b?1:0) + ifCondition.substring(i); //Replace
-										
-										i = indexTmp; //Set i to old pos.
-										
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-				
-				//Replace AND with 0 or 1
-				if(ifCondition.contains("&&")) {
-					boolean leftSide = checkIf(ifCondition.substring(0, ifCondition.indexOf("&&")));
-					boolean rightSide = checkIf(ifCondition.substring(ifCondition.indexOf("&&") + 2));
-					
-					return leftSide && rightSide;
-				}
-				
-				//Replace OR with 0 or 1
-				if(ifCondition.contains("||")) {
-					boolean leftSide = checkIf(ifCondition.substring(0, ifCondition.indexOf("||")));
-					boolean rightSide = checkIf(ifCondition.substring(ifCondition.indexOf("||") + 2));
-					
-					return leftSide || rightSide;
-				}
-				
-				if(ifCondition.contains("=") || ifCondition.contains("<") || ifCondition.contains(">") || ifCondition.contains("!")) {
-					char tmp;
-					int invert;
-					for(int i = 0;i < ifCondition.length();i++) {
-						char c = ifCondition.charAt(i);
-						
-						if(c == '=' && ((tmp = ifCondition.charAt(i-1)) == '=' || tmp == '!')) { //Replace "==" and "!=" with 0 or 1
-							invert = (tmp == '!')?1:0; //Uses "xor" after
-							
-							int strIndexTmpLeft = i, strIndexTmpRight = i+1;
-							String strLeft = "", strRight = "";
-							while(true) {
-								try {
-									strRight = ifCondition.substring(i+1, ++strIndexTmpRight);
-									if(strRight.endsWith("=") || strRight.endsWith("<") || strRight.endsWith(">") || strRight.endsWith("!")) {
-										strRight = strRight.substring(0, strRight.length()-1);
-										
-										break;
-									}
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							while(true) {
-								try {
-									strLeft = ifCondition.substring(--strIndexTmpLeft, i-1);
-									if(strRight.startsWith("=") || strRight.startsWith("<") || strRight.startsWith(">") || strRight.startsWith("!")) {
-										strRight = strRight.substring(1);
-										
-										break;
-									}
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							
-							ifCondition = ifCondition.substring(0, strIndexTmpLeft+1) + (((strRight.equals(strLeft))?1:0)^invert) + ifCondition.substring(strIndexTmpRight-1); //Replace
-							i = strIndexTmpLeft;
-							
-							continue;
-						}
-						
-						if(c == '<') { //Replace "<" and "<=" with 0 or 1
-							int x = (ifCondition.charAt(i+1) == '=')?2:1;
-							
-							int numIndexTmpLeft = i, numIndexTmpRight = i+x, numLeft = 0, numRight = 0;
-							while(true) {
-								try {
-									numRight = Integer.parseInt(ifCondition.substring(i+x, ++numIndexTmpRight));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									if(numIndexTmpLeft == i+x+1) { //No number (char)
-										numRight = ifCondition.charAt(i+x);
-									}
-									break;
-								}
-							}
-							while(true) {
-								try {
-									numLeft = Integer.parseInt(ifCondition.substring(--numIndexTmpLeft, i));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									if(numIndexTmpLeft == i-1) { //No number (char)
-										numRight = ifCondition.charAt(i-1);
-									}
-									break;
-								}
-							}
-							
-							//numLeft "<" or "<=" numRight
-							if(x == 2) {
-								numRight = (numLeft <= numRight)?1:0;
-							}else {
-								numRight = (numLeft < numRight)?1:0;
-							}
-							
-							ifCondition = ifCondition.substring(0, numIndexTmpLeft+1) + numRight + ifCondition.substring(numIndexTmpRight-1); //Replace
-							i = numIndexTmpLeft;
-							
-							continue;
-						}
-						
-						if(c == '>') { //Replace ">" and ">=" with 0 or 1
-							int x = (ifCondition.charAt(i+1) == '=')?2:1;
-							
-							int numIndexTmpLeft = i, numIndexTmpRight = i+x, numLeft = 0, numRight = 0;
-							while(true) {
-								try {
-									numRight = Integer.parseInt(ifCondition.substring(i+x, ++numIndexTmpRight));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									if(numIndexTmpLeft == i+x+1) { //No number (char)
-										numRight = ifCondition.charAt(i+x);
-									}
-									break;
-								}
-							}
-							while(true) {
-								try {
-									numLeft = Integer.parseInt(ifCondition.substring(--numIndexTmpLeft, i));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									if(numIndexTmpLeft == i-1) { //No number (char)
-										numRight = ifCondition.charAt(i-1);
-									}
-									
-									break;
-								}
-							}
-							
-							//numLeft ">" or ">=" numRight
-							if(x == 2) {
-								numRight = (numLeft >= numRight)?1:0;
-							}else {
-								numRight = (numLeft > numRight)?1:0;
-							}
-							
-							ifCondition = ifCondition.substring(0, numIndexTmpLeft+1) + numRight + ifCondition.substring(numIndexTmpRight-1); //Replace
-							i = numIndexTmpLeft;
-						}
-					}
-				}
-				
-				if(ifCondition.contains("!")) {
-					for(int i = 0;i < ifCondition.length();i++) {
-						char c = ifCondition.charAt(i);
-						
-						if(c == '!') { //Replace "not" with 0 or 1
-							int numIndexTmp = i+1, num = 1; //If only "not" (e.g.: if(!)) -> return !1 => return 0 => return false
-							while(true) {
-								try {
-									num = Integer.parseInt(ifCondition.substring(i+1, ++numIndexTmp));
-								}catch(NumberFormatException|StringIndexOutOfBoundsException e) {
-									break;
-								}
-							}
-							
-							num = checkIf(num + "")?0:1; //Convert output of checkIf for "not"
-							
-							ifCondition = ifCondition.substring(0, i) + num + ifCondition.substring(numIndexTmp-1); //Replace
-							
-							continue;
-						}
-					}
-				}
-				
-				//For end
-				try {
-					return Integer.parseInt(ifCondition) != 0;
-				}catch(NumberFormatException e) {
-					return false;
-				}
-			}
-			
-			public void executeIf(BufferedReader lines, String line, final int DATA_ID) throws Exception {
-				line = line.trim().substring(4); //Remove whitespace and "con."
-				
-				if(line.startsWith("if(")) {
-					line = compileLine(lines, line, DATA_ID);
-					if(line.isEmpty())
-						line = "0";
-					else
-						line = line.substring(3, line.lastIndexOf(')'));
-					
-					String tmp = lines.readLine();
-					if(checkIf(line)) { //True
-						while(true) {
-							if(tmp == null) { //"return" of FuncPtr
-								return;
-							}
-							
-							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLine(lines, tmp, DATA_ID);
-								if(tmp.isEmpty())
-									continue;
-								
-								if(tmp.trim().substring(4).startsWith("if")) {
-									executeIf(lines, tmp, DATA_ID); //Execute inner if
-								}
-								
-								tmp = tmp.trim().substring(4);
-								if(tmp.startsWith("endif") || tmp.startsWith("elif") || tmp.startsWith("else")) { //Go to end of if (after "endif")
-									while(!tmp.startsWith("endif")) { //Go to "endif"
-										try {
-											tmp = lines.readLine().trim().substring(4); //Remove "con."
-										}catch(Exception e) {
-											if(!lines.ready()) {
-												return;
-											}else {
-												tmp = ""; //If line hasn't five chars
-											}
-										}
-									}
-									return;
-								}
-							}else {
-								compileLine(lines, tmp, DATA_ID); //Compile lines
-							}
-							
-							if(lines.ready()) {
-								tmp = lines.readLine();
-							}else {
-								return;
-							}
-						}
-					}else { //False
-						int innerIfCounter = 0;
-						while(true) {
-							if(tmp.trim().startsWith("con.")) { //If line startsWith "con."
-								tmp = compileLine(lines, tmp, DATA_ID);
-								if(tmp.isEmpty())
-									continue;
-								
-								tmp = tmp.trim().substring(4);
-								if(tmp.startsWith("endif")) {
-									innerIfCounter--;
-									if(innerIfCounter < 0)
-										return;
-								}else if(tmp.startsWith("elif") && innerIfCounter == 0) {
-									executeIf(lines, "con." + tmp.substring(2), DATA_ID); //Execute "elif" as "if"
-									
-									return;
-								}else if(tmp.startsWith("else") && innerIfCounter == 0) {
-									executeIf(lines, "con.if(1)", DATA_ID); //Execute "else" as "if(1)"
-									
-									return;
-								}else if(tmp.startsWith("if")) {
-									innerIfCounter++;
-								}
-							}
-							
-							if(lines.ready()) {
-								tmp = lines.readLine();
-							}else {
-								return;
-							}
-						}
-					}
-				}
-			}
-		}
-		private class VarParser {
-			private VarParser() {}
-			
-			/**
-			 * @return the modified line<br>if null -> continue
-			 */
-			public String replaceVarsWithValue(BufferedReader lines, String line, final int DATA_ID) {
-				line = line.trim();
-				
-				//If not tmp contains " = " -> var is null
-				if(line.startsWith("$")) { //Set var
-					//If tmp contains a mapping to a value for var
-					if(line.matches("\\$LANG_.*")) { //Illegal var
-						setErrno(1, DATA_ID);
-						
-						return null;
-					}
-					
-					if(line.contains(" = ")) {
-						String[] string = line.split(" = ", 2); //Split tmp to var name and var value
-						
-						string[1] = replaceVarsWithValue(string[1], DATA_ID);
-						string[1] = replaceAllVarPtrsWithVar(string[1]);
-						if((string[1].contains("fp.") || string[1].contains("func.")) && string[1].contains("(") && string[1].contains(")"))
-							string[1] = funcParser.executeFunc(lines, string[1], DATA_ID);
-						if(string[1].contains("linker.")) //If string[1] contains a linker function
-							string[1] = linkerParser.compileLine(string[1], DATA_ID); //Execute linker functions
-						
-						//Put var name and var value to the var tmp map
-						DataObject oldValue = data.get(DATA_ID).var.get(string[0]);
-						if(oldValue != null && oldValue.isFinalData()) {
-							setErrno(1, DATA_ID);
-							
-							return null;
-						}
-						if(oldValue != null)
-							oldValue.setText(string[1]);
-						else
-							data.get(DATA_ID).var.put(string[0], new DataObject(string[1]));
-					}else {
-						DataObject oldValue = data.get(DATA_ID).var.get(line);
-						if(oldValue != null && oldValue.isFinalData()) {
-							setErrno(1, DATA_ID);
-							
-							return null;
-						}
-						if(oldValue != null)
-							oldValue.setNull();
-						else
-							data.get(DATA_ID).var.put(line, new DataObject().setNull());
-					}
-					
-					return null;
-				}else { //Get var
-					line = replaceVarsWithValue(line, DATA_ID);
-					line = replaceAllVarPtrsWithVar(line);
-					return line;
-				}
-			}
-			
-			private String replaceVarsWithValue(String line, final int DATA_ID) {
-				//Replace "%$" with "$" for start
-				if(line.startsWith("%$"))
-					line = line.substring(1);
-				
-				//[line, returnValue]
-				String[] lineCopy = new String[] {line, ""};
-				boolean[] varNotReplacedFlag = new boolean[1];
-				while(lineCopy[0].length() > 0) {
-					int indexStartVar = lineCopy[0].indexOf('$');
-					//Contains no "$"
-					if(indexStartVar == -1) {
-						lineCopy[1] += lineCopy[0];
-						break;
-					}
-					
-					lineCopy[1] += lineCopy[0].substring(0, indexStartVar);
-					//Escaped "$" -> Remove "$" from line
-					if(lineCopy[1].endsWith("\\")) {
-						indexStartVar++;
-						lineCopy[1] = lineCopy[1].substring(0, lineCopy[1].length() - 1) + "$";
-					}
-					lineCopy[0] = lineCopy[0].substring(indexStartVar);
-					
-					if(lineCopy[0].startsWith("$")) {
-						varNotReplacedFlag[0] = true;
-						data.get(DATA_ID).var.keySet().stream().filter(varName -> {
-							return lineCopy[0].startsWith(varName);
-						}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $ab and $abc)
-							if(s0.length() == s1.length())
-								return 0;
-							
-							return (s0.length() < s1.length())?1:-1;
-						}).findFirst().ifPresent(varName -> {
-							varNotReplacedFlag[0] = false;
-							
-							lineCopy[1] += data.get(DATA_ID).var.get(varName);
-							lineCopy[0] = lineCopy[0].substring(varName.length());
-						});
-						
-						//Skip "$" if no var was found
-						if(varNotReplacedFlag[0]) {
-							lineCopy[0] = lineCopy[0].substring(1);
-							lineCopy[1] += "$";
-						}
-					}
-				}
-				
-				return lineCopy[1];
-			}
-			
-			private String replaceAllVarPtrsWithVar(String line) {
-				StringBuilder newLine = new StringBuilder();
-				
-				while(!line.isEmpty()) {
-					char c = line.charAt(0);
-					newLine.append(c);
-					line = line.substring(1);
-					
-					if(c == '$' && !line.isEmpty()) {
-						if(line.charAt(0) == '[' && line.contains("]")) {
-							line = line.substring(1); //Remove '['
-							
-							while((c = line.charAt(0)) != ']') { //Add all to ']' to "newLine"
-								newLine.append(c);
-								line = line.substring(1);
-							}
-							
-							line = line.substring(1); //Remove ']'
-						}
-					}
-				}
-				
-				return newLine.toString();
-			}
-		}
-		private class FuncParser {
-			public Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>(); //<DATA_ID (of function), <to, from>>
-			
-			private String funcReturnTmp = "";
-			
-			private FuncParser() {}
-			
-			public void saveFuncPtr(BufferedReader lines, String line, final int DATA_ID) {
-				StringBuilder build = new StringBuilder();
-				String tmp;
-				
-				String funcName = line.split(" = ")[0].trim();
-				if(!funcName.startsWith("fp.")) {
-					setErrno(5, DATA_ID);
-					
-					return;
-				}
-				
-				String funcHead = line.split(" = ")[1].trim();
-				FunctionPointerObject fp = null;
-				
-				if(line.contains(") -> {")) { //FuncPtr definition
-					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
-					funcHead = funcHead.substring(0, funcHead.indexOf(')'));
-					
-					try {
-						int bracketsCount = 1; //First '{' is in head
-						//For funcPtr in funcPtr
-						while(true) { //While brackets count != 0
-							tmp = lines.readLine();
-							if(tmp == null) {
-								setErrno(23, DATA_ID);
-								
-								return;
-							}
-							if(tmp.trim().endsWith("{")) { //If last char == '{' -> bracketsCount++;
-								bracketsCount++;
-							}else if(tmp.trim().startsWith("}")) { //Else if first char == '}' -> bracketsCount--;
-								bracketsCount--;
-								if(bracketsCount == 0) //When all brackets have been closed -> break
-									break;
-							}
-							build.append(tmp.trim());
-							build.append("\n");
-						}
-						
-						if(build.length() > 0) //Fix for empty function body
-							build.deleteCharAt(build.length() - 1); //Remove "tail '\n'"
-						fp = new FunctionPointerObject(funcHead, build.toString());
-					}catch(IOException e) {
-						term.logStackTrace(e, FuncParser.class);
-					}
-				}else if(line.contains(") -> ")) { //One-line function definition
-					funcHead = funcHead.substring(funcHead.indexOf('(') + 1);
-					funcHead = funcHead.substring(0, funcHead.indexOf(')'));
-					
-					fp = new FunctionPointerObject(funcHead, line.split("\\) -> ", 2)[1].trim());
-				}else if(funcHead.startsWith("func.")) { //"Copy" predefined function
-					fp = new FunctionPointerObject(funcHead);
-				}else { //Copy funcPtr
-					if(!(funcHead.startsWith("fp.") && data.get(DATA_ID).var.containsKey(funcHead))) {
-						setErrno(5, DATA_ID);
-						
-						return;
-					}
-					
-					fp = data.get(DATA_ID).var.get(funcHead).getFunctionPointer();
-				}
-				
-				DataObject oldValue = data.get(DATA_ID).var.get(funcName);
-				if(oldValue != null && oldValue.isFinalData()) {
-					setErrno(1, DATA_ID);
-					
-					return;
-				}
-				if(oldValue != null)
-					oldValue.setFunctionPointer(fp);
-				else
-					data.get(DATA_ID).var.put(funcName, new DataObject().setFunctionPointer(fp));
-			}
-			
-			public String executeFunc(BufferedReader lines, String line, final int DATA_ID) {
-				String lineCopy = line; //Copy pointer to line
-				String tmp; //String tmp for brackets count
-				int bracketsCount, indexStart, indexEnd, oldIndexStart = 0;
-				
-				//while line contains functions
-				while(lineCopy.matches(".*(fp|func)\\.\\w*\\(.*\\).*")) {
-					//Reset brackets count
-					bracketsCount = 0;
-					
-					//Set indexStart to start of first "fp." or "func." and cut 0 to indexStart of lineCopy
-					int indexStartFP = lineCopy.indexOf("fp.");
-					if(indexStartFP == -1)
-						indexStartFP = Integer.MAX_VALUE;
-					int indexStartFunc = lineCopy.indexOf("func.");
-					if(indexStartFunc == -1)
-						indexStartFunc = Integer.MAX_VALUE;
-					indexStart = Math.min(indexStartFP, indexStartFunc);
-					
-					lineCopy = lineCopy.substring(indexStart);
-					indexStart += oldIndexStart;
-					indexEnd = 0; //Reset indexEnd
-					
-					while(true) { //While brackets count != 0 and not first run
-						char c = lineCopy.charAt(indexEnd++); //Get char at indexEnd (increase later)
-						if(c == '(') { //If char == '(' -> bracketsCount++;
-							bracketsCount++;
-						}else if(c == ')') { //Else if char == ')' -> bracketsCount--;
-							bracketsCount--;
-							if(bracketsCount == 0) //When all brackets have been closed -> break
-								break;
-						}
-						
-						//If brackets are messed up (More "(" than ")") -> throw error
-						if(indexEnd == lineCopy.length()) {
-							setErrno(28, DATA_ID);
-							
-							return "Error";
-						}
-					}
-					tmp = lineCopy.substring(0, indexEnd); //Copies function arguments
-					
-					//Replace func with solution of func
-					line = line.substring(0, indexStart) + callFunc(lines, tmp, DATA_ID) + line.substring(indexEnd + indexStart);
-					
-					lineCopy = lineCopy.substring(indexEnd); //Go to the end of the function
-					oldIndexStart = line.indexOf(lineCopy); //Gets indexStart of line
-				}
-				
-				if(line.matches(".*(fp|func)\\.\\w*\\(.*\\).*")) //If a function returns a funcPtr -> call it
-					line = executeFunc(lines, line, DATA_ID);
-				
-				return line;
-			}
-			
-			private String prepareFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String retTmp = "";
-				func = func.substring(func.indexOf('(')+1); //Gets start of arguments
-				
-				if(!func.contains("fp.") && !func.contains("func.")) { //No nested function
-					int lastIndex = func.lastIndexOf(')');
-					
-					retTmp = func.substring(0, lastIndex); //retTmp is start to end of arguments
-					func = func.substring(lastIndex); //Cuts all before the function end
-				}
-				
-				while(func.contains("fp.") || func.contains("func.")) { //While function contain nested functions
-					int indexStartFP = func.indexOf("fp.");
-					if(indexStartFP == -1)
-						indexStartFP = Integer.MAX_VALUE;
-					int indexStartFunc = func.indexOf("func.");
-					if(indexStartFunc == -1)
-						indexStartFunc = Integer.MAX_VALUE;
-					int index = Math.min(indexStartFP, indexStartFunc); //Gets index of first "fp." or "func."
-					retTmp += func.substring(0, index); //Adds everything between start and "fp." or "func." to retTmp
-					func = func.substring(index); //Cuts everything before "fp." or "func."
-					
-					if(!func.matches("(fp|func)\\.\\w*\\(.*")) { //FuncPtr without call
-						 //Remove first char from func string and add to retTmp -> won't be recognized as func anymore
-						retTmp += func.substring(0, 1);
-						func = func.substring(1);
-						continue;
-					}
-					
-					String funcCopy = func.substring(func.indexOf('('));
-					int lastIndex = 0, openCount = 0;
-					for(lastIndex = 0;lastIndex < funcCopy.length();lastIndex++) {
-						char c = funcCopy.charAt(lastIndex);
-						if(c == '(')
-							openCount++;
-						
-						if(c == ')')
-							openCount--;
-						
-						if(openCount == 0)
-							break;
-					}
-					lastIndex += func.indexOf('(') + 1;
-					
-					retTmp += callFunc(lines, func.substring(0, lastIndex), DATA_ID); //Adds result of nested function to retTmp
-					func = func.substring(lastIndex); //Cuts everything before end of nested function
-				}
-				
-				//Adds everything after function to retTmp
-				retTmp += func.substring(0, func.lastIndexOf(')'));
-				return retTmp;
-			}
-			
-			private String callFunc(BufferedReader lines, String func, final int DATA_ID) {
-				String retTmp = "";
-				
-				String funcName = func.substring(0, func.indexOf('(')); //Get name of function
-				
-				String prefix = func.substring(0, func.indexOf('.'));
-				func = func.substring(func.indexOf(prefix) + prefix.length() + 1); //Cuts everything before "fp." or "func."
-				
-				String args = prepareFunc(lines, func, DATA_ID); //Prepare function
-				retTmp += compileFunc(funcName, args, DATA_ID); //Call Function
-				
-				return retTmp;
-			}
-			
-			private String compileFunc(String funcName, String funcArgs, final int DATA_ID) {
-				if(funcName.startsWith("func.")) {
-					funcName = funcName.substring(funcName.indexOf("func.") + 5); //Cuts everything before "func."
-					if(funcs.containsKey(funcName)) { //If function exists...
-						return funcs.get(funcName).callFunc(null, funcArgs, DATA_ID); //Call Function
-					}else {
-						setErrno(22, DATA_ID);
-						
-						return "";
-					}
-				}else if(funcName.startsWith("fp.")) {
-					if(!data.get(DATA_ID).var.containsKey(funcName)) {
-						setErrno(5, DATA_ID);
-						
-						return "";
-					}
-					
-					FunctionPointerObject func = data.get(DATA_ID).var.get(funcName).getFunctionPointer();
-					String funcHead = func.getHead();
-					String funcBody = func.getBody();
-					BiFunction<String, Integer, String> externalFunction = func.getExternalFunction();
-					int functionPointerType = func.getFunctionPointerType();
-					
-					//Set function arguments
-					if(functionPointerType == FunctionPointerObject.EXTERNAL) {
-						funcReturnTmp = externalFunction.apply(funcArgs, DATA_ID);
-					}else if(functionPointerType == FunctionPointerObject.PREDEFINED) {
-						funcReturnTmp = compileFunc(funcBody, funcArgs, DATA_ID);
-					}else if(functionPointerType == FunctionPointerObject.NORMAL) {
-						final int NEW_DATA_ID = DATA_ID + 1;
-						
-						BufferedReader function = new BufferedReader(new StringReader(funcBody));
-						
-						//Add variables and local variables
-						createDataMap(NEW_DATA_ID);
-						//Copies must not be final
-						data.get(DATA_ID).var.forEach((key, val) -> {
-							if(!key.startsWith("$LANG_"))
-								data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setFinalData(false));
-						});
-						//Initialize copyAfterFP
-						copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
-						
-						String[] funcVars = funcHead.split(",");
-						String tmp = funcArgs;
-						for(String var:funcVars) {
-							var = var.trim();
-							
-							int index = tmp.indexOf(",");
-							String val = tmp.substring(0, (index == -1)?tmp.length():index);
-							
-							val = val.trim();
-							
-							if(var.startsWith("$")) {
-								data.get(NEW_DATA_ID).var.put(var, new DataObject(val).setFinalData(false)); //Copy params to func as local params
-							}else if(var.startsWith("fp.") || var.startsWith("&")) {
-								DataObject dataFromCaller = data.get(DATA_ID).var.get(val);
-								if(dataFromCaller == null)
-									dataFromCaller = new DataObject().setNull();
-								data.get(NEW_DATA_ID).var.put(var, new DataObject(dataFromCaller).setFinalData(false));
-							}
-							
-							index = tmp.indexOf(",");
-							if(index != -1) {
-								tmp = tmp.substring(index + 1).trim();
-							}
-						}
-						
-						//Call function
-						try {
-							compileLangFile(function, NEW_DATA_ID);
-						}catch(IOException e) {
-							term.logStackTrace(e, FuncParser.class);
-						}catch(Exception e) {}
-						
-						//Add lang after call
-						data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
-						
-						//Add copyValue after call
-						copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
-							if(from != null && to != null) {
-								DataObject valFrom = data.get(NEW_DATA_ID).var.get(from);
-								if(valFrom != null && valFrom.getType() != DataType.NULL) { //var and funcPtr
-									if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
-										DataObject dataTo = data.get(DATA_ID).var.get(to);
-										 //$LANG and final vars can't be change
-										if(to.startsWith("$LANG") || (dataTo != null && dataTo.isFinalData())) {
-											setErrno(1, DATA_ID);
-											
-											return;
-										}
-										
-										data.get(DATA_ID).var.put(to, valFrom);
-										
-										return;
-									}
-								}
-							}
-							
-							setErrno(21, DATA_ID);
-						});
-						
-						//Clear copyValue
-						copyAfterFP.remove(NEW_DATA_ID);
-						
-						//Remove data map
-						data.remove(NEW_DATA_ID);
-					}
-					
-					String retTmp = funcReturnTmp; //Get func return or "" (empty)
-					funcReturnTmp = ""; //Reset func return for non return funcs
-					return retTmp;
-				}
-				
-				return "";
-			}
+			public Map<String, String> lang;
+			public Map<String, DataObject> var;
 		}
 	}
 }

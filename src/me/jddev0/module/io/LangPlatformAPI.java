@@ -15,7 +15,11 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 /**
- * Platform dependent code (e.g. Android would use a different LangUtils class)
+ * IO-Module<br>
+ * Platform dependent code (e.g. Android would use a different LangPlatformAPI class)
+ * 
+ * @author JDDev0
+ * @version v1.0.0
  */
 public class LangPlatformAPI {
 	public LangPlatformAPI() {}
