@@ -1,6 +1,6 @@
 # Lang data
 lang.name = Test
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Lang content
 # Translations examples ("lang request" = "lang value")
@@ -47,6 +47,7 @@ ui.button.canel = Cancel
 		fp.printFunc = () -> {
 			func.printTerminal(4, $num)
 			$num = func.subi($num, 1)
+			func.printTerminal(3, $num)
 			func.copyAfterFP($[num], $[num])
 		}
 		# One-line function pointer definition (New in v0.2.0)
@@ -149,6 +150,7 @@ ui.button.canel = Cancel
 			func.printTerminal(2, TAMPERED!)
 		}
 		fp.retFP()(1, 1)
+		{ # Bracket is only for parser (Because "}" closed a block, but ") -> {" won't open a block
 		
 		# Funny things you can do with this
 		fp.function = ($a) -> {
@@ -212,7 +214,7 @@ ui.button.canel = Cancel
 		func.repeat(fp.c, 10)
 		
 		func.printTerminal(1, \s\n\s)
-	} 
+	}
 }
 
 # \$ -> escape sequence for $
@@ -350,7 +352,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	func.printTerminal(2, $test)
 	
 	# TEXT concatenation 2 (Be CAREFUL: if $tests exists it will be printed, if
-	# $tests doesn't exist and $test exists than $test if an s at the end will
+	# $tests doesn't exist and $test exists than $test with a s at the end will
 	# be printed)
 	func.printTerminal(2, $tests)
 	

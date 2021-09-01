@@ -1,5 +1,5 @@
 lang.name = Bitwise Operations
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Bitwise functions
 # func.and[i/l](int/long, int/long) - Bitwise and

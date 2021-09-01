@@ -4,7 +4,7 @@
 # Name of the lang file
 lang.name = Hello World
 # Compiler Version the lang file is written for
-lang.version = v0.2.0
+lang.version = v1.0.0
 
 # Code
 # func.printTerminal(loglevel, text)

@@ -1,5 +1,5 @@
 lang.name = Arrays
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Creation of an array
 # func.arrayMake(arrPtr, int)
@@ -12,10 +12,10 @@ func.printTerminal(-1, $len)
 
 # Get all elements of an array
 # func.arrayGetAll(arrPtr)
-$arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " seperators
+$arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " as element seperator
 func.printTerminal(-1, $arr)
 
-# Set a element of an array
+# Set an element of an array
 # func.arraySet(arrPtr, int, Text)
 func.arraySet(&arr, 7, THIS IS A CAPS TEST!) # Will set the element at the index 7 of the array &arr to "THIS IS A CAPS TEST!"
 func.printTerminal(-1, func.arrayGetAll(&arr))

@@ -1,6 +1,6 @@
 # Lang data
 lang.name = Benchmark
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 fp.benchmark = ($runs, fp.func) -> {
 	$time = 0
@@ -18,7 +18,7 @@ fp.benchmark = ($runs, fp.func) -> {
 
 $input = func.readTerminal(Enter 0 for "Normal functions benchmark" and 1 for "One-line functions benchmark")
 
-con.if(!$input)
+con.if(!func.toNumber($input))
 	# Normal functions
 	fp.add = () -> {
 		func.addi(func.rand(), func.rand())

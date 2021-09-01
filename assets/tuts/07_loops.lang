@@ -1,5 +1,5 @@
 lang.name = Loops
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # For loop
 # func.repeat(funcPtr, int) # Will call the function pointer n times

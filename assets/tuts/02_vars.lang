@@ -1,5 +1,5 @@
 lang.name = Vars
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Var: $name = value
 $var = Text
@@ -21,10 +21,10 @@ $var2 = Test
 # Char
 $var3 = C
 
-# Int, Long, Double
+# Int, Long, Float, Double
 $var4 = 42
 
-# Double
+# Float, Double
 $var5 = 42.42
 $var6 = 42.
 $var7 = .42
@@ -68,7 +68,7 @@ func.printTerminal(-1, $c)
 
 func.printTerminal(-1, -----------------)
 
-# Concatination [vars & non vars]
+# Concatenation [vars & non vars]
 $a = ABC-a
 func.printTerminal(-1, $abc) # Will append "bc" after $a
 
@@ -95,4 +95,4 @@ func.printTerminal(-1, $LANG_COMPILER_VERSION)
 $LANG_TEST = TEST # $LANG vars can't be created either
 func.printTerminal(-1, $LANG_TEST)
 
-func.printTerminal(-1, $LANG_ERRNO) # $LANG vars can be changed by the compiler
+func.printTerminal(-1, $LANG_ERRNO) # $LANG vars can be changed by the interpreter

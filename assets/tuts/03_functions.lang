@@ -1,5 +1,5 @@
 lang.name = Functions
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Functions:
 # func.name() # Call function
@@ -25,7 +25,7 @@ $endTime = func.currentTimeMillis()
 func.printTerminal(-1, func.subl($endTime, $startTime) ms)
 
 # IO functions
-# func.readTerminal(Text) # Will read a user input, the user will see the text {Function is not supported by all compilers: If not supported -> $LANG_ERRNO will be set}
+# func.readTerminal(Text) # Will read a user input, the user will see the text {Function is not supported by all interpreters: If not supported -> $LANG_ERRNO will be set}
 $input = func.readTerminal(Enter something:)
 func.printTerminal(-1, Your input: $input)
 
@@ -40,8 +40,8 @@ func.printTerminal(5, Test) # Error
 func.printTerminal(6, Test) # Critical
 
 # Number functions
-# func.hexToDez(Text) # Will convert a base 16 number to a base 10 integer
-$num = func.hexToDez(0x2A)
+# func.hexToDec(Text) # Will convert a base 16 number to a base 10 integer
+$num = func.hexToDec(0x2A)
 func.printTerminal(-1, $num)
 
 # Character functions
@@ -49,7 +49,7 @@ func.printTerminal(-1, $num)
 $valA = func.toValue(a)
 func.printTerminal(-1, $valA)
 
-$valEur = func.toValue(€) # Be careful! The lang language accepts UNICODE chars, but the TermIO and the LangShell windows will only support ASSCI
+$valEur = func.toValue(€) # Be careful! The lang language accepts UNICODE chars, but the TermIO and the LangShell windows will only support ASCII
 func.printTerminal(-1, $valEur)
 
 # func.toChar(int) # Will return the Unicode char with the value of the parameter
@@ -77,8 +77,8 @@ $trimed = func.trim(     Text with many withspaces!         )
 func.printTerminal(-1, $trimed)
 
 # func.replace(Text, Text, Text) # Will replace the in the first parameter matched (second parameter {RegEx}) sequences with the replacement (thrid paramter)
-$noWihteSpaces = func.replace(A text with many	withspaces!, \s, -)
-func.printTerminal(-1, $noWihteSpaces)
+$noWhiteSpaces = func.replace(          A    text		  with many 	withspaces!    \s, \\s, -)
+func.printTerminal(-1, $noWhiteSpaces)
 
 # func.substring(Text, int, [int]) # Will return the Text from the index (2nd parameter) to the index (3rd parameter) or to the end if no 3rd parameter is provided
 $sub1 = func.substring(Not yours!, 4)

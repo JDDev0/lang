@@ -1,6 +1,6 @@
 # "lang." translations
 lang.name = Translations
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Lang Translations: langRequest = langValue
 ui.ok = Ok
@@ -22,7 +22,7 @@ ui.test = func.getLangRequest($test)
 esc.dol = \$ Dollar
 esc.new_line = \n
 esc.comment = \#
-esc.space = \s # Only for output [func.printTerminal]
+esc.space = \s
 
-# Empty translation [trailing SPACE is important!]
-empty.nothing = 
+# Empty translation
+empty.nothing = 	

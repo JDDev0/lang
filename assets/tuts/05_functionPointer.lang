@@ -1,5 +1,5 @@
 lang.name = Function Pointer
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # Function Pointer
 # Create function
@@ -69,9 +69,9 @@ fp.orig() # Prints: "A function"
 fp.copy = fp.orig # Copying
 fp.copy() # Prints: "A function"
 # Changing original function
-fp.orig = () -> func.printTerminal(2, A other function)
+fp.orig = () -> func.printTerminal(2, An other function)
 fp.orig() # Prints: "A other function"
-fp.copy() # Should still print "A function"
+fp.copy() # Still prints "A function"
 
 # Predifined function
 # fp.name = func.name
@@ -83,7 +83,7 @@ func.printTerminal(-1, Function Pointer!)
 # If not enough arguments are provided, the compiler will copy the
 #   last argument given. If no argument was given, all variables will be empty
 # If too many arguments are given, the compiler will ignore them
-fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g, $h) -> {
+fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g) -> {
 	func.printTerminal(1, |$a  $b  $c  $d  $e  $f  $g|)
 }
 fp.manyArgs()

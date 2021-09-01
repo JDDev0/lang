@@ -1,5 +1,5 @@
 lang.name = Lang File Linking
-lang.version = v0.2.1
+lang.version = v1.0.0
 
 # FILE type
 # Examples:
@@ -20,8 +20,7 @@ func.printTerminal(-1, $LANG_PATH)
 #                     ("lang." translations won't be copied)
 linker.link(09_linkTestTranslations.lang)
 
-fp.glr = func.getLangRequest # Copy func.getLangRequest for better
-                             # code
+fp.glr = func.getLangRequest # Copy func.getLangRequest for shorter code
 
 func.printTerminal(-1, fp.glr(test.name), fp.glr(test.age), fp.glr(test.data))
 func.printTerminal(-1, $var) # Will print "$var", because $var is no translation
@@ -39,7 +38,7 @@ linker.bindLibrary(09_linkTestLibrary.lang)
 func.printTerminal(-1, fp.glr(lib.name)) # Will print "ERROR":
                                          # lib.name will not
                                          # be copied
-func.printTerminal(-1, $lib.var)
+func.printTerminal(-1, $lib_var)
 fp.libTest(--- Test_42 ---)
 
 # Link lang file and bind library
@@ -47,5 +46,5 @@ linker.link(09_linkTestAll.lang)
 linker.bindLibrary(09_linkTestAll.lang)
 
 func.printTerminal(-1, fp.glr(lib2.name), fp.glr(lib2.data))
-func.printTerminal(-1, $lib2.var)
+func.printTerminal(-1, $lib2_var)
 fp.lib2Test(--- TEST ---)
