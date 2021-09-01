@@ -35,10 +35,13 @@ import me.jddev0.module.io.TerminalIO.Level;
  * Will write TerminalIO output with colors in a window
  * 
  * @author JDDev0
- * @version v0.1 fix 2
+ * @version v1.0.0
  */
 public class TerminalWindow extends JFrame {
 	private static final long serialVersionUID = 3517996790399999763L;
+	
+	private JTextField txtEnterCommands;
+	private JTextPane term;
 	
 	private List<String> oldCommands = new LinkedList<String>();
 	private String currentCommand = "";
@@ -47,8 +50,11 @@ public class TerminalWindow extends JFrame {
 	//Tmp for System.in
 	private StringBuilder readingTmp;
 	private TerminalIO termIO = null;
-	
+
 	public TerminalWindow() {
+		this(12);
+	}
+	public TerminalWindow(int fontSize) {
 		//Creates the TermIO control window
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("TermIO-Control");
@@ -59,7 +65,7 @@ public class TerminalWindow extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		JTextField txtEnterCommands = new JTextField();
+		txtEnterCommands = new JTextField();
 		{
 			txtEnterCommands.setFocusTraversalKeysEnabled(false);
 			txtEnterCommands.addKeyListener(new KeyAdapter() {
@@ -144,7 +150,7 @@ public class TerminalWindow extends JFrame {
 					}
 				}
 			});
-			txtEnterCommands.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+			txtEnterCommands.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		}
 		contentPane.add(txtEnterCommands, BorderLayout.NORTH);
 		
@@ -155,7 +161,7 @@ public class TerminalWindow extends JFrame {
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 		
 		//Pane for displaying output
-		JTextPane term = new JTextPane();
+		term = new JTextPane();
 		term.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		term.setBackground(Color.BLACK);
 		term.setEditable(false);
@@ -164,7 +170,7 @@ public class TerminalWindow extends JFrame {
 			DefaultCaret caret = (DefaultCaret)term.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		}
-		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		term.setMargin(new Insets(3, 5, 0, 5));
 		term.addKeyListener(new KeyListener() {
 			@Override
@@ -265,6 +271,13 @@ public class TerminalWindow extends JFrame {
 				}
 			}
 		}));
+	}
+	
+	public void setFontSize(int fontSize) {
+		txtEnterCommands.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
+		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
+		
+		revalidate();
 	}
 	
 	public void setTerminalIO(TerminalIO termIO) {

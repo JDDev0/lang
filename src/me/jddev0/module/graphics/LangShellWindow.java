@@ -56,13 +56,16 @@ public class LangShellWindow extends JDialog {
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public LangShellWindow(JFrame owner, TerminalIO term) {
+		this(owner, term, 12);
+	}
+	public LangShellWindow(JFrame owner, TerminalIO term, int fontSize) {
 		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
 		
 		this.term = term;
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("LangShell");
-		setSize(750, 500);
+		setSize((int)(750*fontSize / 12.), (int)(500*fontSize / 12.));
 		setLocationRelativeTo(null);
 		
 		JPanel contentPane = new JPanel();
@@ -86,7 +89,7 @@ public class LangShellWindow extends JDialog {
 			DefaultCaret caret = (DefaultCaret)shell.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		}
-		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		shell.setMargin(new Insets(3, 5, 0, 5));
 		shell.addKeyListener(new KeyAdapter() {
 			private StringBuilder lineTmp = new StringBuilder();
@@ -155,6 +158,12 @@ public class LangShellWindow extends JDialog {
 		scrollPane.setViewportView(shell);
 		
 		initShell();
+	}
+	
+	public void setFontSize(int fontSize) {
+		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
+		
+		revalidate();
 	}
 	
 	private LangInterpreter.LangInterpreterInterface lii;
