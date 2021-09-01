@@ -11,7 +11,7 @@ You can also run "java -jar LangCompiler.jar -startShell" in a terminal or conso
 **Print AST tree**: Type "printAST -*Path to .lang file*" for parsing a Lang file and printing the parsed AST tree<br>
 **4K-Support**: Type "toggle4k" for a larger font in the "TermIO-Control" window and the "LangShell" window<br>
 
-###Breaking changes
+### Breaking changes
 - **v1.0.0**:
  - Arrays variable names starting with "&LANG_" are no longer allowed
  - Var/Array pointer names
