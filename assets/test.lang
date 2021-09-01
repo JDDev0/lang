@@ -242,7 +242,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	# Get errno
 	$errno = $LANG_ERRNO
 	# Get error message (Will set errno to 0)
-	$errtxt = func.getErrorString()
+	$errtxt = func.getErrorText()
 	func.printTerminal(4, $errno: $errtxt)
 	
 	# Will print no error since errno is 0
@@ -463,7 +463,6 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 	func.printTerminal(-1, $a: $b)
 
 	func.clearAllVars()
-	func.clearAllArrays() # Deprecated since v0.2.0: use "func.clearAllVars()" instead
 
 	func.printTerminal(-1, $a: $b)
 	
