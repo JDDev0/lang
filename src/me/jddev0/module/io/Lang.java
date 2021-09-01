@@ -235,7 +235,12 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
- * [void]func.printError([Text]) //"func.printTerminal" with "func.getErrorString"<br>
+ * [void]func.printError([Text]) //"func.printTerminal" with "func.getErrorText"<br>
+ * [Text]func.input([int]) //1st parameter: max Text length<br>
+ * [void]func.print(Text)<br>
+ * [void]func.println([Text])<br>
+ * [void]func.error(Text)<br>
+ * [void]func.errorln([Text])<br>
  * <br><b>Num Functions</b><br>
  * [int]func.hexToDec(Text) //Deprecated [Will be removed in v1.2.0]: use func.hexToDec instead<br>
  * [int]func.hexToDec(Text)<br>

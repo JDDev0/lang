@@ -3,6 +3,7 @@ package me.jddev0.module.io;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -372,6 +373,68 @@ public final class LangInterpreter {
 			DataObject messageObject = combineDataObjects(argumentList);
 			term.logln(level, "[From lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
 			"":(messageObject.getText() + ": ")) + error.getErrorText(), LangInterpreter.class);
+			return null;
+		});
+		funcs.put("input", (argumentList, DATA_ID) -> {
+			Number maxCount = null;
+			
+			if(!argumentList.isEmpty()) {
+				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(argumentList.size() > 0) //Not 0 or 1 arguments
+					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				maxCount = numberObject.getNumber();
+				if(maxCount == null)
+					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			}
+			
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				if(maxCount == null) {
+					String line = reader.readLine();
+					if(line == null)
+						return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+					return new DataObject(line);
+				}else {
+					char[] buf = new char[maxCount.intValue()];
+					int count = reader.read(buf);
+					if(count == -1)
+						return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+					return new DataObject(new String(buf));
+				}
+			}catch(IOException e) {
+				return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+			}
+		});
+		funcs.put("print", (argumentList, DATA_ID) -> {
+			DataObject textObject = combineDataObjects(argumentList);
+			if(textObject == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			System.out.print(textObject.getText());
+			return null;
+		});
+		funcs.put("println", (argumentList, DATA_ID) -> {
+			DataObject textObject = combineDataObjects(argumentList);
+			if(textObject == null)
+				System.out.println();
+			else
+				System.out.println(textObject.getText());
+			return null;
+		});
+		funcs.put("error", (argumentList, DATA_ID) -> {
+			DataObject textObject = combineDataObjects(argumentList);
+			if(textObject == null)
+				System.err.println();
+			else
+				System.err.println(textObject.getText());
+			return null;
+		});
+		funcs.put("errorln", (argumentList, DATA_ID) -> {
+			DataObject textObject = combineDataObjects(argumentList);
+			if(textObject == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			System.err.println(textObject.getText());
 			return null;
 		});
 		

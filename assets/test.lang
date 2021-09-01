@@ -590,3 +590,31 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		func.printTerminal(2, func.rzshiftl(-84, 1))
 	}
 }
+
+# New in version v1.0.0
+{
+	# Standard input/output/error functions
+	{
+		$var = Test Value
+		func.print(ABC)
+		func.println()
+		func.println($var)
+		func.println(func.print)
+		
+		# Will not be displayed in the TermIO-Control window
+		func.error(ABC)
+		func.errorln()
+		func.errorln($var)
+		func.errorln(func.print)
+		
+		# Input must be entered in the TermIO-Control window command text field
+		$input = func.readTerminal(Should read from Standard input?\nSimply type something in the command text field and hit <ENTER>.)
+		con.if($input)
+			$test = func.input()
+			func.printTerminal(1, $test)
+			
+			$test = func.input(10)
+			func.printTerminal(1, $test)
+		con.endif
+	}
+}

@@ -26,16 +26,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultCaret;
 import javax.swing.text.Document;
 
 import me.jddev0.module.io.Lang;
 import me.jddev0.module.io.LangInterpreter;
+import me.jddev0.module.io.LangInterpreter.DataObject;
+import me.jddev0.module.io.LangInterpreter.InterpretingError;
 import me.jddev0.module.io.LangPlatformAPI;
 import me.jddev0.module.io.LangPredefinedFunctionObject;
 import me.jddev0.module.io.TerminalIO;
-import me.jddev0.module.io.LangInterpreter.DataObject;
-import me.jddev0.module.io.LangInterpreter.InterpretingError;
 import me.jddev0.module.io.TerminalIO.Level;
 
 /**
@@ -294,6 +293,12 @@ public class LangShellWindow extends JDialog {
 			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
 			
 			return null;
+		});
+		
+		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
+		lii.addPredefinedFunction("input", (argumentList, DATA_ID) -> {
+			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+			return new DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
 		});
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);

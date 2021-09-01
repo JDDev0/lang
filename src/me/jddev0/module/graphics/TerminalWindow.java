@@ -22,7 +22,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.text.DefaultCaret;
 
 import me.jddev0.module.io.ReaderActionObject;
 import me.jddev0.module.io.TerminalIO;
