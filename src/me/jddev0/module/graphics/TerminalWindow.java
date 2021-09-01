@@ -43,9 +43,9 @@ public class TerminalWindow extends JFrame {
 	private JTextField txtEnterCommands;
 	private JTextPane term;
 	
-	private List<String> oldCommands = new LinkedList<String>();
+	private List<String> history = new LinkedList<String>();
+	private int historyPos = -1;
 	private String currentCommand = "";
-	private int oldCommandsPos = -1;
 	private boolean b = false;
 	//Tmp for System.in
 	private StringBuilder readingTmp;
@@ -78,8 +78,8 @@ public class TerminalWindow extends JFrame {
 					}
 					if(e.getKeyCode() == KeyEvent.VK_ENTER && !b) {//Starts sending command to TerminalIO
 						readingTmp = new StringBuilder(txtEnterCommands.getText() + "");
-						oldCommands.add(readingTmp.toString());
-						oldCommandsPos = oldCommands.size();
+						history.add(readingTmp.toString());
+						historyPos = history.size();
 						termIO.logln(Level.USER, readingTmp.toString(), TerminalWindow.class);
 						
 						txtEnterCommands.setText(null);
@@ -124,25 +124,25 @@ public class TerminalWindow extends JFrame {
 							termIO.log(Level.USER, out, TerminalWindow.class);
 						}
 					}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-						if(oldCommandsPos < oldCommands.size()-1) {
+						if(historyPos < history.size()-1) {
 							flag = false;
-							oldCommandsPos++;
-							txtEnterCommands.setText(oldCommands.get(oldCommandsPos));
+							historyPos++;
+							txtEnterCommands.setText(history.get(historyPos));
 						}else {
 							flag = true;
-							if(oldCommandsPos <= oldCommands.size()-1)
-								oldCommandsPos++;
+							if(historyPos <= history.size()-1)
+								historyPos++;
 							txtEnterCommands.setText(currentCommand);
 						}
 					}else if(e.getKeyCode() == KeyEvent.VK_UP) {
-						if(oldCommandsPos > 0) {
+						if(historyPos > 0) {
 							flag = false;
-							oldCommandsPos--;
-							txtEnterCommands.setText(oldCommands.get(oldCommandsPos));
+							historyPos--;
+							txtEnterCommands.setText(history.get(historyPos));
 						}else {
 							flag = true;
-							if(oldCommandsPos >= 0)
-								oldCommandsPos--;
+							if(historyPos >= 0)
+								historyPos--;
 							txtEnterCommands.setText(currentCommand);
 						}
 					}else {
