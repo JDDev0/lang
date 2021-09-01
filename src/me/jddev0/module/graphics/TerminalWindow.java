@@ -58,7 +58,7 @@ public class TerminalWindow extends JFrame {
 		//Creates the TermIO control window
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("TermIO-Control");
-		setSize(750, 500);
+		setSize((int)(750*fontSize / 12.), (int)(500*fontSize / 12.));
 		setLocationRelativeTo(null);
 		
 		JPanel contentPane = new JPanel();
