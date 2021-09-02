@@ -55,29 +55,16 @@ public final class LangParser {
 				}
 				
 				//Assignments
-				if(line.matches("((\\$|&|fp\\.)\\w+||(\\$\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*")) {
-					String[] tokens = line.split(" = ", 2);
-					
-					ast.addChild(new AbstractSyntaxTree.AssignmentNode(parseLRvalue(tokens[0], null, false).convertToNode(), parseLRvalue(tokens[1], lines, true).convertToNode()));
-					
-					continue;
-				}
-				if(line.endsWith(" =") || line.matches("\\$\\w+") || line.matches("\\$\\[+\\w+\\]+")) {
-					//Empty assignment ("<var/lang> =" or "$varName")
-					if(line.endsWith(" ="))
-						line = line.substring(0, line.length() - 2);
-					ast.addChild(new AbstractSyntaxTree.AssignmentNode(parseLRvalue(line, null, false).convertToNode(), new AbstractSyntaxTree.NullValueNode()));
-					
+				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(line, lines, false);
+				if(returnedNode != null) {
+					ast.addChild(returnedNode);
 					continue;
 				}
 				
 				//Non assignments
 				AbstractSyntaxTree returnedAst = parseLine(line, lines);
-				if(returnedAst == null) {
-					//End of if
-					
+				if(returnedAst == null) //End of if
 					return ast;
-				}
 				
 				ast.addChild(returnedAst.convertToNode());
 			}
@@ -250,6 +237,28 @@ public final class LangParser {
 			return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
 		
 		return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+	}
+	
+	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
+		if(isInnerAssignment?line.matches("(\\$|&|fp\\.)\\w+ = .*"):line.matches("((\\$|&|fp\\.)\\w+||(\\$\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*")) {
+			String[] tokens = line.split(" = ", 2);
+			
+			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
+			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(tokens[0], null, false).convertToNode(),
+			returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode());
+		}
+		
+		if(isInnerAssignment)
+			return null;
+		//Only for non multi assignments
+		if(line.endsWith(" =") || line.matches("\\$\\w+") || line.matches("\\$\\[+\\w+\\]+")) {
+			//Empty assignment ("<var/lang> =" or "$varName")
+			if(line.endsWith(" ="))
+				line = line.substring(0, line.length() - 2);
+			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(line, null, false).convertToNode(), new AbstractSyntaxTree.NullValueNode());
+		}
+		
+		return null;
 	}
 	
 	private AbstractSyntaxTree parseLine(String token, BufferedReader lines) throws IOException {
