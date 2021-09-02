@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -2096,8 +2097,32 @@ public final class LangInterpreter {
 				
 				//Set arguments
 				DataObject lastDataObject = null;
-				for(VariableNameNode parameter:parameterList) {
+				Iterator<VariableNameNode> parameterListIterator = parameterList.iterator();
+				while(parameterListIterator.hasNext()) {
+					VariableNameNode parameter = parameterListIterator.next();
 					String variableName = parameter.getVariableName();
+					if(!parameterListIterator.hasNext() && !variableName.matches("(\\$|&)LANG_.*") &&
+					variableName.matches("(\\$|&)\\w+\\.\\.\\.")) {
+						//Varargs (only the last parameter can be a varargs parameter)
+						variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
+						if(variableName.startsWith("$")) {
+							//Text varargs
+							DataObject dataObject = combineDataObjects(argumentValueList);
+							data.get(NEW_DATA_ID).var.put(variableName, (dataObject != null?new DataObject(dataObject):
+							new DataObject().setVoid()).setVariableName(variableName));
+						}else {
+							//Array varargs
+							List<DataObject> varArgsTmpList = new LinkedList<>();
+							while(argumentValueList.size() > 0)
+								varArgsTmpList.add(getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true));
+							
+							data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
+							toArray(new DataObject[0])).setVariableName(variableName));
+						}
+						
+						break;
+					}
+					
 					if(!variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("(\\$|&)LANG_.*")) {
 						setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 						
@@ -2272,7 +2297,9 @@ public final class LangInterpreter {
 	private DataObject interpretFunctionDefinitionNode(FunctionDefinitionNode node, final int DATA_ID) {
 		List<VariableNameNode> parameterList = new ArrayList<>();
 		List<Node> children = node.getChildren();
-		for(Node child:children) {
+		Iterator<Node> childrenIterator = children.listIterator();
+		while(childrenIterator.hasNext()) {
+			Node child = childrenIterator.next();
 			try {
 				if(child.getNodeType() != NodeType.VARIABLE_NAME) {
 					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
@@ -2281,7 +2308,15 @@ public final class LangInterpreter {
 				}
 				
 				VariableNameNode parameter = (VariableNameNode)child;
-				if(!parameter.getVariableName().matches("(\\$|&|fp\\.)\\w+") || parameter.getVariableName().matches("(\\$|&)LANG_.*")) {
+				String variableName = parameter.getVariableName();
+				if(!childrenIterator.hasNext() && !variableName.matches("(\\$|&)LANG_.*") &&
+				variableName.matches("(\\$|&)\\w+\\.\\.\\.")) {
+					//Varargs (only the last parameter can be a varargs parameter)
+					parameterList.add(parameter);
+					break;
+				}
+				
+				if(!variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("(\\$|&)LANG_.*")) {
 					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 					
 					continue;
