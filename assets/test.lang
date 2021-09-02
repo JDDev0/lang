@@ -617,4 +617,39 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 			func.printTerminal(1, $test)
 		con.endif
 	}
+	
+	# Multiple assignments in one line
+	{
+		$a = $b = ABC # Normal multi assignment
+		func.printTerminal(1, $a)
+		func.printTerminal(1, $b)
+		
+		$a = $b = $c = $aDEF # Normal multi assignment
+		func.printTerminal(1, $\!a: $a)
+		func.printTerminal(1, $\!b: $b)
+		func.printTerminal(1, $\!c: $c)
+		
+		abc.test = $d = func.rand() # Multi assignment with lang request
+		func.printTerminal(1, abc.test: func.getLangRequest(abc.test))
+		func.printTerminal(1, $\!d: $d)
+		
+		$e = abc.test2 = func.rand() # Lang request must be first else it will be interpretet as normal text
+		func.printTerminal(1, abc.test2: func.getLangRequest(abc.test2))
+		func.printTerminal(1, $\!e: $e)
+		
+		$a = $b \= $c # Set $a to $b = $c
+		func.printTerminal(1, $\!a: $a)
+		func.printTerminal(1, $\!b: $b)
+		func.printTerminal(1, $\!c: $c)
+		
+		$a = $a \= 123 # Set $a to $a = 123
+		func.printTerminal(1, $\!a: $a)
+		
+		$a = $b = # Empty assignment is not allowed; would set $a to $b =
+		func.printTerminal(1, $\!a: $a)
+		
+		fp.test1 = fp.test2 = ($test) -> func.printTerminal(1, $test)
+		fp.test1(abc)
+		fp.test2(abc)
+	}
 }
