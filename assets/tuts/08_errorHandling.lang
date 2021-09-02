@@ -66,8 +66,10 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #        30: INVALID_AST_NODE
 #
 # Warning codes (v1.0.0):
-#    Predefined function warnings
+#    Predefined function warnings:
 #        -1: DEPRECATED_FUNC_CALL
+#    System warnings:
+#        -2: NO_TERMINAL_WARNING
 
 # Error Handling example
 $value = func.divi(42, 0)

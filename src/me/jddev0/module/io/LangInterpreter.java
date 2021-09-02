@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +55,12 @@ public final class LangInterpreter {
 	 * Data tmp for "func.copyAfterFP"
 	 */
 	private Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>();
+	
+	//Execution flags
+	/**
+	 * Allow terminal function to redirect to standard input, output, or error if no terminal is available
+	 */
+	private boolean allowTermRedirect = true;
 	
 	//DATA
 	private Map<Integer, Data> data = new HashMap<>();
@@ -320,20 +327,42 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
 			}
 		});
+		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(term != null));
 		
 		//IO Functions
 		funcs.put("readTerminal", (argumentList, DATA_ID) -> {
+			if(term == null && !allowTermRedirect)
+				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
+			
 			DataObject messageObject = combineDataObjects(argumentList);
 			String message = messageObject == null?"":messageObject.getText();
 			
-			try {
-				return new DataObject().setText(langPlatformAPI.showInputDialog(message));
-			}catch(Exception e) {
-				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+			if(term == null) {
+				setErrno(InterpretingError.NO_TERMINAL_WARNING, DATA_ID);
+				
+				if(!message.isEmpty())
+					System.out.println(message);
+				System.out.print("Input: ");
+				
+				try {
+					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+					String line = reader.readLine();
+					if(line == null)
+						return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+					return new DataObject(line);
+				}catch(IOException e) {
+					return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+				}
+			}else {
+				try {
+					return new DataObject().setText(langPlatformAPI.showInputDialog(message));
+				}catch(Exception e) {
+					return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+				}
 			}
 		});
 		funcs.put("printTerminal", (argumentList, DATA_ID) -> {
-			if(term == null)
+			if(term == null && !allowTermRedirect)
 				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
 			
 			DataObject logLevelObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
@@ -341,13 +370,14 @@ public final class LangInterpreter {
 			if(messageObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
-			Number logLevel = logLevelObject.getNumber();
-			if(logLevel == null)
+			Number logLevelNumber = logLevelObject.getNumber();
+			if(logLevelNumber == null)
 				return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			int logLevel = logLevelNumber.intValue();
 			
 			Level level = null;
 			for(Level lvl:Level.values()) {
-				if(lvl.getLevel() == logLevel.intValue()) {
+				if(lvl.getLevel() == logLevel) {
 					level = lvl;
 					
 					break;
@@ -356,10 +386,24 @@ public final class LangInterpreter {
 			if(level == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_LOG_LEVEL, DATA_ID);
 			
-			term.logln(level, "[From lang file]: " + messageObject.getText(), LangInterpreter.class);
+			if(term == null) {
+				setErrno(InterpretingError.NO_TERMINAL_WARNING, DATA_ID);
+				
+				@SuppressWarnings("resource")
+				PrintStream stream = logLevel > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
+				stream.printf("[%-8s]: ", level.getLevelName());
+				stream.println(messageObject.getText());
+				return null;
+			}else {
+				term.logln(level, "[From lang file]: " + messageObject.getText(), LangInterpreter.class);
+			}
+			
 			return null;
 		});
 		funcs.put("printError", (argumentList, DATA_ID) -> {
+			if(term == null)
+				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
+			
 			InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
 			int errno = error.getErrorCode();
 			Level level = null;
@@ -1272,7 +1316,9 @@ public final class LangInterpreter {
 		try(BufferedReader reader = langPlatformAPI.getLangReader(absolutePath)) {
 			interpretLines(reader, NEW_DATA_ID);
 		}catch(IOException e) {
-			if(term != null)
+			if(term == null)
+				e.printStackTrace();
+			else
 				term.logStackTrace(e, LangInterpreter.class);
 			
 			data.remove(NEW_DATA_ID);
@@ -1781,12 +1827,18 @@ public final class LangInterpreter {
 		stopParsingFlag = true;
 	}
 	
-	private void interpretCompilerArgs(String compilerArg, DataObject value) {
-		switch(compilerArg) {
+	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value) {
+		switch(langDataCompilerFlag) {
+			//Data
 			case "lang.version":
 				String langVer = value.getText();
 				if(!langVer.equals(VERSION)) {
-					if(term != null) {
+					if(term == null) {
+						if(VERSION.compareTo(langVer) > 0)
+							System.err.println("Lang file's version is older than this version! Maybe the lang file won't be compile right!");
+						else
+							System.err.println("Lang file's version is newer than this version! Maybe the lang file won't be compile right!");
+					}else {
 						if(VERSION.compareTo(langVer) > 0)
 							term.logln(Level.WARNING, "Lang file's version is older than this version! Maybe the lang file won't be compile right!", LangInterpreter.class);
 						else
@@ -1797,6 +1849,20 @@ public final class LangInterpreter {
 			
 			case "lang.name":
 				//Nothing do to
+				break;
+			
+			//Flags
+			case "lang.allowTermRedirect":
+				Number number = value.getNumber();
+				if(number == null) {
+					if(term == null)
+						System.err.println("Invalid Data Type for lang.allowTermRedirect flag!");
+					else
+						term.logln(Level.ERROR, "Invalid Data Type for lang.allowTermRedirect flag!", LangInterpreter.class);
+					
+					return;
+				}
+				allowTermRedirect = number.intValue() != 0;
 				break;
 		}
 	}
@@ -1853,7 +1919,7 @@ public final class LangInterpreter {
 				case VOID_VALUE:
 					String langRequest = interpretNode(lvalueNode, DATA_ID).getText();
 					if(langRequest.startsWith("lang."))
-						interpretCompilerArgs(langRequest, rvalue);
+						interpretLangDataAndCompilerFlags(langRequest, rvalue);
 					
 					data.get(DATA_ID).lang.put(langRequest, rvalue.getText());
 					break;
@@ -2087,7 +2153,11 @@ public final class LangInterpreter {
 			case FunctionPointerObject.PREDEFINED:
 				LangPredefinedFunctionObject function = fp.getPredefinedFunction();
 				if(function.isDeprecated()) {
-					if(term != null)
+					if(term == null)
+						System.err.printf("Use of deprecated function \"%s\", this function won't be supported in \"%s\"!\n%s", functionName, function.
+						getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(), (function.
+						getDeprecatedReplacementFunction() == null?"":("Use \"" + function.getDeprecatedReplacementFunction() + "\" instead!\n")));
+					else
 						term.logf(Level.WARNING, "Use of deprecated function \"%s\", this function won't be supported in \"%s\"!\n%s", LangInterpreter.class,
 						functionName, function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
 						(function.getDeprecatedReplacementFunction() == null?"":("Use \"" + function.getDeprecatedReplacementFunction() + "\" instead!\n")));
@@ -3150,7 +3220,8 @@ public final class LangInterpreter {
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
 		
 		//WARNINGS
-		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called");
+		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
+		NO_TERMINAL_WARNING   (-2, "No terminal available");
 		
 		private final int errorCode;
 		private final String errorText;

@@ -64,12 +64,20 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * \! -> forced node split<br>
  * \\ -> \<br>
  * <br>
- * <b>--- Lang data and compiler args ---</b><br>
- * needed = (*)lang.xxxx<br>
- * not needed = (+)lang.xxx<br>
+ * <b>--- Lang data and compiler flags ---</b><br>
+ * <b>Needed</b>:<br>
+ * needed: *<br>
+ * not needed: +<br>
+ * <b>Type</b>:<br>
+ * data: d<br>
+ * flag: f<br>
  * <br>
- * (*)lang.name //Name of lang file<br>
- * (*)lang.version //Version of lang file<br>
+ * (*, Type) lang.xxx = [DATA-TYPE] // No default value<br>
+ * (+, Type) lang.xxx = [DATA-TYPE] {Default-Value}<br>
+ * <br>
+ * (*, d) lang.name = [Text] //Name of lang file<br>
+ * (*, d) lang.version = [Text] //Version of lang file<br>
+ * (+, f) lang.allowTermRedirect = [int] {1} //Allow redirection of terminal to standard input, output, or error if no terminal is available<br>
  * <br>
  * <b>--- Lang Types ---</b><br>
  * null //Null-Pointer<br>
@@ -171,12 +179,12 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * $LANG_ERRNO //Number of last error (0 = no error)<br>
  * <br>
  * <b>--- Lang If ---</b><br>
- * con.if($y) //if (0 -> false, 1 -> true, or condition)<br>
- * con.elif($x) //Not needed, else if<br>
+ * con.if(CONDITION) //if CONDITION is true<br>
+ * con.elif(CONDITION) //Not needed, else if<br>
  * con.else //Not needed, else<br>
  * con.endif //End of if<br>
  * <br>
- * <b>--- Lang If Conditions ---</b><br>
+ * <b>--- Lang CONDITIONS ---</b><br>
  * For all types:<br>
  * "$x == $y" -> $x is equal $y<br>
  * "$x != $y" -> $x is not equal $y<br>
@@ -231,7 +239,8 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * [void]func.makeFinal(varPtr)<br>
  * [void]func.makeFinal(arrPtr) //Content in final array can still be changed<br>
  * [void]func.makeFinal(funcPtr)<br>
- * [int]func.condition(IfCondition) //Returns 1 if the condition is true else 0<br>
+ * [int]func.condition(CONDITION) //Returns 1 if the condition is true else 0<br>
+ * [int]func.isTerminalAvailable(void) //Returns 1 if a terminal is available else 0
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
