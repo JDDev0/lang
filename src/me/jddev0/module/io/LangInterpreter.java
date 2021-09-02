@@ -1194,7 +1194,8 @@ public final class LangInterpreter {
 				builder.append(ele.getText());
 				builder.append(", ");
 			}
-			builder.delete(builder.length() - 2, builder.length()); //Remove leading ", "
+			if(builder.length() > 0) //Remove last ", " only if at least 1 element is in array
+				builder.delete(builder.length() - 2, builder.length()); //Remove leading ", "
 			return new DataObject(builder.toString());
 		});
 		funcs.put("arrayLength", (argumentList, DATA_ID) -> {
