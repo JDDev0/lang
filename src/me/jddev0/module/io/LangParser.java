@@ -485,33 +485,35 @@ public final class LangParser {
 			return;
 		}
 		
-		//INT
-		try {
-			nodes.add(new AbstractSyntaxTree.IntValueNode(Integer.parseInt(token)));
+		if(!token.matches("(\\s.*|.*\\s)")) {
+			//INT
+			try {
+				nodes.add(new AbstractSyntaxTree.IntValueNode(Integer.parseInt(token)));
+				
+				return;
+			}catch(NumberFormatException ignore) {}
 			
-			return;
-		}catch(NumberFormatException ignore) {}
-		
-		//LONG
-		try {
-			nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token)));
+			//LONG
+			try {
+				nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token)));
+				
+				return;
+			}catch(NumberFormatException ignore) {}
 			
-			return;
-		}catch(NumberFormatException ignore) {}
-		
-		//FLOAT
-		try {
-			nodes.add(new AbstractSyntaxTree.FloatValueNode(Float.parseFloat(token)));
+			//FLOAT
+			try {
+				nodes.add(new AbstractSyntaxTree.FloatValueNode(Float.parseFloat(token)));
+				
+				return;
+			}catch(NumberFormatException ignore) {}
 			
-			return;
-		}catch(NumberFormatException ignore) {}
-		
-		//DOUBLE
-		try {
-			nodes.add(new AbstractSyntaxTree.DoubleValueNode(Double.parseDouble(token)));
-			
-			return;
-		}catch(NumberFormatException ignore) {}
+			//DOUBLE
+			try {
+				nodes.add(new AbstractSyntaxTree.DoubleValueNode(Double.parseDouble(token)));
+				
+				return;
+			}catch(NumberFormatException ignore) {}
+		}
 		
 		//CHAR
 		if(token.length() == 1) {
