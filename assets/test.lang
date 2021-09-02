@@ -652,4 +652,39 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		fp.test1(abc)
 		fp.test2(abc)
 	}
+	
+	# Varargs
+	{
+		# Text varargs
+		fp.testTextVarArgs = ($lvl, $args...) -> {
+			func.printTerminal(5, \nFrom "fp.testTextVarArgs")
+			func.printTerminal($lvl, $args)
+			func.printError()
+		}
+		fp.testTextVarArgs()
+		fp.testTextVarArgs(1)
+		fp.testTextVarArgs(1, 2)
+		fp.testTextVarArgs(1, 2, 3)
+		fp.testTextVarArgs(1, 2, 3, 4)
+		fp.testTextVarArgs(1, 2, 3, 4, 5)
+		fp.testTextVarArgs(1, 2, 3, 4, 5, 6)
+		
+		# Array varargs
+		fp.testArrayVarArgs = ($lvl, &args...) -> {
+			func.printTerminal(5, \nFrom "fp.testArrayVarArgs")
+			func.printTerminal($lvl, &args)
+			func.printError()
+			func.printTerminal($lvl, func.arrayGetAll(&args))
+			func.printError()
+			func.printTerminal($lvl, func.arrayLength(&args))
+			func.printError()
+		}
+		fp.testArrayVarArgs()
+		fp.testArrayVarArgs(1)
+		fp.testArrayVarArgs(1, 2)
+		fp.testArrayVarArgs(1, 2, 3)
+		fp.testArrayVarArgs(1, 2, 3, 4)
+		fp.testArrayVarArgs(1, 2, 3, 4, 5)
+		fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
+	}
 }
