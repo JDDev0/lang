@@ -199,6 +199,31 @@ public final class LangParser {
 				}
 			}
 			
+			//Function calls
+			if(condition.matches("(func|fp|linker)\\.\\w+\\(.*\\).*")) {
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				int parameterStartIndex = condition.indexOf('(');
+				int parameterEndIndex = getIndexOfMatchingBracket(condition, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(parameterEndIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					
+					break;
+				}
+				
+				String functionCall = condition.substring(0, parameterEndIndex + 1);
+				condition = condition.substring(parameterEndIndex + 1);
+				
+				String functionName = functionCall.substring(0, parameterStartIndex);
+				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+				
+				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+				continue;
+			}
+			
 			char c = condition.charAt(0);
 			builder.append(c);
 			if(condition.length() == 1)
@@ -313,13 +338,6 @@ public final class LangParser {
 					String functionHead = lrvalue.substring(1, parameterListEndIndex);
 					List<AbstractSyntaxTree.Node> parameterList = parseFunctionParameterList(functionHead, true).getChildren();
 					
-					if(lrvalue.endsWith(") -> ")) {
-						//Empty inline function body
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, new AbstractSyntaxTree()));
-						
-						return ast;
-					}
-					
 					String functionBody = lrvalue.substring(parameterListEndIndex + 5);
 					
 					BufferedReader functionBodyReader;
@@ -390,18 +408,20 @@ public final class LangParser {
 				nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
 				continue;
 			}
-			//Function call of return values
-			if(token.matches("\\(.*\\).*")) { //FIXME: In Interpreter: If no function pointer object which could be called: Add () as text object around the node and execute
+			//Function call of returned value
+			if(token.matches("\\(.*\\).*")) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterEndIndex = getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
-				String functionCall = token.substring(0, parameterEndIndex + 1);
-				token = token.substring(parameterEndIndex + 1);
-				
-				String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
-				
-				nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
-				continue;
+				if(parameterEndIndex != -1) {
+					String functionCall = token.substring(0, parameterEndIndex + 1);
+					token = token.substring(parameterEndIndex + 1);
+					
+					String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
+					
+					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
+					continue;
+				}
 			}
 			
 			//VarPtr
@@ -554,22 +574,26 @@ public final class LangParser {
 					String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 					
 					nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+					
 					hasNodesFlag = true;
 					continue;
 				}
-				//Function call of return values
+				//Function call of returned value
 				if(parameterList.matches("\\(.*\\).*")) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterEndIndex = getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
-					String functionCall = parameterList.substring(0, parameterEndIndex + 1);
-					parameterList = parameterList.substring(parameterEndIndex + 1);
-					
-					String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
-					
-					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
-					hasNodesFlag = true;
-					continue;
+					if(parameterEndIndex != -1) {
+						String functionCall = parameterList.substring(0, parameterEndIndex + 1);
+						parameterList = parameterList.substring(parameterEndIndex + 1);
+						
+						String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
+						
+						nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
+						
+						hasNodesFlag = true;
+						continue;
+					}
 				}
 				
 				if(parameterList.matches("\\s*,.*")) {
