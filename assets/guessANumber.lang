@@ -22,6 +22,7 @@ fp.gameLoop = () -> {
 			func.copyAfterFP($[win], $[win])
 		con.else
 			func.printTerminal(5, Invalid Input!)
+			$guesses = func.subi($guesses, 1)
 		con.endif
 		
 		$guesses = func.addi($guesses, 1)
