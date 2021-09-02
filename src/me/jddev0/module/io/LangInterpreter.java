@@ -401,7 +401,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("printError", (argumentList, DATA_ID) -> {
-			if(term == null)
+			if(term == null && !allowTermRedirect)
 				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
 			
 			InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
@@ -415,8 +415,15 @@ public final class LangInterpreter {
 				level = Level.INFO;
 			
 			DataObject messageObject = combineDataObjects(argumentList);
-			term.logln(level, "[From lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
-			"":(messageObject.getText() + ": ")) + error.getErrorText(), LangInterpreter.class);
+			if(term == null) {
+				@SuppressWarnings("resource")
+				PrintStream stream = level.getLevel() > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
+				stream.printf("[%-8s]: ", level.getLevelName());
+				stream.println(((messageObject == null || messageObject.getType() == DataType.VOID)?"":(messageObject.getText() + ": ")) + error.getErrorText());
+			}else {
+				term.logln(level, "[From lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
+				"":(messageObject.getText() + ": ")) + error.getErrorText(), LangInterpreter.class);
+			}
 			return null;
 		});
 		funcs.put("input", (argumentList, DATA_ID) -> {
