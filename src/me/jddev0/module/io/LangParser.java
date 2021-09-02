@@ -252,7 +252,7 @@ public final class LangParser {
 			return null;
 		//Only for non multi assignments
 		if(line.endsWith(" =") || line.matches("\\$\\w+") || line.matches("\\$\\[+\\w+\\]+")) {
-			//Empty assignment ("<var/lang> =" or "$varName")
+			//Empty translation/assignment ("<var/lang> =" or "$varName")
 			if(line.endsWith(" ="))
 				line = line.substring(0, line.length() - 2);
 			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(line, null, false).convertToNode(), new AbstractSyntaxTree.NullValueNode());
