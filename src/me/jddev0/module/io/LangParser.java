@@ -627,7 +627,7 @@ public final class LangParser {
 						if(parameterList.length() > 1) {
 							parameterList = parameterList.substring(1);
 						}else {
-							nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
+							nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(builder.toString()));
 							
 							//Add empty TextObject after last ","
 							nodes.add(new AbstractSyntaxTree.TextValueNode(""));
