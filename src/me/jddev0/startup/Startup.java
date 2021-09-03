@@ -1,5 +1,7 @@
 package me.jddev0.startup;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,7 +19,7 @@ import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 
 public class Startup {
-	private static boolean is4k = false;
+	private static boolean is4k;
 	private static LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public static void main(String[] args) {
@@ -53,6 +55,10 @@ public class Startup {
 			executeLangFile(langFile, printTranslations);
 			return;
 		}
+		
+		//Check if main monitor has a screen size larger than 1440p
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		is4k = dim.height > 1440;
 		
 		TerminalWindow termWin = new TerminalWindow(getFontSize());
 		TerminalIO term = new TerminalIO(new File("assets/log.txt"));
