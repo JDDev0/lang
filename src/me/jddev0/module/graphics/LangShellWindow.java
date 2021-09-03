@@ -19,6 +19,8 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -52,14 +54,23 @@ public class LangShellWindow extends JDialog {
 
 	private JTextPane shell;
 	
+	private TerminalIO term;
+	
 	private List<String> history = new LinkedList<String>();
 	private int historyPos = 0;
 	private String currentCommand = "";
+	
+	private String autoCompleteText = "";
+	private int autoCompletePos = 0;
+	private Color lastColor = Color.BLACK;
+	
 	private StringBuilder multiLineTmp = new StringBuilder();
-	private TerminalIO term;
-	private boolean flagEnd = false;
 	private int indent = 0;
+	private boolean flagEnd = false;
+	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
+	private LangInterpreter.LangInterpreterInterface lii;
+	private PrintStream oldOut;
 	
 	public LangShellWindow(JFrame owner, TerminalIO term) {
 		this(owner, term, 12);
@@ -92,6 +103,7 @@ public class LangShellWindow extends JDialog {
 		shell.setAutoscrolls(true);
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		shell.setMargin(new Insets(3, 5, 0, 5));
+		shell.setFocusTraversalKeysEnabled(false);
 		shell.addKeyListener(new KeyAdapter() {
 			private StringBuilder lineTmp = new StringBuilder();
 			private String lastHistoryEntryUsed = "";
@@ -105,22 +117,39 @@ public class LangShellWindow extends JDialog {
 				if(c == KeyEvent.VK_BACK_SPACE) {
 					//Remove the last char (if line is not empty)
 					if(lineTmp.length() > 0) {
+						removeAutoCompleteText();
 						try {
 							Document doc = shell.getDocument();
 							doc.remove(doc.getLength() - 1, 1);
 						}catch(BadLocationException e1) {}
 						lineTmp.deleteCharAt(lineTmp.length() - 1);
 						highlightSyntaxLastLine();
+						updateAutoCompleteText(lineTmp.toString());
 					}
 				}else if(c != KeyEvent.CHAR_UNDEFINED) {
 					if(c == '\n') {
-						addLine(lineTmp.toString());
-						lineTmp.delete(0, lineTmp.length());
-						lastHistoryEntryUsed = "";
+						if(autoCompleteText.isEmpty()) {
+							removeAutoCompleteText();
+							addLine(lineTmp.toString());
+							lineTmp.delete(0, lineTmp.length());
+							lastHistoryEntryUsed = "";
+						}else {
+							lineTmp.append(autoCompleteText);
+							GraphicsHelper.addText(shell, autoCompleteText, Color.WHITE);
+							removeAutoCompleteText();
+							highlightSyntaxLastLine();
+						}
+					}else if(c == '\t') { //Cycle trough auto completes
+						int oldAutoCompletePos = autoCompletePos;
+						removeAutoCompleteText();
+						autoCompletePos = oldAutoCompletePos + (e.isShiftDown()?-1:1);
+						updateAutoCompleteText(lineTmp.toString());
 					}else {
+						removeAutoCompleteText();
 						lineTmp.append(c);
 						GraphicsHelper.addText(shell, c + "", Color.WHITE);
 						highlightSyntaxLastLine();
+						updateAutoCompleteText(lineTmp.toString());
 					}
 				}
 			}
@@ -134,6 +163,7 @@ public class LangShellWindow extends JDialog {
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(shell.getSelectedText()), null);
 				}else if(e.getKeyCode() == KeyEvent.VK_V && e.isControlDown() && e.isShiftDown()){
 					try {
+						removeAutoCompleteText();
 						Object copiedRaw = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null).getTransferData(DataFlavor.stringFlavor);
 						if(copiedRaw != null) {
 							String copied = copiedRaw.toString();
@@ -149,6 +179,7 @@ public class LangShellWindow extends JDialog {
 								}
 							}
 						}
+						updateAutoCompleteText(lineTmp.toString());
 					}catch(HeadlessException|UnsupportedFlavorException|IOException e1) {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
@@ -156,6 +187,7 @@ public class LangShellWindow extends JDialog {
 					end();
 					return;
 				}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+					removeAutoCompleteText();
 					if(historyPos < history.size() - 1) {
 						historyPos++;
 						
@@ -169,6 +201,7 @@ public class LangShellWindow extends JDialog {
 						removeLines(lastHistoryEntryUsed);
 						lastHistoryEntryUsed = historyRet;
 						addLinesWithoutExec(historyRet);
+						updateAutoCompleteText(lineTmp.toString());
 					}else {
 						if(historyPos == history.size() - 1)
 							historyPos++;
@@ -179,9 +212,11 @@ public class LangShellWindow extends JDialog {
 						removeLines(lastHistoryEntryUsed);
 						lastHistoryEntryUsed = currentCommand;
 						addLinesWithoutExec(currentCommand);
+						updateAutoCompleteText(lineTmp.toString());
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_UP) {
 					if(historyPos > 0) {
+						removeAutoCompleteText();
 						if(historyPos == history.size())
 							currentCommand = lineTmp.toString();
 						
@@ -197,6 +232,7 @@ public class LangShellWindow extends JDialog {
 						removeLines(lastHistoryEntryUsed);
 						lastHistoryEntryUsed = historyRet;
 						addLinesWithoutExec(historyRet);
+						updateAutoCompleteText(lineTmp.toString());
 					}
 				}
 			}
@@ -214,9 +250,6 @@ public class LangShellWindow extends JDialog {
 		//Auto scroll
 		shell.setCaretPosition(shell.getDocument().getLength());
 	}
-	
-	private LangInterpreter.LangInterpreterInterface lii;
-	private PrintStream oldOut;
 	
 	private void initShell() {
 		//Sets System.out
@@ -320,8 +353,12 @@ public class LangShellWindow extends JDialog {
 		});
 		
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
-		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\nCopy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
-		"Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
+		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\n" +
+		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
+		"• Press UP and DOWN for scrolling through the history\n" +
+		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
+		"    ◦ Press ENTER for accepting the auto complete text\n" +
+		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
 	
 	private String getDebugString(LangInterpreter.DataObject dataObject) {
@@ -477,11 +514,57 @@ public class LangShellWindow extends JDialog {
 					col = Color.YELLOW;
 				
 				GraphicsHelper.addText(shell, c + "", col);
+				lastColor = col;
 			}
 		}catch(BadLocationException e) {}
 		
 		//Auto scroll
 		shell.setCaretPosition(shell.getDocument().getLength());
+	}
+	
+	private void updateAutoCompleteText(String line) {
+		String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.)");
+		if(tokens.length == 0)
+			return;
+		final String lastToken = tokens[tokens.length - 1];
+		if(lastToken.matches("(\\$|&|fp\\.).*")) {
+			List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName ->
+			varName.startsWith(lastToken) && !varName.equals(lastToken)).sorted().collect(Collectors.toList());
+			if(autoCompletes.isEmpty())
+				return;
+			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+			autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
+		}else if(lastToken.matches("(func|linker)\\..*")) {
+			boolean isLinkerFunction = lastToken.startsWith("linker.");
+			int indexFunctionNameStart = lastToken.indexOf('.') + 1;
+			String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
+			List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
+				return entry.getValue().isLinkerFunction() == isLinkerFunction;
+			}).map(Entry<String, LangPredefinedFunctionObject>::getKey).filter(functionName ->
+			functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
+			sorted().collect(Collectors.toList());
+			if(autoCompletes.isEmpty())
+				return;
+			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+			autoCompleteText = autoCompletes.get(autoCompletePos).
+			substring(functionNameStart.length()) + "(";
+		}else {
+			return;
+		}
+		
+		Color col = lastColor.darker().darker();
+		if(col.equals(lastColor)) //Color is already the darkest
+			col = lastColor.brighter().brighter();
+		GraphicsHelper.addText(shell, autoCompleteText, col);
+	}
+	private void removeAutoCompleteText() {
+		try {
+			Document doc = shell.getDocument();
+			int startOfAutoComplete = doc.getLength() - autoCompleteText.length();
+			doc.remove(startOfAutoComplete, autoCompleteText.length());
+		}catch(BadLocationException e) {}
+		autoCompleteText = "";
+		autoCompletePos = 0;
 	}
 	
 	private void addToHistory(String str) {
