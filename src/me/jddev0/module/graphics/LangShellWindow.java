@@ -12,6 +12,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -159,10 +160,14 @@ public class LangShellWindow extends JDialog {
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(flagEnd)
+				if(flagEnd) {
+					if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown())
+						dispatchEvent(new WindowEvent(LangShellWindow.this, WindowEvent.WINDOW_CLOSING));
+					
 					return;
+				}
 				
-				if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && e.isShiftDown()){
+				if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && e.isShiftDown()) {
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(shell.getSelectedText()), null);
 				}else if(e.getKeyCode() == KeyEvent.VK_V && e.isControlDown() && e.isShiftDown()){
 					try {
