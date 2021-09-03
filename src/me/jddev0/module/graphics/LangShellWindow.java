@@ -529,6 +529,11 @@ public class LangShellWindow extends JDialog {
 		String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.)");
 		if(tokens.length == 0)
 			return;
+		
+		Color col = lastColor.darker().darker();
+		if(col.equals(lastColor)) //Color is already the darkest
+			col = lastColor.brighter().brighter();
+		
 		final String lastToken = tokens[tokens.length - 1];
 		if(lastToken.matches("(\\$|&|fp\\.).*")) {
 			List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName ->
@@ -549,15 +554,17 @@ public class LangShellWindow extends JDialog {
 			if(autoCompletes.isEmpty())
 				return;
 			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-			autoCompleteText = autoCompletes.get(autoCompletePos).
-			substring(functionNameStart.length()) + "(";
+			autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
+			
+			//Mark deprecated function
+			if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
+				col = Color.RED.darker().darker();
+			
+			autoCompleteText += "(";
 		}else {
 			return;
 		}
 		
-		Color col = lastColor.darker().darker();
-		if(col.equals(lastColor)) //Color is already the darkest
-			col = lastColor.brighter().brighter();
 		GraphicsHelper.addText(shell, autoCompleteText, col);
 	}
 	private void removeAutoCompleteText() {
