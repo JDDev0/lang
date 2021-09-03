@@ -117,7 +117,7 @@ public class LangShellWindow extends JDialog {
 				char c = e.getKeyChar();
 				if(c == KeyEvent.CHAR_UNDEFINED)
 					return;
-				if((c > -1 && c < 8) || (c > 13 && c < 32) || c == 127) //Ignores certain control chars
+				if((c > -1 && c < 8) || c == 12 || (c > 13 && c < 32) || c == 127) //Ignores certain control chars
 					return;
 				
 				if(c == '\b') {
