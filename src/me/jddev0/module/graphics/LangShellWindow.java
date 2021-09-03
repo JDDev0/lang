@@ -412,11 +412,11 @@ public class LangShellWindow extends JDialog {
 					builder.append("): {\n");
 					debugStringLines = getDebugString(ele).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
-						builder.append("       ");
+						builder.append("        ");
 						builder.append(debugStringLine);
 						builder.append("\n");
 					}
-					builder.append("   }");
+					builder.append("    }");
 				}
 				break;
 			
