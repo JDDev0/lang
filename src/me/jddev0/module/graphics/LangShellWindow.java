@@ -114,7 +114,12 @@ public class LangShellWindow extends JDialog {
 					return;
 				
 				char c = e.getKeyChar();
-				if(c == KeyEvent.VK_BACK_SPACE) {
+				if(c == KeyEvent.CHAR_UNDEFINED)
+					return;
+				if((c > -1 && c < 8) || (c > 13 && c < 32) || c == 127) //Ignores certain control chars
+					return;
+				
+				if(c == '\b') {
 					//Remove the last char (if line is not empty)
 					if(lineTmp.length() > 0) {
 						removeAutoCompleteText();
@@ -126,31 +131,29 @@ public class LangShellWindow extends JDialog {
 						highlightSyntaxLastLine();
 						updateAutoCompleteText(lineTmp.toString());
 					}
-				}else if(c != KeyEvent.CHAR_UNDEFINED) {
-					if(c == '\n') {
-						if(autoCompleteText.isEmpty()) {
-							removeAutoCompleteText();
-							addLine(lineTmp.toString());
-							lineTmp.delete(0, lineTmp.length());
-							lastHistoryEntryUsed = "";
-						}else {
-							lineTmp.append(autoCompleteText);
-							GraphicsHelper.addText(shell, autoCompleteText, Color.WHITE);
-							removeAutoCompleteText();
-							highlightSyntaxLastLine();
-						}
-					}else if(c == '\t') { //Cycle trough auto completes
-						int oldAutoCompletePos = autoCompletePos;
+				}else if(c == '\n') {
+					if(autoCompleteText.isEmpty()) {
 						removeAutoCompleteText();
-						autoCompletePos = oldAutoCompletePos + (e.isShiftDown()?-1:1);
-						updateAutoCompleteText(lineTmp.toString());
+						addLine(lineTmp.toString());
+						lineTmp.delete(0, lineTmp.length());
+						lastHistoryEntryUsed = "";
 					}else {
+						lineTmp.append(autoCompleteText);
+						GraphicsHelper.addText(shell, autoCompleteText, Color.WHITE);
 						removeAutoCompleteText();
-						lineTmp.append(c);
-						GraphicsHelper.addText(shell, c + "", Color.WHITE);
 						highlightSyntaxLastLine();
-						updateAutoCompleteText(lineTmp.toString());
 					}
+				}else if(c == '\t') { //Cycle trough auto completes
+					int oldAutoCompletePos = autoCompletePos;
+					removeAutoCompleteText();
+					autoCompletePos = oldAutoCompletePos + (e.isShiftDown()?-1:1);
+					updateAutoCompleteText(lineTmp.toString());
+				}else {
+					removeAutoCompleteText();
+					lineTmp.append(c);
+					GraphicsHelper.addText(shell, c + "", Color.WHITE);
+					highlightSyntaxLastLine();
+					updateAutoCompleteText(lineTmp.toString());
 				}
 			}
 			
