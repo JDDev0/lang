@@ -2349,7 +2349,8 @@ public final class LangInterpreter {
 	private void resetVars(final int DATA_ID) {
 		String[] keys = data.get(DATA_ID).var.keySet().toArray(new String[0]);
 		for(int i = data.get(DATA_ID).var.size() - 1;i > -1;i--) {
-			if(keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) {
+			if((keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) ||
+			(keys[i].startsWith("&") && !keys[i].startsWith("&LANG_"))) {
 				data.get(DATA_ID).var.remove(keys[i]);
 			}
 		}
