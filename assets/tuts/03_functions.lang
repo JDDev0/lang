@@ -49,7 +49,7 @@ func.printTerminal(-1, $num)
 $valA = func.toValue(a)
 func.printTerminal(-1, $valA)
 
-$valEur = func.toValue(€) # Be careful! The lang language accepts UNICODE chars, but the TermIO and the LangShell windows will only support ASCII
+$valEur = func.toValue(€)
 func.printTerminal(-1, $valEur)
 
 # func.toChar(int) # Will return the Unicode char with the value of the parameter
@@ -62,7 +62,7 @@ func.printTerminal(-1, $char2)
 # String functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
 $len = func.strlen(How long I'm? [€¤$])
-func.printTerminal(-1, $len)
+func.printTerminal(-1, How long I'm? [€¤$]: $len)
 
 # func.toUpper(Text) # Will return the upper case version of a string
 $upper = func.toUpper(I'm not in caps - I think...)

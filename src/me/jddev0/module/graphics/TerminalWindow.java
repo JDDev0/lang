@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -182,9 +183,16 @@ public class TerminalWindow extends JFrame {
 		
 		//Sets System.in
 		System.setIn(new InputStream() {
+			//Tmp for multibyte char
+			private byte[] inputTmp;
+			private int inputTmpPos;
+			
 			boolean n = false;
 			@Override
 			public int read() throws IOException {
+				if(inputTmp != null && inputTmpPos < inputTmp.length)
+					return inputTmp[inputTmpPos++];
+				
 				if(n) {
 					n = false;
 					return -1;
@@ -205,16 +213,19 @@ public class TerminalWindow extends JFrame {
 					return '\n';
 				}
 				
-				char c = readingTmp.charAt(0);
+				inputTmp = readingTmp.substring(0, 1).getBytes();
+				inputTmpPos = 0;
 				readingTmp.delete(0, 1);
-				
-				return c;
+				return inputTmp[inputTmpPos++];
 			}
 		});
 		
 		//Sets System.out
 		PrintStream out = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
+			//Tmp for multibyte char
+			private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			
 			//Tmp for the printing
 			private StringBuilder printingTmp = new StringBuilder();
 			private int type = 0;
@@ -224,9 +235,18 @@ public class TerminalWindow extends JFrame {
 			@Override
 			public void write(int b) throws IOException {
 				out.write(b);
-				printingTmp.append((char)b);
-				
-				if((char)b == '\n') {//Sets color of message after new line
+				byteOut.write(b);
+			}
+			
+			@Override
+			public void flush() throws IOException {
+				String output = byteOut.toString();
+				byteOut.reset();
+				while(output.contains("\n")) {
+					int newLineIndex = output.indexOf('\n');
+					printingTmp.append(output.substring(0, newLineIndex + 1));
+					
+					//Sets color of message after new line
 					String printStr = printingTmp.toString();
 					if(printStr.startsWith("[" + Level.NOTSET + "]")) {
 						type = 0;
@@ -260,9 +280,14 @@ public class TerminalWindow extends JFrame {
 					
 					//Clears tmp for the printing
 					printingTmp.delete(0, printingTmp.length());
+					
+					if(newLineIndex == output.length() - 1)
+						return;
+					output = output.substring(output.indexOf('\n') + 1);
 				}
+				printingTmp.append(output);
 			}
-		}));
+		}, true));
 	}
 	
 	public void setFontSize(int fontSize) {

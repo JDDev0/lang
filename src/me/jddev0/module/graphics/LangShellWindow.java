@@ -12,6 +12,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -221,6 +222,9 @@ public class LangShellWindow extends JDialog {
 		//Sets System.out
 		oldOut = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
+			//Tmp for multibyte char
+			private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			
 			//Tmp for the printing
 			private StringBuilder printingTmp = new StringBuilder();
 			private int type = 0;
@@ -230,9 +234,18 @@ public class LangShellWindow extends JDialog {
 			@Override
 			public void write(int b) throws IOException {
 				oldOut.write(b);
-				printingTmp.append((char)b);
-				
-				if((char)b == '\n') {//Sets color of message after new line
+				byteOut.write(b);
+			}
+			
+			@Override
+			public void flush() throws IOException {
+				String output = byteOut.toString();
+				byteOut.reset();
+				while(output.contains("\n")) {
+					int newLineIndex = output.indexOf('\n');
+					printingTmp.append(output.substring(0, newLineIndex + 1));
+					
+					//Sets color of message after new line
 					String printStr = printingTmp.toString();
 					if(printStr.startsWith("[" + Level.NOTSET + "]")) {
 						type = 0;
@@ -266,9 +279,14 @@ public class LangShellWindow extends JDialog {
 					
 					//Clears tmp for the printing
 					printingTmp.delete(0, printingTmp.length());
+					
+					if(newLineIndex == output.length() - 1)
+						return;
+					output = output.substring(output.indexOf('\n') + 1);
 				}
+				printingTmp.append(output);
 			}
-		}));
+		}, true));
 		
 		lii = Lang.createInterpreterInterface(term, langPlatformAPI);
 		
