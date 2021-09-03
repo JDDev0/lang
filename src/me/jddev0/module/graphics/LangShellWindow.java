@@ -169,7 +169,7 @@ public class LangShellWindow extends JDialog {
 				
 				if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && e.isShiftDown()) {
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(shell.getSelectedText()), null);
-				}else if(e.getKeyCode() == KeyEvent.VK_V && e.isControlDown() && e.isShiftDown()){
+				}else if(e.getKeyCode() == KeyEvent.VK_V && e.isControlDown() && e.isShiftDown()) {
 					try {
 						removeAutoCompleteText();
 						Object copiedRaw = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null).getTransferData(DataFlavor.stringFlavor);
@@ -193,6 +193,9 @@ public class LangShellWindow extends JDialog {
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
 					end();
+					return;
+				}else if(e.getKeyCode() == KeyEvent.VK_L && e.isControlDown()) {
+					clear();
 					return;
 				}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 					removeAutoCompleteText();
@@ -360,12 +363,16 @@ public class LangShellWindow extends JDialog {
 			return new DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
 		});
 		
+		printWelcomeText();
+	}
+	private void printWelcomeText() {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\n" +
 		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
 		"• Press UP and DOWN for scrolling through the history\n" +
 		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
 		"    ◦ Press ENTER for accepting the auto complete text\n" +
+		"• Press CTRL + L to clear the screen\n" +
 		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
 	
@@ -692,6 +699,10 @@ public class LangShellWindow extends JDialog {
 		}
 	}
 	
+	private void clear() {
+		shell.setText("");
+		printWelcomeText();
+	}
 	private void end() {
 		flagEnd = true;
 		
