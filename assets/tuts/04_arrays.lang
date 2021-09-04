@@ -12,8 +12,9 @@ func.printTerminal(-1, $len)
 
 # Get all elements of an array
 # func.arrayGetAll(arrPtr)
-$arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " as element seperator
+$arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " as element separator
 func.printTerminal(-1, $arr)
+func.printTerminal(-1, &arr) # Will return the content of the whole array inside "[]" with ", " as element separator
 
 # Set an element of an array
 # func.arraySet(arrPtr, int, Text)
@@ -38,6 +39,13 @@ func.printTerminal(-1, $ele)
 # func.randChoice(arrPtr)
 $ele = func.randChoice(&arr) # Will return a random element of the array &arr
 func.printTerminal(-1, $ele)
+
+# Copy an array
+&arr2 = &arr # Will copy the array pointer (The content will not be copied [Same references])
+func.printTerminal(-1, func.arrayGetAll(&arr2))
+# Copy an array to a normal variable
+$arr = &arr # Will copy the array pointer to $arr
+func.printTerminal(-1, func.arrayGetAll($arr))
 
 # Set all elements to null
 # func.arrayDelete(arrPtr)
