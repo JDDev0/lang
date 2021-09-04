@@ -3,7 +3,7 @@ lang.version = v1.0.0
 
 # Function Pointer
 # Create function
-# fp.name = ($var) -> { # Function head: Name & Parameter definition
+# fp.name = ($var) -> { # Function head: Parameter definition
 #     [CODE...] # Function body: Code execution
 # } # Function end
 # Call function:
@@ -96,6 +96,45 @@ fp.manyArgs(A, B, C, D, E, F)
 fp.manyArgs(A, B, C, D, E, F, G)
 fp.manyArgs(A, B, C, D, E, F, G, H)
 fp.manyArgs(A, B, C, D, E, F, G, H, I)
+
+# Varargs
+{
+	# The last parameter can be a vargargs parameter ($<name>... [Text varargs] or &<name>... [Array varargs])
+	
+	# Text varargs
+	# Everything after the argument prior to the last argument will be combined as text and written to $args
+	fp.testTextVarArgs = ($num, $args...) -> {
+		func.printTerminal(5, \nFrom "fp.testTextVarArgs")
+		func.printTerminal(3, \$num: $num)
+		func.printTerminal(3, \$args: $args)
+		func.printError()
+	}
+	fp.testTextVarArgs()
+	fp.testTextVarArgs(1)
+	fp.testTextVarArgs(1, 2)
+	fp.testTextVarArgs(1, 2, 3)
+	fp.testTextVarArgs(1, 2, 3, 4)
+	fp.testTextVarArgs(1, 2, 3, 4, 5)
+	fp.testTextVarArgs(1, 2, 3, 4, 5, 6)
+	
+	# Array varargs
+	# Everything after the argument prior to the last argument will be combined as Array and written to &args
+	fp.testArrayVarArgs = ($num, &args...) -> {
+		func.printTerminal(5, \nFrom "fp.testArrayVarArgs")
+		func.printTerminal(3, \$num: $num)
+		func.printTerminal(3, \&args: func.arrayGetAll(&args))
+		func.printError()
+		func.printTerminal(3, length(\&args): func.arrayLength(&args))
+		func.printError()
+	}
+	fp.testArrayVarArgs()
+	fp.testArrayVarArgs(1)
+	fp.testArrayVarArgs(1, 2)
+	fp.testArrayVarArgs(1, 2, 3)
+	fp.testArrayVarArgs(1, 2, 3, 4)
+	fp.testArrayVarArgs(1, 2, 3, 4, 5)
+	fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
+}
 
 # Every value at function call will be copied to function pointer:
 # Changed values
