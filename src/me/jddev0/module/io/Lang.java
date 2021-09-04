@@ -312,6 +312,7 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * [void]func.copyAfterFP(funcPtr, funcPtr) //"[void]func.copyAfterFP(varPtr, varPtr)" with funcPtrs<br>
  * <br><b>Array functions</b><br>
  * [void]func.arrayMake(arrPtr, int)<br>
+ * [arrPtr]func.arrayMake(int)<br>
  * [void]func.arraySet(arrPtr, int, Text)<br>
  * [void]func.arraySetAll(arrPtr, Text)<br>
  * [void]func.arraySetAll(arrPtr, Text[len]) //len = length of arrPtr<br>

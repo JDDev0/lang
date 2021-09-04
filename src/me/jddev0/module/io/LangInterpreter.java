@@ -1051,13 +1051,23 @@ public final class LangInterpreter {
 		
 		//Array functions
 		funcs.put("arrayMake", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject lenghtObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
-				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			DataObject arrPointerObject = null;
+			DataObject lengthObject = null;
+			
+			DataObject dataObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) {
+				arrPointerObject = dataObject;
+				
+				lengthObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				
+				if(argumentList.size() > 0) //Not 1 or 2 arguments
+					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			}else {
+				lengthObject = dataObject;
+			}
 			
 			String arrPtr;
-			if(arrPointerObject.getType() == DataType.ARRAY) {
+			if(arrPointerObject == null || arrPointerObject.getType() == DataType.ARRAY) {
 				arrPtr = null;
 			}else if(arrPointerObject.getType() == DataType.TEXT) {
 				arrPtr = arrPointerObject.getText();
@@ -1067,7 +1077,7 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}
 			
-			Number lenghtNumber = lenghtObject.getNumber();
+			Number lenghtNumber = lengthObject.getNumber();
 			if(lenghtNumber == null)
 				return setErrnoErrorObject(InterpretingError.LENGTH_NAN, DATA_ID);
 			int length = lenghtNumber.intValue();
@@ -1078,17 +1088,18 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.EMPTY_ARRAY, DATA_ID);
 			
 			DataObject oldData = arrPtr == null?arrPointerObject:data.get(DATA_ID).var.get(arrPtr);
-			if((oldData != null && oldData.isFinalData()) || arrPtr.startsWith("&LANG_"))
+			if((oldData != null && oldData.isFinalData()) || (arrPtr != null && arrPtr.startsWith("&LANG_")))
 				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			DataObject[] arr = new DataObject[length];
-			if(oldData != null)
-				oldData.setArray(arr);
-			else
-				data.get(DATA_ID).var.put(arrPtr, new DataObject().setArray(arr).setVariableName(arrPtr));
-			
 			for(int i = 0;i < arr.length;i++)
 				arr[i] = new DataObject().setNull();
+			if(oldData != null)
+				oldData.setArray(arr);
+			else if(arrPointerObject == null)
+				return new DataObject().setArray(arr);
+			else
+				data.get(DATA_ID).var.put(arrPtr, new DataObject().setArray(arr).setVariableName(arrPtr));
 			
 			return null;
 		});
