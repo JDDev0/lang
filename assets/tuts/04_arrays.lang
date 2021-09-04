@@ -4,6 +4,8 @@ lang.version = v1.0.0
 # Creation of an array
 # func.arrayMake(arrPtr, int)
 func.arrayMake(&arr, 10) # Will create the array &arr with the lenght of 10
+# func.arrayMake(int)
+&b = func.arrayMake(10) # Will also create an array of length 10
 
 # Get the lenght of an array
 # func.arrayLength(arrPtr)
