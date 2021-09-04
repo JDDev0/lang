@@ -3,7 +3,7 @@ lang.version = v1.0.0
 
 # Var: $name = value
 $var = Text
-$null # Null value var
+$null # null value var
 
 func.printTerminal(-1, $var)  # Will print "Text"
 func.printTerminal(-1, \$var2) # Will print "$var2"
@@ -56,6 +56,28 @@ func.printTerminal(-1, -----------------)
 $var11 = $var5
 
 func.printTerminal(-1, $var11)
+
+func.printTerminal(-1, -----------------)
+
+# Multi assignment
+$c = A Var
+$a = $b = $c
+func.printTerminal(-1, \$a: $a)
+func.printTerminal(-1, \$b: $b)
+func.printTerminal(-1, \$c: $c)
+
+# A lang translation must come first
+lang.translation = $b = $c # Would be possible
+$a = lang.translation.2 = $c # Wouldn't be possible (Result: $a -> "lang.translation.2 = $c" ("$c": Value of $c))
+func.printTerminal(-1, \$a: $a)
+func.printTerminal(-1, \$b: $b)
+func.printTerminal(-1, \$c: $c)
+
+# An empty assignment is not supported
+$a = $b = # Won't work (Result: $a -> "$b =" ("$b": Value of $b))
+func.printTerminal(-1, \$a: $a)
+func.printTerminal(-1, \$b: $b)
+func.printTerminal(-1, \$c: $c)
 
 func.printTerminal(-1, -----------------)
 
