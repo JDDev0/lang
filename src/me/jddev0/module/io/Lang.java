@@ -328,12 +328,10 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * @author JDDev0
  * @version v1.0.0
  */
-public class Lang {
-	private static String oldFile;
-	private static String pathLangFile; //$LANG_PATH
-	
-	//Lang tmp
-	private static Map<String, String> lang = new HashMap<>(); //ID, data
+public final class Lang {
+	//Lang cache
+	private final static Map<String, String> LANG_CACHE = new HashMap<>(); //lang request, lang value
+	private static String lastCachedLangFileName;
 	
 	private Lang() {}
 	
@@ -345,21 +343,46 @@ public class Lang {
 	}
 	
 	/**
+	 * Whitout interpreter: Only lang translations will be read without any other features (Used for reading written lang file)<br>
+	 * Call getCached... methods afterwards for retrieving certain lang translation
 	 * @return Returns all translations of <b>langFile</b>
 	 */
-	public static Map<String, String> getTranslationMap(String langFile, boolean reload, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
-		synchronized(lang) {
-			if(langFile.equals(oldFile)) {
-				if(lang.containsKey("lang.name") && !reload) {
-					return new HashMap<>(lang);
-				}
+	public static Map<String, String> getTranslationMapWithoutInterpreter(String langFile, boolean reloadNotFromChache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(LANG_CACHE) {
+			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
+				return new HashMap<>(LANG_CACHE);
 			}else {
-				lang.clear(); //Remove old data
-				oldFile = langFile;
+				LANG_CACHE.clear(); //Removes cached data
+				lastCachedLangFileName = langFile;
+			}
+			
+			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
+			//Cache lang translations
+			reader.lines().forEach(line -> {
+				if(!line.contains(" = "))
+					return;
+				
+				String[] langTranslation = line.split(" = ", 2);
+				LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
+			});
+			return new HashMap<>(LANG_CACHE);
+		}
+	}
+	
+	/**
+	 * @return Returns all translations of <b>langFile</b>
+	 */
+	public static Map<String, String> getTranslationMap(String langFile, boolean reloadNotFromChache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		synchronized(LANG_CACHE) {
+			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
+				return new HashMap<>(LANG_CACHE);
+			}else {
+				LANG_CACHE.clear(); //Removes cached data
+				lastCachedLangFileName = langFile;
 			}
 			
 			//Set path for Interpreter
-			pathLangFile = langPlatformAPI.getLangPath(langFile);
+			String pathLangFile = langPlatformAPI.getLangPath(langFile);
 			
 			//Create new Interpreter instance
 			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
@@ -374,10 +397,9 @@ public class Lang {
 			}
 			reader.close();
 			
-			//Copy lang
-			lang = interpreter.getData().get(0).lang;
-			
-			return new HashMap<>(lang);
+			//Cache lang translations
+			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
+			return new HashMap<>(LANG_CACHE);
 		}
 	}
 	
@@ -386,10 +408,9 @@ public class Lang {
 	 * If key wasn't found -> <code>return key;</code>
 	 */
 	public static String getTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws IOException {
-		synchronized(lang) {
-			if(getTranslationMap(langFile, false, null, langPlatformAPI).get(key) == null) {
+		synchronized(LANG_CACHE) {
+			if(getTranslationMap(langFile, false, null, langPlatformAPI).get(key) == null)
 				return key;
-			}
 			
 			return getTranslationMap(langFile, false, null, langPlatformAPI).get(key);
 		}
@@ -400,10 +421,9 @@ public class Lang {
 	 * If key wasn't found -> <code>return key;</code>
 	 */
 	public static String getTranslationFormat(String langFile, String key, LangPlatformAPI langPlatformAPI, Object... args) throws IOException {
-		synchronized(lang) {
-			if(getTranslation(langFile, key, langPlatformAPI) == null) {
+		synchronized(LANG_CACHE) {
+			if(getTranslation(langFile, key, langPlatformAPI) == null)
 				return key;
-			}
 			
 			try {
 				return String.format(getTranslation(langFile, key, langPlatformAPI), args);
@@ -415,38 +435,112 @@ public class Lang {
 	
 	/**
 	 * @return Returns language name of <b>langFile</b><br>
-	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
 	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
-		synchronized(lang) {
-			return getTranslation(langFile, "lang.name", langPlatformAPI);
-		}
+		return getTranslation(langFile, "lang.name", langPlatformAPI);
 	}
 	
 	/**
 	 * @return Returns language version of <b>langFile</b><br>
-	 * <code>return getTranslation(langFile, "lang.name");</code>
 	 */
 	public static String getLangVersion(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
-		synchronized(lang) {
-			return getTranslation(langFile, "lang.version", langPlatformAPI);
-		}
+		return getTranslation(langFile, "lang.version", langPlatformAPI);
 	}
 	
 	/**
-	 * Writes all translations of <b>translationMap</b> in <b>langFile</b>
+	 * Writes all translations of <b>translationMap</b> to <b>langFile</b>
 	 * 
 	 * @return Returns true if successful, false otherwise
 	 */
 	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term, LangPlatformAPI langPlatformAPI) {
-		synchronized(lang) {
-			lang.clear();
+		synchronized(LANG_CACHE) {
+			LANG_CACHE.clear();
 			
 			return langPlatformAPI.writeLangFile(langFile, translationMap, term);
 		}
 	}
 	
-	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+	/**
+	 * @return Returns all translations from the cach
+	 */
+	public static Map<String, String> getCachedTranslationMap() {
+		synchronized(LANG_CACHE) {
+			return new HashMap<>(LANG_CACHE);
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>key</b> from the cache<br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	public static String getCachedTranslation(String key) {
+		synchronized(LANG_CACHE) {
+			if(getCachedTranslationMap().get(key) == null)
+				return key;
+			
+			return getCachedTranslationMap().get(key);
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>key</b> from the cache<br>
+	 * If key wasn't found -> <code>return key;</code>
+	 */
+	public static String getCachedTranslationFormat(String key, Object... args) {
+		synchronized(LANG_CACHE) {
+			if(getCachedTranslation(key) == null)
+				return key;
+			
+			try {
+				return String.format(getCachedTranslation(key), args);
+			}catch(Exception e) {
+				return getCachedTranslation(key);
+			}
+		}
+	}
+	
+	/**
+	 * @return Returns language name from cache<br>
+	 */
+	public static String getCachedLangName() {
+		return getCachedTranslation("lang.name");
+	}
+	
+	/**
+	 * @return Returns language version from cache<br>
+	 */
+	public static String getCachedLangVersion() {
+		return getCachedTranslation("lang.version");
+	}
+	
+	/**
+	 * Writes all translations from cache to <b>langFile</b>
+	 * 
+	 * @return Returns true if successful, false otherwise
+	 */
+	public static boolean writeCache(File langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		return langPlatformAPI.writeLangFile(langFile, getCachedTranslationMap(), term);
+	}
+	
+	/**
+	 * Clears the lang translation cache
+	 */
+	public static void clearCache() {
+		synchronized(LANG_CACHE) {
+			LANG_CACHE.clear(); //Removes cached data
+			lastCachedLangFileName = null;
+		}
+	}
+	
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
+	TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		if(writeToCache) {
+			synchronized(LANG_CACHE) {
+				LANG_CACHE.clear(); //Remove cached data
+				lastCachedLangFileName = langFile;
+			}
+		}
+		
 		String pathLangFile = langPlatformAPI.getLangPath(langFile);
 		
 		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
@@ -461,7 +555,17 @@ public class Lang {
 		}
 		reader.close();
 		
+		if(writeToCache) {
+			synchronized(LANG_CACHE) {
+				//Cache copy of lang translations
+				LANG_CACHE.putAll(interpreter.getData().get(0).lang);
+			}
+		}
+		
 		return new LangInterpreter.LangInterpreterInterface(interpreter);
+	}
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		return createInterpreterInterface(langFile, false, term, langPlatformAPI);
 	}
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
 		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI));
@@ -503,7 +607,7 @@ public class Lang {
 	 */
 	@Deprecated
 	public static String getTranslation(String langFile, String key) throws Exception {
-		synchronized(lang) {
+		synchronized(LANG_CACHE) {
 			if(getTranslationMap(langFile, false, null).get(key) == null) {
 				return key;
 			}
@@ -518,7 +622,7 @@ public class Lang {
 	 */
 	@Deprecated
 	public static String getTranslationFormat(String langFile, String key, Object... args) throws Exception {
-		synchronized(lang) {
+		synchronized(LANG_CACHE) {
 			if(getTranslation(langFile, key) == null) {
 				return key;
 			}
@@ -537,7 +641,7 @@ public class Lang {
 	 */
 	@Deprecated
 	public static String getLangName(String langFile) throws Exception {
-		synchronized(lang) {
+		synchronized(LANG_CACHE) {
 			return getTranslation(langFile, "lang.name");
 		}
 	}
@@ -548,7 +652,7 @@ public class Lang {
 	 */
 	@Deprecated
 	public static String getLangVersion(String langFile) throws Exception {
-		synchronized(lang) {
+		synchronized(LANG_CACHE) {
 			return getTranslation(langFile, "lang.version");
 		}
 	}
@@ -560,8 +664,8 @@ public class Lang {
 	 */
 	@Deprecated
 	public static boolean write(File langFile, Map<String, String> translationMap, TerminalIO term) {
-		synchronized(lang) {
-			lang.clear();
+		synchronized(LANG_CACHE) {
+			LANG_CACHE.clear();
 			
 			try {
 				BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(langFile), StandardCharsets.UTF_8));
