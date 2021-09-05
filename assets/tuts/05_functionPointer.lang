@@ -190,7 +190,7 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	func.printTerminal(3, fp.next(&a))
 }
 
-# End the programm early & return DataObject
+# End the program early & return DataObject
 func.printTerminal(-1, Will be executed)
 return 42.42 # A return statement outside of a function pointer function body will end the program execution early
 func.printTerminal(-1, Won't be executed)
