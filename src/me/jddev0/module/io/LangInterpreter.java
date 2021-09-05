@@ -1460,10 +1460,10 @@ public final class LangInterpreter {
 	
 	private void interpretAST(LangParser.AbstractSyntaxTree ast, final int DATA_ID) {
 		for(Node node:ast) {
-			interpretNode(node, DATA_ID);
-			
 			if(stopParsingFlag)
 				return;
+			
+			interpretNode(node, DATA_ID);
 		}
 	}
 	
@@ -3409,10 +3409,15 @@ public final class LangInterpreter {
 		}
 		
 		public void exec(final int DATA_ID, BufferedReader lines) throws IOException {
+			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
 			interpreter.interpretLines(lines, DATA_ID);
 		}
 		public void exec(final int DATA_ID, String lines) throws IOException {
 			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
+		}
+		
+		public DataObject getAndResetReturnValue() {
+			return interpreter.getAndResetReturnValue();
 		}
 		
 		public LangParser.AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
@@ -3420,6 +3425,7 @@ public final class LangInterpreter {
 		}
 		
 		public void interpretAST(final int DATA_ID, LangParser.AbstractSyntaxTree ast) {
+			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
 			interpreter.interpretAST(ast, DATA_ID);
 		}
 		public DataObject inerpretNode(final int DATA_ID, Node node) {
