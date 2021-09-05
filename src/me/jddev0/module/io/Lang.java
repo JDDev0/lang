@@ -343,7 +343,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * Whitout interpreter: Only lang translations will be read without any other features (Used for reading written lang file)<br>
+	 * Without interpreter: Only lang translations will be read without any other features (Used for reading written lang file)<br>
 	 * Call getCached... methods afterwards for retrieving certain lang translation
 	 * @return Returns all translations of <b>langFile</b>
 	 */
