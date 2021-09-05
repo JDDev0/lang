@@ -1352,7 +1352,9 @@ public final class LangInterpreter {
 		
 		//Set lang path to old lang path
 		langPath = oldLangPath;
-		return null;
+		
+		//Get returned value from executed lang file
+		return getAndResetReturnValue();
 	}
 	{
 		funcs.put("bindLibrary", new LangPredefinedFunctionObject() {
@@ -2075,6 +2077,12 @@ public final class LangInterpreter {
 		return new DataObject().setArgumentSeparator(node.getOriginalText());
 	}
 	
+	private DataObject getAndResetReturnValue() {
+		DataObject retTmp = returnedValue;
+		returnedValue = null;
+		stopParsingFlag = false;
+		return retTmp;
+	}
 	private DataObject getNextArgumentAndRemoveUsedDataObjects(List<DataObject> argumentList, boolean removeArumentSpearator) {
 		List<DataObject> argumentTmpList = new LinkedList<>();
 		while(argumentList.size() > 0 && argumentList.get(0).getType() != DataType.ARGUMENT_SEPARATOR)
@@ -2187,11 +2195,7 @@ public final class LangInterpreter {
 				//Remove data map
 				data.remove(NEW_DATA_ID);
 				
-				DataObject retTmp = returnedValue;
-				
-				returnedValue = null;
-				stopParsingFlag = false;
-				
+				DataObject retTmp = getAndResetReturnValue();
 				return retTmp == null?new DataObject().setVoid():retTmp;
 			
 			case FunctionPointerObject.PREDEFINED:
