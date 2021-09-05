@@ -992,7 +992,7 @@ public final class LangInterpreter {
 				case TEXT:
 					to = toPointerObject.getText();
 					if(to.contains("[") && to.contains("]")) //"Dereference Pointer":  e.g.: "$[abc]" -> "$abc"
-						to = to.substring(0, to.indexOf('[')) + to.substring(to.indexOf('[' + 1), to.lastIndexOf(']'));
+						to = to.substring(0, to.indexOf('[')) + to.substring(to.indexOf('[') + 1, to.lastIndexOf(']'));
 					break;
 				
 				case ARGUMENT_SEPARATOR:
@@ -1027,7 +1027,7 @@ public final class LangInterpreter {
 				case TEXT:
 					from = fromPointerObject.getText();
 					if(from.contains("[") && from.contains("]")) //"Dereference Pointer":  e.g.: "$[abc]" -> "$abc"
-						from = from.substring(0, from.indexOf('[')) + from.substring(from.indexOf('[' + 1), from.lastIndexOf(']'));
+						from = from.substring(0, from.indexOf('[')) + from.substring(from.indexOf('[') + 1, from.lastIndexOf(']'));
 					break;
 				
 				case ARGUMENT_SEPARATOR:
