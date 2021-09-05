@@ -54,18 +54,18 @@ public class LangPlatformAPI {
 		try {
 			BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(langFile), StandardCharsets.UTF_8));
 			
-			for(String str:translationMap.keySet()) {
-				String value = translationMap.get(str);
+			for(String langRequest:translationMap.keySet()) {
+				String value = translationMap.get(langRequest);
 				//For multiline
 				value = value.replace("\n", "\\n");
 				
-				w.write(str + " = " + value);
+				w.write(langRequest + " = " + value);
 				w.newLine();
 			}
 			
 			w.close();
 		}catch (IOException e) {
-			term.logStackTrace(e, Lang.class);
+			term.logStackTrace(e, LangPlatformAPI.class);
 			
 			return false;
 		}
@@ -73,7 +73,7 @@ public class LangPlatformAPI {
 		return true;
 	}
 	
-	//Compiler methods
+	//Interpreter methods
 	public String showInputDialog(String text) throws Exception {
 		String input = JOptionPane.showInputDialog(null, text, "Lang input", JOptionPane.PLAIN_MESSAGE);
 		
