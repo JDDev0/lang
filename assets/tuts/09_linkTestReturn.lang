@@ -1,0 +1,17 @@
+lang.name = Link Test Return
+lang.version = v1.0.0
+
+func.printTerminal(1, 3 - Return)
+
+con.if(func.modi(func.rand(), 2) == 1)
+	func.printTerminal(1, 3 - Finished (early))
+	return early return
+con.endif
+
+con.if(func.modi(func.rand(), 2) == 1)
+	func.printTerminal(1, 3 - Finished (early - no return value))
+	return
+con.endif
+
+func.printTerminal(1, 3 - Finished (long))
+return a long way...
