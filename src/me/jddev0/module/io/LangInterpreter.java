@@ -3421,7 +3421,7 @@ public final class LangInterpreter {
 		}
 		
 		public LangParser.AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
-			return parseLines(lines);
+			return interpreter.parseLines(lines);
 		}
 		
 		public void interpretAST(final int DATA_ID, LangParser.AbstractSyntaxTree ast) {
