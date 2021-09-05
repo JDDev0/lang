@@ -247,9 +247,9 @@ public final class LangParser {
 			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(tokens[0], null, false).convertToNode(),
 			returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode());
 		}
-		
 		if(isInnerAssignment)
 			return null;
+		
 		//Only for non multi assignments
 		if(line.endsWith(" =") || line.matches("\\$\\w+") || line.matches("\\$\\[+\\w+\\]+")) {
 			//Empty translation/assignment ("<var/lang> =" or "$varName")
@@ -319,7 +319,8 @@ public final class LangParser {
 			
 			//Return with value
 			String returnStatement = token.substring(7).trim();
-			nodes.add(new AbstractSyntaxTree.ReturnNode(parseLRvalue(returnStatement, lines, true).convertToNode()));
+			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(returnStatement, lines, true);
+			nodes.add(new AbstractSyntaxTree.ReturnNode(returnedNode == null?parseLRvalue(returnStatement, lines, true).convertToNode():returnedNode));
 			
 			return ast;
 		}

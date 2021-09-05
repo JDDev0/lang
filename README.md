@@ -23,4 +23,5 @@ You can also run "java -jar LangCompiler.jar -**command** **args**" in a termina
   - Many deprecated methods and classes in the Lang class won't work as expected
   - Array names written in a text would now print the array's content instead of the variable name (Variable name of an array can be gotten by "\\&array" \[Escaping of "&"\])
   - The Lang class is now final
+  - "return $... = ", "return &... = ", and "return fp.... = " will now be parsed as an assignment (If you want to return something with " = ", you have to escape the "=": "return ... \= ...")
 
