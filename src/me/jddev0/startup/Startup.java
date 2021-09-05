@@ -12,6 +12,8 @@ import java.util.Map;
 import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
 import me.jddev0.module.io.Lang;
+import me.jddev0.module.io.LangInterpreter;
+import me.jddev0.module.io.LangInterpreter.LangInterpreterInterface;
 import me.jddev0.module.io.LangParser;
 import me.jddev0.module.io.LangPlatformAPI;
 import me.jddev0.module.io.ReaderActionObject;
@@ -39,11 +41,14 @@ public class Startup {
 			
 			String langFile = args[0];
 			boolean printTranslations = false;
+			boolean printReturnedValue = false;
 			
 			for(int i = 1;i < args.length;i++) {
 				String arg = args[i];
 				if(arg.equals("-printTranslations")) {
 					printTranslations = true;
+				}else if(arg.equals("-printReturnedValue")) {
+					printReturnedValue = true;
 				}else {
 					System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
 					
@@ -52,7 +57,7 @@ public class Startup {
 				}
 			}
 			
-			executeLangFile(langFile, printTranslations);
+			executeLangFile(langFile, printTranslations, printReturnedValue);
 			return;
 		}
 		
@@ -78,11 +83,18 @@ public class Startup {
 			
 			try {
 				term.logln(Level.DEBUG, "------------- Start of Lang --------------", Startup.class);
-				Map<String, String> translations = Lang.getTranslationMap(input[0], true, term, langPlatformAPI);
+				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[0], term, langPlatformAPI);
+				Map<String, String> translations = lii.getTranslationMap(0);
 				term.logln(Level.DEBUG, "-------------- Translations --------------", Startup.class);
 				translations.forEach((key, value) -> {
 					term.logln(Level.DEBUG, key + " = " + value, Startup.class);
 				});
+				term.logln(Level.DEBUG, "------------- Returned Value -------------", Startup.class);
+				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+				if(retValue == null)
+					term.logln(Level.DEBUG, "No returned value", Startup.class);
+				else
+					term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", Startup.class, retValue.getText());
 				term.logln(Level.DEBUG, "-------------- End of Lang ---------------", Startup.class);
 			}catch(IOException e) {
 				term.logStackTrace(e, Startup.class);
@@ -201,9 +213,10 @@ public class Startup {
 		System.out.println("EXECUTION_ARGs");
 		System.out.println("--------------");
 		System.out.println("    -printTranslations      Prints all Translations after execution of Lang file finished to standard output");
+		System.out.println("    -printReturnedValue     Prints the returned value of the lang file if any");
 	}
 	
-	private static void executeLangFile(String langFile, boolean printTranslations) {
+	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue) {
 		File lang = new File(langFile);
 		if(!lang.exists()) {
 			System.err.printf("The lang file %s wasn't found!\n", langFile);
@@ -212,10 +225,19 @@ public class Startup {
 		}
 		
 		try {
-			Map<String, String> translations = Lang.getTranslationMap(langFile, true, null, langPlatformAPI);
+			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, null, langPlatformAPI);
+			Map<String, String> translations = lii.getTranslationMap(0);
 			if(printTranslations) {
 				System.out.println("-------------- Translations --------------");
 				translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
+			}
+			if(printReturnedValue) {
+				System.out.println("------------- Returned Value -------------");
+				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+				if(retValue == null)
+					System.out.println("No returned value");
+				else
+					System.out.printf("Returned Value: \"%s\"\n", retValue.getText());
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
