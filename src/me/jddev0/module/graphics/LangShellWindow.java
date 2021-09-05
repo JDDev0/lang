@@ -707,11 +707,17 @@ public class LangShellWindow extends JDialog {
 		flagEnd = true;
 		
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
-		
 		Map<String, String> lang = lii.getTranslationMap(0);
 		lang.forEach((key, value) -> {
 			term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
 		});
+		
+		GraphicsHelper.addText(shell, "Returned Value:\n", Color.WHITE);
+		LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+		if(retValue == null)
+			term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
+		else
+			term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.getText());
 		
 		//Reset the printStream output
 		System.setOut(oldOut);
