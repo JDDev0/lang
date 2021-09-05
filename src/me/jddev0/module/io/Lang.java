@@ -557,7 +557,7 @@ public final class Lang {
 		
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {
-				//Cache copy of lang translations
+				//Cache lang translations
 				LANG_CACHE.putAll(interpreter.getData().get(0).lang);
 			}
 		}
