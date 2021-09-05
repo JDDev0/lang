@@ -352,7 +352,7 @@ public final class Lang {
 			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
 				return new HashMap<>(LANG_CACHE);
 			}else {
-				LANG_CACHE.clear(); //Removes cached data
+				LANG_CACHE.clear();
 				lastCachedLangFileName = langFile;
 			}
 			
@@ -377,7 +377,7 @@ public final class Lang {
 			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
 				return new HashMap<>(LANG_CACHE);
 			}else {
-				LANG_CACHE.clear(); //Removes cached data
+				LANG_CACHE.clear();
 				lastCachedLangFileName = langFile;
 			}
 			
@@ -527,7 +527,7 @@ public final class Lang {
 	 */
 	public static void clearCache() {
 		synchronized(LANG_CACHE) {
-			LANG_CACHE.clear(); //Removes cached data
+			LANG_CACHE.clear();
 			lastCachedLangFileName = null;
 		}
 	}
@@ -536,7 +536,7 @@ public final class Lang {
 	TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {
-				LANG_CACHE.clear(); //Remove cached data
+				LANG_CACHE.clear();
 				lastCachedLangFileName = langFile;
 			}
 		}
