@@ -165,3 +165,8 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	$not = I'm defined!
 	fp.printNot() # Will print "I'm defined!"
 }
+
+# End programm early & return DataObject
+func.printTerminal(-1, Will be executed)
+return 42.42 # A return statement outside of a function pointer function body will end the program execution early
+func.printTerminal(-1, Won't be executed)
