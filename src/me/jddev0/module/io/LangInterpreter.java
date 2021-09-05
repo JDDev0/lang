@@ -111,7 +111,8 @@ public final class LangInterpreter {
 			DataObject dereferencedVarPointer = null;
 			switch(pointerObject.getType()) {
 				case VAR_POINTER:
-					dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+					if(pointerObject.getVariableName() == null)
+						dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 					break;
 				
 				case FUNCTION_POINTER:
@@ -303,7 +304,7 @@ public final class LangInterpreter {
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
-			if(dataObject.getType() == DataType.VAR_POINTER) {
+			if(dataObject.getVariableName() == null && dataObject.getType() == DataType.VAR_POINTER) {
 				dataObject = dataObject.getVarPointer().getVar();
 				
 				if(dataObject == null)
