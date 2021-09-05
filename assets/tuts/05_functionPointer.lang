@@ -166,7 +166,31 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	fp.printNot() # Will print "I'm defined!"
 }
 
-# End programm early & return DataObject
+# Returning of assignment
+{	
+	$tmp = 0
+	$val = 42
+	fp.genNextNumber = () -> {
+	    func.copyAfterFP($[tmp], $[tmp]) # See [07_loops.lang: func.copyAfterFP]
+		return $tmp = func.addi($val, $tmp) # Not supported: Empty assignment / translation and translations
+	}
+	func.printTerminal(4, fp.genNextNumber())
+	func.printTerminal(4, fp.genNextNumber())
+	func.printTerminal(4, fp.genNextNumber())
+	
+	&a = func.arrayMake(10)
+	func.arraySetAll(&a, 6, 8, 9, 4, 2, 0, 1, 5, 3, 7)
+	$tmpIndex = 0
+	fp.next = (&arr) -> {
+		func.copyAfterFP($[tmpIndex], $[tmpIndex]) # See [07_loops.lang: func.copyAfterFP]
+		return $tmpIndex = func.arrayGet(&arr, $tmpIndex)
+	}
+	func.printTerminal(3, fp.next(&a))
+	func.printTerminal(3, fp.next(&a))
+	func.printTerminal(3, fp.next(&a))
+}
+
+# End the programm early & return DataObject
 func.printTerminal(-1, Will be executed)
 return 42.42 # A return statement outside of a function pointer function body will end the program execution early
 func.printTerminal(-1, Won't be executed)
