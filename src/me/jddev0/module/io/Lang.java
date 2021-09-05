@@ -451,7 +451,7 @@ public class Lang {
 		
 		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
 		
-		BufferedReader reader = langPlatformAPI.getLangReader(pathLangFile);
+		BufferedReader reader = langPlatformAPI.getLangReader(langFile);
 		try {
 			interpreter.interpretLines(reader);
 		}catch(IOException e) {
