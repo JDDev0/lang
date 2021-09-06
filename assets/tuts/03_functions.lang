@@ -154,3 +154,16 @@ $rand2 = func.randChoice(1,42,Your Choice,42-The 2nd!)
 $rand3 = func.randChoice(1)
 $rand4 = func.randChoice()
 func.printTerminal(-1, |$rand1|$rand2|$rand3|$rand4|)
+
+# Execute dynamically generated code
+$var = func
+func.exec($var.printTerminal(3, test inside exec))
+
+# Code executed by func.exec has no access to outside variables, but the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
+func.exec(func.printTerminal(5, $var)\nfunc.printTerminal(5, \$var)) # Would print "func" and than "$var"
+
+# Returning values with exec
+$value = 42\.123
+$a = func.exec(return $value) # return: See [05_functionPointer.lang: return]
+func.printTerminal(1, $a)
+# Data types: "$value": TEXT, "$a": FLOAT
