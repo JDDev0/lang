@@ -18,7 +18,13 @@ import java.util.Objects;
 public final class LangParser {
 	private String currentLine;
 	
-	public LangParser() {}
+	public static String escapeString(String str) {
+		return str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
+		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
+		replace("#", "\\#").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").replace("}", "\\}").
+		
+		replace("fp.", "fp.\\!").replace("func.", "func.\\!").replace("return", "retur\\!n").replace("=", "=\\!");
+	}
 	
 	public void resetCurrentLine() {
 		currentLine = null;
