@@ -2109,7 +2109,7 @@ public final class LangInterpreter {
 				createDataMap(NEW_DATA_ID);
 				//Copies must not be final
 				data.get(DATA_ID).var.forEach((key, val) -> {
-					if(!key.startsWith("$LANG_"))
+					if(!key.startsWith("$LANG_") && !key.startsWith("&LANG_"))
 						data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
 				});
 				//Initialize copyAfterFP
