@@ -424,7 +424,7 @@ public class LangShellWindow extends JDialog {
 				builder.append("\nFunction-Type: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
 				builder.append("\nParameter List: ");
-				builder.append(dataObject.getFunctionPointer().getParameterList());
+				builder.append(dataObject.getFunctionPointer().getParameterList().toString().replace("\n", ""));
 				builder.append("\nFunction Body: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionBody());
 				builder.append("\nPredefined Function: ");
