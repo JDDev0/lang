@@ -24,5 +24,5 @@ You can also run "java -jar LangCompiler.jar -**command** **args**" in a termina
   - Array names written in a text would now print the array's content instead of the variable name (Variable name of an array can be gotten by "\\&array" \[Escaping of "&"\])
   - The Lang class is now final
   - "return $... = ", "return &... = ", and "return fp.... = " will now be parsed as an assignment (If you want to return something with " = ", you have to escape the "=": "return ... \= ...")
-  - linker function will no longer return 0 or -1 for successful or not successful execution
+  - linker function will no longer return 0 or -1 for successful or unsuccessful execution
 
