@@ -329,6 +329,42 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
 			}
 		});
+		funcs.put("exec", (argumentList, DATA_ID) -> {
+			DataObject text = combineDataObjects(argumentList);
+			if(text == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			BufferedReader lines = new BufferedReader(new StringReader(text.getText()));
+			
+			final int NEW_DATA_ID = DATA_ID + 1;
+			//Add variables and local variables
+			createDataMap(NEW_DATA_ID);
+			//Create clean data map without coping from caller's data map
+			
+			//Initialize copyAfterFP
+			copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
+			try {
+				interpretLines(lines, NEW_DATA_ID);
+			}catch(IOException e) {
+				//Remove data map
+				data.remove(NEW_DATA_ID);
+				
+				//Clear copyAfterFP
+				copyAfterFP.remove(NEW_DATA_ID);
+				
+				return setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+			}
+			
+			//Add lang after call
+			data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
+			
+			executeAndClearCopyAfterFP(DATA_ID, NEW_DATA_ID);
+			
+			//Remove data map
+			data.remove(NEW_DATA_ID);
+			
+			return getAndResetReturnValue();
+		});
 		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(term != null));
 		
 		//IO Functions
@@ -2084,6 +2120,38 @@ public final class LangInterpreter {
 		stopParsingFlag = false;
 		return retTmp;
 	}
+	private void executeAndClearCopyAfterFP(final int DATA_ID_TO, final int DATA_ID_FROM) {
+		//Add copyValue after call
+		copyAfterFP.get(DATA_ID_FROM).forEach((to, from) -> {
+			if(from != null && to != null) {
+				DataObject valFrom = data.get(DATA_ID_FROM).var.get(from);
+				if(valFrom != null && valFrom.getType() != DataType.NULL) {
+					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
+						DataObject dataTo = data.get(DATA_ID_TO).var.get(to);
+						 //$LANG and final vars can't be change
+						if(to.startsWith("$LANG_") || to.startsWith("&LANG_") || (dataTo != null && dataTo.isFinalData())) {
+							setErrno(InterpretingError.FINAL_VAR_CHANGE, DATA_ID_TO);
+							return;
+						}
+						
+						if((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
+						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER)) {
+							setErrno(InterpretingError.INVALID_ARR_PTR, DATA_ID_TO);
+							return;
+						}
+						
+						data.get(DATA_ID_TO).var.put(to, valFrom);
+						return;
+					}
+				}
+			}
+			
+			setErrno(InterpretingError.INVALID_ARGUMENTS, DATA_ID_TO);
+		});
+		
+		//Clear copyAfterFP
+		copyAfterFP.remove(DATA_ID_FROM);
+	}
 	private DataObject getNextArgumentAndRemoveUsedDataObjects(List<DataObject> argumentList, boolean removeArumentSpearator) {
 		List<DataObject> argumentTmpList = new LinkedList<>();
 		while(argumentList.size() > 0 && argumentList.get(0).getType() != DataType.ARGUMENT_SEPARATOR)
@@ -2162,36 +2230,7 @@ public final class LangInterpreter {
 				//Add lang after call
 				data.get(DATA_ID).lang.putAll(data.get(NEW_DATA_ID).lang);
 				
-				//Add copyValue after call
-				copyAfterFP.get(NEW_DATA_ID).forEach((to, from) -> {
-					if(from != null && to != null) {
-						DataObject valFrom = data.get(NEW_DATA_ID).var.get(from);
-						if(valFrom != null && valFrom.getType() != DataType.NULL) {
-							if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
-								DataObject dataTo = data.get(DATA_ID).var.get(to);
-								 //$LANG and final vars can't be change
-								if(to.startsWith("$LANG_") || to.startsWith("&LANG_") || (dataTo != null && dataTo.isFinalData())) {
-									setErrno(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
-									return;
-								}
-								
-								if((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
-								(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER)) {
-									setErrno(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-									return;
-								}
-								
-								data.get(DATA_ID).var.put(to, valFrom);
-								return;
-							}
-						}
-					}
-					
-					setErrno(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
-				});
-				
-				//Clear copyValue
-				copyAfterFP.remove(NEW_DATA_ID);
+				executeAndClearCopyAfterFP(DATA_ID, NEW_DATA_ID);
 				
 				//Remove data map
 				data.remove(NEW_DATA_ID);

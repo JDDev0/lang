@@ -239,7 +239,8 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * [void]func.makeFinal(arrPtr) //Content in final array can still be changed<br>
  * [void]func.makeFinal(funcPtr)<br>
  * [int]func.condition(CONDITION) //Returns 1 if the condition is true else 0<br>
- * [int]func.isTerminalAvailable(void) //Returns 1 if a terminal is available else 0
+ * [any]func.exec(TEXT) //Returns the value of an interpreted return statement if any<br>
+ * [int]func.isTerminalAvailable(void) //Returns 1 if a terminal is available else 0<br>
  * <br><b>IO Functions</b><br>
  * [Text]func.readTerminal(Text)<br>
  * [void]func.printTerminal(int, Text)<br>
