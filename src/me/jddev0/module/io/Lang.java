@@ -56,6 +56,7 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * \b -> backspace<br>
  * \t -> tab<br>
  * \$ -> $<br>
+ * \& -> &<br>
  * \# -> #<br>
  * \( -> (<br>
  * \) -> )<br>
