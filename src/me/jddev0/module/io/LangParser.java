@@ -509,9 +509,12 @@ public final class LangParser {
 			
 			//FLOAT
 			try {
-				nodes.add(new AbstractSyntaxTree.FloatValueNode(Float.parseFloat(token)));
-				
-				return;
+				Float floatNumber = Float.parseFloat(token);
+				if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+					nodes.add(new AbstractSyntaxTree.FloatValueNode(floatNumber));
+					
+					return;
+				}
 			}catch(NumberFormatException ignore) {}
 			
 			//DOUBLE
