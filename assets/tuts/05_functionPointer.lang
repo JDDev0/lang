@@ -190,6 +190,26 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	func.printTerminal(3, fp.next(&a))
 }
 
+# Set Function Pointer to a returned value
+{
+	fp.a = func.printError
+	fp.a(0-ABC)
+	fp.b = () -> return fp.a
+	fp.b()(1-ABC)
+	fp.c = fp.a
+	fp.c(2-ABC)
+	fp.d = fp.b()
+	fp.d(3-ABC)
+	fp.e = func.randChoice(fp.a, fp.c)
+	fp.e(4-ABC)
+	fp.f = func.randChoice(func.println, func.errorln)
+	fp.f(5-ABC)
+	fp.g = func.exec(return func\!.printError)
+	fp.g(6-ABC)
+	fp.h = func.exec(return (\$text...) -> {\nfunc\!.printError(\$text)\n})
+	fp.h(7-ABC)
+}
+
 # End the program early & return DataObject
 func.printTerminal(-1, Will be executed)
 return 42.42 # A return statement outside of a function pointer function body will end the program execution early
