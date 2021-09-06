@@ -212,9 +212,8 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * (type) -> 0 to n<br>
  * <br>
  * <b>--- Lang Linker ---</b><br>
- * <b>Returns "0" if no error, "-1" if error</b><br>
- * [int]linker.link(FILE)<br>
- * [int]linker.bindLibrary(FILE)<br>
+ * [any]linker.link(FILE)<br>
+ * [any]linker.bindLibrary(FILE)<br>
  * <br>
  * <b>--- Lang Functions ---</b><br>
  * <b>Reset Functions</b><br>
