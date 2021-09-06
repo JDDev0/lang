@@ -21,7 +21,8 @@ public final class LangParser {
 	public static String escapeString(String str) {
 		return str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
 		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
-		replace("#", "\\#").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").replace("}", "\\}").
+		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
+		replace("}", "\\}").
 		
 		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("return", "retur\\!n").replace("=", "=\\!");
 	}
