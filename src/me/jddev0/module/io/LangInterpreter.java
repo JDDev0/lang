@@ -954,7 +954,10 @@ public final class LangInterpreter {
 					
 					//FLOAT
 					try {
-						return new DataObject().setFloat(Float.parseFloat(txt));
+						Float floatNumber = Float.parseFloat(txt);
+						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+							return new DataObject().setFloat(floatNumber);
+						}
 					}catch(NumberFormatException ignore) {}
 					
 					//DOUBLE
