@@ -527,7 +527,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		
-		//Num Functions
+		//Number functions
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
@@ -600,7 +600,7 @@ public final class LangInterpreter {
 			return new DataObject().setChar((char)asciiValue.intValue());
 		});
 		
-		//String functions
+		//Text functions
 		funcs.put("strlen", (argumentList, DATA_ID) -> new DataObject().setInt(getArgumentListAsString(argumentList, true).length()));
 		funcs.put("toUpper", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toUpperCase()));
 		funcs.put("toLower", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
