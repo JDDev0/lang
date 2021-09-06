@@ -2213,7 +2213,7 @@ public final class LangInterpreter {
 				}
 				DataObject ret = function.callFunc(argumentValueList, DATA_ID);
 				if(function.isDeprecated())
-					setErrnoErrorObject(InterpretingError.DEPRECATED_FUNC_CALL, DATA_ID);
+					setErrno(InterpretingError.DEPRECATED_FUNC_CALL, DATA_ID);
 				return ret == null?new DataObject().setVoid():ret;
 			
 			case FunctionPointerObject.EXTERNAL:
