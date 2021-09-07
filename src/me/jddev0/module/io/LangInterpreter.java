@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2727,39 +2726,70 @@ public final class LangInterpreter {
 			return this;
 		}
 		
+		private String getArrayText() {
+			StringBuilder builder = new StringBuilder("[");
+			if(arr.length > 0) {
+				for(DataObject ele:arr) {
+					if(ele.getType() == DataType.ARRAY) {
+						builder.append("<Array: len: " + ele.getArray().length + ">");
+					}else if(ele.getType() == DataType.VAR_POINTER) {
+						builder.append("VP -> {");
+						DataObject data = ele.getVarPointer().getVar();
+						if(data != null && data.getType() == DataType.ARRAY) {
+							builder.append("<Array: len: " + data.getArray().length + ">");
+						}else if(data != null && data.getType() == DataType.VAR_POINTER) {
+							builder.append("VP -> {...}");
+						}else {
+							builder.append(data);
+						}
+						builder.append("}");
+					}else {
+						builder.append(ele.getText());
+					}
+					builder.append(", ");
+				}
+				builder.delete(builder.length() - 2, builder.length());
+			}
+			builder.append(']');
+			return builder.toString();
+		}
 		public String getText() {
-			switch(type) {
-				case TEXT:
-				case ARGUMENT_SEPARATOR:
-					return txt;
-				case ARRAY:
-					return Arrays.toString(arr);
-				case VAR_POINTER:
-					if(variableName != null)
-						return variableName;
-					
-					return vp.toString();
-				case FUNCTION_POINTER:
-					if(variableName != null)
-						return variableName;
-					
-					return fp.toString();
-				case VOID:
-					return "";
-				case NULL:
-					return "null";
-				case INT:
-					return intValue + "";
-				case LONG:
-					return longValue + "";
-				case FLOAT:
-					return floatValue + "";
-				case DOUBLE:
-					return doubleValue + "";
-				case CHAR:
-					return charValue + "";
-				case ERROR:
-					return error.toString();
+			try {
+				switch(type) {
+					case TEXT:
+					case ARGUMENT_SEPARATOR:
+						return txt;
+					case ARRAY:
+						return getArrayText();
+					case VAR_POINTER:
+						if(variableName != null)
+							return variableName;
+						
+						return vp.toString();
+					case FUNCTION_POINTER:
+						if(variableName != null)
+							return variableName;
+						
+						return fp.toString();
+					case VOID:
+						return "";
+					case NULL:
+						return "null";
+					case INT:
+						return intValue + "";
+					case LONG:
+						return longValue + "";
+					case FLOAT:
+						return floatValue + "";
+					case DOUBLE:
+						return doubleValue + "";
+					case CHAR:
+						return charValue + "";
+					case ERROR:
+						return error.toString();
+				}
+			}catch(StackOverflowError e) {
+				return "Error";
 			}
 			
 			return null;
@@ -3319,11 +3349,15 @@ public final class LangInterpreter {
 			if(!(obj instanceof DataObject))
 				return false;
 			
-			DataObject that = (DataObject)obj;
-			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
-			Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
-			this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
-			this.charValue == that.charValue && Objects.equals(this.error, that.error);
+			try {
+				DataObject that = (DataObject)obj;
+				return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
+				Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
+				this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
+				this.charValue == that.charValue && Objects.equals(this.error, that.error);
+			}catch(StackOverflowError e) {
+				return false;
+			}
 		}
 		
 		@Override
