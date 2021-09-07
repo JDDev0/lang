@@ -28,7 +28,7 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #    Function Pointer errors
 #         5: INVALID_FUNC_PTR
 #    System errors
-#         6: STACK_OVERFLOW [Unsused]
+#         6: STACK_OVERFLOW
 #         7: NO_TERMINAL
 #    Function errors
 #         8: INVALID_ARG_COUNT
@@ -64,6 +64,10 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #        29: IF_CONDITION_MISSING
 #    Interpreter/Compiler errors:
 #        30: INVALID_AST_NODE
+#    Function errors:
+#        31: INVALID_PTR
+#    Data errors:
+#        32: INCOMPATIBLE_DATA_TYPE
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
