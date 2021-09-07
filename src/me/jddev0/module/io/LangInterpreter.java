@@ -2519,7 +2519,7 @@ public final class LangInterpreter {
 			this.functionBody = null;
 			this.predefinedFunction = null;
 			this.externalFunction = externalFunction;
-			this.functionPointerType = PREDEFINED;
+			this.functionPointerType = EXTERNAL;
 		}
 		
 		public List<VariableNameNode> getParameterList() {
@@ -3533,7 +3533,7 @@ public final class LangInterpreter {
 			if(vars != null) {
 				DataObject oldData = vars.get(varName);
 				if(oldData == null)
-					vars.put(varName, data);
+					vars.put(varName, data.setVariableName(varName));
 				else if(ignoreFinal || !oldData.isFinalData())
 					oldData.setData(data);
 			}
