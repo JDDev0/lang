@@ -2855,7 +2855,7 @@ public final class LangInterpreter {
 		public boolean getBoolean() {
 			switch(type) {
 				case TEXT:
-					return txt != null && !txt.isEmpty();
+					return !txt.isEmpty();
 				case CHAR:
 					return charValue != 0;
 				case INT:
@@ -2868,12 +2868,12 @@ public final class LangInterpreter {
 					return doubleValue != 0;
 				case ARRAY:
 					return arr.length > 0;
-				case VAR_POINTER:
-					return vp != null;
-				case FUNCTION_POINTER:
-					return fp != null;
 				case ERROR:
-					return error != null && error.getErrno() != 0;
+					return error.getErrno() != 0;
+					
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+					return true;
 				
 				case NULL:
 				case VOID:
@@ -3066,7 +3066,9 @@ public final class LangInterpreter {
 					return number != null && doubleValue == number.doubleValue();
 				
 				case ARRAY:
-					return Objects.deepEquals(arr, other.arr) || (number != null && arr.length == number.intValue());
+					if(other.type == DataType.ARRAY)
+						return Objects.deepEquals(arr, other.arr);
+					return number != null && arr.length == number.intValue();
 				
 				case VAR_POINTER:
 					return vp.equals(other.vp);
@@ -3077,7 +3079,9 @@ public final class LangInterpreter {
 				case ERROR:
 					switch(other.type) {
 						case TEXT:
-							return error.getErrmsg().equals(other.txt) || (number != null && error.getErrno() == number.intValue());
+							if(number == null)
+								return error.getErrmsg().equals(other.txt);
+							return error.getErrno() == number.intValue();
 						
 						case CHAR:
 						case INT:
@@ -3167,7 +3171,9 @@ public final class LangInterpreter {
 				case ERROR:
 					switch(other.type) {
 						case TEXT:
-							return number != null && error.getErrno() < number.intValue() || error.getErrmsg().compareTo(other.txt) < 0;
+							if(number == null)
+								return error.getErrmsg().compareTo(other.txt) < 0;
+							return error.getErrno() < number.intValue();
 						
 						case CHAR:
 						case INT:
@@ -3257,7 +3263,9 @@ public final class LangInterpreter {
 				case ERROR:
 					switch(other.type) {
 						case TEXT:
-							return number != null && error.getErrno() > number.intValue() || error.getErrmsg().compareTo(other.txt) > 0;
+							if(number == null)
+								return error.getErrmsg().compareTo(other.txt) > 0;
+							return error.getErrno() > number.intValue();
 						
 						case CHAR:
 						case INT:
