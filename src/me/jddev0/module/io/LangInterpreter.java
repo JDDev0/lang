@@ -1152,6 +1152,8 @@ public final class LangInterpreter {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1166,7 +1168,7 @@ public final class LangInterpreter {
 			else if(index >= arr.length)
 				return setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			
-			arr[index].setData(valueObject);
+			arr[index].setData(new DataObject(valueObject));
 			
 			return null;
 		});
@@ -1177,6 +1179,8 @@ public final class LangInterpreter {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1194,7 +1198,7 @@ public final class LangInterpreter {
 			
 			arr[0] = valueObject;
 			for(int i = 1;i < arr.length;i++) {
-				arr[i] = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				arr[i] = new DataObject(getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
 				
 				if(argumentList.size() == 0 && i != arr.length - 1) //Not enough arguments
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -1319,6 +1323,8 @@ public final class LangInterpreter {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1335,6 +1341,8 @@ public final class LangInterpreter {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1486,7 +1494,6 @@ public final class LangInterpreter {
 		//Combine everything to a single text object
 		final StringBuilder builder = new StringBuilder();
 		dataObjects.forEach(builder::append);
-		
 		return new DataObject(builder.toString());
 	}
 	
@@ -1947,7 +1954,7 @@ public final class LangInterpreter {
 								if(lvalue.getVariableName() == null || !lvalue.getVariableName().equals(variableName))
 									return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
 								
-								if(lvalue.isFinalData())
+								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
 									return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 								
 								lvalue.setData(rvalue);
@@ -2141,8 +2148,9 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						if((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
-						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER)) {
+						if(valFrom.getType() != DataType.NULL &&
+						((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
+						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER))) {
 							setErrno(InterpretingError.INVALID_ARR_PTR, DATA_ID_TO);
 							return;
 						}
