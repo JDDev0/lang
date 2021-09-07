@@ -2676,8 +2676,7 @@ public final class LangInterpreter {
 		void setData(DataObject dataObject) {
 			this.type = dataObject.type;
 			this.txt = dataObject.txt;
-			//Array won't be copied accurate, because function pointer should be able to change array data from inside
-			this.arr = dataObject.arr;
+			this.arr = dataObject.arr; //Array: copy reference only
 			this.vp = dataObject.vp;
 			this.fp = dataObject.fp;
 			this.intValue = dataObject.intValue;
