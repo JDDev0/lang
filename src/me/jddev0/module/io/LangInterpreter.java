@@ -2200,6 +2200,8 @@ public final class LangInterpreter {
 			case FunctionPointerObject.NORMAL:
 				List<VariableNameNode> parameterList = fp.getParameterList();
 				LangParser.AbstractSyntaxTree functionBody = fp.getFunctionBody();
+				if(parameterList == null || functionBody == null)
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
@@ -2270,6 +2272,8 @@ public final class LangInterpreter {
 			
 			case FunctionPointerObject.PREDEFINED:
 				LangPredefinedFunctionObject function = fp.getPredefinedFunction();
+				if(function == null)
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 				if(function.isDeprecated()) {
 					if(term == null)
 						System.err.printf("Use of deprecated function \"%s\", this function won't be supported in \"%s\"!\n%s", functionName, function.
@@ -2286,7 +2290,10 @@ public final class LangInterpreter {
 				return ret == null?new DataObject().setVoid():ret;
 			
 			case FunctionPointerObject.EXTERNAL:
-				ret = fp.getExternalFunction().callFunc(argumentValueList, DATA_ID);
+				LangExternalFunctionObject externalFunction = fp.getExternalFunction();
+				if(externalFunction == null)
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+				ret = externalFunction.callFunc(argumentValueList, DATA_ID);
 				return ret == null?new DataObject().setVoid():ret;
 			
 			default:
@@ -2488,7 +2495,7 @@ public final class LangInterpreter {
 		 * For normal function pointer definition
 		 */
 		public FunctionPointerObject(List<VariableNameNode> parameterList, LangParser.AbstractSyntaxTree functionBody) {
-			this.parameterList = new ArrayList<>(parameterList);
+			this.parameterList = parameterList == null?null:new ArrayList<>(parameterList);
 			this.functionBody = functionBody;
 			this.predefinedFunction = null;
 			this.externalFunction = null;
@@ -2611,7 +2618,10 @@ public final class LangInterpreter {
 		private final InterpretingError err;
 		
 		public ErrorObject(InterpretingError err) {
-			this.err = err;
+			if(err == null)
+				this.err = InterpretingError.NO_ERROR;
+			else
+				this.err = err;
 		}
 		
 		public int getErrno() {
@@ -2723,6 +2733,8 @@ public final class LangInterpreter {
 		DataObject setArgumentSeparator(String txt) {
 			if(finalData)
 				return this;
+			if(txt == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.ARGUMENT_SEPARATOR;
@@ -2734,6 +2746,8 @@ public final class LangInterpreter {
 		public DataObject setText(String txt) {
 			if(finalData)
 				return this;
+			if(txt == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.TEXT;
@@ -2814,6 +2828,8 @@ public final class LangInterpreter {
 		public DataObject setArray(DataObject[] arr) {
 			if(finalData)
 				return this;
+			if(arr == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.ARRAY;
@@ -2829,6 +2845,8 @@ public final class LangInterpreter {
 		public DataObject setVarPointer(VarPointerObject vp) {
 			if(finalData)
 				return this;
+			if(vp == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.VAR_POINTER;
@@ -2844,6 +2862,8 @@ public final class LangInterpreter {
 		public DataObject setFunctionPointer(FunctionPointerObject fp) {
 			if(finalData)
 				return this;
+			if(fp == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.FUNCTION_POINTER;
@@ -2993,6 +3013,8 @@ public final class LangInterpreter {
 		public DataObject setError(ErrorObject error) {
 			if(finalData)
 				return this;
+			if(error == null)
+				return setNull();
 			
 			resetValue();
 			this.type = DataType.ERROR;
