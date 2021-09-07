@@ -1110,7 +1110,7 @@ public final class LangInterpreter {
 				arrPtr = null;
 			}else if(arrPointerObject.getType() == DataType.TEXT) {
 				arrPtr = arrPointerObject.getText();
-				if(!arrPtr.startsWith("&"))
+				if(!arrPtr.matches("&\\w+"))
 					return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}else {
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1944,10 +1944,15 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
-					if(variableName.matches("(\\$|&|fp\\.|func\\.|linker\\.)\\w+") || variableName.matches("\\$\\[+\\w+\\]+")) {
+					if(variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("\\$\\[+\\w+\\]+")) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
+							if(rvalue.getType() != DataType.NULL &&
+							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
+							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER)))
+								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
+							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, DATA_ID);
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || !lvalue.getVariableName().equals(variableName))
@@ -2147,14 +2152,25 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						if(valFrom.getType() != DataType.NULL &&
-						((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
-						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER))) {
-							setErrno(InterpretingError.INVALID_ARR_PTR, DATA_ID_TO);
+						if(!to.matches("(\\$|&|fp\\.)\\w+") && !to.matches("\\$\\[+\\w+\\]+")) {
+							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
+							return;
+						}
+						int indexOpeningBracket = to.indexOf("[");
+						int indexMatchingBracket = indexOpeningBracket == -1?-1:getIndexOfMatchingBracket(to, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+						if(indexOpeningBracket != -1 && indexMatchingBracket != to.length() - 1) {
+							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
 							return;
 						}
 						
-						data.get(DATA_ID_TO).var.put(to, valFrom);
+						if(valFrom.getType() != DataType.NULL &&
+						((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
+						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER))) {
+							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID_TO);
+							return;
+						}
+						
+						getOrCreateDataObjectFromVariableName(to, false, true, DATA_ID_TO).setData(valFrom);
 						return;
 					}
 				}
@@ -3404,6 +3420,8 @@ public final class LangInterpreter {
 		BRACKET_MISMATCH      (28, "Bracket mismatch"),
 		IF_CONDITION_MISSING  (29, "If statement condition missing"),
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
+		INVALID_PTR           (31, "Invalid Pointer"),
+		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
