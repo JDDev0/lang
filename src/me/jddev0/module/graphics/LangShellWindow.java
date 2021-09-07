@@ -350,7 +350,7 @@ public class LangShellWindow extends JDialog {
 			builder.append("Debug[");
 			builder.append(dataObject.getVariableName() == null?"<ANONYMOUS>":dataObject.getVariableName());
 			builder.append("]:\n");
-			builder.append(getDebugString(dataObject));
+			builder.append(getDebugString(dataObject, 4));
 			
 			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
 			
@@ -376,9 +376,12 @@ public class LangShellWindow extends JDialog {
 		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
 	
-	private String getDebugString(LangInterpreter.DataObject dataObject) {
+	private String getDebugString(LangInterpreter.DataObject dataObject, int maxRecursionDepth) {
 		if(dataObject == null)
 			return "<NULL>";
+		
+		if(maxRecursionDepth < 1)
+			return "<Max recursion depth reached>";
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append("Raw Text: ");
@@ -392,7 +395,7 @@ public class LangShellWindow extends JDialog {
 		switch(dataObject.getType()) {
 			case VAR_POINTER:
 				builder.append("\nPointing to: {\n");
-				String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar()).toString().split("\\n");
+				String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar(), maxRecursionDepth - 1).toString().split("\\n");
 				for(String debugStringLine:debugStringLines) {
 					builder.append("    ");
 					builder.append(debugStringLine);
@@ -410,7 +413,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    arr(");
 					builder.append(i);
 					builder.append("): {\n");
-					debugStringLines = getDebugString(ele).toString().split("\\n");
+					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
