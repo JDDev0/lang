@@ -2687,10 +2687,29 @@ public final class LangInterpreter {
 			this.error = dataObject.error;
 		}
 		
+		/**
+		 * This method <b>ignores</b> the final state of the data object<br>
+		 * This method will not change variableName nor finalData
+		 */
+		private void resetValue() {
+			this.type = null;
+			this.txt = null;
+			this.arr = null;
+			this.vp = null;
+			this.fp = null;
+			this.intValue = 0;
+			this.longValue = 0;
+			this.floatValue = 0;
+			this.doubleValue = 0;
+			this.charValue = 0;
+			this.error = null;
+		}
+		
 		DataObject setArgumentSeparator(String txt) {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.ARGUMENT_SEPARATOR;
 			this.txt = txt;
 			
@@ -2701,6 +2720,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.TEXT;
 			this.txt = txt;
 			
@@ -2749,6 +2769,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.ARRAY;
 			this.arr = arr;
 			
@@ -2763,6 +2784,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.VAR_POINTER;
 			this.vp = vp;
 			
@@ -2777,6 +2799,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.FUNCTION_POINTER;
 			this.fp = fp;
 			
@@ -2791,6 +2814,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.NULL;
 			
 			return this;
@@ -2800,6 +2824,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.VOID;
 			
 			return this;
@@ -2809,6 +2834,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.INT;
 			this.intValue = intValue;
 			
@@ -2862,6 +2888,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.LONG;
 			this.longValue = longValue;
 			
@@ -2876,6 +2903,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.FLOAT;
 			this.floatValue = floatValue;
 			
@@ -2890,6 +2918,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.DOUBLE;
 			this.doubleValue = doubleValue;
 			
@@ -2904,6 +2933,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.CHAR;
 			this.charValue = charValue;
 			
@@ -2918,6 +2948,7 @@ public final class LangInterpreter {
 			if(finalData)
 				return this;
 			
+			resetValue();
 			this.type = DataType.ERROR;
 			this.error = error;
 			
