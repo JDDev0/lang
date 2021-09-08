@@ -1518,19 +1518,19 @@ public final class LangParser {
 				NON("", true), NOT("!", true), AND("&&"), OR("||"), EQUALS("=="), NOT_EQUALS("!="), STRICT_EQUALS("==="), STRICT_NOT_EQUALS("!=="), LESS_THAN("<"), GREATER_THAN(">"),
 				LESS_THAN_OR_EQUALS("<="), GREATER_THAN_OR_EQUALS(">=");
 				
-				private final String symbole;
+				private final String symbol;
 				private final boolean unary;
 				
-				private Operator(String symbole, boolean onlyOneNode) {
-					this.symbole = symbole;
+				private Operator(String symbol, boolean onlyOneNode) {
+					this.symbol = symbol;
 					this.unary = onlyOneNode;
 				}
-				private Operator(String symbole) {
-					this(symbole, false);
+				private Operator(String symbol) {
+					this(symbol, false);
 				}
 				
-				public String getSymbole() {
-					return symbole;
+				public String getSymbol() {
+					return symbol;
 				}
 				
 				public boolean isUnary() {
