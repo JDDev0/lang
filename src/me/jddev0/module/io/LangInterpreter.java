@@ -1871,6 +1871,13 @@ public final class LangInterpreter {
 				if(node.getOperator() == ConditionNode.Operator.NOT_EQUALS)
 					conditionOuput = !conditionOuput;
 				break;
+			case STRICT_EQUALS:
+			case STRICT_NOT_EQUALS:
+				conditionOuput = leftSideOperand.isStrictEquals(rightSideOperand);
+				
+				if(node.getOperator() == ConditionNode.Operator.STRICT_NOT_EQUALS)
+					conditionOuput = !conditionOuput;
+				break;
 			case LESS_THAN:
 				conditionOuput = leftSideOperand.isLessThan(rightSideOperand);
 				break;
@@ -2568,9 +2575,9 @@ public final class LangInterpreter {
 				return false;
 			
 			FunctionPointerObject that = (FunctionPointerObject)obj;
-			return this.functionPointerType == that.functionPointerType && this.parameterList.equals(that.parameterList) &&
-			this.functionBody.equals(that.functionBody) && this.predefinedFunction.equals(that.predefinedFunction) &&
-			this.externalFunction.equals(externalFunction);
+			return this.functionPointerType == that.functionPointerType && Objects.equals(this.parameterList, that.parameterList) &&
+			Objects.equals(this.functionBody, that.functionBody) && Objects.equals(this.predefinedFunction, that.predefinedFunction) &&
+			Objects.equals(this.externalFunction, externalFunction);
 		}
 		
 		@Override
@@ -3107,6 +3114,9 @@ public final class LangInterpreter {
 		
 		//Comparison functions for conditions
 		public boolean isEquals(DataObject other) {
+			if(this == other)
+				return true;
+			
 			if(other == null)
 				return false;
 			
@@ -3180,8 +3190,24 @@ public final class LangInterpreter {
 			
 			return false;
 		}
-		public boolean isLessThan(DataObject other) {
+		public boolean isStrictEquals(DataObject other) {
+			if(this == other)
+				return true;
+			
 			if(other == null)
+				return false;
+			
+			try {
+				return this.type.equals(other.type) && Objects.equals(this.txt, other.txt) && Objects.deepEquals(this.arr, other.arr) &&
+				Objects.equals(this.vp, other.vp) && Objects.equals(this.fp, other.fp) && this.intValue == other.intValue &&
+				this.longValue == other.longValue && this.floatValue == other.floatValue && this.doubleValue == other.doubleValue &&
+				this.charValue == other.charValue && Objects.equals(this.error, other.error);
+			}catch(StackOverflowError e) {
+				return false;
+			}
+		}
+		public boolean isLessThan(DataObject other) {
+			if(this == other || other == null)
 				return false;
 			
 			Number number = other.getNumber();
@@ -3273,7 +3299,7 @@ public final class LangInterpreter {
 			return false;
 		}
 		public boolean isGreaterThan(DataObject other) {
-			if(other == null)
+			if(this == other || other == null)
 				return false;
 			
 			Number number = other.getNumber();
@@ -3392,7 +3418,8 @@ public final class LangInterpreter {
 				return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
 				Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
 				this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
-				this.charValue == that.charValue && Objects.equals(this.error, that.error);
+				this.charValue == that.charValue && Objects.equals(this.error, that.error) && Objects.equals(this.variableName, that.variableName) &&
+				this.finalData == that.finalData;
 			}catch(StackOverflowError e) {
 				return false;
 			}
@@ -3400,7 +3427,7 @@ public final class LangInterpreter {
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error);
+			return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, variableName, finalData);
 		}
 	}
 	public static final class Data {

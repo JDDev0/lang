@@ -132,15 +132,21 @@ public final class LangParser {
 					
 					continue;
 				}
-			}else if(condition.startsWith("!=") || condition.startsWith("&&") || condition.startsWith("||") || condition.startsWith("==") || condition.startsWith("<=") || condition.startsWith(">=") ||
-			condition.startsWith("<") || condition.startsWith(">")) {
+			}else if(condition.startsWith("!==") || condition.startsWith("!=") || condition.startsWith("&&") || condition.startsWith("||") || condition.startsWith("===") ||
+			condition.startsWith("==") || condition.startsWith("<=") || condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">")) {
 				int operatorLength = 2;
-				if(condition.startsWith("!=")) {
+				if(condition.startsWith("!==")) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.ConditionNode.Operator.STRICT_NOT_EQUALS;
+				}else if(condition.startsWith("!=")) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.NOT_EQUALS;
 				}else if(condition.startsWith("&&")) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.AND;
 				}else if(condition.startsWith("||")) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.OR;
+				}else if(condition.startsWith("===")) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.ConditionNode.Operator.STRICT_EQUALS;
 				}else if(condition.startsWith("==")) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.EQUALS;
 				}else if(condition.startsWith("<=")) {
@@ -1509,7 +1515,8 @@ public final class LangParser {
 			}
 			
 			public static enum Operator {
-				NON("", true), NOT("!", true), AND("&&"), OR("||"), EQUALS("=="), NOT_EQUALS("!="), LESS_THAN("<"), GREATER_THAN(">"), LESS_THAN_OR_EQUALS("<="), GREATER_THAN_OR_EQUALS(">=");
+				NON("", true), NOT("!", true), AND("&&"), OR("||"), EQUALS("=="), NOT_EQUALS("!="), STRICT_EQUALS("==="), STRICT_NOT_EQUALS("!=="), LESS_THAN("<"), GREATER_THAN(">"),
+				LESS_THAN_OR_EQUALS("<="), GREATER_THAN_OR_EQUALS(">=");
 				
 				private final String symbole;
 				private final boolean unary;
