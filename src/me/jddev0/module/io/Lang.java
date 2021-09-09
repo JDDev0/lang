@@ -374,6 +374,13 @@ public final class Lang {
 	 * @return Returns all translations of <b>langFile</b>
 	 */
 	public static Map<String, String> getTranslationMap(String langFile, boolean reloadNotFromChache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		return getTranslationMap(langFile, reloadNotFromChache, term, langPlatformAPI, null);
+	}
+
+	/**
+	 * @return Returns all translations of <b>langFile</b>
+	 */
+	public static Map<String, String> getTranslationMap(String langFile, boolean reloadNotFromChache, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		synchronized(LANG_CACHE) {
 			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
 				return new HashMap<>(LANG_CACHE);
@@ -386,7 +393,7 @@ public final class Lang {
 			String pathLangFile = langPlatformAPI.getLangPath(langFile);
 			
 			//Create new Interpreter instance
-			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
+			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 			
 			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
 			try {
@@ -534,7 +541,7 @@ public final class Lang {
 	}
 	
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
-	TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+	TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {
 				LANG_CACHE.clear();
@@ -544,7 +551,7 @@ public final class Lang {
 		
 		String pathLangFile = langPlatformAPI.getLangPath(langFile);
 		
-		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI);
+		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 		
 		BufferedReader reader = langPlatformAPI.getLangReader(langFile);
 		try {
@@ -565,11 +572,20 @@ public final class Lang {
 		
 		return new LangInterpreter.LangInterpreterInterface(interpreter);
 	}
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
+		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null);
+	}
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
+		return createInterpreterInterface(langFile, false, term, langPlatformAPI, langArgs);
+	}
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI);
 	}
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
+		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI, langArgs));
+	}
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
-		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI));
+		return createInterpreterInterface(term, langPlatformAPI, null);
 	}
 	
 	//DEPRACTED methods and classes

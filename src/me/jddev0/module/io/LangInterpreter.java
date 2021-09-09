@@ -1445,11 +1445,14 @@ public final class LangInterpreter {
 	}
 	
 	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		this(langPath, term, langPlatformAPI, null);
+	}
+	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
 		this.langPath = langPath;
 		this.term = term;
 		this.langPlatformAPI = langPlatformAPI;
 		
-		createDataMap(0);
+		createDataMap(0, langArgs);
 	}
 	
 	public LangParser.AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
@@ -2431,17 +2434,29 @@ public final class LangInterpreter {
 	}
 	
 	private void createDataMap(final int DATA_ID) {
+		createDataMap(DATA_ID, null);
+	}
+	private void createDataMap(final int DATA_ID, String[] langArgs) {
 		data.put(DATA_ID, new Data());
+		
+		if(langArgs != null) {
+			DataObject[] langArgsArray = new DataObject[langArgs.length];
+			for(int i = 0;i < langArgs.length;i++)
+				langArgsArray[i] = new DataObject(langArgs[i]);
+			data.get(DATA_ID).var.put("&LANG_ARGS", new DataObject().setArray(langArgsArray).setFinalData(true).setVariableName("&LANG_ARGS"));
+		}
 		
 		resetVarsAndFuncPtrs(DATA_ID);
 	}
 	private void resetVarsAndFuncPtrs(final int DATA_ID) {
+		DataObject langArgs = data.get(DATA_ID).var.get("&LANG_ARGS");
 		data.get(DATA_ID).var.clear();
 		
 		//Final vars
-		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true));
-		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(langPath, true));
-		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true));
+		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_COMPILER_VERSION"));
+		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(langPath, true).setVariableName("$LANG_PATH"));
+		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setVariableName("$LANG_RAND_MAX"));
+		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
 		
 		//Not final vars
 		setErrno(InterpretingError.NO_ERROR, DATA_ID); //Set $LANG_ERRNO
@@ -2460,7 +2475,7 @@ public final class LangInterpreter {
 	}
 	
 	private void setErrno(InterpretingError error, final int DATA_ID) {
-		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject());
+		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setVariableName("$LANG_ERRNO"));
 		
 		data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(error.getErrorCode());
 	}

@@ -77,6 +77,9 @@ public class LangShellWindow extends JDialog {
 		this(owner, term, 12);
 	}
 	public LangShellWindow(JFrame owner, TerminalIO term, int fontSize) {
+		this(owner, term, fontSize, null);
+	}
+	public LangShellWindow(JFrame owner, TerminalIO term, int fontSize, String[] langArgs) {
 		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
 		
 		this.term = term;
@@ -250,7 +253,7 @@ public class LangShellWindow extends JDialog {
 		});
 		scrollPane.setViewportView(shell);
 		
-		initShell();
+		initShell(langArgs);
 	}
 	
 	public void setFontSize(int fontSize) {
@@ -262,7 +265,7 @@ public class LangShellWindow extends JDialog {
 		shell.setCaretPosition(shell.getDocument().getLength());
 	}
 	
-	private void initShell() {
+	private void initShell(String[] langArgs) {
 		//Sets System.out
 		oldOut = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
@@ -332,7 +335,7 @@ public class LangShellWindow extends JDialog {
 			}
 		}, true));
 		
-		lii = Lang.createInterpreterInterface(term, langPlatformAPI);
+		lii = Lang.createInterpreterInterface(term, langPlatformAPI, langArgs);
 		
 		//Add debug functions
 		lii.addPredefinedFunction("printHelp", (argumentList, DATA_ID) -> {

@@ -42,6 +42,7 @@ public class Startup {
 			String langFile = args[0];
 			boolean printTranslations = false;
 			boolean printReturnedValue = false;
+			String[] langArgs = null;
 			
 			for(int i = 1;i < args.length;i++) {
 				String arg = args[i];
@@ -49,6 +50,9 @@ public class Startup {
 					printTranslations = true;
 				}else if(arg.equals("-printReturnedValue")) {
 					printReturnedValue = true;
+				}else if(arg.equals("-langArgs")) {
+					langArgs = Arrays.copyOfRange(args, i + 1, args.length);
+					break;
 				}else {
 					System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
 					
@@ -57,7 +61,7 @@ public class Startup {
 				}
 			}
 			
-			executeLangFile(langFile, printTranslations, printReturnedValue);
+			executeLangFile(langFile, printTranslations, printReturnedValue, langArgs);
 			return;
 		}
 		
@@ -68,8 +72,8 @@ public class Startup {
 		TerminalWindow termWin = new TerminalWindow(getFontSize());
 		TerminalIO term = new TerminalIO(new File("assets/log.txt"));
 		term.addCommand("executeLang", input -> {
-			if(input.length != 1) {
-				term.logf(Level.ERROR, "To many arguments: %d/1!\n", Startup.class, input.length);
+			if(input.length < 1) {
+				term.logf(Level.ERROR, "To few arguments: %d/1+!\n", Startup.class, input.length);
 				
 				return;
 			}
@@ -81,9 +85,10 @@ public class Startup {
 				return;
 			}
 			
+			String[] langArgs = Arrays.copyOfRange(input, 1, input.length);
 			try {
 				term.logln(Level.DEBUG, "------------- Start of Lang --------------", Startup.class);
-				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[0], term, langPlatformAPI);
+				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[0], term, langPlatformAPI, langArgs);
 				Map<String, String> translations = lii.getTranslationMap(0);
 				term.logln(Level.DEBUG, "-------------- Translations --------------", Startup.class);
 				translations.forEach((key, value) -> {
@@ -119,13 +124,7 @@ public class Startup {
 				term.logStackTrace(e, Startup.class);
 			}
 		}).addCommand("startShell", input -> {
-			if(input.length != 0) {
-				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
-				
-				return;
-			}
-			
-			LangShellWindow langShellWin = new LangShellWindow(termWin, term, getFontSize());
+			LangShellWindow langShellWin = new LangShellWindow(termWin, term, getFontSize(), input);
 			langShellWin.setVisible(true);
 		}).addCommand("toggle4k", input -> {
 			if(input.length != 0) {
@@ -195,7 +194,7 @@ public class Startup {
 	}
 	
 	private static void printHelp() {
-		System.out.println("Usage: lang COMMAND [ARGs]... | lang FILE [EXECUTION_ARGs]...");
+		System.out.println("Usage: lang COMMAND [ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
 		System.out.println("Interprets a Lang file");
 		System.out.println();
 		System.out.println("COMMANDs");
@@ -214,9 +213,10 @@ public class Startup {
 		System.out.println("--------------");
 		System.out.println("    -printTranslations      Prints all Translations after execution of Lang file finished to standard output");
 		System.out.println("    -printReturnedValue     Prints the returned value of the lang file if any");
+		System.out.println("    -langArgs               Indicates the start of the lang arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
-	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue) {
+	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
 		File lang = new File(langFile);
 		if(!lang.exists()) {
 			System.err.printf("The lang file %s wasn't found!\n", langFile);
@@ -225,7 +225,7 @@ public class Startup {
 		}
 		
 		try {
-			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, null, langPlatformAPI);
+			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, null, langPlatformAPI, langArgs);
 			Map<String, String> translations = lii.getTranslationMap(0);
 			if(printTranslations) {
 				System.out.println("-------------- Translations --------------");
