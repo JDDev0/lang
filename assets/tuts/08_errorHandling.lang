@@ -66,8 +66,9 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #        30: INVALID_AST_NODE
 #    Function errors:
 #        31: INVALID_PTR
-#    Data errors:
+#    Variable errors:
 #        32: INCOMPATIBLE_DATA_TYPE
+#        33: LANG_ARRAYS_COPY
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
