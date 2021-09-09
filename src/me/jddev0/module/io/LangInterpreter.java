@@ -1972,6 +1972,9 @@ public final class LangInterpreter {
 								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
 									return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 								
+								if(rvalue.getVariableName() != null && rvalue.getVariableName().startsWith("&LANG_"))
+									return setErrnoErrorObject(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
+								
 								lvalue.setData(rvalue);
 								break;
 							}
@@ -3487,6 +3490,7 @@ public final class LangInterpreter {
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
 		INVALID_PTR           (31, "Invalid Pointer"),
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
+		LANG_ARRAYS_COPY      (33, "&LANG arrays can't be copied"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
