@@ -1123,8 +1123,6 @@ public final class LangInterpreter {
 			
 			if(length < 0)
 				return setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, DATA_ID);
-			else if(length == 0)
-				return setErrnoErrorObject(InterpretingError.EMPTY_ARRAY, DATA_ID);
 			
 			DataObject oldData = arrPtr == null?arrPointerObject:data.get(DATA_ID).var.get(arrPtr);
 			if((oldData != null && (oldData.isFinalData() || (oldData.getVariableName() != null && oldData.getVariableName().startsWith("&LANG_")))) ||
