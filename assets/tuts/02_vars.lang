@@ -108,6 +108,7 @@ func.printTerminal(-1, $LANG_COMPILER_VERSION) # Will print the compiler version
 func.printTerminal(-1, $LANG_PATH) # Will print the path to the lang file
 func.printTerminal(-1, $LANG_RAND_MAX) # Will print the maximal value for func.rand
 func.printTerminal(-1, $LANG_ERRNO) # Will print the errno value or 0 if no error
+func.printTerminal(-1, &LANG_ARGS) # Will print the command line arguments (Array of TEXT elements, See: 04_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
 
 func.printTerminal(-1, -----------------)
 
