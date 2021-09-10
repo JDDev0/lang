@@ -1959,8 +1959,14 @@ public final class LangInterpreter {
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
 							if(rvalue.getType() != DataType.NULL &&
 							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
-							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER)))
+							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
+								//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno
+								InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
+								if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode())
+									return setErrnoErrorObject(error, DATA_ID);
+								
 								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
+							}
 							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, DATA_ID);
 							if(lvalue != null) {
