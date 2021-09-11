@@ -49,40 +49,55 @@ public final class LangParser {
 				
 				break;
 			}
-			//Parse multiline text
-			while(line.contains("{{{")) {
-				int startIndex = line.indexOf("{{{");
-				if(line.contains("}}}")) {
-					int endIndex = line.indexOf("}}}");
-					line = line.substring(0, startIndex) + escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
-				}else {
-					//Multiple lines
-					lineTmp.delete(0, lineTmp.length());
-					lineTmp.append(line.substring(startIndex + 3));
-					line = line.substring(0, startIndex);
-					String lineTmpString;
-					while(true) {
-						if(!lines.ready()) {
-							ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
-							return ast;
-						}
-						
-						lineTmpString = lines.readLine();
-						if(lineTmpString == null) {
-							ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
-							return ast;
-						}
-						lineTmp.append('\n');
-						if(lineTmpString.contains("}}}")) {
-							int endIndex = lineTmpString.indexOf("}}}");
-							lineTmp.append(lineTmpString.substring(0, endIndex));
-							line = line + escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
+			//Parse multiline text & line continuation
+			while(line.contains("{{{") || line.endsWith("\\")) {
+				if(line.contains("{{{")) { //Multiline text
+					int startIndex = line.indexOf("{{{");
+					if(line.contains("}}}")) {
+						int endIndex = line.indexOf("}}}");
+						line = line.substring(0, startIndex) + escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
+					}else {
+						//Multiple lines
+						lineTmp.delete(0, lineTmp.length());
+						lineTmp.append(line.substring(startIndex + 3));
+						line = line.substring(0, startIndex);
+						String lineTmpString;
+						while(true) {
+							if(!lines.ready()) {
+								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+								return ast;
+							}
 							
-							break;
+							lineTmpString = lines.readLine();
+							if(lineTmpString == null) {
+								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+								return ast;
+							}
+							lineTmp.append('\n');
+							if(lineTmpString.contains("}}}")) {
+								int endIndex = lineTmpString.indexOf("}}}");
+								lineTmp.append(lineTmpString.substring(0, endIndex));
+								line = line + escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
+								
+								break;
+							}
+							
+							lineTmp.append(lineTmpString);
 						}
-						
-						lineTmp.append(lineTmpString);
 					}
+				}else { //Line continuation
+					line = line.substring(0, line.length() - 1);
+					
+					if(!lines.ready()) {
+						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						return ast;
+					}
+					String lineTmpString = lines.readLine();
+					if(lineTmpString == null) {
+						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						return ast;
+					}
+					line += lineTmpString;
 				}
 			}
 			line = currentLine = prepareLine(line);

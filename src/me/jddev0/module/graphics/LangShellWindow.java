@@ -68,6 +68,7 @@ public class LangShellWindow extends JDialog {
 	private StringBuilder multiLineTmp = new StringBuilder();
 	private int indent = 0;
 	private boolean flagMultilineText = false;
+	private boolean flagLineContinuation = false;
 	private boolean flagEnd = false;
 	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
@@ -622,7 +623,11 @@ public class LangShellWindow extends JDialog {
 		currentCommand = "";
 	}
 	
+	private void resetAddLineFlags() {
+		flagMultilineText = flagLineContinuation = false;
+	}
 	private void removeLines(String str) {
+		resetAddLineFlags();
 		multiLineTmp.delete(0, multiLineTmp.length());
 		indent = 0;
 		
@@ -681,11 +686,13 @@ public class LangShellWindow extends JDialog {
 		return false;
 	}
 	private void addLine(String line) {
-		if(!flagMultilineText && indent == 0) {
+		if(!flagMultilineText && !flagLineContinuation && indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			
 			flagMultilineText = containsMultilineText(line);
-			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif")) || flagMultilineText) {
+			if(!flagMultilineText)
+				flagLineContinuation = line.endsWith("\\");
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif")) || flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
 				multiLineTmp.append("\n");
@@ -704,8 +711,12 @@ public class LangShellWindow extends JDialog {
 		}else {
 			if(!flagMultilineText) {
 				flagMultilineText = containsMultilineText(line);
-				if(flagMultilineText)
-					indent++;
+				if(flagMultilineText) {
+					if(flagLineContinuation)
+						flagLineContinuation = false;
+					else
+						indent++;
+				}
 			}
 			
 			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if")))
@@ -748,8 +759,21 @@ public class LangShellWindow extends JDialog {
 				}catch(BadLocationException e) {}
 			}
 			
+			if(!flagMultilineText) {
+				if(flagLineContinuation) {
+					flagLineContinuation = line.endsWith("\\");
+					if(!flagLineContinuation)
+						indent--;
+				}else {
+					flagLineContinuation = line.endsWith("\\");
+					if(flagLineContinuation)
+						indent++;
+				}
+			}
+			
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
-			if(indent == 0) {
+			if(indent < 1) {
+				indent = 0;
 				String multiLineTmpString = multiLineTmp.toString();
 				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
 				
