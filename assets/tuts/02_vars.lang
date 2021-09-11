@@ -45,6 +45,17 @@ func.printTerminal(-1, $var10)
 
 func.printTerminal(-1, -----------------)
 
+# Multiline text
+
+$mutlilineText = {{{first line
+2nd: # no comment
+3rd: \n not escaped
+4th: # also no comment}}} # Everything between "{{{" and "}}}", no escape chars nor comments
+
+func.printTerminal(-1, $mutlilineText)
+
+func.printTerminal(-1, -----------------)
+
 # Override values
 $var5 = New value
 
