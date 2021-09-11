@@ -21,3 +21,28 @@ func.printTerminal(6, abc-{{{
 test\
 }}})
 }
+
+# Multiline comments
+{
+	# Comment \
+	2nd line
+	
+	# Comment \
+	func.printTerminal(-1, test) # In comment
+	func.printTerminal(-1, test) # Not in comment
+	
+	# Comment \
+	2nd line \
+	3rd line
+	
+	# Comment {{{
+		2nd line
+		3rd line
+	}}} - 4th line \
+	5th line
+	
+	# Comment \
+	2nd line {{{
+		3rd line
+	}}} - 4th line
+}
