@@ -219,20 +219,36 @@ public class LangShellWindow extends JDialog {
 					}else {
 						if(historyPos == history.size() - 1)
 							historyPos++;
-						
-						lineTmp.delete(0, lineTmp.length());
-						lineTmp.append(currentCommand);
+						else
+							return;
 						
 						removeLines(lastHistoryEntryUsed);
-						lastHistoryEntryUsed = currentCommand;
-						addLinesWithoutExec(currentCommand);
+						multiLineTmp.delete(0, multiLineTmp.length());
+						
+						String[] lines = currentCommand.split("\n");
+						for(int i = 0;i < lines.length - 1;i++) {
+							String line = lines[i];
+							GraphicsHelper.addText(shell, line, Color.WHITE);
+							highlightSyntaxLastLine();
+							addLine(line);
+						}
+						lineTmp.delete(0, lineTmp.length());
+						lineTmp.append(lines[lines.length - 1]);
+						if(lines.length > 1)
+							lineTmp.delete(0, 1); //Remove tmp space
+						GraphicsHelper.addText(shell, lineTmp.toString(), Color.WHITE);
+						highlightSyntaxLastLine();
 						updateAutoCompleteText(lineTmp.toString());
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_UP) {
 					if(historyPos > 0) {
 						removeAutoCompleteText();
-						if(historyPos == history.size())
+						if(historyPos == history.size()) {
 							currentCommand = lineTmp.toString();
+							if(multiLineTmp.length() > 0)
+								currentCommand = multiLineTmp.toString() + " " + currentCommand; //Add tmp space for split at "\n" in removeLines()
+							lastHistoryEntryUsed = currentCommand;
+						}
 						
 						historyPos--;
 						
