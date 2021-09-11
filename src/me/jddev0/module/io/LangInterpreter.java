@@ -2466,6 +2466,11 @@ public final class LangInterpreter {
 		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_COMPILER_VERSION"));
 		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(langPath, true).setVariableName("$LANG_PATH"));
 		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setVariableName("$LANG_RAND_MAX"));
+		data.get(DATA_ID).var.put("$LANG_OS_NAME", new DataObject(System.getProperty("os.name")).setFinalData(true).setVariableName("$LANG_OS_NAME"));
+		data.get(DATA_ID).var.put("$LANG_OS_VER", new DataObject(System.getProperty("os.version")).setFinalData(true).setVariableName("$LANG_OS_VER"));
+		data.get(DATA_ID).var.put("$LANG_OS_ARCH", new DataObject(System.getProperty("os.arch")).setFinalData(true).setVariableName("$LANG_OS_ARCH"));
+		data.get(DATA_ID).var.put("$LANG_OS_FILE_SEPARATOR", new DataObject(System.getProperty("file.separator")).setFinalData(true).setVariableName("$LANG_OS_FILE_SEPARATOR"));
+		data.get(DATA_ID).var.put("$LANG_OS_LINE_SEPARATOR", new DataObject(System.getProperty("line.separator")).setFinalData(true).setVariableName("$LANG_OS_LINE_SEPARATOR"));
 		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
 		
 		//Not final vars
