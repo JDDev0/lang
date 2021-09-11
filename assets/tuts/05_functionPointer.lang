@@ -208,6 +208,12 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	fp.g(6-ABC)
 	fp.h = func.exec(return (\$text...) -> {\nfunc\!.printError(\$text)\n})
 	fp.h(7-ABC)
+	fp.i = func.exec({{{
+		return ($text...) -> {
+			func.printError($text)
+		}
+	}}})
+	fp.i(8-ABC)
 }
 
 # Anonymous Function Pointer as return value
