@@ -1,0 +1,23 @@
+lang.name = Useful stuff
+lang.version = v1.0.0
+
+# Line continuation
+{
+	func.printTerminal(3, abc-\
+test) # Will print "abc-test", if "\" is at end of line and outside of a multiline text, the line will be split (It must be the end of the line, comments may not come after "\")
+# The leading whitespaces of a line after "\" will be parsed
+	
+	func.printTerminal(4, abc-\
+{{{
+test
+}}})
+	
+func.printTerminal(5, abc-{{{
+test
+}}}\
+abc)
+	
+func.printTerminal(6, abc-{{{
+test\
+}}})
+}
