@@ -162,6 +162,9 @@ func.exec($var.printTerminal(3, test inside exec))
 # Code executed by func.exec has no access to outside variables, but the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
 func.exec(func.printTerminal(5, $var)\nfunc.printTerminal(5, \$var)) # Would print "func" and than "$var"
 
+# Use multiline text for escaping variables
+func.exec({{{func.printTerminal(2, $var)}}}) # Will print "$var"
+
 # Returning values with exec
 $value = 42\.123
 $a = func.exec(return $value) # return: See [05_functionPointer.lang: return]
