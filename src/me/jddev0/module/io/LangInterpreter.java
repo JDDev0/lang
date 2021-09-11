@@ -1507,6 +1507,9 @@ public final class LangInterpreter {
 	}
 	
 	private void interpretAST(LangParser.AbstractSyntaxTree ast, final int DATA_ID) {
+		if(ast == null)
+			return;
+		
 		for(Node node:ast) {
 			if(stopParsingFlag)
 				return;

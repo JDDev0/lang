@@ -67,6 +67,7 @@ public class LangShellWindow extends JDialog {
 	
 	private StringBuilder multiLineTmp = new StringBuilder();
 	private int indent = 0;
+	private boolean flagMultilineText = false;
 	private boolean flagEnd = false;
 	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
@@ -657,11 +658,34 @@ public class LangShellWindow extends JDialog {
 		GraphicsHelper.addText(shell, lastLine, Color.WHITE);
 		highlightSyntaxLastLine();
 	}
+	private boolean containsMultilineText(String line) {
+		while(line.contains("{{{")) {
+			int index = line.indexOf("}}}");
+			if(index == -1)
+				return true;
+			
+			line = line.substring(index + 3);
+		}
+		
+		return false;
+	}
+	private boolean hasMultilineTextEnd(String line) {
+		while(line.contains("}}}")) {
+			int index = line.indexOf("{{{");
+			if(index == -1)
+				return true;
+			
+			line = line.substring(index + 3);
+		}
+		
+		return false;
+	}
 	private void addLine(String line) {
-		if(indent == 0) {
+		if(!flagMultilineText && indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			
-			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))) {
+			flagMultilineText = containsMultilineText(line);
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif")) || flagMultilineText) {
 				indent++;
 				multiLineTmp.append(line);
 				multiLineTmp.append("\n");
@@ -678,17 +702,39 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 			}
 		}else {
-			if(line.trim().endsWith("{") || line.trim().startsWith("con.if"))
+			if(!flagMultilineText) {
+				flagMultilineText = containsMultilineText(line);
+				if(flagMultilineText)
+					indent++;
+			}
+			
+			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if")))
 				indent++;
 			
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
-			if(line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if"))) {
+			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if")))) {
 				indent--;
 				
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))
 					indent++;
+				
+				//Remove the first indent from actual line
+				try {
+					Document doc = shell.getDocument();
+					int startOfLine;
+					for(startOfLine = doc.getLength() - 1;startOfLine > 0;startOfLine--)
+						if(doc.getText(startOfLine, 1).charAt(0) == '\n')
+							break;
+					startOfLine++; //The line starts on char after '\n'
+					doc.remove(startOfLine, 4);
+				}catch(BadLocationException e) {}
+			}
+			
+			if(flagMultilineText && hasMultilineTextEnd(line)) {
+				flagMultilineText = false;
+				indent--;
 				
 				//Remove the first indent from actual line
 				try {

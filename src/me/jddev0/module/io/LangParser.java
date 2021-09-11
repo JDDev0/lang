@@ -19,6 +19,9 @@ public final class LangParser {
 	private String currentLine;
 	
 	public static String escapeString(String str) {
+		if(str == null)
+			return null;
+		
 		return str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
 		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
 		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
@@ -32,12 +35,13 @@ public final class LangParser {
 	}
 	
 	public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
-		if(!lines.ready())
+		if(lines == null || !lines.ready())
 			return null;
 		
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		int blockPos = 0;
 		
+		StringBuilder lineTmp = new StringBuilder();
 		do {
 			String line = lines.readLine();
 			if(line == null) {
@@ -45,7 +49,42 @@ public final class LangParser {
 				
 				break;
 			}
-			
+			//Parse multiline text
+			while(line.contains("{{{")) {
+				int startIndex = line.indexOf("{{{");
+				if(line.contains("}}}")) {
+					int endIndex = line.indexOf("}}}");
+					line = line.substring(0, startIndex) + escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
+				}else {
+					//Multiple lines
+					lineTmp.delete(0, lineTmp.length());
+					lineTmp.append(line.substring(startIndex + 3));
+					line = line.substring(0, startIndex);
+					String lineTmpString;
+					while(true) {
+						if(!lines.ready()) {
+							ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+							return ast;
+						}
+						
+						lineTmpString = lines.readLine();
+						if(lineTmpString == null) {
+							ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+							return ast;
+						}
+						lineTmp.append('\n');
+						if(lineTmpString.contains("}}}")) {
+							int endIndex = lineTmpString.indexOf("}}}");
+							lineTmp.append(lineTmpString.substring(0, endIndex));
+							line = line + escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
+							
+							break;
+						}
+						
+						lineTmp.append(lineTmpString);
+					}
+				}
+			}
 			line = currentLine = prepareLine(line);
 			if(line != null) {
 				//Blocks and function bodies
@@ -81,6 +120,9 @@ public final class LangParser {
 	}
 	
 	public AbstractSyntaxTree.ConditionNode parseCondition(String condition) throws IOException {
+		if(condition == null)
+			return null;
+		
 		AbstractSyntaxTree.ConditionNode.Operator operator = null;
 		List<AbstractSyntaxTree.Node> leftNodes = new ArrayList<>();
 		AbstractSyntaxTree.Node rightNode = null;
