@@ -22,6 +22,8 @@ test\
 }}})
 }
 
+func.printTerminal(-1, \n\n\n)
+
 # Multiline comments
 {
 	# Comment \
@@ -45,4 +47,35 @@ test\
 	2nd line {{{
 		3rd line
 	}}} - 4th line
+}
+
+func.printTerminal(-1, \n\n\n)
+
+# Custom IO functions
+{
+	con.if(func.isTerminalAvailable())
+		fp.input = func.readTerminal
+		fp.print = func.printTerminal
+		fp.error = ($text...) -> func.printTerminal(5, $text)
+	con.else
+		fp.input = ($text...) -> {
+			con.if($text)
+				func.print($text: )
+			con.else
+				func.print(Input: )
+			con.endif
+			return func.input()
+		}
+		fp.print = ($lvl, $text...) -> func.println($text)
+		fp.error = func.errorln
+	con.endif
+	
+	$input = fp.input(Test)
+	fp.print(1, Input: $input)
+	fp.print(2, varars, test)
+	fp.error(test error)
+	fp.error(test, error, with, varargs)
+	
+	$input = fp.input() # Empty input message
+	fp.print(1, Input: $input)
 }
