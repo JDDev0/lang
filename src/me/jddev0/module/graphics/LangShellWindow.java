@@ -191,7 +191,9 @@ public class LangShellWindow extends JDialog {
 							}
 						}
 						updateAutoCompleteText(lineTmp.toString());
-					}catch(HeadlessException|UnsupportedFlavorException|IOException e1) {
+					}catch(UnsupportedFlavorException e1) {
+						term.logln(Level.WARNING, "The clipboard contains no string data!", LangShellWindow.class);
+					}catch(HeadlessException|IOException e1) {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
