@@ -98,3 +98,21 @@ func.printTerminal(-1, \n\n\n)
 	func.printTerminal(1, (1 < 42) != (1 > 42) = func.condition((1 < 42) == (1 > 42))) # 0
 	func.printTerminal(1, (1 < 42) != (1 < 42) = func.condition((1 < 42) == (1 < 42))) # 1
 }
+
+func.printTerminal(-1, \n\n\n)
+
+# "Returning" of multiple values
+{
+	# "Return" is also possible with the pointer dereferencing "$*ptr"
+	
+	# $column and $row are var pointers
+	fp.convertIndexToCoords = ($index, $COLUMN_COUNT, $column, $row) -> {
+		$*column = func.modi($index, $COLUMN_COUNT)
+		$*row = func.divi($index, $COLUMN_COUNT)
+	}
+	$index = 42
+	$COLUMN_COUNT = 12
+	$column = $row = null
+	fp.convertIndexToCoords(42, 12, $[column], $[row])
+	func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
+}
