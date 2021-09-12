@@ -502,7 +502,7 @@ public class LangShellWindow extends JDialog {
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 			
-			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, returnFlag = false;
+			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 				
@@ -525,8 +525,9 @@ public class LangShellWindow extends JDialog {
 				}
 				
 				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
+				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
 				
-				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '&'))
+				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '*' || c == '&'))
 					varFlag = false;
 				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
 					funcFlag = false;
@@ -543,6 +544,8 @@ public class LangShellWindow extends JDialog {
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
+				else if(dereferencingAndReferencingOperatorFlag)
+					col = Color.GRAY;
 				else if(bracketsFlag)
 					col = Color.LIGHT_GRAY;
 				else if(funcFlag)
