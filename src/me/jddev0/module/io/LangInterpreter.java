@@ -575,6 +575,26 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
 			}
 		});
+		funcs.put("toIntBits", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setInt(Float.floatToRawIntBits(number.floatValue()));
+			}, DATA_ID);
+		});
+		funcs.put("toFloatBits", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setFloat(Float.intBitsToFloat(number.intValue()));
+			}, DATA_ID);
+		});
+		funcs.put("toLongBits", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setLong(Double.doubleToRawLongBits(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("toDoubleBits", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Double.longBitsToDouble(number.longValue()));
+			}, DATA_ID);
+		});
 		
 		//Character functions
 		funcs.put("toValue", (argumentList, DATA_ID) -> {
