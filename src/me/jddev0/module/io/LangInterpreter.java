@@ -1636,11 +1636,11 @@ public final class LangInterpreter {
 	/**
 	 * @param variablePrefixAppendAfterSearch If no part of the variable name matched an existing variable, the variable prefix will be added to the returned TextValueNode<br>
 	 *                                             (e.g. "func.abc" ("func." is not part of the variableNames in the set))
-	 * @param supportsPointerReferencing If true, this node will return pointer reference as VariableNameNode<br>
+	 * @param supportsPointerDereferencingAndReferencing If true, this node will return pointer reference or a dereferenced pointers as VariableNameNode<br>
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a VariableNameNode)
 	 */
 	private Node convertVariableNameToVariableNameNodeOrComposition(String variableName, Set<String> variableNames,
-	String variablePrefixAppendAfterSearch, final boolean supportsPointerReferencing) {
+	String variablePrefixAppendAfterSearch, final boolean supportsPointerDereferencingAndReferencing) {
 		Optional<String> optionalReturnedVariableName = variableNames.stream().filter(varName -> {
 			return variableName.startsWith(varName);
 		}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $abcd and $abc and $ab)
@@ -1651,20 +1651,42 @@ public final class LangInterpreter {
 		}).findFirst();
 		
 		if(!optionalReturnedVariableName.isPresent()) {
-			if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check dereferenced variable name
-				int indexOpeningBracket = variableName.indexOf("[");
-				int indexMatchingBracket = getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
-				if(indexMatchingBracket != -1) {
-					String modifiedVariableName = variableName;
-					String text = null;
-					if(indexMatchingBracket != modifiedVariableName.length() - 1) {
-						text = modifiedVariableName.substring(indexMatchingBracket + 1);
-						modifiedVariableName = modifiedVariableName.substring(0, indexMatchingBracket + 1);
+			if(supportsPointerDereferencingAndReferencing) {
+				String dereferences = null;
+				int startIndex = -1;
+				String modifiedVariableName = variableName;
+				Node returnedNode = null;
+				String text = null;
+				if(variableName.contains("*")) { //Check referenced variable name
+					startIndex = variableName.indexOf('*');
+					int endIndex = variableName.lastIndexOf('*') + 1;
+					if(endIndex >= variableName.length())
+						return new TextValueNode(variablePrefixAppendAfterSearch + variableName);
+					
+					dereferences = variableName.substring(startIndex, endIndex);
+					modifiedVariableName = variableName.substring(0, startIndex) + variableName.substring(endIndex);
+					
+					if(!modifiedVariableName.contains("[") && !modifiedVariableName.contains("]"))
+						returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName, variableNames, "", supportsPointerDereferencingAndReferencing);
+				}
+				
+				if(modifiedVariableName.contains("[") && modifiedVariableName.contains("]")) { //Check dereferenced variable name
+					int indexOpeningBracket = modifiedVariableName.indexOf("[");
+					int indexMatchingBracket = getIndexOfMatchingBracket(modifiedVariableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+					if(indexMatchingBracket != -1) {
+						if(indexMatchingBracket != modifiedVariableName.length() - 1) {
+							text = modifiedVariableName.substring(indexMatchingBracket + 1);
+							modifiedVariableName = modifiedVariableName.substring(0, indexMatchingBracket + 1);
+						}
+						
+						returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName.substring(0, indexOpeningBracket) +
+						modifiedVariableName.substring(indexOpeningBracket + 1, indexMatchingBracket), variableNames, "", supportsPointerDereferencingAndReferencing);
 					}
-					
-					Node returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName.substring(0, indexOpeningBracket) +
-					modifiedVariableName.substring(indexOpeningBracket + 1, indexMatchingBracket), variableNames, "", supportsPointerReferencing);
-					
+				}
+				
+				if(returnedNode != null) {
+					if(dereferences != null)
+						modifiedVariableName = modifiedVariableName.substring(0, startIndex) + dereferences + modifiedVariableName.substring(startIndex);
 					switch(returnedNode.getNodeType()) {
 						case VARIABLE_NAME: //Variable was found without additional text -> valid pointer reference
 							if(text == null)
@@ -1976,7 +1998,7 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
-					if(variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("\\$\\[+\\w+\\]+")) {
+					if(variableName.matches("(\\$\\**|&|fp\\.)\\w+") || variableName.matches("\\$\\**\\[+\\w+\\]+")) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
@@ -1991,9 +2013,9 @@ public final class LangInterpreter {
 								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
 							}
 							
-							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, DATA_ID);
+							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
 							if(lvalue != null) {
-								if(lvalue.getVariableName() == null || !lvalue.getVariableName().equals(variableName))
+								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
 									return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
 								
 								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
@@ -2055,10 +2077,23 @@ public final class LangInterpreter {
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a DataObject)
 	 */
 	private DataObject getOrCreateDataObjectFromVariableName(String variableName, boolean supportsPointerReferencing,
-	boolean shouldCreateDataObject, final int DATA_ID) {
+	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final int DATA_ID) {
 		DataObject ret = data.get(DATA_ID).var.get(variableName);
 		if(ret != null)
 			return ret;
+		
+		if(supportsPointerDereferencing &&variableName.contains("*")) {
+			int index = variableName.indexOf('*');
+			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
+			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, DATA_ID);
+			if(referencedVariable == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_PTR, DATA_ID);
+			
+			if(referencedVariable.getType() == DataType.VAR_POINTER)
+				return referencedVariable.getVarPointer().getVar();
+			
+			return new DataObject().setNull(); //If no var pointer was dereferenced, return null
+		}
 		
 		if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check dereferenced variable name
 			int indexOpeningBracket = variableName.indexOf("[");
@@ -2067,7 +2102,7 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
-			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, supportsPointerReferencing, false, DATA_ID);
+			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, DATA_ID);
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
@@ -2091,11 +2126,12 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int DATA_ID) {
 		String variableName = node.getVariableName();
 		
-		if(!variableName.matches("(\\$|&|fp\\.|func\\.|linker\\.)\\w+") && !variableName.matches("\\$\\[+\\w+\\]+"))
+		if(!variableName.matches("(\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+") && !variableName.matches("\\$\\**\\[+\\w+\\]+"))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
-			return getOrCreateDataObjectFromVariableName(variableName, variableName.startsWith("$"), true, DATA_ID);
+			return getOrCreateDataObjectFromVariableName(variableName, variableName.startsWith("$"), variableName.startsWith("$"),
+			true, DATA_ID);
 		
 		final boolean isLinkerFunction;
 		if(variableName.startsWith("func.")) {
@@ -2211,7 +2247,7 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						getOrCreateDataObjectFromVariableName(to, false, true, DATA_ID_TO).setData(valFrom);
+						getOrCreateDataObjectFromVariableName(to, false, false, true, DATA_ID_TO).setData(valFrom);
 						return;
 					}
 				}
@@ -2766,7 +2802,7 @@ public final class LangInterpreter {
 			this.type = dataObject.type;
 			this.txt = dataObject.txt;
 			this.arr = dataObject.arr; //Array: copy reference only
-			this.vp = dataObject.vp;
+			this.vp = dataObject.vp; //Var pointer: copy reference only
 			this.fp = dataObject.fp;
 			this.intValue = dataObject.intValue;
 			this.longValue = dataObject.longValue;
