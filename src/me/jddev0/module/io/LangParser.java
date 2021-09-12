@@ -310,7 +310,7 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
-		if(isInnerAssignment?line.matches("(\\$|&|fp\\.)\\w+ = .*"):line.matches("((\\$|&|fp\\.)\\w+||(\\$\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*")) {
+		if(isInnerAssignment?line.matches("(\\$\\**|&|fp\\.)\\w+ = .*"):line.matches("((\\$\\**|&|fp\\.)\\w+||(\\$\\**\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*")) {
 			String[] tokens = line.split(" = ", 2);
 			
 			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
@@ -321,7 +321,7 @@ public final class LangParser {
 			return null;
 		
 		//Only for non multi assignments
-		if(line.endsWith(" =") || line.matches("(\\$|&|fp\\.)\\w+") || line.matches("\\$\\[+\\w+\\]+")) {
+		if(line.endsWith(" =") || line.matches("(\\$\\**|&|fp\\.)\\w+") || line.matches("\\$\\**\\[+\\w+\\]+")) {
 			//Empty translation/assignment ("<var/lang> =" or "$varName")
 			if(line.endsWith(" ="))
 				line = line.substring(0, line.length() - 2);
@@ -505,7 +505,7 @@ public final class LangParser {
 			}
 			
 			//VarPtr
-			if(token.matches("\\$\\[+\\w+\\]+.*")) {
+			if(token.matches("\\$\\**\\[+\\w+\\]+.*")) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int endIndex = getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
@@ -525,7 +525,7 @@ public final class LangParser {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilder(builder, nodes);
 			}
-			if(builder.toString().matches("(\\$|&|fp\\.|func\\.|linker\\.)\\w+") && token.matches("\\W.*")) {
+			if(builder.toString().matches("(\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+") && token.matches("\\W.*")) {
 				//Variable split after invalid character (Not [A-Za-z0-9_]
 				clearAndParseStringBuilder(builder, nodes);
 			}
@@ -550,7 +550,7 @@ public final class LangParser {
 		builder.delete(0, builder.length());
 		
 		//Vars & FuncPtrs
-		if(token.matches("(\\$|&|fp\\.|func\\.|linker\\.)\\w+")) {
+		if(token.matches("(\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+")) {
 			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(token));
 			
 			return;
@@ -724,7 +724,7 @@ public final class LangParser {
 				}
 				
 				//VarPtr
-				if(parameterList.matches("\\$\\[+\\w+\\]+.*")) {
+				if(parameterList.matches("\\$\\**\\[+\\w+\\]+.*")) {
 					if(builder.length() > 0)
 						clearAndParseStringBuilder(builder, nodes);
 					
@@ -744,7 +744,7 @@ public final class LangParser {
 					clearAndParseStringBuilder(builder, nodes);
 				
 				//Variable split after invalid character (Not [A-Za-z0-9_]
-				if(builder.toString().matches("(\\$|&)\\w+") && parameterList.matches("\\W.*"))
+				if(builder.toString().matches("(\\$\\**|&)\\w+") && parameterList.matches("\\W.*"))
 					clearAndParseStringBuilder(builder, nodes);
 				
 				builder.append(parameterList.charAt(0));
