@@ -114,6 +114,47 @@ func.printTerminal(-1, $abc)
 
 func.printTerminal(-1, -----------------)
 
+# Referencing and dereferencing of variables
+$variable = test
+func.printTerminal(-1, $variable)
+func.printTerminal(-1, $[variable]) # Referencing $variable (Pointer to $variable)
+
+$ptr = $[variable]
+func.printTerminal(-1, $*ptr) # Dereferencing $ptr (Get value $ptr is pointing to)
+
+$*ptr = 42 # Set the value the pointer is pointing to
+func.printTerminal(-1, $variable)
+
+$pointer = $ptr # Copy a pointer
+func.printTerminal(-1, $*pointer)
+
+$*pointer # Set value the pointer is pointing to to null
+func.printTerminal(-1, $variable)
+
+$variable = 42 # Pointers to variable will work after value change
+func.printTerminal(-1, $variable)
+$*pointer = 42 - new
+func.printTerminal(-1, $variable)
+
+func.printTerminal(-1, $*[variable]) # Combined referecing and dereferencing
+
+$ptr2 = $[ptr] # Pointer to pointer
+func.printTerminal(-1, $**ptr2) # Dereferencing twice
+
+$ptr3 = $[[varibale]] # Also pointer to pointer
+func.printTerminal(-1, $**ptr2) # Dereferencing twice
+
+func.printTerminal(-1, $**[[variable]]) # Combined referecing and dereferencing
+
+$**ptr2 = new value
+func.printTerminal(-1, $variable)
+
+func.printTerminal(-1, $*variable) # Dereferencing a non poitner will return null
+
+func.printTerminal(-1, $*variableName) # Dereferencing a not defined variable will be parsed as text
+
+func.printTerminal(-1, -----------------)
+
 # $LANG vars
 func.printTerminal(-1, \$LANG vars)
 func.printTerminal(-1, • "$LANG_COMPILER_VERSION") # Will print the compiler version
