@@ -687,4 +687,44 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 		fp.testArrayVarArgs(1, 2, 3, 4, 5)
 		fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
 	}
+	
+	# Pointer dereferencing
+	{
+		$a = 42
+		$ptr = $[a]
+		func.printTerminal(3, $a) # 42
+		func.printTerminal(3, $*a) # null
+		func.printTerminal(3, $*ptr) # 42
+		func.printTerminal(3, $**ptr) # null
+		$*ptr = 10 # Will set "$a" to 10
+		func.printTerminal(3, $a) # 10
+		
+		$a = 42
+		func.printTerminal(3, $a) # 42
+		func.printTerminal(3, $*a) # null
+		
+		$a = 42
+		$ptr = $[a]
+		$ptr2 = $[ptr]
+		$ptr3 = $[[a]]
+		func.printTerminal(3, $a) # 42
+		func.printTerminal(3, $**ptr2) # 42
+		func.printTerminal(3, $**ptr3) # 42
+		$**ptr2 = 10 # Will set "$a" to 10
+		func.printTerminal(3, $a) # 10
+		
+		$a = 42
+		func.printTerminal(3, $a) # 42
+		func.printTerminal(3, $[a]) # VP -> {42}
+		func.printTerminal(3, $*a) # null
+		func.printTerminal(3, $*[a]) # 42
+		func.printTerminal(3, $*[[a]]) # VP -> {42}
+		func.printTerminal(3, $**[[a]]) # 42
+		
+		$pointer
+		func.printTerminal(3, $*pointer) # Will print null
+		
+		func.clearVar($[pointer]) # Undefine $pointer
+		func.printTerminal(3, $pointer) # Will print "$*pointer", because "$pointer" is not defined
+	}
 }
