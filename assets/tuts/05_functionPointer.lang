@@ -230,12 +230,27 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 
 # An other possibility for "returning" a value
 {
-	$a = 42
-	fp.changeValue = ($ptr) -> {
-		$*ptr = changed value # Pointer dereferencing
+	# With call by value
+	{
+		$a = 42
+		fp.changeValue = ($ptr) -> {
+			$*ptr = changed value # Pointer dereferencing
+		}
+		func.printTerminal(6, $a)
+		fp.changeValue($[a]) # Provid pointer to "$a"
+		func.printTerminal(6, $a)
 	}
-	fp.changeValue($[a]) # Provid pointer to "$a"
-	func.printTerminal(6, $a)
+	
+	# With call by pointer
+	{
+		$a = 42
+		fp.changeValue = ($[ptr]) -> {
+			$*ptr = changed value # Pointer dereferencing
+		}
+		func.printTerminal(5, $a)
+		fp.changeValue($a) # A pointer will be created for "$a" during the call process
+		func.printTerminal(5, $a)
+	}
 }
 
 # End the program early & return DataObject
