@@ -2082,7 +2082,7 @@ public final class LangInterpreter {
 		if(ret != null)
 			return ret;
 		
-		if(supportsPointerDereferencing &&variableName.contains("*")) {
+		if(supportsPointerDereferencing && variableName.contains("*")) {
 			int index = variableName.indexOf('*');
 			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
 			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, DATA_ID);
