@@ -891,6 +891,47 @@ public final class LangInterpreter {
 				return new DataObject().setLong(leftNumber.longValue() >>> rightNumber.longValue());
 			}, DATA_ID);
 		});
+		funcs.put("addf", (argumentList, DATA_ID) -> {
+			float sum = 0.f;
+			
+			while(argumentList.size() > 0) {
+				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				Number number = numberObject.getNumber();
+				if(number == null)
+					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+				
+				sum += number.floatValue();
+			}
+			
+			return new DataObject().setFloat(sum);
+		});
+		funcs.put("subf", (argumentList, DATA_ID) -> {
+			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
+				return new DataObject().setFloat(leftNumber.floatValue() - rightNumber.floatValue());
+			}, DATA_ID);
+		});
+		funcs.put("mulf", (argumentList, DATA_ID) -> {
+			float prod = 1.f;
+			
+			while(argumentList.size() > 0) {
+				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				Number number = numberObject.getNumber();
+				if(number == null)
+					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+				
+				prod *= number.floatValue();
+			}
+			
+			return new DataObject().setFloat(prod);
+		});
+		funcs.put("divf", (argumentList, DATA_ID) -> {
+			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
+				if(rightNumber.floatValue() == 0.f)
+					return setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, DATA_ID);
+				
+				return new DataObject().setFloat(leftNumber.floatValue() / rightNumber.floatValue());
+			}, DATA_ID);
+		});
 		funcs.put("addd", (argumentList, DATA_ID) -> {
 			double sum = 0.d;
 			
