@@ -2334,6 +2334,18 @@ public final class LangInterpreter {
 						break;
 					}
 					
+					if(variableName.matches("\\$\\[\\w+\\]")) {
+						//Call by pointer
+						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
+						if(argumentValueList.size() > 0)
+							lastDataObject = getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
+						else if(lastDataObject == null)
+							lastDataObject = new DataObject().setVoid();
+						data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
+						
+						continue;
+					}
+					
 					if(!variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("(\\$|&)LANG_.*")) {
 						setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 						
@@ -2499,7 +2511,7 @@ public final class LangInterpreter {
 					break;
 				}
 				
-				if(!variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("(\\$|&)LANG_.*")) {
+				if((!variableName.matches("(\\$|&|fp\\.)\\w+") && !variableName.matches("\\$\\[\\w+\\]")) || variableName.matches("(\\$|&)LANG_.*")) {
 					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 					
 					continue;
