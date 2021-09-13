@@ -91,23 +91,25 @@ func.printTerminal(-1, $sub2)
 # func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
 func.printTerminal(-1, func.rand())
 
-# func.add[i/l/d](int/long/double, (int/long/double)) # Will add 1 or more values toghter
+# func.add[i/l/f/d]((int/long/float/double)) # Will add 0 or more values toghter
 $addi = func.addi(49, 200, 2003)
 $addl = func.addl(-10)
+$addf = func.addf(-10, .2)
 $addd = func.addd(.4, .5, .6)
-func.printTerminal(-1, |$addi|$addl|$addd|)
+func.printTerminal(-1, |$addi|$addl|$addf|$addd|)
 
-# func.sub[i/l/d](int/long/double, int/long/double) # Will substract the second argument form the first argument
+# func.sub[i/l/f/d](int/long/float/double, int/long/float/double) # Will substract the second argument form the first argument
 $subi = func.subi(42, 38)
 $subl = func.subl(10, -69)
+$subf = func.subf(1.42, 1)
 $subd = func.subd(1, 1.42)
-func.printTerminal(-1, |$subi|$subl|$subd|)
+func.printTerminal(-1, |$subi|$subl|$subf|$subd|)
 
-# func.mul[i/l/d](int/long/double, (int/long/double)) # Will multiply 1 or more values toghter
+# func.mul[i/l/f/d]((int/long/float/double)) # Will multiply 0 or more values toghter
 $mul = func.mull(10, 42)
 func.printTerminal(-1, |$mul|)
 
-# func.div[i/l/d](int/long/double, int/long/double) # Will divide the second argument form the first argument
+# func.div[i/l/f/d](int/long/float/double, int/long/float/double) # Will divide the second argument form the first argument
 $divi = func.divi(20, 12)
 $divd = func.divd(20, 12)
 $divNull = func.divi(1, 0)
