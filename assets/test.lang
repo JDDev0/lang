@@ -218,9 +218,9 @@ ui.button.canel = Cancel
 }
 
 # \$ -> escape sequence for $
-# \s is needed, because trailing and leading Whitespaces
+# \s is needed, because leading whitespaces are behind the argument separator
 # will be removed in every function argument
-func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
+func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 # Error handling
 {
 	# Will print no error since errno is 0
@@ -593,6 +593,49 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 
 # New in version v1.0.0
 {
+	# New escape sequences
+	{
+		# Old: \n \s \$ \#
+		
+		# \0: Ascii null byte
+		func.printTerminal(1, A null byte: "\0"!)
+		
+		# \r: Carriage return
+		func.printTerminal(1, A carriage return: "\r"!)
+		
+		# \f: Form feed
+		func.printTerminal(1, A form feed: "\f"!)
+		
+		# \b: Form feed
+		func.printTerminal(1, A backspace: "\b"!)
+		
+		# \t: Horizontal tab
+		func.printTerminal(1, A horizontal tab: "\t"!)
+		
+		# \&: &
+		func.printTerminal(1, An ampersand: "\&")
+		
+		# \,: ,
+		fp.a = ($text) -> func.printTerminal(3, $text)
+		fp.a(A test text without escaped comma: ",")
+		fp.a(A test text with escaped comma: "\,")
+		# Comma must not be escaped if $text was an text varargs parameter
+		
+		# \(: (
+		# \): )
+		# Used if a text in a function call contains a not equals amount of "(" and ")"
+		
+		# \{: {
+		# \}: }
+		# \\: \
+		
+		# \!: Force node split
+		# Will force the LangParse to split the current node at this possition
+		func.printTerminal(4, func.printTerminal(2, test))
+		func.printTerminal(4, func\!.printTerminal(2, test))
+		# "func" will be parsed as TextNode and ".printTerminal" will be parsed as text node too
+	}
+	
 	# Standard input/output/error functions
 	{
 		$var = Test Value
