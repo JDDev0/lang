@@ -131,7 +131,7 @@ func.printTerminal(-1, \n\n\n)
 		$index = 42
 		$COLUMN_COUNT = 12
 		$column = $row = null
-		# Two pointers are created for $column" and "$row" during the call proccess
+		# Two pointers are created for $column" and "$row" during the call process
 		fp.convertIndexToCoords(42, 12, $column, $row)
 		func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
 	}
