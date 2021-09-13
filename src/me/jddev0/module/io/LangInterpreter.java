@@ -1334,6 +1334,20 @@ public final class LangInterpreter {
 			
 			return dataObjects.size() == 0?null:dataObjects.get(RAN.nextInt(dataObjects.size()));
 		});
+		funcs.put("arrayCombine", (argumentList, DATA_ID) -> {
+			List<DataObject> combinedArrays = new LinkedList<>();
+			
+			while(argumentList.size() > 0) {
+				DataObject arrayPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(arrayPointerObject.getType() != DataType.ARRAY)
+					return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+				
+				for(DataObject ele:arrayPointerObject.getArray())
+					combinedArrays.add(ele);
+			}
+			
+			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
+		});
 		funcs.put("arrayDelete", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
