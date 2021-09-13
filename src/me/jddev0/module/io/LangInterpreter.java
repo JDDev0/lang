@@ -1361,7 +1361,7 @@ public final class LangInterpreter {
 				
 				return arr.length == 0?null:arr[RAN.nextInt(arr.length)];
 			}
-
+			
 			//No array Pointer
 			List<DataObject> dataObjects = new LinkedList<>();
 			dataObjects.add(arrPointerObject);
