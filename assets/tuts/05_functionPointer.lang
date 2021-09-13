@@ -228,6 +228,16 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	fp.b(def, abc)
 }
 
+# An other possibility for "returning" a value
+{
+	$a = 42
+	fp.changeValue = ($ptr) -> {
+		$*ptr = changed value # Pointer dereferencing
+	}
+	fp.changeValue($[a]) # Provid pointer to "$a"
+	func.printTerminal(6, $a)
+}
+
 # End the program early & return DataObject
 func.printTerminal(-1, Will be executed)
 return 42.42 # A return statement outside of a function pointer function body will end the program execution early
