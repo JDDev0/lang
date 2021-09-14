@@ -3278,6 +3278,60 @@ public final class LangInterpreter {
 			return type;
 		}
 		
+		public DataObject convertToNumberAndCreateNewDataObject() {
+			switch(type) {
+				case TEXT:
+					//INT
+					try {
+						return new DataObject().setInt(Integer.parseInt(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//LONG
+					try {
+						return new DataObject().setLong(Long.parseLong(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//FLOAT
+					try {
+						float floatNumber = Float.parseFloat(txt);
+						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+							return new DataObject().setFloat(floatNumber);
+						}
+					}catch(NumberFormatException ignore) {}
+					
+					//DOUBLE
+					try {
+						return new DataObject().setDouble(Double.parseDouble(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//CHAR
+					if(txt.length() == 1)
+						return new DataObject().setInt(txt.charAt(0));
+					
+					return new DataObject().setNull();
+				case CHAR:
+					return new DataObject().setInt(charValue);
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+					return new DataObject(this);
+				case ERROR:
+					return new DataObject().setInt(error.getErrno());
+				case ARRAY:
+					return new DataObject().setInt(arr.length);
+				
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return new DataObject().setNull();
+			}
+			
+			return new DataObject().setNull();
+		}
+		
 		public Number getNumber() {
 			switch(type) {
 				case TEXT:
