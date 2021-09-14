@@ -91,6 +91,27 @@ func.printTerminal(-1, $sub2)
 # func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
 func.printTerminal(-1, func.rand())
 
+# func.inc[i/l/f/d](int/long/float/double) # Will add 1
+$inci = func.inci(49)
+$incl = func.incl(-10)
+$incf = func.incf(.2)
+$incd = func.incd(-.78)
+func.printTerminal(-1, |$inci|$incl|$incf|$incd|)
+
+# func.dec[i/l/f/d](int/long/float/double) # Will substract 1
+$deci = func.deci(49)
+$decl = func.decl(-10)
+$decf = func.decf(.2)
+$decd = func.decd(-.78)
+func.printTerminal(-1, |$deci|$decl|$decf|$decd|)
+
+# func.inv[i/l/f/d](int/long/float/double) # Will return 0 - value
+$invi = func.invi(49)
+$invl = func.invl(-10)
+$invf = func.invf(.2)
+$invd = func.invd(-.78)
+func.printTerminal(-1, |$invi|$invl|$invf|$invd|)
+
 # func.add[i/l/f/d]((int/long/float/double)) # Will add 0 or more values toghter
 $addi = func.addi(49, 200, 2003)
 $addl = func.addl(-10)
