@@ -573,7 +573,7 @@ public final class LangParser {
 			
 			//FLOAT
 			try {
-				Float floatNumber = Float.parseFloat(token);
+				float floatNumber = Float.parseFloat(token);
 				if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
 					nodes.add(new AbstractSyntaxTree.FloatValueNode(floatNumber));
 					
