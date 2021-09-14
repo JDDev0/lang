@@ -723,6 +723,21 @@ public final class LangInterpreter {
 		
 		//Math functions
 		funcs.put("rand", (argumentList, DATA_ID) -> new DataObject().setInt(RAN.nextInt(data.get(DATA_ID).var.get("$LANG_RAND_MAX").getInt())));
+		funcs.put("inci", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setInt(number.intValue() + 1);
+			}, DATA_ID);
+		});
+		funcs.put("deci", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setInt(number.intValue() - 1);
+			}, DATA_ID);
+		});
+		funcs.put("invi", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setInt(-number.intValue());
+			}, DATA_ID);
+		});
 		funcs.put("addi", (argumentList, DATA_ID) -> {
 			int sum = 0;
 			
@@ -805,6 +820,21 @@ public final class LangInterpreter {
 		funcs.put("rzshifti", (argumentList, DATA_ID) -> {
 			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
 				return new DataObject().setInt(leftNumber.intValue() >>> rightNumber.intValue());
+			}, DATA_ID);
+		});
+		funcs.put("incl", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setLong(number.longValue() + 1);
+			}, DATA_ID);
+		});
+		funcs.put("decl", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setLong(number.longValue() - 1);
+			}, DATA_ID);
+		});
+		funcs.put("invl", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setLong(-number.longValue());
 			}, DATA_ID);
 		});
 		funcs.put("addl", (argumentList, DATA_ID) -> {
@@ -891,6 +921,21 @@ public final class LangInterpreter {
 				return new DataObject().setLong(leftNumber.longValue() >>> rightNumber.longValue());
 			}, DATA_ID);
 		});
+		funcs.put("incf", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setFloat(number.floatValue() + 1.f);
+			}, DATA_ID);
+		});
+		funcs.put("decf", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setFloat(number.floatValue() - 1.f);
+			}, DATA_ID);
+		});
+		funcs.put("invf", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setFloat(-number.floatValue());
+			}, DATA_ID);
+		});
 		funcs.put("addf", (argumentList, DATA_ID) -> {
 			float sum = 0.f;
 			
@@ -930,6 +975,21 @@ public final class LangInterpreter {
 					return setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, DATA_ID);
 				
 				return new DataObject().setFloat(leftNumber.floatValue() / rightNumber.floatValue());
+			}, DATA_ID);
+		});
+		funcs.put("incd", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(number.doubleValue() + 1.d);
+			}, DATA_ID);
+		});
+		funcs.put("decd", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(number.doubleValue() - 1.d);
+			}, DATA_ID);
+		});
+		funcs.put("invd", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(-number.doubleValue());
 			}, DATA_ID);
 		});
 		funcs.put("addd", (argumentList, DATA_ID) -> {
