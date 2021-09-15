@@ -162,21 +162,19 @@ public class TerminalWindow extends JFrame {
 		term.setEditable(false);
 		term.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		term.setMargin(new Insets(3, 5, 0, 5));
-		term.addKeyListener(new KeyListener() {
+		term.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
+				if(e.isControlDown())
+					return;
+				
 				txtEnterCommands.requestFocus();
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent e) {
-				txtEnterCommands.requestFocus();
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent e) {
-				txtEnterCommands.requestFocus();
-				txtEnterCommands.setText(txtEnterCommands.getText() + e.getKeyChar());
+				char c = e.getKeyChar();
+				if(c == KeyEvent.CHAR_UNDEFINED)
+					return;
+				if((c > -1 && c < 8) || c == 12 || (c > 13 && c < 32)) //Ignores certain control chars
+					return;
+				txtEnterCommands.setText(txtEnterCommands.getText() + c);
 			}
 		});
 		scrollPane.setViewportView(term);
