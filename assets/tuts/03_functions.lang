@@ -44,6 +44,18 @@ func.printTerminal(6, Test) # Critical
 $num = func.hexToDec(0x2A)
 func.printTerminal(-1, $num)
 
+# func.toIntBits(float) # Will return the bits of the float as an integer value
+func.printTerminal(-1, func.toIntBits(42.42))
+
+# func.toFloatBits(int) # Will return the bits of the integer as an float value
+func.printTerminal(-1, func.toFloatBits(42))
+
+# func.toLongBits(double) # Will return the bits of the double as an long value
+func.printTerminal(-1, func.toLongBits(42.42))
+
+# func.toDoubleBits(long) # Will return the bits of the long as an double value
+func.printTerminal(-1, func.toDoubleBits(42))
+
 # Character functions
 # func.toValue(char) # Will return the Unicode value of a char
 $valA = func.toValue(a)
