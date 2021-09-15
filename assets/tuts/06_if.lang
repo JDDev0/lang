@@ -124,14 +124,15 @@ func.printTerminal(-1, func.condition(1))
 
 # Operators
 #     For all types:
-#         "==": Equals
-#         "!=": Not equals
-#     For int, long, double:
-#         "<":  Less than
-#         ">":  Greater than
-#         "<=": Less than or equals
-#         ">=": Greater than or equals
-#     For Operators:
+#         "==":  Equals
+#         "!=":  Not equals
+#         "===": Strict equals
+#         "!==": Not Strict equals
+#         "<":   Less than
+#         ">":   Greater than
+#         "<=":  Less than or equals
+#         ">=":  Greater than or equals
+#     For condition combination:
 #         "!":  Not
 #         "&&": And
 #         "||": Or
@@ -149,6 +150,12 @@ func.printTerminal(3, func.condition(abc != abc))
 func.printTerminal(2, abc compared to def)
 func.printTerminal(3, func.condition(abc == def))
 func.printTerminal(3, func.condition(abc != def))
+
+func.printTerminal(3, equals vs strict equals (Strict equals will checks if the data types are equals and the value are equals))
+func.printTerminal(3, func.condition(1 == 1.))
+func.printTerminal(3, func.condition(1 != 1.))
+func.printTerminal(3, func.condition(1 === 1.))
+func.printTerminal(3, func.condition(1 !== 1.))
 
 func.printTerminal(2, 0 compared to 5)
 func.printTerminal(3, func.condition(0 == 5))
