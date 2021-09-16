@@ -172,15 +172,32 @@ $var3 = func.dtol(10.2)
 $var4 = func.dtol(10.8)
 func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
 
-# func.ceil(double) # Will return the ceil of the parameter
-$var1 = func.ceil(10.2)
-$var2 = func.ceil(10.8)
-func.printTerminal(-1, |$var1|$var2|)
+# func.round(double) # Will return the rounded value of the argument
+$var1 = func.round(10.2)
+$var2 = func.round(10.5)
+$var3 = func.round(10.8)
+$var4 = func.round(-10.2)
+$var5 = func.round(-10.5)
+$var6 = func.round(-10.8)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
 
-# func.floor(double) # Will return the floor of the parameter
+# func.ceil(double) # Will return the ceil of the argument
+$var1 = func.ceil(10.2)
+$var2 = func.ceil(10.5)
+$var3 = func.ceil(10.8)
+$var4 = func.ceil(-10.2)
+$var5 = func.ceil(-10.5)
+$var6 = func.ceil(-10.8)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
+
+# func.floor(double) # Will return the floor of the argument
 $var1 = func.floor(10.2)
-$var2 = func.floor(10.8)
-func.printTerminal(-1, |$var1|$var2|)
+$var2 = func.floor(10.5)
+$var3 = func.floor(10.8)
+$var4 = func.floor(-10.2)
+$var5 = func.floor(-10.5)
+$var6 = func.floor(-10.8)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
 
 # Get a random text from a parameter list
 # func.randChoice(Text, (Text)) # Will return a random element
