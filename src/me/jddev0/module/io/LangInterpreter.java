@@ -595,6 +595,54 @@ public final class LangInterpreter {
 				return new DataObject().setDouble(Double.longBitsToDouble(number.longValue()));
 			}, DATA_ID);
 		});
+		funcs.put("ttoi", (argumentList, DATA_ID) -> {
+			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String str = textObject.getText();
+			try {
+				return new DataObject().setInt(Integer.parseInt(str));
+			}catch(NumberFormatException e) {
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
+		funcs.put("ttol", (argumentList, DATA_ID) -> {
+			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String str = textObject.getText();
+			try {
+				return new DataObject().setLong(Long.parseLong(str));
+			}catch(NumberFormatException e) {
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
+		funcs.put("ttof", (argumentList, DATA_ID) -> {
+			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String str = textObject.getText();
+			try {
+				return new DataObject().setFloat(Float.parseFloat(str));
+			}catch(NumberFormatException e) {
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
+		funcs.put("ttod", (argumentList, DATA_ID) -> {
+			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String str = textObject.getText();
+			try {
+				return new DataObject().setDouble(Double.parseDouble(str));
+			}catch(NumberFormatException e) {
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
 		
 		//Character functions
 		funcs.put("toValue", (argumentList, DATA_ID) -> {
@@ -617,6 +665,17 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			
 			return new DataObject().setChar((char)asciiValue.intValue());
+		});
+		funcs.put("ttoc", (argumentList, DATA_ID) -> {
+			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String str = textObject.getText();
+			if(str.length() == 1)
+				return new DataObject().setChar(str.charAt(0));
+			
+			return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 		});
 		
 		//Text functions
