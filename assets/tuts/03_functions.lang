@@ -56,6 +56,34 @@ func.printTerminal(-1, func.toLongBits(42.42))
 # func.toDoubleBits(long) # Will return the bits of the long as an double value
 func.printTerminal(-1, func.toDoubleBits(42))
 
+# func.ttoi(text) # Will parse the text as an int and returns the result
+func.printTerminal(-1, func.ttoi(text))
+func.printTerminal(-1, func.ttoi(-42))
+func.printTerminal(-1, func.ttoi(-0042))
+func.printTerminal(-1, func.ttoi(42))
+func.printTerminal(-1, func.ttoi(0042))
+
+# func.ttol(text) # Will parse the text as a long and returns the result
+func.printTerminal(-1, func.ttol(text))
+func.printTerminal(-1, func.ttol(-42))
+func.printTerminal(-1, func.ttol(-0042))
+func.printTerminal(-1, func.ttol(42))
+func.printTerminal(-1, func.ttol(0042))
+
+# func.ttof(text) # Will parse the text as a float and returns the result
+func.printTerminal(-1, func.ttof(text))
+func.printTerminal(-1, func.ttof(-.42))
+func.printTerminal(-1, func.ttof(-42.0))
+func.printTerminal(-1, func.ttof(42.))
+func.printTerminal(-1, func.ttof(0.42))
+
+# func.ttod(text) # Will parse the text as a double and returns the result
+func.printTerminal(-1, func.ttod(text))
+func.printTerminal(-1, func.ttod(-.42))
+func.printTerminal(-1, func.ttod(-42.0))
+func.printTerminal(-1, func.ttod(42.))
+func.printTerminal(-1, func.ttod(0.42))
+
 # Character functions
 # func.toValue(char) # Will return the Unicode value of a char
 $valA = func.toValue(a)
@@ -70,6 +98,13 @@ func.printTerminal(-1, $char1)
 
 $char2 = func.toChar(8364)
 func.printTerminal(-1, $char2)
+
+# func.ttoc(text) # Will return the first character of the text if the text has a length of 1
+func.printTerminal(-1, func.ttoc(text))
+func.printTerminal(-1, func.ttoc(t))
+func.printTerminal(-1, func.ttoc(µ))
+func.printTerminal(-1, func.ttoc($))
+func.printTerminal(-1, func.ttoc(¤))
 
 # String functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
