@@ -27,7 +27,8 @@ public final class LangParser {
 		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
 		replace("}", "\\}").
 		
-		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("return", "retur\\!n").replace("=", "=\\!");
+		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("linker.", "linker\\!.").
+		replace("return", "retur\\!n").replace("=", "=\\!");
 	}
 	
 	public void resetCurrentLine() {
