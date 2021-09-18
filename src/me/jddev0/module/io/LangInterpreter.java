@@ -2726,6 +2726,13 @@ public final class LangInterpreter {
 		data.get(DATA_ID).var.put("$LANG_DOUBLE_NEG_INF", new DataObject().setDouble(Double.NEGATIVE_INFINITY).setFinalData(true).setVariableName("$LANG_DOUBLE_NEG_INF"));
 		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
 		
+		for(InterpretingError error:InterpretingError.values()) {
+			String variableName = "$LANG_ERROR_" + error.name().toUpperCase();
+			data.get(DATA_ID).var.put(variableName, new DataObject().setError(new ErrorObject(error)).setFinalData(true).setVariableName(variableName));
+			variableName = "$LANG_ERRNO_" + error.name().toUpperCase();
+			data.get(DATA_ID).var.put(variableName, new DataObject().setInt(error.getErrorCode()).setFinalData(true).setVariableName(variableName));
+		}
+		
 		//Not final vars
 		setErrno(InterpretingError.NO_ERROR, DATA_ID); //Set $LANG_ERRNO
 	}
