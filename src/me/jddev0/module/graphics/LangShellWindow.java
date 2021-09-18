@@ -38,6 +38,7 @@ import me.jddev0.module.io.LangInterpreter.DataObject;
 import me.jddev0.module.io.LangInterpreter.InterpretingError;
 import me.jddev0.module.io.LangPlatformAPI;
 import me.jddev0.module.io.LangPredefinedFunctionObject;
+import me.jddev0.module.io.LangUtils;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 
@@ -365,7 +366,7 @@ public class LangShellWindow extends JDialog {
 			return null;
 		});
 		lii.addPredefinedFunction("printDebug", (argumentList, DATA_ID) -> {
-			DataObject dataObject = lii.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			

@@ -1538,7 +1538,7 @@ public final class Lang {
 								break;
 							case FunctionPointerObject.EXTERNAL:
 								LangExternalFunctionObject convertedExternalFunction = (argumentList, DATA_ID) -> {
-									String args = lii.combineDataObjects(argumentList).getText();
+									String args = LangUtils.combineDataObjects(argumentList).getText();
 									return new LangInterpreter.DataObject(fp.getExternalFunction().apply(args, DATA_ID));
 								};
 								

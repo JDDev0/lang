@@ -69,14 +69,14 @@ public final class LangInterpreter {
 	private Map<String, LangPredefinedFunctionObject> funcs = new HashMap<>();
 	//Predefined functions
 	private String getArgumentListAsString(List<DataObject> argumentList, boolean returnEmptyStringForEmptyArgumentList) {
-		DataObject dataObject = combineDataObjects(argumentList);
+		DataObject dataObject = LangUtils.combineDataObjects(argumentList);
 		if(dataObject == null)
 			return returnEmptyStringForEmptyArgumentList?"":null;
 		
 		return dataObject.getText();
 	}
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int DATA_ID) {
-		DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
 			return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 		
@@ -87,8 +87,8 @@ public final class LangInterpreter {
 		return operation.apply(number);
 	}
 	private DataObject binaryMathOperationHelper(List<DataObject> argumentList, BiFunction<Number, Number, DataObject> operation, final int DATA_ID) {
-		DataObject leftNumberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-		DataObject rightNumberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		DataObject leftNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject rightNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 2 arguments
 			return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 		
@@ -105,7 +105,7 @@ public final class LangInterpreter {
 	{
 		//Reset Functions
 		funcs.put("clearVar", (argumentList, DATA_ID) -> {
-			DataObject pointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
 			DataObject dereferencedVarPointer = null;
 			switch(pointerObject.getType()) {
@@ -212,7 +212,7 @@ public final class LangInterpreter {
 		
 		//System Functions
 		funcs.put("sleep", (argumentList, DATA_ID) -> {
-			DataObject dataObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			Number number = dataObject.getNumber();
 			if(number == null)
 				return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -227,8 +227,8 @@ public final class LangInterpreter {
 		});
 		funcs.put("currentTimeMillis", (argumentList, DATA_ID) -> new DataObject().setLong(System.currentTimeMillis()));
 		funcs.put("repeat", (argumentList, DATA_ID) -> {
-			DataObject loopFunctionObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject repeatCountObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject repeatCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -254,8 +254,8 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("repeatWhile", (argumentList, DATA_ID) -> {
-			DataObject loopFunctionObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject checkFunctionObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject checkFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -271,8 +271,8 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("repeatUntil", (argumentList, DATA_ID) -> {
-			DataObject loopFunctionObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject checkFunctionObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject checkFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -288,7 +288,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("getLangRequest", (argumentList, DATA_ID) -> {
-			DataObject langRequestObject = combineDataObjects(argumentList);
+			DataObject langRequestObject = LangUtils.combineDataObjects(argumentList);
 			if(langRequestObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -299,7 +299,7 @@ public final class LangInterpreter {
 			return new DataObject(langValue);
 		});
 		funcs.put("makeFinal", (argumentList, DATA_ID) -> {
-			DataObject dataObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -318,7 +318,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("condition", (argumentList, DATA_ID) -> {
-			DataObject condition = combineDataObjects(argumentList);
+			DataObject condition = LangUtils.combineDataObjects(argumentList);
 			if(condition == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -329,7 +329,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("exec", (argumentList, DATA_ID) -> {
-			DataObject text = combineDataObjects(argumentList);
+			DataObject text = LangUtils.combineDataObjects(argumentList);
 			if(text == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -371,7 +371,7 @@ public final class LangInterpreter {
 			if(term == null && !allowTermRedirect)
 				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
 			
-			DataObject messageObject = combineDataObjects(argumentList);
+			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
 			String message = messageObject == null?"":messageObject.getText();
 			
 			if(term == null) {
@@ -402,8 +402,8 @@ public final class LangInterpreter {
 			if(term == null && !allowTermRedirect)
 				return setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
 			
-			DataObject logLevelObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject messageObject = combineDataObjects(argumentList);
+			DataObject logLevelObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
 			if(messageObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -451,7 +451,7 @@ public final class LangInterpreter {
 			else
 				level = Level.INFO;
 			
-			DataObject messageObject = combineDataObjects(argumentList);
+			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
 			if(term == null) {
 				@SuppressWarnings("resource")
 				PrintStream stream = level.getLevel() > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
@@ -467,7 +467,7 @@ public final class LangInterpreter {
 			Number maxCount = null;
 			
 			if(!argumentList.isEmpty()) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				if(argumentList.size() > 0) //Not 0 or 1 arguments
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 				maxCount = numberObject.getNumber();
@@ -494,7 +494,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("print", (argumentList, DATA_ID) -> {
-			DataObject textObject = combineDataObjects(argumentList);
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -502,7 +502,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("println", (argumentList, DATA_ID) -> {
-			DataObject textObject = combineDataObjects(argumentList);
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				System.out.println();
 			else
@@ -510,7 +510,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("error", (argumentList, DATA_ID) -> {
-			DataObject textObject = combineDataObjects(argumentList);
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				System.err.println();
 			else
@@ -518,7 +518,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("errorln", (argumentList, DATA_ID) -> {
-			DataObject textObject = combineDataObjects(argumentList);
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -530,7 +530,7 @@ public final class LangInterpreter {
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
-				DataObject hexObject = combineDataObjects(argumentList);
+				DataObject hexObject = LangUtils.combineDataObjects(argumentList);
 				if(hexObject == null)
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 				
@@ -561,7 +561,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("hexToDec", (argumentList, DATA_ID) -> {
-			DataObject hexObject = combineDataObjects(argumentList);
+			DataObject hexObject = LangUtils.combineDataObjects(argumentList);
 			if(hexObject == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -596,7 +596,7 @@ public final class LangInterpreter {
 			}, DATA_ID);
 		});
 		funcs.put("ttoi", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -608,7 +608,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("ttol", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -620,7 +620,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("ttof", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -632,7 +632,7 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("ttod", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -646,7 +646,7 @@ public final class LangInterpreter {
 		
 		//Character functions
 		funcs.put("toValue", (argumentList, DATA_ID) -> {
-			DataObject charObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject charObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -656,7 +656,7 @@ public final class LangInterpreter {
 			return new DataObject().setInt(charObject.getChar());
 		});
 		funcs.put("toChar", (argumentList, DATA_ID) -> {
-			DataObject asciiValueObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject asciiValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -667,7 +667,7 @@ public final class LangInterpreter {
 			return new DataObject().setChar((char)asciiValue.intValue());
 		});
 		funcs.put("ttoc", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -684,8 +684,8 @@ public final class LangInterpreter {
 		funcs.put("toLower", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
 		funcs.put("trim", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).trim()));
 		funcs.put("replace", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject regexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			String replacement = getArgumentListAsString(argumentList, false);
 			if(replacement == null) //Not 3 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -693,14 +693,14 @@ public final class LangInterpreter {
 			return new DataObject(textObject.getText().replaceAll(regexObject.getText(), replacement));
 		});
 		funcs.put("substring", (argumentList, DATA_ID) -> {
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject startIndexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject startIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject endIndexObject;
 			//3rd argument is optional
 			if(argumentList.isEmpty())
 				endIndexObject = null;
 			else
-				endIndexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				endIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
 			if(argumentList.size() > 0) //Not 2 or 3 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -724,15 +724,15 @@ public final class LangInterpreter {
 			}
 		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
-			DataObject arrayPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject textObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject regexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject arrayPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject maxSplitCountObject;
 			//4th argument is optional
 			if(argumentList.isEmpty())
 				maxSplitCountObject = null;
 			else
-				maxSplitCountObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				maxSplitCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
 			if(argumentList.size() > 0) //Not 3 or 4 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -801,7 +801,7 @@ public final class LangInterpreter {
 			int sum = 0;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -820,7 +820,7 @@ public final class LangInterpreter {
 			int prod = 1;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -900,7 +900,7 @@ public final class LangInterpreter {
 			long sum = 0L;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -919,7 +919,7 @@ public final class LangInterpreter {
 			long prod = 1L;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -999,7 +999,7 @@ public final class LangInterpreter {
 			float sum = 0.f;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -1018,7 +1018,7 @@ public final class LangInterpreter {
 			float prod = 1.f;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -1055,7 +1055,7 @@ public final class LangInterpreter {
 			double sum = 0.d;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -1074,7 +1074,7 @@ public final class LangInterpreter {
 			double prod = 1.d;
 			
 			while(argumentList.size() > 0) {
-				DataObject numberObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				Number number = numberObject.getNumber();
 				if(number == null)
 					return setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -1113,7 +1113,7 @@ public final class LangInterpreter {
 			}, DATA_ID);
 		});
 		funcs.put("toNumber", (argumentList, DATA_ID) -> {
-			DataObject dataObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1193,8 +1193,8 @@ public final class LangInterpreter {
 		
 		//FuncPtr functions
 		funcs.put("copyAfterFP", (argumentList, DATA_ID) -> {
-			DataObject toPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject fromPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject toPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject fromPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1278,11 +1278,11 @@ public final class LangInterpreter {
 			DataObject arrPointerObject = null;
 			DataObject lengthObject = null;
 			
-			DataObject dataObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			if(argumentList.size() > 0) {
 				arrPointerObject = dataObject;
 				
-				lengthObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				lengthObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 				
 				if(argumentList.size() > 0) //Not 1 or 2 arguments
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -1327,9 +1327,9 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("arraySet", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject indexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject valueObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject valueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 3 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1356,7 +1356,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("arraySetAll", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			if(argumentList.size() == 0) //Not enough arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1368,7 +1368,7 @@ public final class LangInterpreter {
 			if(arr == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
-			DataObject valueObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject valueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			if(argumentList.size() == 0) { //arraySetAll with one value
 				for(int i = 0;i < arr.length;i++)
 					arr[i] = new DataObject(valueObject);
@@ -1381,7 +1381,7 @@ public final class LangInterpreter {
 			
 			arr[0] = valueObject;
 			for(int i = 1;i < arr.length;i++) {
-				arr[i] = new DataObject(getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+				arr[i] = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
 				
 				if(argumentList.size() == 0 && i != arr.length - 1) //Not enough arguments
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -1393,8 +1393,8 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("arrayGet", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject indexObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1417,7 +1417,7 @@ public final class LangInterpreter {
 			return arr[index];
 		});
 		funcs.put("arrayGetAll", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1438,7 +1438,7 @@ public final class LangInterpreter {
 			return new DataObject(builder.toString());
 		});
 		funcs.put("arrayLength", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1451,8 +1451,8 @@ public final class LangInterpreter {
 			return new DataObject().setInt(arr.length);
 		});
 		funcs.put("arrayForEach", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject funcPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1474,7 +1474,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("randChoice", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(arrPointerObject.getType() == DataType.ARRAY) {
 				if(argumentList.size() > 0) //Not 1 argument
 					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -1495,7 +1495,7 @@ public final class LangInterpreter {
 				argumentList.remove(0);
 			
 			while(argumentList.size() > 0)
-				dataObjects.add(getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+				dataObjects.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
 			
 			return dataObjects.size() == 0?null:dataObjects.get(RAN.nextInt(dataObjects.size()));
 		});
@@ -1503,7 +1503,7 @@ public final class LangInterpreter {
 			List<DataObject> combinedArrays = new LinkedList<>();
 			
 			while(argumentList.size() > 0) {
-				DataObject arrayPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				DataObject arrayPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				if(arrayPointerObject.getType() != DataType.ARRAY)
 					return setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 				
@@ -1514,7 +1514,7 @@ public final class LangInterpreter {
 			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
 		});
 		funcs.put("arrayDelete", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1532,7 +1532,7 @@ public final class LangInterpreter {
 			return null;
 		});
 		funcs.put("arrayClear", (argumentList, DATA_ID) -> {
-			DataObject arrPointerObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
@@ -1554,7 +1554,7 @@ public final class LangInterpreter {
 	}
 	//Linker functions
 	private DataObject executeLinkerFunction(List<DataObject> argumentList, Consumer<Integer> function, int DATA_ID) {
-		DataObject langFileNameObject = getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		DataObject langFileNameObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(langFileNameObject.getType() != DataType.TEXT)
 			return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 		
@@ -1668,35 +1668,6 @@ public final class LangInterpreter {
 		return new HashMap<>(data);
 	}
 	
-	/**
-	 * @return Might return null
-	 */
-	private DataObject combineDataObjects(List<DataObject> dataObjects) {
-		dataObjects = new LinkedList<>(dataObjects);
-		dataObjects.removeIf(Objects::isNull);
-		
-		if(dataObjects.size() == 0)
-			return null;
-		
-		if(dataObjects.size() == 1)
-			return dataObjects.get(0);
-		
-		//Remove all void objects
-		dataObjects.removeIf(dataObject -> dataObject.getType() == DataType.VOID);
-		
-		//Return a single void object if every data object was a void object
-		if(dataObjects.size() == 0)
-			return new DataObject().setVoid();
-		
-		if(dataObjects.size() == 1)
-			return dataObjects.get(0);
-		
-		//Combine everything to a single text object
-		final StringBuilder builder = new StringBuilder();
-		dataObjects.forEach(builder::append);
-		return new DataObject(builder.toString());
-	}
-	
 	private boolean interpretCondition(ConditionNode node, final int DATA_ID) {
 		return interpretConditionNode(node, DATA_ID).getBoolean();
 	}
@@ -1788,30 +1759,6 @@ public final class LangInterpreter {
 		return null;
 	}
 	
-	private int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {
-		int bracketCount = 0;
-		for(int i = startIndex;i < endIndex && i < string.length();i++) {
-			char c = string.charAt(i);
-			
-			//Ignore escaped chars
-			if(c == '\\') {
-				i++;
-				
-				continue;
-			}
-			
-			if(c == openedBracket) {
-				bracketCount++;
-			}else if(c == closedBracket) {
-				bracketCount--;
-				
-				if(bracketCount == 0)
-					return i;
-			}
-		}
-		
-		return -1;
-	}
 	/**
 	 * @param variablePrefixAppendAfterSearch If no part of the variable name matched an existing variable, the variable prefix will be added to the returned TextValueNode<br>
 	 *                                             (e.g. "func.abc" ("func." is not part of the variableNames in the set))
@@ -1851,7 +1798,7 @@ public final class LangInterpreter {
 				
 				if(modifiedVariableName.contains("[") && modifiedVariableName.contains("]")) { //Check dereferenced variable name
 					int indexOpeningBracket = modifiedVariableName.indexOf("[");
-					int indexMatchingBracket = getIndexOfMatchingBracket(modifiedVariableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+					int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(modifiedVariableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 					if(indexMatchingBracket != -1) {
 						if(indexMatchingBracket != modifiedVariableName.length() - 1) {
 							text = modifiedVariableName.substring(indexMatchingBracket + 1);
@@ -1968,7 +1915,7 @@ public final class LangInterpreter {
 			previousDataObject = ret;
 		}
 		
-		return combineDataObjects(dataObjects);
+		return LangUtils.combineDataObjects(dataObjects);
 	}
 	
 	private DataObject interpretValueNode(ValueNode node, final int DATA_ID) {
@@ -2179,7 +2126,7 @@ public final class LangInterpreter {
 					String variableName = variableNameNode.getVariableName();
 					if(variableName.matches("(\\$\\**|&|fp\\.)\\w+") || variableName.matches("\\$\\**\\[+\\w+\\]+")) {
 						int indexOpeningBracket = variableName.indexOf("[");
-						int indexMatchingBracket = indexOpeningBracket == -1?-1:getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
 							if(rvalue.getType() != DataType.NULL &&
 							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
@@ -2276,7 +2223,7 @@ public final class LangInterpreter {
 		
 		if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check dereferenced variable name
 			int indexOpeningBracket = variableName.indexOf("[");
-			int indexMatchingBracket = getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+			int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 			if(indexMatchingBracket != variableName.length() - 1)
 				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 			
@@ -2413,7 +2360,7 @@ public final class LangInterpreter {
 							return;
 						}
 						int indexOpeningBracket = to.indexOf("[");
-						int indexMatchingBracket = indexOpeningBracket == -1?-1:getIndexOfMatchingBracket(to, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
+						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(to, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket != -1 && indexMatchingBracket != to.length() - 1) {
 							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
 							return;
@@ -2437,19 +2384,6 @@ public final class LangInterpreter {
 		
 		//Clear copyAfterFP
 		copyAfterFP.remove(DATA_ID_FROM);
-	}
-	private DataObject getNextArgumentAndRemoveUsedDataObjects(List<DataObject> argumentList, boolean removeArumentSpearator) {
-		List<DataObject> argumentTmpList = new LinkedList<>();
-		while(argumentList.size() > 0 && argumentList.get(0).getType() != DataType.ARGUMENT_SEPARATOR)
-			argumentTmpList.add(argumentList.remove(0));
-		
-		if(argumentTmpList.isEmpty())
-			argumentTmpList.add(new DataObject().setVoid());
-		
-		if(removeArumentSpearator && argumentList.size() > 0)
-			argumentList.remove(0); //Remove ARGUMENT_SEPARATOR
-		
-		return combineDataObjects(argumentTmpList);
 	}
 	private DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int DATA_ID) {
 		switch(fp.getFunctionPointerType()) {
@@ -2483,14 +2417,14 @@ public final class LangInterpreter {
 						variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 						if(variableName.startsWith("$")) {
 							//Text varargs
-							DataObject dataObject = combineDataObjects(argumentValueList);
+							DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
 							data.get(NEW_DATA_ID).var.put(variableName, (dataObject != null?new DataObject(dataObject):
 							new DataObject().setVoid()).setVariableName(variableName));
 						}else {
 							//Array varargs
 							List<DataObject> varArgsTmpList = new LinkedList<>();
 							while(argumentValueList.size() > 0)
-								varArgsTmpList.add(getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true));
+								varArgsTmpList.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true));
 							
 							data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
 							toArray(new DataObject[0])).setVariableName(variableName));
@@ -2503,7 +2437,7 @@ public final class LangInterpreter {
 						//Call by pointer
 						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
 						if(argumentValueList.size() > 0)
-							lastDataObject = getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
+							lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 						else if(lastDataObject == null)
 							lastDataObject = new DataObject().setVoid();
 						data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
@@ -2518,7 +2452,7 @@ public final class LangInterpreter {
 					}
 					
 					if(argumentValueList.size() > 0)
-						lastDataObject = getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
+						lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 					else if(lastDataObject == null)
 						lastDataObject = new DataObject().setVoid();
 					data.get(NEW_DATA_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
@@ -3983,13 +3917,6 @@ public final class LangInterpreter {
 		
 		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int DATA_ID) {
 			return interpreter.callFunctionPointer(fp, functionName, argumentValueList, DATA_ID);
-		}
-		
-		public DataObject getNextArgumentAndRemoveUsedDataObjects(List<DataObject> argumentList, boolean removeArumentSpearator) {
-			return interpreter.getNextArgumentAndRemoveUsedDataObjects(argumentList, removeArumentSpearator);
-		}
-		public DataObject combineDataObjects(List<DataObject> dataObjects) {
-			return interpreter.combineDataObjects(dataObjects);
 		}
 		
 		public void setErrno(InterpretingError error, final int DATA_ID) {

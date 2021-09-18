@@ -18,19 +18,6 @@ import java.util.Objects;
 public final class LangParser {
 	private String currentLine;
 	
-	public static String escapeString(String str) {
-		if(str == null)
-			return null;
-		
-		return str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
-		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
-		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
-		replace("}", "\\}").
-		
-		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("linker.", "linker\\!.").
-		replace("return", "retur\\!n").replace("=", "=\\!");
-	}
-	
 	public void resetCurrentLine() {
 		currentLine = null;
 	}
@@ -56,7 +43,7 @@ public final class LangParser {
 					int startIndex = line.indexOf("{{{");
 					if(line.contains("}}}")) {
 						int endIndex = line.indexOf("}}}");
-						line = line.substring(0, startIndex) + escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
+						line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
 					}else {
 						//Multiple lines
 						lineTmp.delete(0, lineTmp.length());
@@ -78,7 +65,7 @@ public final class LangParser {
 							if(lineTmpString.contains("}}}")) {
 								int endIndex = lineTmpString.indexOf("}}}");
 								lineTmp.append(lineTmpString.substring(0, endIndex));
-								line = line + escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
+								line = line + LangUtils.escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
 								
 								break;
 							}
@@ -176,7 +163,7 @@ public final class LangParser {
 			}
 			
 			if(condition.startsWith("(")) {
-				int endIndex = getIndexOfMatchingBracket(condition, 0, Integer.MAX_VALUE, '(', ')');
+				int endIndex = LangUtils.getIndexOfMatchingBracket(condition, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {
 					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 					
@@ -265,7 +252,7 @@ public final class LangParser {
 				}
 				
 				int parameterStartIndex = condition.indexOf('(');
-				int parameterEndIndex = getIndexOfMatchingBracket(condition, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(condition, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
 					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 					
@@ -352,7 +339,7 @@ public final class LangParser {
 						ifCondition = null;
 					}else {
 						int conditionStartIndex = ifStatement.indexOf('(');
-						int conditionEndIndex = getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}
 					
@@ -409,7 +396,7 @@ public final class LangParser {
 			if(lines != null) {
 				//Function definition (rvalue only)
 				if(lrvalue.startsWith("(") && lrvalue.contains(") -> ")) {
-					int parameterListEndIndex = getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
+					int parameterListEndIndex = LangUtils.getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterListEndIndex < 1) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 						
@@ -474,7 +461,7 @@ public final class LangParser {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterStartIndex = token.indexOf('(');
-				int parameterEndIndex = getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
 					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 					return ast;
@@ -493,7 +480,7 @@ public final class LangParser {
 			if(token.matches("\\(.*\\).*")) {
 				clearAndParseStringBuilder(builder, nodes);
 				
-				int parameterEndIndex = getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex != -1) {
 					String functionCall = token.substring(0, parameterEndIndex + 1);
 					token = token.substring(parameterEndIndex + 1);
@@ -509,7 +496,7 @@ public final class LangParser {
 			if(token.matches("\\$\\**\\[+\\w+\\]+.*")) {
 				clearAndParseStringBuilder(builder, nodes);
 				
-				int endIndex = getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
+				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
 					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 					return ast;
@@ -647,7 +634,7 @@ public final class LangParser {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterStartIndex = parameterList.indexOf('(');
-					int parameterEndIndex = getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex == -1) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 						return ast;
@@ -668,7 +655,7 @@ public final class LangParser {
 				if(parameterList.matches("\\(.*\\).*")) {
 					clearAndParseStringBuilder(builder, nodes);
 					
-					int parameterEndIndex = getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
+					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex != -1) {
 						String functionCall = parameterList.substring(0, parameterEndIndex + 1);
 						parameterList = parameterList.substring(parameterEndIndex + 1);
@@ -729,7 +716,7 @@ public final class LangParser {
 					if(builder.length() > 0)
 						clearAndParseStringBuilder(builder, nodes);
 					
-					int endIndex = getIndexOfMatchingBracket(parameterList, 1, Integer.MAX_VALUE, '[', ']');
+					int endIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 1, Integer.MAX_VALUE, '[', ']');
 					if(endIndex != -1) {
 						String varPtr = parameterList.substring(0, endIndex + 1);
 						parameterList = parameterList.substring(endIndex + 1);
@@ -759,31 +746,6 @@ public final class LangParser {
 		}
 		
 		return ast;
-	}
-	
-	private int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {
-		int bracketCount = 0;
-		for(int i = startIndex;i < endIndex && i < string.length();i++) {
-			char c = string.charAt(i);
-			
-			//Ignore escaped chars
-			if(c == '\\') {
-				i++;
-				
-				continue;
-			}
-			
-			if(c == openedBracket) {
-				bracketCount++;
-			}else if(c == closedBracket) {
-				bracketCount--;
-				
-				if(bracketCount == 0)
-					return i;
-			}
-		}
-		
-		return -1;
 	}
 	
 	private String prepareLine(String line) {
