@@ -70,7 +70,7 @@ public class Startup {
 		is4k = dim.height > 1440;
 		
 		TerminalWindow termWin = new TerminalWindow(getFontSize());
-		TerminalIO term = new TerminalIO(new File("assets/log.txt"));
+		TerminalIO term = new TerminalIO(new File("log.txt"));
 		term.addCommand("executeLang", input -> {
 			if(input.length < 1) {
 				term.logf(Level.ERROR, "To few arguments: %d/1+!\n", Startup.class, input.length);
