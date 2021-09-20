@@ -13,7 +13,7 @@ This project makes simple translation files Turing complete
 
 #### "TermIO-Control" window commands from terminal/console
 
-You can also run "java -jar LangCompiler.jar -**command** **args**" in a terminal or console.<br>
+You can also run "java -jar Lang.jar -**command** **args**" in a terminal or console.<br>
 
 ### Breaking changes
 
