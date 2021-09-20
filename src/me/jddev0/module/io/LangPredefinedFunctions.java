@@ -80,7 +80,19 @@ final class LangPredefinedFunctions {
 	}
 	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		//Reset Functions
+		addPredefinedResetFunctions(funcs);
+		addPredefinedErrorFunctions(funcs);
+		addPredefinedCompilerFunctions(funcs);
+		addPredefinedSystemFunctions(funcs);
+		addPredefinedIOFunctions(funcs);
+		addPredefinedNumberFunctions(funcs);
+		addPredefinedCharacterFunctions(funcs);
+		addPredefinedTextFunctions(funcs);
+		addPredefinedMathFunctions(funcs);
+		addPredefinedFuncPtrFunctions(funcs);
+		addPredefinedArrayFunctions(funcs);
+	}
+	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("clearVar", (argumentList, DATA_ID) -> {
 			DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
@@ -152,8 +164,8 @@ final class LangPredefinedFunctions {
 				return "func.clearAllVars";
 			}
 		});
-		
-		//Error functions
+	}
+	private void addPredefinedErrorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getErrorString", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
@@ -176,8 +188,8 @@ final class LangPredefinedFunctions {
 			}
 		});
 		funcs.put("getErrorText", (argumentList, DATA_ID) -> new DataObject().setText(interpreter.getAndClearErrnoErrorObject(DATA_ID).getErrorText()));
-		
-		//Compiler function
+	}
+	private void addPredefinedCompilerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("isCompilerVersionNewer", (argumentList, DATA_ID) -> {
 			String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) > 0);
@@ -186,8 +198,8 @@ final class LangPredefinedFunctions {
 			String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) < 0);
 		});
-		
-		//System Functions
+	}
+	private void addPredefinedSystemFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("sleep", (argumentList, DATA_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			Number number = dataObject.getNumber();
@@ -342,8 +354,8 @@ final class LangPredefinedFunctions {
 			return interpreter.getAndResetReturnValue();
 		});
 		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(interpreter.term != null));
-		
-		//IO Functions
+	}
+	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, DATA_ID) -> {
 			if(interpreter.term == null && !interpreter.allowTermRedirect)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, DATA_ID);
@@ -502,8 +514,8 @@ final class LangPredefinedFunctions {
 			System.err.println(textObject.getText());
 			return null;
 		});
-		
-		//Number functions
+	}
+	private void addPredefinedNumberFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
@@ -620,8 +632,8 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			}
 		});
-		
-		//Character functions
+	}
+	private void addPredefinedCharacterFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("toValue", (argumentList, DATA_ID) -> {
 			DataObject charObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
@@ -654,8 +666,8 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 		});
-		
-		//Text functions
+	}
+	private void addPredefinedTextFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("strlen", (argumentList, DATA_ID) -> new DataObject().setInt(getArgumentListAsString(argumentList, true).length()));
 		funcs.put("toUpper", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toUpperCase()));
 		funcs.put("toLower", (argumentList, DATA_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
@@ -756,8 +768,8 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		
-		//Math functions
+	}
+	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("rand", (argumentList, DATA_ID) -> new DataObject().setInt(LangInterpreter.RAN.nextInt(interpreter.data.get(DATA_ID).var.get("$LANG_RAND_MAX").getInt())));
 		funcs.put("inci", (argumentList, DATA_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
@@ -1167,8 +1179,8 @@ final class LangPredefinedFunctions {
 				return new DataObject().setLong((long)Math.floor(number.doubleValue()));
 			}, DATA_ID);
 		});
-		
-		//FuncPtr functions
+	}
+	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("copyAfterFP", (argumentList, DATA_ID) -> {
 			DataObject toPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject fromPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
@@ -1249,8 +1261,8 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		
-		//Array functions
+	}
+	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("arrayMake", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = null;
 			DataObject lengthObject = null;
