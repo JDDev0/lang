@@ -30,6 +30,13 @@ import me.jddev0.module.io.LangParser.AbstractSyntaxTree.TextValueNode;
 import me.jddev0.module.io.LangParser.AbstractSyntaxTree.VariableNameNode;
 import me.jddev0.module.io.TerminalIO.Level;
 
+/**
+ * IO-Module<br>
+ * Lang predefined and linker functions for the LangInterpreter
+ * 
+ * @author JDDev0
+ * @version v1.0.0
+ */
 final class LangPredefinedFunctions {
 	private final LangInterpreter interpreter;
 
