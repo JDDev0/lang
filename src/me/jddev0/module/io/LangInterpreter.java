@@ -1113,7 +1113,7 @@ public final class LangInterpreter {
 		int currentErrno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();
 		int newErrno = error.getErrorCode();
 		
-		if(newErrno >= 0 || (newErrno < 0 && currentErrno < 1))
+		if(newErrno >= 0 || currentErrno < 1)
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 	}
 	
