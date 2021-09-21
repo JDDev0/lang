@@ -1122,6 +1122,91 @@ final class LangPredefinedFunctions {
 				return new DataObject().setDouble(Math.sqrt(number.doubleValue()));
 			}, DATA_ID);
 		});
+		funcs.put("cbrt", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.cbrt(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("hypot", (argumentList, DATA_ID) -> {
+			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
+				return new DataObject().setDouble(Math.hypot(leftNumber.doubleValue(), rightNumber.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("toRadians", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.toRadians(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("toDegrees", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.toDegrees(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("sin", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.sin(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("cos", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.cos(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("tan", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.tan(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("asin", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.asin(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("acos", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.acos(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("atan", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.atan(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("atan2", (argumentList, DATA_ID) -> {
+			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
+				return new DataObject().setDouble(Math.atan2(leftNumber.doubleValue(), rightNumber.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("sinh", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.sinh(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("cosh", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.cosh(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("tanh", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.tanh(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("exp", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.exp(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("loge", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.log(number.doubleValue()));
+			}, DATA_ID);
+		});
+		funcs.put("log10", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(Math.log10(number.doubleValue()));
+			}, DATA_ID);
+		});
 		funcs.put("dtoi", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
