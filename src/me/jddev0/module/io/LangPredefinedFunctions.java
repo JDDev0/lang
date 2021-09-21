@@ -584,6 +584,26 @@ final class LangPredefinedFunctions {
 				return new DataObject().setDouble(Double.longBitsToDouble(number.longValue()));
 			}, DATA_ID);
 		});
+		funcs.put("toInt", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setInt(number.intValue());
+			}, DATA_ID);
+		});
+		funcs.put("toLong", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setLong(number.longValue());
+			}, DATA_ID);
+		});
+		funcs.put("toFloat", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setFloat(number.floatValue());
+			}, DATA_ID);
+		});
+		funcs.put("toDouble", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setDouble(number.doubleValue());
+			}, DATA_ID);
+		});
 		funcs.put("ttoi", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
@@ -1091,15 +1111,51 @@ final class LangPredefinedFunctions {
 				return new DataObject().setDouble(Math.sqrt(number.doubleValue()));
 			}, DATA_ID);
 		});
-		funcs.put("dtoi", (argumentList, DATA_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(number.intValue());
-			}, DATA_ID);
+		funcs.put("dtoi", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				return unaryMathOperationHelper(argumentList, number -> {
+					return new DataObject().setInt(number.intValue());
+				}, DATA_ID);
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.toInt";
+			}
 		});
-		funcs.put("dtol", (argumentList, DATA_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(number.longValue());
-			}, DATA_ID);
+		funcs.put("dtol", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				return unaryMathOperationHelper(argumentList, number -> {
+					return new DataObject().setLong(number.longValue());
+				}, DATA_ID);
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.toLong";
+			}
 		});
 		funcs.put("toNumber", (argumentList, DATA_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
