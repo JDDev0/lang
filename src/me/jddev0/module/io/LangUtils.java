@@ -102,9 +102,9 @@ public final class LangUtils {
 		return str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
 		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
 		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
-		replace("}", "\\}").
+		replace("}", "\\}").replace("=", "\\=").replace("<", "\\<").replace(">", "\\>").
 		
 		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("linker.", "linker\\!.").
-		replace("return", "retur\\!n").replace("=", "=\\!");
+		replace("return", "retur\\!n").replace("!", "\\!!");
 	}
 }

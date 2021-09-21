@@ -744,6 +744,12 @@ public final class LangInterpreter {
 				return new DataObject().setChar('{');
 			case '}':
 				return new DataObject().setChar('}');
+			case '=':
+				return new DataObject().setChar('=');
+			case '<':
+				return new DataObject().setChar('<');
+			case '>':
+				return new DataObject().setChar('>');
 			case '!':
 				return null;
 			case '\\':
