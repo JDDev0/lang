@@ -604,6 +604,69 @@ final class LangPredefinedFunctions {
 				return new DataObject().setDouble(number.doubleValue());
 			}, DATA_ID);
 		});
+		funcs.put("toNumber", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			switch(dataObject.getType()) {
+				case TEXT:
+					String txt = dataObject.getText();
+					
+					//INT
+					try {
+						return new DataObject().setInt(Integer.parseInt(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//LONG
+					try {
+						return new DataObject().setLong(Long.parseLong(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//FLOAT
+					try {
+						float floatNumber = Float.parseFloat(txt);
+						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+							return new DataObject().setFloat(floatNumber);
+						}
+					}catch(NumberFormatException ignore) {}
+					
+					//DOUBLE
+					try {
+						return new DataObject().setDouble(Double.parseDouble(txt));
+					}catch(NumberFormatException ignore) {}
+					
+					//CHAR
+					if(txt.length() == 1)
+						new DataObject().setInt(txt.charAt(0));
+					
+					return null;
+					
+				case ARRAY:
+					return new DataObject().setInt(dataObject.getArray().length);
+				
+				case CHAR:
+					return new DataObject().setInt(dataObject.getChar());
+					
+				case ERROR:
+					return new DataObject().setInt(dataObject.getError().getErrno());
+				
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+					return dataObject;
+				
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case VOID:
+				case NULL:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		});
 		funcs.put("ttoi", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
@@ -1156,69 +1219,6 @@ final class LangPredefinedFunctions {
 			public String getDeprecatedReplacementFunction() {
 				return "func.toLong";
 			}
-		});
-		funcs.put("toNumber", (argumentList, DATA_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
-			
-			switch(dataObject.getType()) {
-				case TEXT:
-					String txt = dataObject.getText();
-					
-					//INT
-					try {
-						return new DataObject().setInt(Integer.parseInt(txt));
-					}catch(NumberFormatException ignore) {}
-					
-					//LONG
-					try {
-						return new DataObject().setLong(Long.parseLong(txt));
-					}catch(NumberFormatException ignore) {}
-					
-					//FLOAT
-					try {
-						float floatNumber = Float.parseFloat(txt);
-						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-							return new DataObject().setFloat(floatNumber);
-						}
-					}catch(NumberFormatException ignore) {}
-					
-					//DOUBLE
-					try {
-						return new DataObject().setDouble(Double.parseDouble(txt));
-					}catch(NumberFormatException ignore) {}
-					
-					//CHAR
-					if(txt.length() == 1)
-						new DataObject().setInt(txt.charAt(0));
-					
-					return null;
-					
-				case ARRAY:
-					return new DataObject().setInt(dataObject.getArray().length);
-				
-				case CHAR:
-					return new DataObject().setInt(dataObject.getChar());
-					
-				case ERROR:
-					return new DataObject().setInt(dataObject.getError().getErrno());
-				
-				case INT:
-				case LONG:
-				case FLOAT:
-				case DOUBLE:
-					return dataObject;
-				
-				case VAR_POINTER:
-				case FUNCTION_POINTER:
-				case VOID:
-				case NULL:
-				case ARGUMENT_SEPARATOR:
-					return null;
-			}
-			
-			return null;
 		});
 		funcs.put("round", (argumentList, DATA_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
