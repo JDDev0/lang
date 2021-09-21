@@ -1088,6 +1088,8 @@ public final class LangInterpreter {
 		data.get(DATA_ID).var.put("$LANG_DOUBLE_NAN", new DataObject().setDouble(Double.NaN).setFinalData(true).setVariableName("$LANG_DOUBLE_NAN"));
 		data.get(DATA_ID).var.put("$LANG_DOUBLE_POS_INF", new DataObject().setDouble(Double.POSITIVE_INFINITY).setFinalData(true).setVariableName("$LANG_DOUBLE_POS_INF"));
 		data.get(DATA_ID).var.put("$LANG_DOUBLE_NEG_INF", new DataObject().setDouble(Double.NEGATIVE_INFINITY).setFinalData(true).setVariableName("$LANG_DOUBLE_NEG_INF"));
+		data.get(DATA_ID).var.put("$LANG_MATH_PI", new DataObject().setDouble(Math.PI).setFinalData(true).setVariableName("$LANG_MATH_PI"));
+		data.get(DATA_ID).var.put("$LANG_MATH_E", new DataObject().setDouble(Math.E).setFinalData(true).setVariableName("$LANG_MATH_E"));
 		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
 		
 		for(InterpretingError error:InterpretingError.values()) {
