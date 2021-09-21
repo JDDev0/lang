@@ -200,11 +200,32 @@ func.printTerminal(-1, |$pow1|$pow2|$pow3|$pow4|$pow5|$pow6|)
 # func.sqrt(double) # Will return the square root of the argument
 func.printTerminal(-1, func.sqrt(16))
 
-# func.dto[i/l](double) # Will return either an int or a long
-$var1 = func.dtoi(10.2)
-$var2 = func.dtoi(10.8)
-$var3 = func.dtol(10.2)
-$var4 = func.dtol(10.8)
+# func.toInt(number) # Will return an int
+$var1 = func.toInt(10.2)
+$var2 = func.toInt(10.8)
+$var3 = func.toInt(10)
+$var4 = func.toInt(-10)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+
+# func.toLong(number) # Will return a long
+$var1 = func.toLong(10.2)
+$var2 = func.toLong(10.8)
+$var3 = func.toLong(10)
+$var4 = func.toLong(-10)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+
+# func.toFloat(number) # Will return a float
+$var1 = func.toFloat(10.2)
+$var2 = func.toFloat(10.8)
+$var3 = func.toFloat(10)
+$var4 = func.toFloat(-10)
+func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+
+# func.toDouble(number) # Will return a double
+$var1 = func.toDouble(10.2)
+$var2 = func.toDouble(10.8)
+$var3 = func.toDouble(10)
+$var4 = func.toDouble(-10)
 func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
 
 # func.round(double) # Will return the rounded value of the argument
