@@ -1110,7 +1110,11 @@ public final class LangInterpreter {
 	void setErrno(InterpretingError error, final int DATA_ID) {
 		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setVariableName("$LANG_ERRNO"));
 		
-		data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(error.getErrorCode());
+		int currentErrno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();
+		int newErrno = error.getErrorCode();
+		
+		if(newErrno >= 0 || (newErrno < 0 && currentErrno < 1))
+			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 	}
 	
 	DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
