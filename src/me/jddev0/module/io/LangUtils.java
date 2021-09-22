@@ -104,7 +104,6 @@ public final class LangUtils {
 		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
 		replace("}", "\\}").replace("=", "\\=").replace("<", "\\<").replace(">", "\\>").
 		
-		replace("fp.", "fp\\!.").replace("func.", "func\\!.").replace("linker.", "linker\\!.").
-		replace("return", "retur\\!n").replace("!", "\\!!");
+		replace("!", "\\!!").replace(".", "\\!.\\!").replace("null", "nul\\!l").replace("return", "retur\\!n");
 	}
 }
