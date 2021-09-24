@@ -724,6 +724,8 @@ public final class LangInterpreter {
 				return new DataObject().setChar('\f');
 			case 's':
 				return new DataObject().setChar(' ');
+			case 'e':
+				return new DataObject("");
 			case 'b':
 				return new DataObject().setChar('\b');
 			case 't':
