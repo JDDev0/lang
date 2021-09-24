@@ -116,6 +116,12 @@ public final class LangInterpreter {
 	 * @return Might return null
 	 */
 	private DataObject interpretNode(Node node, final int DATA_ID) {
+		if(node == null) {
+			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			
+			return null;
+		}
+		
 		try {
 			switch(node.getNodeType()) {
 				case UNPROCESSED_VARIABLE_NAME:
@@ -510,14 +516,14 @@ public final class LangInterpreter {
 				if(!langVer.equals(VERSION)) {
 					if(term == null) {
 						if(VERSION.compareTo(langVer) > 0)
-							System.err.println("Lang file's version is older than this version! Maybe the lang file won't be compile right!");
+							System.err.println("Lang file's version is older than this version! Maybe the lang file won't be compiled right!");
 						else
-							System.err.println("Lang file's version is newer than this version! Maybe the lang file won't be compile right!");
+							System.err.println("Lang file's version is newer than this version! Maybe the lang file won't be compiled right!");
 					}else {
 						if(VERSION.compareTo(langVer) > 0)
-							term.logln(Level.WARNING, "Lang file's version is older than this version! Maybe the lang file won't be compile right!", LangInterpreter.class);
+							term.logln(Level.WARNING, "Lang file's version is older than this version! Maybe the lang file won't be compiled right!", LangInterpreter.class);
 						else
-							term.logln(Level.ERROR, "Lang file's version is newer than this version! Maybe the lang file won't be compile right!", LangInterpreter.class);
+							term.logln(Level.ERROR, "Lang file's version is newer than this version! Maybe the lang file won't be compiled right!", LangInterpreter.class);
 					}
 				}
 				break;
@@ -543,8 +549,13 @@ public final class LangInterpreter {
 	}
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int DATA_ID) {
 		DataObject rvalue = interpretNode(node.getRvalue(), DATA_ID);
+		if(rvalue == null)
+			rvalue = new DataObject().setNull();
 		
 		Node lvalueNode = node.getLvalue();
+		if(lvalueNode == null)
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+		
 		try {
 			switch(lvalueNode.getNodeType()) {
 				//Variable assignment
@@ -614,7 +625,7 @@ public final class LangInterpreter {
 					if(langRequest.startsWith("lang."))
 						interpretLangDataAndCompilerFlags(langRequest, rvalue);
 					
-					data.get(DATA_ID).lang.put(langRequest, rvalue == null?"null":rvalue.getText());
+					data.get(DATA_ID).lang.put(langRequest, rvalue.getText());
 					break;
 					
 				case GENERAL:
