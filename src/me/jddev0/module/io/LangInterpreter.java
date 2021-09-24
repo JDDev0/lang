@@ -500,6 +500,9 @@ public final class LangInterpreter {
 	}
 	
 	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value) {
+		if(value == null)
+			value = new DataObject().setNull();
+		
 		switch(langDataCompilerFlag) {
 			//Data
 			case "lang.version":
@@ -603,11 +606,15 @@ public final class LangInterpreter {
 				case TEXT_VALUE:
 				case VARIABLE_NAME:
 				case VOID_VALUE:
-					String langRequest = interpretNode(lvalueNode, DATA_ID).getText();
+					DataObject lvalue = interpretNode(lvalueNode, DATA_ID);
+					if(lvalue == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					
+					String langRequest = lvalue.getText();
 					if(langRequest.startsWith("lang."))
 						interpretLangDataAndCompilerFlags(langRequest, rvalue);
 					
-					data.get(DATA_ID).lang.put(langRequest, rvalue.getText());
+					data.get(DATA_ID).lang.put(langRequest, rvalue == null?"null":rvalue.getText());
 					break;
 					
 				case GENERAL:
