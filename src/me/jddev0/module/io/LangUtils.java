@@ -99,8 +99,15 @@ public final class LangUtils {
 		if(str == null)
 			return null;
 		
-		//"\e": Used for empty strings and for numbers
-		return "\\e" + str.replace("\\", "\\\\").replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
+		//Escape slashes
+		str = str.replace("\\", "\\\\");
+		
+		//Escape numbers
+		for(int i = 0;i < 10;i++)
+			str = str.replace(i + "", i + "\\e");
+		
+		//"\e": Used for escaping empty text
+		return "\\e" + str.replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
 		replace("\f", "\\f").replace(" ", "\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
 		replace("#", "\\#").replace(",", "\\,").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
 		replace("}", "\\}").replace("=", "\\=").replace("<", "\\<").replace(">", "\\>").
