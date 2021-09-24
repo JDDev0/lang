@@ -19,10 +19,27 @@ func.printTerminal(-1, func.getLangRequest($test2))
 ui.test = func.getLangRequest($test)
 
 # Escape chars
-esc.dol = \$ Dollar
-esc.new_line = \n
-esc.comment = \#
-esc.space = \s
+esc.zero = \0 # NUL (Null character)
+esc.new_line = \n # LF (Line feed)
+esc.cr = \r # CR (Carriage return)
+esc.ff = \f # FF (Form feed)
+esc.space = \s # " " (Space)
+esc.empty = \e # empty text = text of length 0
+esc.bs = \b # BS (Backspace)
+esc.ht = \t # HT (Horizontal tab)
+esc.dol = \$ # "$"
+esc.amp = \& # "&"
+esc.comment = \# # "#"
+esc.com = \, # ","
+esc.ob = \( # "("
+esc.cb = \) # ")"
+esc.ob.2 = \{ # "{"
+esc.cb.2 = \} # "}"
+esc.eq = \= # "="
+esc.lt = \< # "<"
+esc.gt = \> # ">"
+esc.fns = \! # Forced node split (Will force the parse to split the current node)
+esc.backslash = \\ # "\"
 
 # Empty translation
 empty.nothing =
