@@ -809,11 +809,11 @@ final class LangPredefinedFunctions {
 			for(int i = 0;i < arr.length;i++)
 				arr[i] = new DataObject(arrTmp[i]);
 			
-			if(oldData != null) {
+			if(arrPointerObject.getType() == DataType.NULL && (arrPointerObject.getVariableName() == null || !arrPointerObject.getVariableName().matches("&\\w+"))) {
+				return new DataObject().setArray(arr);
+			}else if(oldData != null) {
 				oldData.setArray(arr);
 				return oldData;
-			}else if(arrPointerObject.getType() == DataType.NULL) {
-				return new DataObject().setArray(arr);
 			}else {
 				arrPointerObject = new DataObject().setArray(arr).setVariableName(arrPtr);
 				interpreter.data.get(DATA_ID).var.put(arrPtr, arrPointerObject);
