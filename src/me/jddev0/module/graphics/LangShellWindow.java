@@ -518,15 +518,11 @@ public class LangShellWindow extends JDialog {
 				
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
-					if(checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker.") || checkTmp.startsWith("con."))
-						funcFlag = true;
+					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker.") || checkTmp.startsWith("con.");
 				}
 				
-				if(!returnFlag) {
-					String checkTmp = line.substring(i);
-					if(checkTmp.startsWith("return "))
-						returnFlag = true;
-				}
+				if(!returnFlag)
+					returnFlag = line.substring(i).startsWith("return");
 				
 				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
 				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
@@ -535,9 +531,9 @@ public class LangShellWindow extends JDialog {
 					varFlag = false;
 				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
 					funcFlag = false;
-				if(returnFlag && i > 6 && line.substring(i - 6).startsWith("return "))
+				if(returnFlag && i > 6 && line.substring(i - 6).startsWith("return"))
 					returnFlag = false;
-				if(nullFlag && i > 3 && line.substring(i - 4).startsWith("null"))
+				if(nullFlag && i > 4 && line.substring(i - 4).startsWith("null"))
 					nullFlag = false;
 				
 				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
