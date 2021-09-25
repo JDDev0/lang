@@ -503,9 +503,12 @@ public class LangShellWindow extends JDialog {
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 			
-			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false;
+			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, nullFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
+				
+				if(!nullFlag)
+					nullFlag = line.substring(i).startsWith("null");
 				
 				if(!commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
 					commentFlag = true;
@@ -534,6 +537,8 @@ public class LangShellWindow extends JDialog {
 					funcFlag = false;
 				if(returnFlag && i > 6 && line.substring(i - 6).startsWith("return "))
 					returnFlag = false;
+				if(nullFlag && i > 3 && line.substring(i - 4).startsWith("null"))
+					nullFlag = false;
 				
 				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
 					varFlag = false;
@@ -545,6 +550,8 @@ public class LangShellWindow extends JDialog {
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
+				else if(nullFlag)
+					col = Color.YELLOW;
 				else if(dereferencingAndReferencingOperatorFlag)
 					col = Color.GRAY;
 				else if(bracketsFlag)
