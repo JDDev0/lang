@@ -171,8 +171,8 @@ func.printTerminal(-1, • "$LANG_FLOAT_NEG_INF") # Will print the negative infi
 func.printTerminal(-1, • "$LANG_DOUBLE_NAN") # Will print the NaN double value
 func.printTerminal(-1, • "$LANG_DOUBLE_POS_INF") # Will print the positive infinity double value
 func.printTerminal(-1, • "$LANG_DOUBLE_NEG_INF") # Will print the negative infinity double value
-func.printTerminal(-1, • "$LANG_MATH_PI") # Will print the closed double value to π
-func.printTerminal(-1, • "$LANG_MATH_E") # Will print the closed double value to e
+func.printTerminal(-1, • "$LANG_MATH_PI") # Will print the closest double value to π
+func.printTerminal(-1, • "$LANG_MATH_E") # Will print the closest double value to e
 func.printTerminal(-1, • "&LANG_ARGS") # Will print the command line arguments (Array of TEXT elements, See: 04_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
 func.printTerminal(-1, • "$LANG_ERRNO") # Will print the errno value or 0 if no error
 
