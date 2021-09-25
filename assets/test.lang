@@ -3,7 +3,7 @@ lang.name = Test
 lang.version = v1.0.0
 
 # Lang content
-# Translations examples ("lang request" = "lang value")
+# Translations examples ("translation key" = "translation value")
 ui.button.ok = Ok
 ui.button.canel = Cancel
 
@@ -483,9 +483,9 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 	}
 	func.repeat(fp.printColor, 8)
 	
-	# Get Lang request
-	lang.req = TESTed 42
-	func.printTerminal(2, func.getTranslationValue(lang.req))
+	# Get Translation value
+	lang.value = TESTed 42
+	func.printTerminal(2, func.getTranslationValue(lang.value))
 }
 
 # New in version v0.2.0
@@ -672,11 +672,11 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		func.printTerminal(1, $\!b: $b)
 		func.printTerminal(1, $\!c: $c)
 		
-		abc.test = $d = func.rand() # Multi assignment with lang request
+		abc.test = $d = func.rand() # Multi assignment with translation key
 		func.printTerminal(1, abc.test: func.getTranslationValue(abc.test))
 		func.printTerminal(1, $\!d: $d)
 		
-		$e = abc.test2 = func.rand() # Lang request must be first else it will be interpretet as normal text
+		$e = abc.test2 = func.rand() # Translation key must be first else it will be interpretet as normal text
 		func.printTerminal(1, abc.test2: func.getTranslationValue(abc.test2))
 		func.printTerminal(1, $\!e: $e)
 		
