@@ -809,7 +809,7 @@ final class LangPredefinedFunctions {
 			for(int i = 0;i < arr.length;i++)
 				arr[i] = new DataObject(arrTmp[i]);
 			
-			if(arrPointerObject.getType() == DataType.NULL && (arrPointerObject.getVariableName() == null || !arrPointerObject.getVariableName().matches("&\\w+"))) {
+			if(arrPointerObject.getType() == DataType.NULL && arrPointerObject.getVariableName() == null) {
 				return new DataObject().setArray(arr);
 			}else if(oldData != null) {
 				oldData.setArray(arr);
