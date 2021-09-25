@@ -18,16 +18,8 @@ import java.util.function.Function;
 
 import me.jddev0.module.io.LangInterpreter.DataObject;
 import me.jddev0.module.io.LangInterpreter.DataType;
-import me.jddev0.module.io.LangInterpreter.ErrorObject;
 import me.jddev0.module.io.LangInterpreter.FunctionPointerObject;
 import me.jddev0.module.io.LangInterpreter.InterpretingError;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.ArgumentSeparatorNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.FunctionCallNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.IntValueNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.Node;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.TextValueNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.VariableNameNode;
 import me.jddev0.module.io.TerminalIO.Level;
 
 /**
@@ -772,7 +764,7 @@ final class LangPredefinedFunctions {
 			}
 		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
-			DataObject arrayPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject maxSplitCountObject;
@@ -797,35 +789,36 @@ final class LangPredefinedFunctions {
 				arrTmp = textObject.getText().split(regexObject.getText(), maxSplitCount.intValue());
 			}
 			
-			String arrPtr = arrayPointerObject.getType() == DataType.ARRAY?arrayPointerObject.getVariableName():arrayPointerObject.getText();
-			
-			AbstractSyntaxTree ast = new AbstractSyntaxTree();
-			List<Node> argumentListArrayMake = new LinkedList<>();
-			argumentListArrayMake.add(new TextValueNode(arrPtr));
-			argumentListArrayMake.add(new ArgumentSeparatorNode(","));
-			argumentListArrayMake.add(new IntValueNode(arrTmp.length));
-			ast.addChild(new FunctionCallNode(argumentListArrayMake, "func.arrayMake"));
-			
-			List<Node> argumentListArraySetAll = new LinkedList<>();
-			argumentListArraySetAll.add(new VariableNameNode(arrPtr));
-			argumentListArraySetAll.add(new ArgumentSeparatorNode(","));
-			for(String ele:arrTmp) {
-				argumentListArraySetAll.add(new TextValueNode(ele));
-				argumentListArraySetAll.add(new ArgumentSeparatorNode(","));
-			}
-			argumentListArraySetAll.remove(argumentListArraySetAll.size() - 1); //Remove leading argument separator node
-			ast.addChild(new FunctionCallNode(argumentListArraySetAll, "func.arraySetAll"));
-			
-			interpreter.interpretAST(ast, DATA_ID);
-			
-			InterpretingError err;
-			if((err = interpreter.getAndClearErrnoErrorObject(DATA_ID)) != InterpretingError.NO_ERROR) {
-				interpreter.setErrno(err, DATA_ID);
-				
-				return new DataObject().setError(new ErrorObject(err));
+			String arrPtr;
+			if(arrPointerObject.getType() == DataType.NULL || arrPointerObject.getType() == DataType.ARRAY) {
+				arrPtr = null;
+			}else if(arrPointerObject.getType() == DataType.TEXT) {
+				arrPtr = arrPointerObject.getText();
+				if(!arrPtr.matches("&\\w+"))
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			}else {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}
 			
-			return null;
+			DataObject oldData = arrPtr == null?arrPointerObject:interpreter.data.get(DATA_ID).var.get(arrPtr);
+			if((oldData != null && (oldData.isFinalData() || (oldData.getVariableName() != null && oldData.getVariableName().startsWith("&LANG_")))) ||
+			(arrPtr != null && arrPtr.startsWith("&LANG_")))
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
+			
+			DataObject[] arr = new DataObject[arrTmp.length];
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(arrTmp[i]);
+			
+			if(oldData != null) {
+				oldData.setArray(arr);
+				return oldData;
+			}else if(arrPointerObject.getType() == DataType.NULL) {
+				return new DataObject().setArray(arr);
+			}else {
+				arrPointerObject = new DataObject().setArray(arr).setVariableName(arrPtr);
+				interpreter.data.get(DATA_ID).var.put(arrPtr, arrPointerObject);
+				return arrPointerObject;
+			}
 		});
 	}
 	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
