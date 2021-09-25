@@ -276,12 +276,40 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("getLangRequest", (argumentList, DATA_ID) -> {
-			DataObject langRequestObject = LangUtils.combineDataObjects(argumentList);
-			if(langRequestObject == null)
+		funcs.put("getLangRequest", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				DataObject langRequestObject = LangUtils.combineDataObjects(argumentList);
+				if(langRequestObject == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				
+				String langValue = interpreter.data.get(DATA_ID).lang.get(langRequestObject.getText());
+				if(langValue == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.LANG_REQ_NOT_FOUND, DATA_ID);
+				
+				return new DataObject(langValue);
+			}
+			
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.getTranslationValue";
+			}
+		});
+		funcs.put("getTranslationValue", (argumentList, DATA_ID) -> {
+			DataObject translationKeyObject = LangUtils.combineDataObjects(argumentList);
+			if(translationKeyObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
-			String langValue = interpreter.data.get(DATA_ID).lang.get(langRequestObject.getText());
+			String langValue = interpreter.data.get(DATA_ID).lang.get(translationKeyObject.getText());
 			if(langValue == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.LANG_REQ_NOT_FOUND, DATA_ID);
 			
