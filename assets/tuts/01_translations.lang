@@ -2,7 +2,7 @@
 lang.name = Translations
 lang.version = v1.0.0
 
-# Lang Translations: langRequest = langValue
+# Lang Translations: translationKey = translationValue
 ui.ok = Ok
 ui.cancel = Cancel
 ui.exit = Exit
@@ -11,12 +11,12 @@ ui.exit = Exit
 %$test = TEST
 \$test2 = TEST2
 
-# Get a lang request value: func.getLangRequest(langRequest)
-func.printTerminal(-1, func.getLangRequest(ui.ok))
-func.printTerminal(-1, func.getLangRequest($test))
-func.printTerminal(-1, func.getLangRequest($test2))
+# Get a translation value: func.getTranslationValue(langRequest)
+func.printTerminal(-1, func.getTranslationValue(ui.ok))
+func.printTerminal(-1, func.getTranslationValue(\$test)) #"\$": Escaped "$"
+func.printTerminal(-1, func.getTranslationValue(\$test2))
 
-ui.test = func.getLangRequest($test)
+ui.test = func.getTranslationValue($test)
 
 # Escape chars
 esc.zero = \0 # NUL (Null character)

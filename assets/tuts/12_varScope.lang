@@ -93,4 +93,4 @@ fp.a = () -> {
 fp.a()
 
 func.printTerminal(-1, \s)
-func.printTerminal(-1, global.translation = func.getLangRequest(global.translation))
+func.printTerminal(-1, global.translation = func.getTranslationValue(global.translation))
