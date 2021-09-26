@@ -221,3 +221,75 @@ func.printTerminal(2, $var  -> func.condition({{{$var === null}}})) #0
 func.printTerminal(2, $var2 -> func.condition({{{$var2 === null}}})) #1
 func.printTerminal(2, $var3 -> func.condition({{{$var3 === null}}})) #0
 func.printTerminal(2, $var4 -> func.condition({{{$var4 === null}}})) #1
+
+# Advanced conditions
+{
+	# Check the length of an array
+	&arr = func.arrayMake(3)
+	
+	func.printTerminal(3, Check with normal equals)
+	func.printTerminal(3, func.condition({{{&arr == 3}}}))
+	func.printTerminal(3, func.condition({{{3 == &arr}}}))
+	func.printTerminal(3, func.condition({{{&arr == 2}}}))
+	func.printTerminal(3, func.condition({{{2 == &arr}}}))
+	
+	func.printTerminal(3, Check with strict equals)
+	func.printTerminal(3, func.condition({{{&arr === 3}}}))
+	func.printTerminal(3, func.condition({{{3 === &arr}}}))
+	func.printTerminal(3, func.condition({{{&arr === 2}}}))
+	func.printTerminal(3, func.condition({{{2 === &arr}}}))
+	
+	# Check the exact error of $LANG_ERRNO
+	func.divd(1, 0) # Set error to "div by zero"
+	
+	func.printTerminal(2, Check with normal equals with \$LANG_ERRNO_...)
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO_DIV_BY_ZERO == $LANG_ERRNO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO == $LANG_ERRNO_INVALID_ARGUMENTS}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO_INVALID_ARGUMENTS == $LANG_ERRNO}}}))
+	
+	func.printTerminal(2, Check with normal equals with \$LANG_ERROR_...)
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO == $LANG_ERROR_DIV_BY_ZERO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERROR_DIV_BY_ZERO == $LANG_ERRNO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO == $LANG_ERROR_INVALID_ARGUMENTS}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERROR_INVALID_ARGUMENTS == $LANG_ERRNO}}}))
+	
+	func.printTerminal(2, Check with strict equals with \$LANG_ERRNO_...)
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO_DIV_BY_ZERO === $LANG_ERRNO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO === $LANG_ERRNO_INVALID_ARGUMENTS}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO_INVALID_ARGUMENTS === $LANG_ERRNO}}}))
+	
+	func.printTerminal(2, Check with strict equals with \$LANG_ERROR_...)
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO === $LANG_ERROR_DIV_BY_ZERO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERROR_DIV_BY_ZERO === $LANG_ERRNO}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERRNO === $LANG_ERROR_INVALID_ARGUMENTS}}}))
+	func.printTerminal(2, func.condition({{{$LANG_ERROR_INVALID_ARGUMENTS === $LANG_ERRNO}}}))
+	
+	# Check the exact error of a returned error object
+	$err = func.divd(1, 0) # Will return "div by zero" error object
+	
+	func.printTerminal(4, Check with normal equals with \$LANG_ERRNO_...)
+	func.printTerminal(4, func.condition({{{$err == $LANG_ERRNO_DIV_BY_ZERO}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERRNO_DIV_BY_ZERO == $err}}}))
+	func.printTerminal(4, func.condition({{{$err == $LANG_ERRNO_INVALID_ARGUMENTS}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERRNO_INVALID_ARGUMENTS == $err}}}))
+	
+	func.printTerminal(4, Check with normal equals with \$LANG_ERROR_...)
+	func.printTerminal(4, func.condition({{{$err == $LANG_ERROR_DIV_BY_ZERO}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERROR_DIV_BY_ZERO == $err}}}))
+	func.printTerminal(4, func.condition({{{$err == $LANG_ERROR_INVALID_ARGUMENTS}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERROR_INVALID_ARGUMENTS == $err}}}))
+	
+	func.printTerminal(4, Check with strict equals with \$LANG_ERRNO_...)
+	func.printTerminal(4, func.condition({{{$err === $LANG_ERRNO_DIV_BY_ZERO}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERRNO_DIV_BY_ZERO === $err}}}))
+	func.printTerminal(4, func.condition({{{$err === $LANG_ERRNO_INVALID_ARGUMENTS}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERRNO_INVALID_ARGUMENTS === $err}}}))
+	
+	func.printTerminal(4, Check with strict equals with \$LANG_ERROR_...)
+	func.printTerminal(4, func.condition({{{$err === $LANG_ERROR_DIV_BY_ZERO}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERROR_DIV_BY_ZERO === $err}}}))
+	func.printTerminal(4, func.condition({{{$err === $LANG_ERROR_INVALID_ARGUMENTS}}}))
+	func.printTerminal(4, func.condition({{{$LANG_ERROR_INVALID_ARGUMENTS === $err}}}))
+}
