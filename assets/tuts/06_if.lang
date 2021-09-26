@@ -117,10 +117,11 @@ con.endif
 
 # Condition function
 # func.condition("condition") # Will return 1 if true else 0
-func.printTerminal(-1, func.condition(0))
-func.printTerminal(-1, func.condition(-1))
-func.printTerminal(-1, func.condition(42))
-func.printTerminal(-1, func.condition(1))
+# "condition" should be escaped with "{{{" and "}}}"
+func.printTerminal(-1, func.condition({{{0}}}))
+func.printTerminal(-1, func.condition({{{-1}}}))
+func.printTerminal(-1, func.condition({{{42}}}))
+func.printTerminal(-1, func.condition({{{1}}}))
 
 # Operators
 #     For all types:
@@ -138,76 +139,77 @@ func.printTerminal(-1, func.condition(1))
 #         "||": Or
 #         "()": Execute as an unit
 func.printTerminal(2, a compared to a)
-func.printTerminal(3, func.condition(a == a))
-func.printTerminal(3, func.condition(a != a))
+func.printTerminal(3, func.condition({{{a == a}}}))
+func.printTerminal(3, func.condition({{{a != a}}}))
 func.printTerminal(2, a compared to d)
-func.printTerminal(3, func.condition(a == d))
-func.printTerminal(3, func.condition(a != d))
+func.printTerminal(3, func.condition({{{a == d}}}))
+func.printTerminal(3, func.condition({{{a != d}}}))
 
 func.printTerminal(2, abc compared to abc)
-func.printTerminal(3, func.condition(abc == abc))
-func.printTerminal(3, func.condition(abc != abc))
+func.printTerminal(3, func.condition({{{abc == abc}}}))
+func.printTerminal(3, func.condition({{{abc != abc}}}))
 func.printTerminal(2, abc compared to def)
-func.printTerminal(3, func.condition(abc == def))
-func.printTerminal(3, func.condition(abc != def))
+func.printTerminal(3, func.condition({{{abc == def}}}))
+func.printTerminal(3, func.condition({{{abc != def}}}))
 
 func.printTerminal(3, equals vs strict equals (Strict equals will checks if the data types are equals and the value are equals))
-func.printTerminal(3, func.condition(1 == 1.))
-func.printTerminal(3, func.condition(1 != 1.))
-func.printTerminal(3, func.condition(1 === 1.))
-func.printTerminal(3, func.condition(1 !== 1.))
+func.printTerminal(3, func.condition({{{1 == 1.}}}))
+func.printTerminal(3, func.condition({{{1 != 1.}}}))
+func.printTerminal(3, func.condition({{{1 === 1.}}}))
+func.printTerminal(3, func.condition({{{1 !== 1.}}}))
 
 func.printTerminal(2, 0 compared to 5)
-func.printTerminal(3, func.condition(0 == 5))
-func.printTerminal(3, func.condition(0 != 5))
-func.printTerminal(3, func.condition(0 < 5))
-func.printTerminal(3, func.condition(0 > 5))
-func.printTerminal(3, func.condition(0 <= 5))
-func.printTerminal(3, func.condition(0 >= 5))
+func.printTerminal(3, func.condition({{{0 == 5}}}))
+func.printTerminal(3, func.condition({{{0 != 5}}}))
+func.printTerminal(3, func.condition({{{0 < 5}}}))
+func.printTerminal(3, func.condition({{{0 > 5}}}))
+func.printTerminal(3, func.condition({{{0 <= 5}}}))
+func.printTerminal(3, func.condition({{{0 >= 5}}}))
 func.printTerminal(2, 5 compared to 5)
-func.printTerminal(3, func.condition(5 == 5))
-func.printTerminal(3, func.condition(5 != 5))
-func.printTerminal(3, func.condition(5 < 5))
-func.printTerminal(3, func.condition(5 > 5))
-func.printTerminal(3, func.condition(5 <= 5))
-func.printTerminal(3, func.condition(5 >= 5))
+func.printTerminal(3, func.condition({{{5 == 5}}}))
+func.printTerminal(3, func.condition({{{5 != 5}}}))
+func.printTerminal(3, func.condition({{{5 < 5}}}))
+func.printTerminal(3, func.condition({{{5 > 5}}}))
+func.printTerminal(3, func.condition({{{5 <= 5}}}))
+func.printTerminal(3, func.condition({{{5 >= 5}}}))
 
-func.printTerminal(-1, 5 == 5 == 5:    func.condition(5 == 5 == 5))
-func.printTerminal(-1, 5 == 5 == 1:    func.condition(5 == 5 == 1))
-func.printTerminal(-1, (5 == 5) == 5:  func.condition((5 == 5) == 5))
-func.printTerminal(-1, (5 == 5) == 1:  func.condition((5 == 5) == 1))
-func.printTerminal(-1, 5 == (5 == 5):  func.condition(5 == (5 == 5)))
-func.printTerminal(-1, 5 == (5 == 1):  func.condition(5 == (5 == 1)))
-func.printTerminal(-1, 5 == (5 == 5):  func.condition(5 == (5 == 5)))
-func.printTerminal(-1, 1 == (5 == 5):  func.condition(1 == (5 == 5)))
+func.printTerminal(-1, 5 == 5 == 5:    func.condition({{{5 == 5 == 5}}}))
+func.printTerminal(-1, 5 == 5 == 1:    func.condition({{{5 == 5 == 1}}}))
+func.printTerminal(-1, 1 == 5 == 5:    func.condition({{{1 == 5 == 5}}}))
+func.printTerminal(-1, (5 == 5) == 5:  func.condition({{{(5 == 5) == 5}}}))
+func.printTerminal(-1, (5 == 5) == 1:  func.condition({{{(5 == 5) == 1}}}))
+func.printTerminal(-1, 5 == (5 == 5):  func.condition({{{5 == (5 == 5)}}}))
+func.printTerminal(-1, 5 == (5 == 1):  func.condition({{{5 == (5 == 1)}}}))
+func.printTerminal(-1, 5 == (5 == 5):  func.condition({{{5 == (5 == 5)}}}))
+func.printTerminal(-1, 1 == (5 == 5):  func.condition({{{1 == (5 == 5)}}}))
 
-func.printTerminal(4, func.condition(1 || (1 && 0))) #1
-func.printTerminal(4, func.condition(1 || 1 && 0)) #1
-func.printTerminal(4, func.condition((1 || 1) && 0)) #0
+func.printTerminal(4, func.condition({{{1 || (1 && 0)}}})) #1
+func.printTerminal(4, func.condition({{{1 || 1 && 0}}})) #1
+func.printTerminal(4, func.condition({{{(1 || 1) && 0}}})) #0
 
-func.printTerminal(4, func.condition(1 && (0 || 1))) #1
-func.printTerminal(4, func.condition(1 && 0 || 1)) #1
-func.printTerminal(4, func.condition((1 && 0) || 1)) #1
+func.printTerminal(4, func.condition({{{1 && (0 || 1)}}})) #1
+func.printTerminal(4, func.condition({{{1 && 0 || 1}}})) #1
+func.printTerminal(4, func.condition({{{(1 && 0) || 1}}})) #1
 
-func.printTerminal(4, func.condition(0 && (1 || 0))) #0
-func.printTerminal(4, func.condition(0 && 1 || 0)) #0
-func.printTerminal(4, func.condition((0 && 1) || 0)) #0
+func.printTerminal(4, func.condition({{{0 && (1 || 0)}}})) #0
+func.printTerminal(4, func.condition({{{0 && 1 || 0}}})) #0
+func.printTerminal(4, func.condition({{{(0 && 1) || 0}}})) #0
 
-func.printTerminal(4, func.condition(0 && (0 || 1))) #0
-func.printTerminal(4, func.condition(0 && 0 || 1)) #0
-func.printTerminal(4, func.condition((0 && 0) || 1)) #1
+func.printTerminal(4, func.condition({{{0 && (0 || 1)}}})) #0
+func.printTerminal(4, func.condition({{{0 && 0 || 1}}})) #0
+func.printTerminal(4, func.condition({{{(0 && 0) || 1}}})) #1
 
-func.printTerminal(4, func.condition(!(0 && (0 || 1)))) #1
-func.printTerminal(4, func.condition(!(0 && 0 || 1))) #1
-func.printTerminal(4, func.condition(!((0 && 0) || 1))) #0
+func.printTerminal(4, func.condition({{{!(0 && (0 || 1))}}})) #1
+func.printTerminal(4, func.condition({{{!(0 && 0 || 1)}}})) #1
+func.printTerminal(4, func.condition({{{!((0 && 0) || 1)}}})) #0
 
-func.printTerminal(4, func.condition(!0 && (0 || 1))) #1
-func.printTerminal(4, func.condition(!0 && 0 || 1)) #1
-func.printTerminal(4, func.condition(!(0 && 0) || 1)) #0
+func.printTerminal(4, func.condition({{{!0 && (0 || 1)}}})) #1
+func.printTerminal(4, func.condition({{{!0 && 0 || 1}}})) #1
+func.printTerminal(4, func.condition({{{!(0 && 0) || 1}}})) #0
 
-func.printTerminal(4, func.condition((!0) && (0 || 1))) #1
-func.printTerminal(4, func.condition((!0 && 0) || 1)) #1
-func.printTerminal(4, func.condition((!(0 && 0)) || 1)) #1
+func.printTerminal(4, func.condition({{{(!0) && (0 || 1)}}})) #1
+func.printTerminal(4, func.condition({{{(!0 && 0) || 1}}})) #1
+func.printTerminal(4, func.condition({{{(!(0 && 0)) || 1}}})) #1
 
 # Check for null values
 $var = Not null
