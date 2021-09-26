@@ -606,6 +606,11 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		# \f: Form feed
 		func.printTerminal(1, A form feed: "\f"!)
 		
+		# \e: Empty text (Text of length 0)
+		func.printTerminal(1, An empty text: "\e"!)
+		# Used for function calls where an empty text is needed instead of a VOID value
+		
+		
 		# \b: Form feed
 		func.printTerminal(1, A backspace: "\b"!)
 		
@@ -627,6 +632,9 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		
 		# \{: {
 		# \}: }
+		# \=: =
+		# \<: <
+		# \>: >
 		# \\: \
 		
 		# \!: Force node split
