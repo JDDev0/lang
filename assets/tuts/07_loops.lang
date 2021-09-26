@@ -79,7 +79,7 @@ fp.printFunc = () -> {
 	$num = func.subi($num, 1)
 	func.copyAfterFP($[num], $[num])
 }
-fp.test = () -> return func.condition($num > 41)
+fp.test = () -> return func.condition({{{$num > 41}}})
 func.repeatWhile(fp.printFunc, fp.test)
 
 # Until loop
