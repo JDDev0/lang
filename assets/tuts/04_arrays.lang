@@ -74,7 +74,7 @@ func.arrayClear(&arr)
 func.printTerminal(-1, func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore
 
 # Split a Text
-#func.split(arrPtr, Text, Text, [int]) # Creates arrPtr and splits
+#func.split(arrPtr, Text, Text, [int]) # Creates & Returns arrPtr and splits
 #                                        the 2nd argument at the 3rd
 #                                        argument [RegEx] (Optional:
 #                                        It will split maximal n times)
@@ -83,3 +83,18 @@ func.printTerminal(-1, func.arrayGetAll(&splited))
 
 func.split(&splited, Test;42;1243;fdsds;xyz;f, ;, 3)
 func.printTerminal(-1, func.arrayGetAll(&splited))
+
+#func.split(null", Text, Text, [int]) # Returns arrPtr and splits
+#                                        the 2nd argument at the 3rd
+#                                        argument [RegEx] (Optional:
+#                                        It will split maximal n times)
+&split = func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
+func.printTerminal(-1, &split)
+func.printTerminal(-1, func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s))
+
+# $split will be overriden because no literal null or anonymous null value was provided
+$split = null
+func.printTerminal(-1, $split)
+$split2 = func.split($split, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
+func.printTerminal(-1, $split)
+func.printTerminal(-1, $split2)
