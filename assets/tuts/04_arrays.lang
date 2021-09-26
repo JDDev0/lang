@@ -89,12 +89,12 @@ func.printTerminal(-1, func.arrayGetAll(&splited))
 #                                        argument [RegEx] (Optional:
 #                                        It will split maximal n times)
 &split = func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
-func.printTerminal(-1, &split)
+func.printTerminal(-1, &split (Len: func.arrayLength(&split)))
 func.printTerminal(-1, func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s))
 
 # $split will be overriden because no literal null or anonymous null value was provided
 $split = null
 func.printTerminal(-1, $split)
 $split2 = func.split($split, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
-func.printTerminal(-1, $split)
-func.printTerminal(-1, $split2)
+func.printTerminal(-1, $split (Len: func.arrayLength($split)))
+func.printTerminal(-1, $split2 (Len: func.arrayLength($split2)))
