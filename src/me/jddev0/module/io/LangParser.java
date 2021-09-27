@@ -122,7 +122,7 @@ public final class LangParser {
 		return ast;
 	}
 	
-	public AbstractSyntaxTree.ConditionNode parseCondition(String condition) throws IOException {
+	AbstractSyntaxTree.ConditionNode parseCondition(String condition) throws IOException {
 		if(condition == null)
 			return null;
 		
@@ -324,7 +324,7 @@ public final class LangParser {
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
 		
 		//If statement
-		if(token.startsWith("con.")) {
+		if(token.startsWith("con.") && !token.startsWith("con.condition")) {
 			if(token.startsWith("con.if")) {
 				List<AbstractSyntaxTree.IfStatementPartNode> ifStatmentParts = new ArrayList<>();
 				
@@ -494,6 +494,23 @@ public final class LangParser {
 					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
 					continue;
 				}
+			}
+			
+			//con.condition
+			if(token.matches("con\\.condition\\(.*\\).*")) {
+				clearAndParseStringBuilder(builder, nodes);
+				
+				int conditionStartIndex = token.indexOf('(');
+				int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(token, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(conditionEndIndex == -1) {
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					return ast;
+				}
+				String condition = token.substring(conditionStartIndex + 1, conditionEndIndex);
+				token = token.substring(conditionEndIndex + 1);
+				
+				nodes.add(parseCondition(condition));
+				continue;
 			}
 			
 			//VarPtr
@@ -671,6 +688,23 @@ public final class LangParser {
 						hasNodesFlag = true;
 						continue;
 					}
+				}
+				
+				//con.condition
+				if(parameterList.matches("con\\.condition\\(.*\\).*")) {
+					clearAndParseStringBuilder(builder, nodes);
+					
+					int conditionStartIndex = parameterList.indexOf('(');
+					int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+					if(conditionEndIndex == -1) {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						return ast;
+					}
+					String condition = parameterList.substring(conditionStartIndex + 1, conditionEndIndex);
+					parameterList = parameterList.substring(conditionEndIndex + 1);
+					
+					nodes.add(parseCondition(condition));
+					continue;
 				}
 				
 				if(parameterList.matches("\\s*,.*")) {
