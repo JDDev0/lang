@@ -132,7 +132,7 @@ public final class LangParser {
 		
 		StringBuilder builder = new StringBuilder();
 		while(condition.length() > 0) {
-			//Ignore whitspaces
+			//Ignore whitespaces
 			if(condition.matches("\\s.*")) {
 				if(condition.length() == 1)
 					break;
@@ -480,7 +480,7 @@ public final class LangParser {
 				nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
 				continue;
 			}
-			//Function call of returned value
+			//Function call of previous value
 			if(token.matches("\\(.*\\).*")) {
 				clearAndParseStringBuilder(builder, nodes);
 				
