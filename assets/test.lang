@@ -413,10 +413,10 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		$b = 42
 		$c = 42
 		func.printTerminal(4, con.condition($a == $b == $c))
-		# But ($a == $b == 1) will be true
-		func.printTerminal(4, con.condition($a == $b == 1))
+		# But (1 == $a == $b) will be true
+		func.printTerminal(4, con.condition(1 == $a == $b))
 		# Use following to check if $a and $b and $c are the same:
-		func.printTerminal(3, con.condition($a == $b && $b == $c))
+		func.printTerminal(3, con.condition(($a == $b) && ($b == $c)))
 	}
 	
 	# Advanced conditions
