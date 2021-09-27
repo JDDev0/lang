@@ -51,7 +51,7 @@ ui.button.canel = Cancel
 			func.copyAfterFP($[num], $[num])
 		}
 		# One-line function pointer definition (New in v0.2.0)
-		fp.test = () -> return func.condition($num > 41)
+		fp.test = () -> return con.condition($num > 41)
 		
 		func.repeatWhile(fp.printFunc, fp.test)
 		
@@ -389,21 +389,21 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 	
 	# Condition function (New in v0.2.0)
 	{
-		# func.condition returns 1 if condition is true else 0
+		# con.condition returns 1 if condition is true else 0
 		func.printTerminal(2, 0 and 5)
-		func.printTerminal(3, func.condition(0 == 5))
-		func.printTerminal(3, func.condition(0 != 5))
-		func.printTerminal(3, func.condition(0 < 5))
-		func.printTerminal(3, func.condition(0 > 5))
-		func.printTerminal(3, func.condition(0 <= 5))
-		func.printTerminal(3, func.condition(0 >= 5))
+		func.printTerminal(3, con.condition(0 == 5))
+		func.printTerminal(3, con.condition(0 != 5))
+		func.printTerminal(3, con.condition(0 < 5))
+		func.printTerminal(3, con.condition(0 > 5))
+		func.printTerminal(3, con.condition(0 <= 5))
+		func.printTerminal(3, con.condition(0 >= 5))
 		func.printTerminal(2, 5 and 5)
-		func.printTerminal(3, func.condition(5 == 5))
-		func.printTerminal(3, func.condition(5 != 5))
-		func.printTerminal(3, func.condition(5 < 5))
-		func.printTerminal(3, func.condition(5 > 5))
-		func.printTerminal(3, func.condition(5 <= 5))
-		func.printTerminal(3, func.condition(5 >= 5))
+		func.printTerminal(3, con.condition(5 == 5))
+		func.printTerminal(3, con.condition(5 != 5))
+		func.printTerminal(3, con.condition(5 < 5))
+		func.printTerminal(3, con.condition(5 > 5))
+		func.printTerminal(3, con.condition(5 <= 5))
+		func.printTerminal(3, con.condition(5 >= 5))
 		
 		# Be careful:
 		# Will return 0, because (42 == 42) is executed first and
@@ -412,40 +412,40 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		$a = 42
 		$b = 42
 		$c = 42
-		func.printTerminal(4, func.condition($a == $b == $c))
+		func.printTerminal(4, con.condition($a == $b == $c))
 		# But ($a == $b == 1) will be true
-		func.printTerminal(4, func.condition($a == $b == 1))
+		func.printTerminal(4, con.condition($a == $b == 1))
 		# Use following to check if $a and $b and $c are the same:
-		func.printTerminal(3, func.condition($a == $b && $b == $c))
+		func.printTerminal(3, con.condition($a == $b && $b == $c))
 	}
 	
 	# Advanced conditions
 	{
-		func.printTerminal(4, func.condition(1 || (1 && 0))) #1
-		func.printTerminal(4, func.condition(1 || 1 && 0)) #0
-		func.printTerminal(4, func.condition((1 || 1) && 0)) #0
+		func.printTerminal(4, con.condition(1 || (1 && 0))) #1
+		func.printTerminal(4, con.condition(1 || 1 && 0)) #0
+		func.printTerminal(4, con.condition((1 || 1) && 0)) #0
 		
-		func.printTerminal(4, func.condition(1 && (0 || 1))) #1
-		func.printTerminal(4, func.condition(1 && 0 || 1)) #1
-		func.printTerminal(4, func.condition((1 && 0) || 1)) #1
+		func.printTerminal(4, con.condition(1 && (0 || 1))) #1
+		func.printTerminal(4, con.condition(1 && 0 || 1)) #1
+		func.printTerminal(4, con.condition((1 && 0) || 1)) #1
 		
-		func.printTerminal(4, func.condition(0 && (1 || 0))) #0
-		func.printTerminal(4, func.condition(0 && 1 || 0)) #0
-		func.printTerminal(4, func.condition((0 && 1) || 0)) #0
+		func.printTerminal(4, con.condition(0 && (1 || 0))) #0
+		func.printTerminal(4, con.condition(0 && 1 || 0)) #0
+		func.printTerminal(4, con.condition((0 && 1) || 0)) #0
 		
-		func.printTerminal(4, func.condition(0 && (0 || 1))) #0
-		func.printTerminal(4, func.condition(0 && 0 || 1)) #0
-		func.printTerminal(4, func.condition((0 && 0) || 1)) #1
+		func.printTerminal(4, con.condition(0 && (0 || 1))) #0
+		func.printTerminal(4, con.condition(0 && 0 || 1)) #0
+		func.printTerminal(4, con.condition((0 && 0) || 1)) #1
 		
-		func.printTerminal(4, func.condition(!(0 && (0 || 1)))) #1
-		func.printTerminal(4, func.condition(!(0 && 0 || 1))) #1
-		func.printTerminal(4, func.condition(!((0 && 0) || 1))) #0
+		func.printTerminal(4, con.condition(!(0 && (0 || 1)))) #1
+		func.printTerminal(4, con.condition(!(0 && 0 || 1))) #1
+		func.printTerminal(4, con.condition(!((0 && 0) || 1))) #0
 		
-		func.printTerminal(4, func.condition(!0 && (0 || 1))) #1
-		func.printTerminal(4, func.condition(!0 && 0 || 1)) #1
-		func.printTerminal(4, func.condition(!(0 && 0) || 1)) #1
+		func.printTerminal(4, con.condition(!0 && (0 || 1))) #1
+		func.printTerminal(4, con.condition(!0 && 0 || 1)) #1
+		func.printTerminal(4, con.condition(!(0 && 0) || 1)) #1
 		
-		# Compiliation
+		# Interpretation
 		# 1 && 1 || 0 && 1 -> (1) && (1 || 0 && 1) -> (1) && ((1 || 0) && (1)) ->
 		# (1) && (((1) || (0)) && (1)) -> (1) && ((1) && (1)) ->
 		# (1) && (1) -> 1
