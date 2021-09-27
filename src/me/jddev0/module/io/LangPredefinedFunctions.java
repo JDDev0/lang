@@ -326,15 +326,32 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("condition", (argumentList, DATA_ID) -> {
-			DataObject condition = LangUtils.combineDataObjects(argumentList);
-			if(condition == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+		funcs.put("condition", new LangPredefinedFunctionObject() {
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				DataObject condition = LangUtils.combineDataObjects(argumentList);
+				if(condition == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				
+				try {
+					return new DataObject().setBoolean(interpreter.interpretCondition(interpreter.parser.parseCondition(condition.getText()), DATA_ID));
+				}catch(IOException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+				}
+			}
 			
-			try {
-				return new DataObject().setBoolean(interpreter.interpretCondition(interpreter.parser.parseCondition(condition.getText()), DATA_ID));
-			}catch(IOException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "con.condition";
 			}
 		});
 		funcs.put("exec", (argumentList, DATA_ID) -> {
