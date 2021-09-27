@@ -340,6 +340,10 @@ public final class LangParser {
 					}else {
 						int conditionStartIndex = ifStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+						if(conditionEndIndex == -1) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+							return ast;
+						}
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}
 					
