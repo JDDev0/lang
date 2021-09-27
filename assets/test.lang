@@ -444,11 +444,6 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		func.printTerminal(4, con.condition(!0 && (0 || 1))) #1
 		func.printTerminal(4, con.condition(!0 && 0 || 1)) #1
 		func.printTerminal(4, con.condition(!(0 && 0) || 1)) #1
-		
-		# Interpretation
-		# 1 && 1 || 0 && 1 -> (1) && (1 || 0 && 1) -> (1) && ((1 || 0) && (1)) ->
-		# (1) && (((1) || (0)) && (1)) -> (1) && ((1) && (1)) ->
-		# (1) && (1) -> 1
 	}
 
 	# Returns the folder where the lang is located
