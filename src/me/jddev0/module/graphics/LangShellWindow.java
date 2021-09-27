@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ import me.jddev0.module.io.TerminalIO.Level;
  */
 public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
-
+	
 	private JTextPane shell;
 	
 	private TerminalIO term;
@@ -571,7 +572,7 @@ public class LangShellWindow extends JDialog {
 	}
 	
 	private void updateAutoCompleteText(String line) {
-		String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.)");
+		String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.)");
 		if(tokens.length == 0)
 			return;
 		
@@ -606,6 +607,16 @@ public class LangShellWindow extends JDialog {
 				col = Color.RED.darker().darker();
 			
 			autoCompleteText += "(";
+		}else if(lastToken.matches("con\\..*")) {
+			int indexConNameStart = lastToken.indexOf('.') + 1;
+			String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
+			List<String> autoCompletes = Arrays.asList("condition(", "elif(", "else", "endif", "if(").stream().
+			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
+			collect(Collectors.toList());
+			if(autoCompletes.isEmpty())
+				return;
+			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+			autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
 			return;
 		}
@@ -699,7 +710,8 @@ public class LangShellWindow extends JDialog {
 			flagMultilineText = containsMultilineText(line);
 			if(!flagMultilineText)
 				flagLineContinuation = line.endsWith("\\");
-			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif")) || flagMultilineText || flagLineContinuation) {
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.condition")) ||
+			flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
 				multiLineTmp.append("\n");
@@ -732,7 +744,7 @@ public class LangShellWindow extends JDialog {
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
-			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if")))) {
+			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition")))) {
 				indent--;
 				
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))
