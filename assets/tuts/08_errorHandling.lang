@@ -152,3 +152,116 @@ con.if($LANG_ERRNO)
 con.else
 	# Do something
 con.endif
+
+# Check exact error of $LANG_ERRNO
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divd(1, 0)
+con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO) # $LANG_ERRNO should be checked with strict equals and $LANG_ERRNO_...
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divd(1, abc)
+con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO)
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divd(1, 3)
+con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO)
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+# Check errors from functions
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divi(2, 0)
+con.if($ret === $LANG_ERROR_DIV_BY_ZERO) # Function errors should be checked with strict equals and $LANG_ERROR_...
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divi(2, abc)
+con.if($ret === $LANG_ERROR_DIV_BY_ZERO)
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = func.divi(2, 3)
+con.if($ret === $LANG_ERROR_DIV_BY_ZERO)
+	func.printTerminal(5, Div by zero error)
+con.elif($LANG_ERRNO)
+	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+fp.a = ($i) -> {
+	con.if(!$i)
+		return $LANG_ERROR_INVALID_ARGUMENTS # $LANG_ERROR_... should be used for "throwing" error
+	con.elif($i === abc)
+		return $LANG_ERROR_NO_NUM
+	con.endif
+	
+	return func.addi($i, 1)
+}
+
+$ret = fp.a(0)
+con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
+	func.printTerminal(5, Invalid arguments)
+con.elif($ret === $LANG_ERROR_NO_NUM)
+	func.printTerminal(5, No num)
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = fp.a(abc)
+con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
+	func.printTerminal(5, Invalid arguments)
+con.elif($ret === $LANG_ERROR_NO_NUM)
+	func.printTerminal(5, No num)
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
+
+$ret = fp.a(1)
+con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
+	func.printTerminal(5, Invalid arguments [Code: $LANG_ERRNO])
+con.elif($ret === $LANG_ERROR_NO_NUM)
+	func.printTerminal(5, No num)
+con.else
+	func.printTerminal(1, $ret)
+con.endif
+
+func.getErrorText() # Reset $LANG_ERRNO
