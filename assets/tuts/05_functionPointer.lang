@@ -243,6 +243,27 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	func.printTerminal(1, fp.getABCFunc()\!()) # Prevent call of returned function pointer
 }
 
+# Call of returned function pointer is not possible inside CONDITIONs
+{
+	fp.fp = () -> {
+		func.printTerminal(2, fp.fp was called!)
+		return 1
+	}
+	fp.retFP = () -> {
+		func.printTerminal(2, fp.retFP was called!)
+		return fp.fp
+	}
+	
+	# Call of returned function pointer is not possible inside CONDITIONs in:
+	# con.if(...), con.elif(...), con.condition(...) [See: 06_if.lang]
+	
+	$bool = con.condition(fp.retFP()()) # Would not call returned function pointer
+	func.printTerminal(3, $bool)
+	
+	$ret = fp.retFP()() # Returned function pointer must be called outside of a CONDITION
+	func.printTerminal(3, con.condition($ret))
+}
+
 # An other possibility for "returning" a value
 {
 	# With call by value
