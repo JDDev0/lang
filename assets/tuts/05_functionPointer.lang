@@ -59,6 +59,10 @@ func.printTerminal(4, $g)
 $g = fp.get()()
 func.printTerminal(4, $g)
 
+# Call returned function pointer inside another function call
+func.printTerminal(3, fp.get())
+func.printTerminal(3, fp.get()())
+
 # Copy function pointer
 # Function Pointer
 # fp.name = fp.name
