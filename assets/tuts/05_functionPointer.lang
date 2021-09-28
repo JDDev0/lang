@@ -232,6 +232,17 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	fp.b(def, abc)
 }
 
+# Prevent call of returned function pointer
+{
+	fp.getABCFunc = () -> {
+		return () -> {
+			return abc
+		}
+	}
+	func.printTerminal(1, fp.getABCFunc()())
+	func.printTerminal(1, fp.getABCFunc()\!()) # Prevent call of returned function pointer
+}
+
 # An other possibility for "returning" a value
 {
 	# With call by value
