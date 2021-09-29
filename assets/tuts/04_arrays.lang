@@ -51,6 +51,11 @@ func.printTerminal(-1, func.arrayGetAll(&arr2))
 $arr = &arr # Will copy the array pointer to $arr
 func.printTerminal(-1, func.arrayGetAll($arr))
 
+# &LANG arrays can't be copied
+&langArray = &LANG_ARGS
+func.printError() # Will print "&LANG arrays can't be copied"
+func.printTerminal(-1, &langArray) # "&langArray" won't be defined
+
 # Combining arrays
 &a1 = func.arrayMake(2)
 func.arraySetAll(&a1, 1, 2)
