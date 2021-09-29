@@ -577,6 +577,9 @@ public final class LangInterpreter {
 								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
 							}
 							
+							if(rvalue.getVariableName() != null && rvalue.getVariableName().startsWith("&LANG_"))
+								return setErrnoErrorObject(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
+							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
@@ -584,9 +587,6 @@ public final class LangInterpreter {
 								
 								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
 									return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
-								
-								if(rvalue.getVariableName() != null && rvalue.getVariableName().startsWith("&LANG_"))
-									return setErrnoErrorObject(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
 								
 								lvalue.setData(rvalue);
 								break;
