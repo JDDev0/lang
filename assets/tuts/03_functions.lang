@@ -39,6 +39,27 @@ func.printTerminal(4, Test) # Warning
 func.printTerminal(5, Test) # Error
 func.printTerminal(6, Test) # Critical
 
+# func.isTerminalAvailable() # Will return 1 if the terminal is available else 0
+func.printTerminal(-1, func.isTerminalAvailable())
+
+# func.print(Text) # Will print the text to standard output
+func.print(abc\n)
+
+# func.println(Text) # Will print the text to standard output including new line
+func.println(def)
+
+# func.error(Text) # Will print the text to standard error
+func.error(abc)
+
+# func.errorln(Text) # Will print the text to standard error including new line
+func.errorln(abc)
+
+# func.input() # Reads everything until new line from standard input
+func.printTerminal(-1, Input: func.input())
+
+# func.input(Int) # Reads n characters from standard input
+func.printTerminal(-1, Input: func.input(3))
+
 # Number functions
 # func.hexToDec(Text) # Will convert a base 16 number to a base 10 integer
 $num = func.hexToDec(0x2A)
