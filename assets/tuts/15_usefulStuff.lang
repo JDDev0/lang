@@ -170,3 +170,25 @@ func.printTerminal(-1, \n\n\n)
 		func.getErrorText() # Reset $LANG_ERRNO
 	}
 }
+
+# Retroactively change value
+{
+	$val = test	
+	fp.changeValue = ($[val]) -> {
+		$*val = new value
+		
+		return CHANGED!
+	}
+	
+	func.printTerminal(-1, $val) - fp.changeValue($val) # Will print "test"
+
+	$val = test # Reset $val to "test"
+	func.printTerminal(-1, $val) # Will print "test"
+	
+	func.printTerminal(-1, $val - fp.changeValue($val)) # Will print "new value", because $val's value can be changed until all argument parts of the function call where the variable is located in are interpred
+
+	$val = test # Reset $val to "test"
+	func.printTerminal(-1, $val) # Will print "test"
+	
+	func.printTerminal(-1, $val - func.strlen(fp.changeValue($val))) # Will als print "new value"
+}
