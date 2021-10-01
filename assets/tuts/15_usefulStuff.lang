@@ -136,3 +136,37 @@ func.printTerminal(-1, \n\n\n)
 		func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
 	}
 }
+
+# Compiler flags
+{
+	# Compiler flags can only be changed globally for the current compiler/interpreter instance
+	# Compiler flags can be changed at any point of the code (Inside functions, inside if statments, ...)
+	
+	# Allow terminal redirect
+	{
+		# lang.allowTermRedirect = BOOL
+		# If true, the terminal can be redirected to standard output, standard error, and standard input else it would return an error
+		lang.allowTermRedirect = 0 # Default: 1
+		
+		func.printTerminal(-1, Test)
+		func.println(Error: $LANG_ERRNO) # Will print an error if the terminal is not available
+
+		func.getErrorText() # Reset $LANG_ERRNO
+		
+		$in = func.readTerminal(-1, Test)
+		func.println(Error: $LANG_ERRNO [Read: $in]) # Will print an error if the terminal is not available
+		
+		func.getErrorText() # Reset $LANG_ERRNO
+		
+		lang.allowTermRedirect = 1
+		func.printTerminal(-1, Test)
+		func.println(Error: $LANG_ERRNO) # Will print a warning if the terminal is not available
+		
+		func.getErrorText() # Reset $LANG_ERRNO
+		
+		$in = func.readTerminal(-1, Test)
+		func.println(Error: $LANG_ERRNO [Read: $in]) # Will print a warning if the terminal is not available
+
+		func.getErrorText() # Reset $LANG_ERRNO
+	}
+}
