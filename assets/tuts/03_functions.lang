@@ -221,6 +221,57 @@ func.printTerminal(-1, |$pow1|$pow2|$pow3|$pow4|$pow5|$pow6|)
 # func.sqrt(double) # Will return the square root of the argument
 func.printTerminal(-1, func.sqrt(16))
 
+# func.cbrt(double) # Will return the cube root of the argument
+func.printTerminal(-1, func.cbrt(64))
+
+# func.hypot(double, double) # Will return the hypotenuse of a triangle with sides a and b (= sqrt(a² + b²))
+func.printTerminal(-1, func.hypot(3, 4))
+
+# func.toRadians(double) # Will return the to radians converted angle which was in degrees
+func.printTerminal(-1, func.toRadians(90))
+
+# func.toDegrees(double) # Will return the to degrees converted angle which was in radians
+func.printTerminal(-1, func.toDegrees(func.divd($LANG_MATH_PI, 2)))
+
+# func.sin(double) # Will return the sine of the argument which is in radians
+func.printTerminal(-1, func.sin($LANG_MATH_PI))
+
+# func.cos(double) # Will return the cosine of the argument which is in radians
+func.printTerminal(-1, func.cos($LANG_MATH_PI))
+
+# func.tan(double) # Will return the tangent of the argument which is in radians
+func.printTerminal(-1, func.tan(func.divd($LANG_MATH_PI, 2)))
+
+# func.asin(double) # Will return the arcsine in radians of the argument
+func.printTerminal(-1, func.asin(1))
+
+# func.acos(double) # Will return the arccosine in radians of the argument
+func.printTerminal(-1, func.acos(1))
+
+# func.atan(double) # Will return the arctangent in radians of the argument
+func.printTerminal(-1, func.atan(1))
+
+# func.atan2(double, double) # Will return the arctangent in radians of the second argument divided by the first argument
+func.printTerminal(-1, func.atan2(2, 2))
+
+# func.sinh(double) # Will return the hyperbolic sine of the argument which is in radians
+func.printTerminal(-1, func.sinh($LANG_MATH_PI))
+
+# func.cosh(double) # Will return the hyperbolic cosine of the argument which is in radians
+func.printTerminal(-1, func.cosh($LANG_MATH_PI))
+
+# func.tanh(double) # Will return the hyperbolic tangent of the argument which is in radians
+func.printTerminal(-1, func.tanh(func.divd($LANG_MATH_PI, 2)))
+
+# func.exp(double) # Will return e to the power of the argument
+func.printTerminal(-1, func.exp(1))
+
+# func.loge(double) # Will return the logarithm base e of the argument
+func.printTerminal(-1, func.loge($LANG_MATH_E))
+
+# func.log10(double) # Will return the logarithm base 10 of the argument
+func.printTerminal(-1, func.log10(1000))
+
 # func.toInt(number) # Will return an int
 $var1 = func.toInt(10.2)
 $var2 = func.toInt(10.8)
