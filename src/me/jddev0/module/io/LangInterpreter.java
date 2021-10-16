@@ -883,7 +883,7 @@ public final class LangInterpreter {
 						break;
 					}
 					
-					if(variableName.matches("\\$\\[\\w+\\]")) {
+					if(variableName.matches("\\$\\[\\w+\\]") && !variableName.matches("(\\$)\\[LANG_.*\\]")) {
 						//Call by pointer
 						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
 						if(argumentValueList.size() > 0)
