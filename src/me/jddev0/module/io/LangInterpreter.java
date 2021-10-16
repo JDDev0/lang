@@ -905,6 +905,12 @@ public final class LangInterpreter {
 						lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 					else if(lastDataObject == null)
 						lastDataObject = new DataObject().setVoid();
+					if(lastDataObject.getType() != DataType.NULL &&
+					((variableName.startsWith("&") && lastDataObject.getType() != DataType.ARRAY) ||
+					(variableName.startsWith("fp.") && lastDataObject.getType() != DataType.FUNCTION_POINTER))) {
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
+						continue;
+					}
 					data.get(NEW_DATA_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
 				}
 				
