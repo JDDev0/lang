@@ -868,8 +868,8 @@ public final class LangInterpreter {
 						if(variableName.startsWith("$")) {
 							//Text varargs
 							DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
-							data.get(NEW_DATA_ID).var.put(variableName, (dataObject != null?new DataObject(dataObject):
-							new DataObject().setVoid()).setVariableName(variableName));
+							data.get(NEW_DATA_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
+							new DataObject().setVoid().getText()).setVariableName(variableName));
 						}else {
 							//Array varargs
 							List<DataObject> varArgsTmpList = new LinkedList<>();
