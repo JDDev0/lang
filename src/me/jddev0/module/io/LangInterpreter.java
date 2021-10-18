@@ -1399,13 +1399,13 @@ public final class LangInterpreter {
 			this.txt = dataObject.txt;
 			this.arr = dataObject.arr; //Array: copy reference only
 			this.vp = dataObject.vp; //Var pointer: copy reference only
-			this.fp = dataObject.fp;
+			this.fp = dataObject.fp; //Func pointer: copy reference only
 			this.intValue = dataObject.intValue;
 			this.longValue = dataObject.longValue;
 			this.floatValue = dataObject.floatValue;
 			this.doubleValue = dataObject.doubleValue;
 			this.charValue = dataObject.charValue;
-			this.error = dataObject.error;
+			this.error = dataObject.error; //Error: copy reference only
 		}
 		
 		/**
