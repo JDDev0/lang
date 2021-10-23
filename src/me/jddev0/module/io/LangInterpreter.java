@@ -2202,7 +2202,7 @@ public final class LangInterpreter {
 		NEGATIVE_ARRAY_LEN    (15, "Negative array length"),
 		EMPTY_ARRAY           (16, "Empty array"),
 		LENGTH_NAN            (17, "Length NAN"),
-		INDEX_OUT_OF_BOUNDS   (18, "Array index out of bounds"),
+		INDEX_OUT_OF_BOUNDS   (18, "Index out of bounds"),
 		ARG_COUNT_NOT_ARR_LEN (19, "Argument count is not array length"),
 		INVALID_FUNC_PTR_LOOP (20, "Invalid function pointer"),
 		INVALID_ARGUMENTS     (21, "Invalid arguments"),
