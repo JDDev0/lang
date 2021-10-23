@@ -44,7 +44,7 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #        15: NEGATIVE_ARRAY_LEN
 #        16: EMPTY_ARRAY
 #        17: LENGTH_NAN
-#        18: ARRAY_OUT_OF_BOUNDS
+#        18: INDEX_OUT_OF_BOUNDS
 #        19: ARG_COUNT_NOT_ARR_LEN
 #    Loop function errors:
 #        20: INVALID_FUNC_PTR_LOOP
