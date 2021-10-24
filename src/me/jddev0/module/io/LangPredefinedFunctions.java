@@ -277,7 +277,7 @@ final class LangPredefinedFunctions {
 				
 				String langValue = interpreter.data.get(DATA_ID).lang.get(langRequestObject.getText());
 				if(langValue == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.LANG_REQ_NOT_FOUND, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, DATA_ID);
 				
 				return new DataObject(langValue);
 			}
@@ -303,7 +303,7 @@ final class LangPredefinedFunctions {
 			
 			String langValue = interpreter.data.get(DATA_ID).lang.get(translationKeyObject.getText());
 			if(langValue == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.LANG_REQ_NOT_FOUND, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, DATA_ID);
 			
 			return new DataObject(langValue);
 		});

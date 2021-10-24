@@ -2210,7 +2210,7 @@ public final class LangInterpreter {
 		EOF                   (23, "End of file was reached early"),
 		SYSTEM_ERROR          (24, "System Error"),
 		NEGATIVE_REPEAT_COUNT (25, "Negative repeat count"),
-		LANG_REQ_NOT_FOUND    (26, "Lang request doesn't exist"),
+		TRANS_KEY_NOT_FOUND   (26, "Translation key dosen't exist"),
 		FUNCTION_NOT_SUPPORTED(27, "Function not supported"),
 		BRACKET_MISMATCH      (28, "Bracket mismatch"),
 		IF_CONDITION_MISSING  (29, "If statement condition missing"),
