@@ -57,7 +57,7 @@ func.printTerminal(-1, Error code: $LANG_ERRNO)
 #    Loop function errors:
 #        25: NEGATIVE_REPEAT_COUNT
 #    Function errors:
-#        26: LANG_REQ_NOT_FOUND
+#        26: TRANS_KEY_NOT_FOUND
 #        27: FUNCTION_NOT_SUPPORTED
 #        28: BRACKET_MISMATCH
 #    If statement errors:
