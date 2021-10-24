@@ -805,6 +805,11 @@ public final class LangInterpreter {
 							return;
 						}
 						
+						if(from.matches("&LANG_.*")) {
+							setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID_TO);
+							return;
+						}
+						
 						if(!to.matches("(\\$|&|fp\\.)\\w+") && !to.matches("\\$\\[+\\w+\\]+")) {
 							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
 							return;
