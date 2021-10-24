@@ -906,6 +906,12 @@ public final class LangInterpreter {
 					else if(lastDataObject == null)
 						lastDataObject = new DataObject().setVoid();
 					
+					if(lastDataObject.getVariableName() != null && lastDataObject.getVariableName().matches("&LANG_.*")) {
+						setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
+						
+						continue;
+					}
+					
 					if(lastDataObject.getType() != DataType.NULL &&
 					((variableName.startsWith("&") && lastDataObject.getType() != DataType.ARRAY) ||
 					(variableName.startsWith("fp.") && lastDataObject.getType() != DataType.FUNCTION_POINTER))) {
@@ -913,6 +919,7 @@ public final class LangInterpreter {
 						
 						continue;
 					}
+					
 					data.get(NEW_DATA_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
 				}
 				
