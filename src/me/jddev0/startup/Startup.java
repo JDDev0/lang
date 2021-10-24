@@ -11,14 +11,14 @@ import java.util.Map;
 
 import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
-import me.jddev0.module.io.Lang;
-import me.jddev0.module.io.LangInterpreter;
-import me.jddev0.module.io.LangInterpreter.LangInterpreterInterface;
-import me.jddev0.module.io.LangParser;
-import me.jddev0.module.io.LangPlatformAPI;
+import me.jddev0.module.lang.Lang;
 import me.jddev0.module.io.ReaderActionObject;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.LangInterpreter;
+import me.jddev0.module.lang.LangParser;
+import me.jddev0.module.lang.LangPlatformAPI;
+import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
 
 public class Startup {
 	private static boolean is4k;

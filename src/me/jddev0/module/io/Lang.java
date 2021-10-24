@@ -18,15 +18,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import me.jddev0.module.io.LangInterpreter.InterpretingError;
-import me.jddev0.module.io.AbstractSyntaxTree.AssignmentNode;
-import me.jddev0.module.io.AbstractSyntaxTree.FunctionDefinitionNode;
-import me.jddev0.module.io.AbstractSyntaxTree.Node;
-import me.jddev0.module.io.AbstractSyntaxTree.NodeType;
-import me.jddev0.module.io.AbstractSyntaxTree.ParsingErrorNode;
-import me.jddev0.module.io.AbstractSyntaxTree.VariableNameNode;
-import me.jddev0.module.io.LangParser.ParsingError;
+import me.jddev0.module.lang.AbstractSyntaxTree;
+import me.jddev0.module.lang.LangExternalFunctionObject;
+import me.jddev0.module.lang.LangInterpreter;
+import me.jddev0.module.lang.LangPlatformAPI;
+import me.jddev0.module.lang.LangPredefinedFunctionObject;
+import me.jddev0.module.lang.LangUtils;
+import me.jddev0.module.lang.AbstractSyntaxTree.AssignmentNode;
+import me.jddev0.module.lang.AbstractSyntaxTree.FunctionDefinitionNode;
+import me.jddev0.module.lang.AbstractSyntaxTree.Node;
+import me.jddev0.module.lang.AbstractSyntaxTree.NodeType;
+import me.jddev0.module.lang.AbstractSyntaxTree.ParsingErrorNode;
+import me.jddev0.module.lang.AbstractSyntaxTree.VariableNameNode;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
+import me.jddev0.module.lang.LangParser.ParsingError;
 
+@Deprecated
 /**
  * IO-Module<br>
  * Read and write Lang-Files in <b>UTF-8</b>
@@ -327,10 +334,11 @@ import me.jddev0.module.io.LangParser.ParsingError;
  * 
  * @author JDDev0
  * @version v1.0.0
+ * @deprecated Will be removed in v1.2.0
  */
 public final class Lang {
 	//Lang cache
-	private final static Map<String, String> LANG_CACHE = new HashMap<>(); //lang request, lang value
+	private final static Map<String, String> LANG_CACHE = new HashMap<>(); //translation key = translation value
 	private static String lastCachedLangFileName;
 	
 	private Lang() {}

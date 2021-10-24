@@ -1,4 +1,4 @@
-package me.jddev0.module.io;
+package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,16 +14,14 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
+import me.jddev0.module.io.TerminalIO;
+
 /**
- * IO-Module<br>
+ * Lang-Module<br>
  * Platform dependent code (e.g. Android would use a different LangPlatformAPI class)
  * 
  * @author JDDev0
  * @version v1.0.0
- */
-@Deprecated
-/**
- * @deprecated Will be removed in v1.2.0
  */
 public class LangPlatformAPI {
 	public LangPlatformAPI() {}

@@ -33,15 +33,15 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import me.jddev0.module.io.Lang;
-import me.jddev0.module.io.LangInterpreter;
-import me.jddev0.module.io.LangInterpreter.DataObject;
-import me.jddev0.module.io.LangInterpreter.InterpretingError;
-import me.jddev0.module.io.LangPlatformAPI;
-import me.jddev0.module.io.LangPredefinedFunctionObject;
-import me.jddev0.module.io.LangUtils;
+import me.jddev0.module.lang.Lang;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.LangInterpreter;
+import me.jddev0.module.lang.LangPlatformAPI;
+import me.jddev0.module.lang.LangPredefinedFunctionObject;
+import me.jddev0.module.lang.LangUtils;
+import me.jddev0.module.lang.LangInterpreter.DataObject;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
  * Uses the io module<br>

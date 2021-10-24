@@ -1,14 +1,14 @@
-package me.jddev0.module.io;
+package me.jddev0.module.lang;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import me.jddev0.module.io.LangInterpreter.DataObject;
-import me.jddev0.module.io.LangInterpreter.DataType;
+import me.jddev0.module.lang.LangInterpreter.DataObject;
+import me.jddev0.module.lang.LangInterpreter.DataType;
 
 /**
- * IO-Module<br>
+ * Lang-Module<br>
  * Utility methods for the LangInterpreter, LangParser, and classes using the LII
  * 
  * @author JDDev0

@@ -1,4 +1,4 @@
-package me.jddev0.module.io;
+package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * IO-Module<br>
+ * Lang-Module<br>
  * Parsing of lang files into an AST structure for LangInterpreter
  * 
  * @author JDDev0

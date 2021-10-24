@@ -1,12 +1,19 @@
-package me.jddev0.module.io;
+package me.jddev0.module.lang;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-import me.jddev0.module.io.LangParser.ParsingError;
+import me.jddev0.module.lang.LangParser.ParsingError;
 
+/**
+ * Lang-Module<br>
+ * AbstractSyntaxTree for Lang
+ * 
+ * @author JDDev0
+ * @version v1.0.0
+ */
 public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Node> {
 	private final List<Node> nodes;
 	

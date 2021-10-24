@@ -1,4 +1,4 @@
-package me.jddev0.module.io;
+package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,14 +16,14 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import me.jddev0.module.io.LangInterpreter.DataObject;
-import me.jddev0.module.io.LangInterpreter.DataType;
-import me.jddev0.module.io.LangInterpreter.FunctionPointerObject;
-import me.jddev0.module.io.LangInterpreter.InterpretingError;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.LangInterpreter.DataObject;
+import me.jddev0.module.lang.LangInterpreter.DataType;
+import me.jddev0.module.lang.LangInterpreter.FunctionPointerObject;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
- * IO-Module<br>
+ * Lang-Module<br>
  * Lang predefined and linker functions for the LangInterpreter
  * 
  * @author JDDev0
