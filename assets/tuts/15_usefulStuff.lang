@@ -243,3 +243,15 @@ func.printTerminal(-1, \n\n\n)
 	func.printTerminal(-1, fp.charAt(100.42000, 5))
 	func.printTerminal(-1, fp.charAt(100.42000, 42))
 }
+
+# &LANG var as argument
+{
+	# Is only possible with call by pointer
+	fp.getElement = ($[arrPtr], $index) -> return func.arrayGet($*arrPtr, $index)
+	
+	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 0))
+	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 1))
+	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 2))
+	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 3))
+	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 4))
+} 
