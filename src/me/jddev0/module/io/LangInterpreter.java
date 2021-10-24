@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.*;
+import me.jddev0.module.io.AbstractSyntaxTree.*;
 import me.jddev0.module.io.TerminalIO.Level;
 
 /**
@@ -76,11 +76,11 @@ public final class LangInterpreter {
 		createDataMap(0, langArgs);
 	}
 	
-	public LangParser.AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
+	public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
 		return parser.parseLines(lines);
 	}
 	
-	public void interpretAST(LangParser.AbstractSyntaxTree ast) {
+	public void interpretAST(AbstractSyntaxTree ast) {
 		interpretAST(ast, 0);
 	}
 	
@@ -100,7 +100,7 @@ public final class LangInterpreter {
 		interpretAST(parseLines(lines), DATA_ID);
 	}
 	
-	void interpretAST(LangParser.AbstractSyntaxTree ast, final int DATA_ID) {
+	void interpretAST(AbstractSyntaxTree ast, final int DATA_ID) {
 		if(ast == null)
 			return;
 		
@@ -844,7 +844,7 @@ public final class LangInterpreter {
 		switch(fp.getFunctionPointerType()) {
 			case FunctionPointerObject.NORMAL:
 				List<VariableNameNode> parameterList = fp.getParameterList();
-				LangParser.AbstractSyntaxTree functionBody = fp.getFunctionBody();
+				AbstractSyntaxTree functionBody = fp.getFunctionBody();
 				if(parameterList == null || functionBody == null)
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 				
@@ -1194,7 +1194,7 @@ public final class LangInterpreter {
 		public static final int EXTERNAL = 2;
 		
 		private final List<VariableNameNode> parameterList;
-		private final LangParser.AbstractSyntaxTree functionBody;
+		private final AbstractSyntaxTree functionBody;
 		private final LangPredefinedFunctionObject predefinedFunction;
 		private final LangExternalFunctionObject externalFunction;
 		private final int functionPointerType;
@@ -1202,7 +1202,7 @@ public final class LangInterpreter {
 		/**
 		 * For normal function pointer definition
 		 */
-		public FunctionPointerObject(List<VariableNameNode> parameterList, LangParser.AbstractSyntaxTree functionBody) {
+		public FunctionPointerObject(List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
 			this.parameterList = parameterList == null?null:new ArrayList<>(parameterList);
 			this.functionBody = functionBody;
 			this.predefinedFunction = null;
@@ -1234,7 +1234,7 @@ public final class LangInterpreter {
 			return parameterList;
 		}
 		
-		public LangParser.AbstractSyntaxTree getFunctionBody() {
+		public AbstractSyntaxTree getFunctionBody() {
 			return functionBody;
 		}
 		
@@ -2373,11 +2373,11 @@ public final class LangInterpreter {
 			return interpreter.getAndResetReturnValue();
 		}
 		
-		public LangParser.AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
+		public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
 			return interpreter.parseLines(lines);
 		}
 		
-		public void interpretAST(final int DATA_ID, LangParser.AbstractSyntaxTree ast) {
+		public void interpretAST(final int DATA_ID, AbstractSyntaxTree ast) {
 			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
 			interpreter.interpretAST(ast, DATA_ID);
 		}

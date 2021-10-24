@@ -19,13 +19,12 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 import me.jddev0.module.io.LangInterpreter.InterpretingError;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.AssignmentNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.FunctionDefinitionNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.Node;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.NodeType;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.ParsingErrorNode;
-import me.jddev0.module.io.LangParser.AbstractSyntaxTree.VariableNameNode;
+import me.jddev0.module.io.AbstractSyntaxTree.AssignmentNode;
+import me.jddev0.module.io.AbstractSyntaxTree.FunctionDefinitionNode;
+import me.jddev0.module.io.AbstractSyntaxTree.Node;
+import me.jddev0.module.io.AbstractSyntaxTree.NodeType;
+import me.jddev0.module.io.AbstractSyntaxTree.ParsingErrorNode;
+import me.jddev0.module.io.AbstractSyntaxTree.VariableNameNode;
 import me.jddev0.module.io.LangParser.ParsingError;
 
 /**
