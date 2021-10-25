@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.AbstractSyntaxTree.*;
+import me.jddev0.module.lang.AbstractSyntaxTree.ConditionNode.Operator;
 
 /**
  * Lang-Module<br>
@@ -445,8 +446,10 @@ public final class LangInterpreter {
 	private DataObject interpretConditionNode(ConditionNode node, final int DATA_ID) {
 		boolean conditionOuput = false;
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
-		DataObject rightSideOperand = node.getOperator().isUnary()?null:interpretNode(node.getRightSideOperand(), DATA_ID);
-		if(leftSideOperand == null || (!node.getOperator().isUnary() && rightSideOperand == null))
+		DataObject rightSideOperand = node.getOperator().isUnary() || node.getOperator() == Operator.AND ||
+				node.getOperator() == Operator.OR?null:interpretNode(node.getRightSideOperand(), DATA_ID);
+		if(leftSideOperand == null || (!node.getOperator().isUnary() && node.getOperator() != Operator.AND &&
+				node.getOperator() != Operator.OR && rightSideOperand == null))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 		
 		switch(node.getOperator()) {
@@ -461,10 +464,26 @@ public final class LangInterpreter {
 			
 			//Binary (Logical operators)
 			case AND:
-				conditionOuput = leftSideOperand.getBoolean() && rightSideOperand.getBoolean();
+				boolean leftSideOperandBoolean = leftSideOperand.getBoolean();
+				if(!leftSideOperandBoolean) {
+					conditionOuput = false;
+				}else {
+					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+					if(rightSideOperand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					conditionOuput = rightSideOperand.getBoolean();
+				}
 				break;
 			case OR:
-				conditionOuput = leftSideOperand.getBoolean() || rightSideOperand.getBoolean();
+				leftSideOperandBoolean = leftSideOperand.getBoolean();
+				if(leftSideOperandBoolean) {
+					conditionOuput = true;
+				}else {
+					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+					if(rightSideOperand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					conditionOuput = rightSideOperand.getBoolean();
+				}
 				break;
 			
 			//Binary (Comparison operators)
