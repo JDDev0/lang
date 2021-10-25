@@ -465,13 +465,13 @@ public final class LangInterpreter {
 			//Binary (Logical operators)
 			case AND:
 				boolean leftSideOperandBoolean = leftSideOperand.getBoolean();
-				if(!leftSideOperandBoolean) {
-					conditionOuput = false;
-				}else {
+				if(leftSideOperandBoolean) {
 					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
 					if(rightSideOperand == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 					conditionOuput = rightSideOperand.getBoolean();
+				}else {
+					conditionOuput = false;
 				}
 				break;
 			case OR:
