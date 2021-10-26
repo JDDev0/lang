@@ -33,6 +33,7 @@ public final class LangInterpreter {
 	static final Random RAN = new Random();
 	
 	final LangParser parser = new LangParser();
+	final LangPatterns patterns = new LangPatterns();
 	
 	String langPath;
 	TerminalIO term;
@@ -582,7 +583,7 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
-					if(variableName.matches("(\\$\\**|&|fp\\.)\\w+") || variableName.matches("\\$\\**\\[+\\w+\\]+")) {
+					if(patterns.matches(variableName, LangPatterns.VAR_NAME_FULL) || patterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE)) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
@@ -701,7 +702,7 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(variableName.matches("(\\$|&)LANG_.*"))
+		if(patterns.matches(variableName, LangPatterns.LANG_VAR))
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 		
 		DataObject dataObject = new DataObject().setVariableName(variableName);
@@ -714,7 +715,8 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int DATA_ID) {
 		String variableName = node.getVariableName();
 		
-		if(!variableName.matches("(\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+") && !variableName.matches("\\$\\**\\[+\\w+\\]+"))
+		if(!patterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS) &&
+		!patterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
@@ -825,12 +827,12 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						if(from.matches("&LANG_.*")) {
+						if(patterns.matches(from, LangPatterns.LANG_VAR_ARRAY)) {
 							setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID_TO);
 							return;
 						}
 						
-						if(!to.matches("(\\$|&|fp\\.)\\w+") && !to.matches("\\$\\[+\\w+\\]+")) {
+						if(!patterns.matches(to, LangPatterns.VAR_NAME) && !patterns.matches(to, LangPatterns.VAR_NAME_PTR)) {
 							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
 							return;
 						}
@@ -886,8 +888,8 @@ public final class LangInterpreter {
 				while(parameterListIterator.hasNext()) {
 					VariableNameNode parameter = parameterListIterator.next();
 					String variableName = parameter.getVariableName();
-					if(!parameterListIterator.hasNext() && !variableName.matches("(\\$|&)LANG_.*") &&
-					variableName.matches("(\\$|&)\\w+\\.\\.\\.")) {
+					if(!parameterListIterator.hasNext() && !patterns.matches(variableName, LangPatterns.LANG_VAR) &&
+					patterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
 						//Varargs (only the last parameter can be a varargs parameter)
 						variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 						if(variableName.startsWith("$")) {
@@ -908,7 +910,8 @@ public final class LangInterpreter {
 						break;
 					}
 					
-					if(variableName.matches("\\$\\[\\w+\\]") && !variableName.matches("(\\$)\\[LANG_.*\\]")) {
+					if(patterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR) && !patterns.matches(variableName,
+					LangPatterns.FUNC_CALL_CALL_BY_PTR_LANG_VAR)) {
 						//Call by pointer
 						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
 						if(argumentValueList.size() > 0)
@@ -920,7 +923,7 @@ public final class LangInterpreter {
 						continue;
 					}
 					
-					if(!variableName.matches("(\\$|&|fp\\.)\\w+") || variableName.matches("(\\$|&)LANG_.*")) {
+					if(!patterns.matches(variableName, LangPatterns.VAR_NAME) || patterns.matches(variableName, LangPatterns.LANG_VAR)) {
 						setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 						
 						continue;
@@ -931,7 +934,7 @@ public final class LangInterpreter {
 					else if(lastDataObject == null)
 						lastDataObject = new DataObject().setVoid();
 					
-					if(lastDataObject.getVariableName() != null && lastDataObject.getVariableName().matches("&LANG_.*")) {
+					if(lastDataObject.getVariableName() != null && patterns.matches(lastDataObject.getVariableName(), LangPatterns.LANG_VAR_ARRAY)) {
 						setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
 						
 						continue;
@@ -1033,7 +1036,7 @@ public final class LangInterpreter {
 	private DataObject interpretFunctionCallNode(FunctionCallNode node, final int DATA_ID) {
 		String functionName = node.getFunctionName();
 		FunctionPointerObject fp;
-		if(functionName.matches("(func\\.|linker\\.)\\w+")) {
+		if(patterns.matches(functionName, LangPatterns.FUNC_NAME)) {
 			final boolean isLinkerFunction;
 			if(functionName.startsWith("func.")) {
 				isLinkerFunction = false;
@@ -1058,7 +1061,7 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, DATA_ID);
 			
 			fp = new FunctionPointerObject(ret.get().getValue());
-		}else if(functionName.matches("fp\\.\\w+")) {
+		}else if(patterns.matches(functionName, LangPatterns.VAR_NAME_FUNC_PTR)) {
 			DataObject ret = data.get(DATA_ID).var.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
 				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
@@ -1093,14 +1096,15 @@ public final class LangInterpreter {
 				
 				VariableNameNode parameter = (VariableNameNode)child;
 				String variableName = parameter.getVariableName();
-				if(!childrenIterator.hasNext() && !variableName.matches("(\\$|&)LANG_.*") &&
-				variableName.matches("(\\$|&)\\w+\\.\\.\\.")) {
+				if(!childrenIterator.hasNext() && !patterns.matches(variableName, LangPatterns.LANG_VAR) &&
+				patterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
 					//Varargs (only the last parameter can be a varargs parameter)
 					parameterList.add(parameter);
 					break;
 				}
 				
-				if((!variableName.matches("(\\$|&|fp\\.)\\w+") && !variableName.matches("\\$\\[\\w+\\]")) || variableName.matches("(\\$|&)LANG_.*")) {
+				if((!patterns.matches(variableName, LangPatterns.VAR_NAME) && !patterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR)) ||
+				patterns.matches(variableName, LangPatterns.LANG_VAR)) {
 					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 					
 					continue;

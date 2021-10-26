@@ -319,7 +319,7 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			}
 			
-			if(dataObject.getVariableName() != null && dataObject.getVariableName().matches("(\\$|&)LANG_.*"))
+			if(dataObject.getVariableName() != null && interpreter.patterns.matches(dataObject.getVariableName(), LangPatterns.LANG_VAR))
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			dataObject.setFinalData(true);
@@ -811,7 +811,7 @@ final class LangPredefinedFunctions {
 				arrPtr = null;
 			}else if(arrPointerObject.getType() == DataType.TEXT) {
 				arrPtr = arrPointerObject.getText();
-				if(!arrPtr.matches("&\\w+"))
+				if(!interpreter.patterns.matches(arrPtr, LangPatterns.VAR_NAME_ARRAY))
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}else {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1411,7 +1411,7 @@ final class LangPredefinedFunctions {
 				arrPtr = null;
 			}else if(arrPointerObject.getType() == DataType.TEXT) {
 				arrPtr = arrPointerObject.getText();
-				if(!arrPtr.matches("&\\w+"))
+				if(!interpreter.patterns.matches(arrPtr, LangPatterns.VAR_NAME_ARRAY))
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}else {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
