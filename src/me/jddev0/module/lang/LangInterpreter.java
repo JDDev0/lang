@@ -1052,9 +1052,7 @@ public final class LangInterpreter {
 			
 			final String functionNameCopy = functionName;
 			Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
-				return entry.getValue().isLinkerFunction() == isLinkerFunction;
-			}).filter(entry -> {
-				return functionNameCopy.equals(entry.getKey());
+				return entry.getValue().isLinkerFunction() == isLinkerFunction && functionNameCopy.equals(entry.getKey());
 			}).findFirst();
 			
 			if(!ret.isPresent())
