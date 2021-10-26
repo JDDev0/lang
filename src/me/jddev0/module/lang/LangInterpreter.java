@@ -1157,9 +1157,10 @@ public final class LangInterpreter {
 		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
 		
 		for(InterpretingError error:InterpretingError.values()) {
-			String variableName = "$LANG_ERROR_" + error.name().toUpperCase();
+			String upperCaseErrorName = error.name().toUpperCase();
+			String variableName = "$LANG_ERROR_" + upperCaseErrorName;
 			data.get(DATA_ID).var.put(variableName, new DataObject().setError(new ErrorObject(error)).setFinalData(true).setVariableName(variableName));
-			variableName = "$LANG_ERRNO_" + error.name().toUpperCase();
+			variableName = "$LANG_ERRNO_" + upperCaseErrorName;
 			data.get(DATA_ID).var.put(variableName, new DataObject().setInt(error.getErrorCode()).setFinalData(true).setVariableName(variableName));
 		}
 		
