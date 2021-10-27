@@ -155,6 +155,32 @@ func.printTerminal(-1, $sub1)
 $sub2 = func.substring(This is a long text!, 15, 19)
 func.printTerminal(-1, $sub2)
 
+# func.charAt(Text, int) # Will return the char at the index (2nd parameter)
+func.printTerminal(-1, func.charAt(abc\, test string, 0))
+func.printTerminal(-1, func.charAt(abc\, test string, 3))
+func.printTerminal(-1, func.charAt(abc\, test string, 5))
+func.printTerminal(-1, func.charAt(abc\, test string, 42))
+
+func.printTerminal(-1, func.charAt(def\, text, 0))
+func.printTerminal(-1, func.charAt(def\, text, 3))
+func.printTerminal(-1, func.charAt(def\, text, 5))
+func.printTerminal(-1, func.charAt(def\, text, 42))
+
+func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 0))
+func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 3))
+func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 5))
+func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 42))
+
+func.printTerminal(-1, func.charAt(10042000, 0))
+func.printTerminal(-1, func.charAt(10042000, 3))
+func.printTerminal(-1, func.charAt(10042000, 10))
+func.printTerminal(-1, func.charAt(10042000, 42))
+
+func.printTerminal(-1, func.charAt(100.42000, 0))
+func.printTerminal(-1, func.charAt(100.42000, 3))
+func.printTerminal(-1, func.charAt(100.42000, 5))
+func.printTerminal(-1, func.charAt(100.42000, 42))
+
 # Math functions
 # func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
 func.printTerminal(-1, func.rand())
