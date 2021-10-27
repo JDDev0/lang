@@ -387,6 +387,15 @@ public final class LangParser {
 			return ast;
 		}
 		
+		//Throw values
+		if(token.startsWith("throw ")) {
+			String throwStatement = token.substring(6).trim();
+			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(throwStatement, lines, true);
+			nodes.add(new AbstractSyntaxTree.ThrowNode(returnedNode == null?parseLRvalue(throwStatement, lines, true).convertToNode():returnedNode));
+			
+			return ast;
+		}
+		
 		nodes.addAll(parseToken(token, lines).getChildren());
 		
 		return ast;

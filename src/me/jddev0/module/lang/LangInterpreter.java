@@ -44,7 +44,8 @@ public final class LangInterpreter {
 	 * Will be set to true for returning a value
 	 */
 	private boolean stopParsingFlag;
-	private DataObject returnedValue;
+	private DataObject returnedOrThrowedValue;
+	private boolean isThrowedValue;
 	/**
 	 * <DATA_ID (of function), <to, from>><br>
 	 * Data tmp for "func.copyAfterFP"
@@ -162,6 +163,10 @@ public final class LangInterpreter {
 				
 				case RETURN:
 					interpretReturnNode((ReturnNode)node, DATA_ID);
+					return null;
+				
+				case THROW:
+					interpretThrowNode((ThrowNode)node, DATA_ID);
 					return null;
 				
 				case ASSIGNMENT:
@@ -522,7 +527,20 @@ public final class LangInterpreter {
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
 		Node returnValueNode = node.getReturnValue();
 		
-		returnedValue = returnValueNode == null?new DataObject().setVoid():interpretNode(returnValueNode, DATA_ID);
+		returnedOrThrowedValue = returnValueNode == null?new DataObject().setVoid():interpretNode(returnValueNode, DATA_ID);
+		isThrowedValue = false;
+		stopParsingFlag = true;
+	}
+	
+	private void interpretThrowNode(ThrowNode node, final int DATA_ID) {
+		Node throwValueNode = node.getThrowValue();
+		
+		DataObject errorObject = interpretNode(throwValueNode, DATA_ID);
+		if(errorObject == null || errorObject.getType() != DataType.ERROR)
+			returnedOrThrowedValue = new DataObject().setError(new ErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE));
+		else
+			returnedOrThrowedValue = errorObject;
+		isThrowedValue = true;
 		stopParsingFlag = true;
 	}
 	
@@ -635,6 +653,7 @@ public final class LangInterpreter {
 				case NULL_VALUE:
 				case PARSING_ERROR:
 				case RETURN:
+				case THROW:
 				case TEXT_VALUE:
 				case VARIABLE_NAME:
 				case VOID_VALUE:
@@ -807,9 +826,12 @@ public final class LangInterpreter {
 		return new DataObject().setArgumentSeparator(node.getOriginalText());
 	}
 	
-	DataObject getAndResetReturnValue() {
-		DataObject retTmp = returnedValue;
-		returnedValue = null;
+	DataObject getAndResetReturnValue(final int DATA_ID) {
+		DataObject retTmp = returnedOrThrowedValue;
+		returnedOrThrowedValue = null;
+		if(isThrowedValue && DATA_ID > -1)
+			setErrno(retTmp.getError().getInterprettingError(), DATA_ID);
+		isThrowedValue = false;
 		stopParsingFlag = false;
 		return retTmp;
 	}
@@ -962,7 +984,7 @@ public final class LangInterpreter {
 				//Remove data map
 				data.remove(NEW_DATA_ID);
 				
-				DataObject retTmp = getAndResetReturnValue();
+				DataObject retTmp = getAndResetReturnValue(DATA_ID);
 				return retTmp == null?new DataObject().setVoid():retTmp;
 			
 			case FunctionPointerObject.PREDEFINED:
@@ -1353,6 +1375,10 @@ public final class LangInterpreter {
 				this.err = InterpretingError.NO_ERROR;
 			else
 				this.err = err;
+		}
+		
+		public InterpretingError getInterprettingError() {
+			return err;
 		}
 		
 		public int getErrno() {
@@ -2392,8 +2418,14 @@ public final class LangInterpreter {
 			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
 		}
 		
+		/**
+		 * Must be called before {@link #LangInterpreter.LangInterpreterInterface.getAndResetReturnValue() getAndResetReturnValue()} method
+		 */
+		public boolean isReturnedValueThrowValue() {
+			return interpreter.isThrowedValue;
+		}
 		public DataObject getAndResetReturnValue() {
-			return interpreter.getAndResetReturnValue();
+			return interpreter.getAndResetReturnValue(-1);
 		}
 		
 		public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {

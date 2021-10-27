@@ -388,7 +388,7 @@ final class LangPredefinedFunctions {
 			//Remove data map
 			interpreter.data.remove(NEW_DATA_ID);
 			
-			return interpreter.getAndResetReturnValue();
+			return interpreter.getAndResetReturnValue(DATA_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(interpreter.term != null));
 	}
@@ -1715,7 +1715,7 @@ final class LangPredefinedFunctions {
 		interpreter.langPath = oldLangPath;
 		
 		//Get returned value from executed lang file
-		return interpreter.getAndResetReturnValue();
+		return interpreter.getAndResetReturnValue(DATA_ID);
 	}
 	
 	public void addLinkerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {

@@ -1079,6 +1079,64 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	public static final class ThrowNode implements Node {
+		private final List<Node> nodes;
+		
+		public ThrowNode(Node throwValue) {
+			nodes = new ArrayList<>(1);
+			nodes.add(throwValue);
+		}
+		
+		@Override
+		public List<Node> getChildren() {
+			return nodes;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.THROW;
+		}
+		
+		public Node getThrowValue() {
+			return nodes.get(0);
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("ThrowNode: ThrowValue: {\n");
+			String[] tokens = nodes.get(0).toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof ReturnNode))
+				return false;
+			
+			ReturnNode that = (ReturnNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.nodes.equals(that.nodes);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.nodes);
+		}
+	}
+	
 	//Is only super class for other nodes
 	public static class ValueNode extends ChildlessNode {
 		@Override
@@ -1462,6 +1520,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	public static enum NodeType {
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
-		IF_STATEMENT, RETURN, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE
+		IF_STATEMENT, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE;
 	}
 }
