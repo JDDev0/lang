@@ -20,6 +20,8 @@ $input = func.readTerminal(Enter 0 for "Normal functions benchmark" and 1 for "O
 
 con.if(!func.toNumber($input))
 	# Normal functions
+	fp.empty = () -> {
+	}
 	fp.add = () -> {
 		func.addi(func.rand(), func.rand())
 	}
@@ -46,6 +48,7 @@ con.if(!func.toNumber($input))
 	func.printTerminal(2, \s          Normal functions           \s)
 	func.printTerminal(2, \s      Test        |       Time       \s)
 	func.printTerminal(2, -------------------|-------------------)
+	func.printTerminal(2, Empty              | fp.benchmark(1000, fp.empty) ms)
 	func.printTerminal(2, Add                | fp.benchmark(1000, fp.add) ms)
 	func.printTerminal(2, Execute FP         | fp.benchmark(1000, fp.execFP) ms)
 	func.printTerminal(2, Array creation     | fp.benchmark(1000, fp.arrayCreation) ms)
@@ -55,11 +58,14 @@ con.if(!func.toNumber($input))
 	func.printTerminal(2, ---------------------------------------)
 con.else
 	# One-line functions
+	fp.empty = () -> {
+	}
 	fp.add = () -> func.addi(func.rand(), func.rand())
 	fp.execFP = () -> {
 		fp.test = () -> test = test
 		fp.test()
 	}
+	fp.arrayCreation = () -> func.arrayMake(&a, 100) func.arraySetAll(&a, 42)
 	fp.linker = () -> linker.link(items.lang)
 	fp.bindLib = () -> linker.bindLibrary(items.lang)
 	fp.sleep = () -> func.sleep(1)
@@ -67,9 +73,10 @@ con.else
 	func.printTerminal(2, \s         One-line functions          \s)
 	func.printTerminal(2, \s      Test        |       Time       \s)
 	func.printTerminal(2, -------------------|-------------------)
+	func.printTerminal(2, Empty              | fp.benchmark(1000, fp.empty) ms)
 	func.printTerminal(2, Add                | fp.benchmark(1000, fp.add) ms)
 	func.printTerminal(2, Execute FP         | fp.benchmark(1000, fp.execFP) ms)
-	func.printTerminal(2, Array creation     | Not available as One-line)
+	func.printTerminal(2, Array creation     | fp.benchmark(1000, fp.arrayCreation) ms)
 	func.printTerminal(2, Linker             | fp.benchmark(1000, fp.linker) ms)
 	func.printTerminal(2, Bind Library       | fp.benchmark(1000, fp.bindLib) ms)
 	func.printTerminal(2, Sleep (Should be 1)| fp.benchmark(1000, fp.sleep) ms)
