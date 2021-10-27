@@ -780,6 +780,22 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			}
 		});
+		funcs.put("charAt", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			Number index = indexObject.getNumber();
+			if(index == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			
+			try {
+				return new DataObject().setChar(textObject.getText().charAt(index.intValue()));
+			}catch(StringIndexOutOfBoundsException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
+			}
+		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
