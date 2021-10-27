@@ -504,7 +504,8 @@ public class LangShellWindow extends JDialog {
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 			
-			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, nullFlag = false;
+			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
+			nullFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 				
@@ -524,6 +525,8 @@ public class LangShellWindow extends JDialog {
 				
 				if(!returnFlag)
 					returnFlag = line.substring(i).startsWith("return");
+				if(!throwFlag)
+					throwFlag = line.substring(i).startsWith("throw");
 				
 				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
 				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
@@ -534,6 +537,8 @@ public class LangShellWindow extends JDialog {
 					funcFlag = false;
 				if(returnFlag && i > 5 && line.substring(i - 6).startsWith("return"))
 					returnFlag = false;
+				if(throwFlag && i > 4 && line.substring(i - 5).startsWith("throw"))
+					throwFlag = false;
 				if(nullFlag && i > 3 && line.substring(i - 4).startsWith("null"))
 					nullFlag = false;
 				
@@ -557,7 +562,7 @@ public class LangShellWindow extends JDialog {
 					col = Color.CYAN;
 				else if(varFlag)
 					col = Color.MAGENTA;
-				else if(returnFlag)
+				else if(returnFlag || throwFlag)
 					col = Color.LIGHT_GRAY;
 				else if(Character.isDigit(c))
 					col = Color.YELLOW;
@@ -825,12 +830,18 @@ public class LangShellWindow extends JDialog {
 			term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
 		});
 		
-		GraphicsHelper.addText(shell, "Returned Value:\n", Color.WHITE);
+		boolean isThrowValue = lii.isReturnedValueThrowValue();
 		LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
-		if(retValue == null)
-			term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
-		else
-			term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.getText());
+		if(isThrowValue) {
+			GraphicsHelper.addText(shell, "Throw Value:\n", Color.WHITE);
+			term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", LangShellWindow.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());
+		}else {
+			GraphicsHelper.addText(shell, "Returned Value:\n", Color.WHITE);
+			if(retValue == null)
+				term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
+			else
+				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.getText());
+		}
 		
 		//Reset the printStream output
 		System.setOut(oldOut);

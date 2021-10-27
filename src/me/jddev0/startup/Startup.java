@@ -11,14 +11,14 @@ import java.util.Map;
 
 import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
-import me.jddev0.module.lang.Lang;
 import me.jddev0.module.io.ReaderActionObject;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
+import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
 import me.jddev0.module.lang.LangParser;
 import me.jddev0.module.lang.LangPlatformAPI;
-import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
 
 public class Startup {
 	private static boolean is4k;
@@ -94,12 +94,18 @@ public class Startup {
 				translations.forEach((key, value) -> {
 					term.logln(Level.DEBUG, key + " = " + value, Startup.class);
 				});
-				term.logln(Level.DEBUG, "------------- Returned Value -------------", Startup.class);
+				boolean isThrowValue = lii.isReturnedValueThrowValue();
 				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
-				if(retValue == null)
-					term.logln(Level.DEBUG, "No returned value", Startup.class);
-				else
-					term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", Startup.class, retValue.getText());
+				if(isThrowValue) {
+					term.logln(Level.DEBUG, "------------- Throwed value --------------", Startup.class);
+					term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", Startup.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());
+				}else {
+					term.logln(Level.DEBUG, "------------- Returned Value -------------", Startup.class);
+					if(retValue == null)
+						term.logln(Level.DEBUG, "No returned value", Startup.class);
+					else
+						term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", Startup.class, retValue.getText());
+				}
 				term.logln(Level.DEBUG, "-------------- End of Lang ---------------", Startup.class);
 			}catch(IOException e) {
 				term.logStackTrace(e, Startup.class);
@@ -232,12 +238,18 @@ public class Startup {
 				translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
 			}
 			if(printReturnedValue) {
-				System.out.println("------------- Returned Value -------------");
+				boolean isThrowValue = lii.isReturnedValueThrowValue();
 				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
-				if(retValue == null)
-					System.out.println("No returned value");
-				else
-					System.out.printf("Returned Value: \"%s\"\n", retValue.getText());
+				if(isThrowValue) {
+					System.out.println("------------- Throwed value --------------");
+					System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrmsg());
+				}else {
+					System.out.println("------------- Returned Value -------------");
+					if(retValue == null)
+						System.out.println("No returned value");
+					else
+						System.out.printf("Returned Value: \"%s\"\n", retValue.getText());
+				}
 			}
 		}catch(IOException e) {
 			e.printStackTrace();
