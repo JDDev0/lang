@@ -265,3 +265,8 @@ con.else
 con.endif
 
 func.getErrorText() # Reset $LANG_ERRNO
+
+# End the program early & throw error
+func.printTerminal(-1, Will be executed)
+throw $LANG_ERROR_EOF # A throw statement outside of a function pointer function body will end the program execution early
+func.printTerminal(-1, Won't be executed)
