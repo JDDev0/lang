@@ -225,44 +225,27 @@ func.getErrorText() # Reset $LANG_ERRNO
 
 fp.a = ($i) -> {
 	con.if(!$i)
-		return $LANG_ERROR_INVALID_ARGUMENTS # $LANG_ERROR_... should be used for "throwing" error
+		# The throw statement will return the error object and will set $LANG_ERRNO
+		throw $LANG_ERROR_INVALID_ARGUMENTS # $LANG_ERROR_... or a data object of type ERROR must be used for throwing error
 	con.elif($i === abc)
-		return $LANG_ERROR_NO_NUM
+		throw $LANG_ERROR_NO_NUM
 	con.endif
 	
 	return func.addi($i, 1)
 }
 
 $ret = fp.a(0)
-con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
-	func.printTerminal(5, Invalid arguments)
-con.elif($ret === $LANG_ERROR_NO_NUM)
-	func.printTerminal(5, No num)
-con.else
-	func.printTerminal(1, $ret)
-con.endif
+func.printError()
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = fp.a(abc)
-con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
-	func.printTerminal(5, Invalid arguments)
-con.elif($ret === $LANG_ERROR_NO_NUM)
-	func.printTerminal(5, No num)
-con.else
-	func.printTerminal(1, $ret)
-con.endif
+func.printError()
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = fp.a(1)
-con.if($ret === $LANG_ERROR_INVALID_ARGUMENTS)
-	func.printTerminal(5, Invalid arguments [Code: $LANG_ERRNO])
-con.elif($ret === $LANG_ERROR_NO_NUM)
-	func.printTerminal(5, No num)
-con.else
-	func.printTerminal(1, $ret)
-con.endif
+func.printError()
 
 func.getErrorText() # Reset $LANG_ERRNO
 
