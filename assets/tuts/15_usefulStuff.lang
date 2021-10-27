@@ -212,38 +212,6 @@ func.printTerminal(-1, \n\n\n)
 	fp.println(TEST)
 }
 
-# Useful functions
-{
-	# charAt($txt, $i) returns the i th char of the text txt
-	fp.charAt = ($txt, $i) -> return func.ttoc(func.substring($txt, $i, func.addi($i, 1)))
-	
-	$txt = abc, test string
-	func.printTerminal(-1, fp.charAt($txt, 0))
-	func.printTerminal(-1, fp.charAt($txt, 3))
-	func.printTerminal(-1, fp.charAt($txt, 5))
-	func.printTerminal(-1, fp.charAt($txt, 42))
-	
-	func.printTerminal(-1, fp.charAt(def\, text, 0))
-	func.printTerminal(-1, fp.charAt(def\, text, 3))
-	func.printTerminal(-1, fp.charAt(def\, text, 5))
-	func.printTerminal(-1, fp.charAt(def\, text, 42))
-	
-	func.printTerminal(-1, fp.charAt({{{xyz, nice!}}}, 0))
-	func.printTerminal(-1, fp.charAt({{{xyz, nice!}}}, 3))
-	func.printTerminal(-1, fp.charAt({{{xyz, nice!}}}, 5))
-	func.printTerminal(-1, fp.charAt({{{xyz, nice!}}}, 42))
-	
-	func.printTerminal(-1, fp.charAt(10042000, 0))
-	func.printTerminal(-1, fp.charAt(10042000, 3))
-	func.printTerminal(-1, fp.charAt(10042000, 10))
-	func.printTerminal(-1, fp.charAt(10042000, 42))
-	
-	func.printTerminal(-1, fp.charAt(100.42000, 0))
-	func.printTerminal(-1, fp.charAt(100.42000, 3))
-	func.printTerminal(-1, fp.charAt(100.42000, 5))
-	func.printTerminal(-1, fp.charAt(100.42000, 42))
-}
-
 # &LANG var as argument
 {
 	# Is only possible with call by pointer
