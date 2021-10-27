@@ -249,6 +249,44 @@ func.printError()
 
 func.getErrorText() # Reset $LANG_ERRNO
 
+# Forward thrown errors
+fp.testError = ($a, $b) -> {
+	$ret = func.divd($a, $b)
+	con.if($LANG_ERRNO != 0)
+		throw $ret
+	con.endif
+	
+	return $ret
+}
+
+$ret = fp.testError(0, 0)
+con.if($LANG_ERRNO != 0)
+	func.printError()
+con.else
+	func.printTerminal(1, Result: $ret)
+con.endif
+
+$ret = fp.testError(0, 1)
+con.if($LANG_ERRNO != 0)
+	func.printError()
+con.else
+	func.printTerminal(1, Result: $ret)
+con.endif
+
+$ret = fp.testError(text, 1)
+con.if($LANG_ERRNO != 0)
+	func.printError()
+con.else
+	func.printTerminal(1, Result: $ret)
+con.endif
+
+$ret = fp.testError(text, text)
+con.if($LANG_ERRNO != 0)
+	func.printError()
+con.else
+	func.printTerminal(1, Result: $ret)
+con.endif
+
 # End the program early & throw error
 func.printTerminal(-1, Will be executed)
 throw $LANG_ERROR_EOF # A throw statement outside of a function pointer function body will end the program execution early
