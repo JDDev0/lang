@@ -273,7 +273,7 @@ fp.manyArgs(A, B, C, D, E, F, G, H, I)
 			$*ptr = changed value # Pointer dereferencing
 		}
 		func.printTerminal(6, $a)
-		fp.changeValue($[a]) # Provid pointer to "$a"
+		fp.changeValue($[a]) # Provide pointer to "$a"
 		func.printTerminal(6, $a)
 	}
 	
