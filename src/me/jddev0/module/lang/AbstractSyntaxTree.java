@@ -325,7 +325,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("EscapeNode: Char: \"");
+			builder.append("EscapeSequenceNode: Char: \"");
 			builder.append(c);
 			builder.append("\"\n");
 			
