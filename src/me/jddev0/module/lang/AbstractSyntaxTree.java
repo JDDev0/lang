@@ -1400,7 +1400,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-	public static class TextValueNode extends ValueNode {
+	public static final class TextValueNode extends ValueNode {
 		private final String text;
 		
 		public TextValueNode(String text) {
