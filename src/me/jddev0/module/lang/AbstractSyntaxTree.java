@@ -455,7 +455,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	/**
 	 * Will store an "," with whitespaces if needed
 	 */
-	public static class ArgumentSeparatorNode extends ChildlessNode {
+	public static final class ArgumentSeparatorNode extends ChildlessNode {
 		private final String originalText;
 		
 		public ArgumentSeparatorNode(String originalText) {
