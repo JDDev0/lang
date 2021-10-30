@@ -32,7 +32,7 @@ public final class Lang {
 	
 	/**
 	 * Without interpreter: Only lang translations will be read without any other features (Used for reading written lang file)<br>
-	 * Call getCached... methods afterwards for retrieving certain lang translation
+	 * Call getCached... methods afterwards for retrieving certain lang translations
 	 * @return Returns all translations of <b>langFile</b>
 	 */
 	public static Map<String, String> getTranslationMapWithoutInterpreter(String langFile, boolean reloadNotFromChache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
