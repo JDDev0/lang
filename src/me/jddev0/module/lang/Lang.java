@@ -53,6 +53,7 @@ public final class Lang {
 				String[] langTranslation = line.split(" = ", 2);
 				LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
 			});
+			reader.close();
 			return new HashMap<>(LANG_CACHE);
 		}
 	}
