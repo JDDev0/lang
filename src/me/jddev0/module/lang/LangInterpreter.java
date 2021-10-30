@@ -1418,7 +1418,7 @@ public final class LangInterpreter {
 		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR;
 	}
 	public static final class DataObject {
-		private DataType type;
+		//Value
 		private String txt;
 		private DataObject[] arr;
 		private VarPointerObject vp;
@@ -1430,10 +1430,12 @@ public final class LangInterpreter {
 		private char charValue;
 		private ErrorObject error;
 		
+		//Meta-Data
 		/**
 		 * Variable name of the DataObject (null for anonymous variable)
 		 */
 		private String variableName;
+		private DataType type;
 		private boolean finalData;
 		
 		public DataObject(DataObject dataObject) {
