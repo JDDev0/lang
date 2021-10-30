@@ -40,12 +40,20 @@ public final class LangParser {
 			//Parse multiline text & line continuation
 			while(line.contains("{{{") || line.endsWith("\\")) {
 				if(line.contains("{{{")) { //Multiline text
+					boolean multipleLinesFlag = true;
 					int startIndex = line.indexOf("{{{");
 					if(line.contains("}}}")) {
-						int endIndex = line.indexOf("}}}");
-						line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
-					}else {
-						//Multiple lines
+						//Start search for "}}}" after "{{{"
+						int endIndex = line.indexOf("}}}", startIndex);
+						
+						//Multiple lines if "}}}" was found before "{{{"
+						if(endIndex != -1) {
+							multipleLinesFlag = false;
+							line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
+						}
+					}
+					
+					if(multipleLinesFlag) {
 						lineTmp.delete(0, lineTmp.length());
 						lineTmp.append(line.substring(startIndex + 3));
 						line = line.substring(0, startIndex);
