@@ -70,6 +70,7 @@ public final class LangParser {
 								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
 								return ast;
 							}
+							lineTmpString = lineTmpString.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
 							lineTmp.append('\n');
 							if(lineTmpString.contains("}}}")) {
 								int endIndex = lineTmpString.indexOf("}}}");
@@ -94,6 +95,7 @@ public final class LangParser {
 						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
 						return ast;
 					}
+					lineTmpString = lineTmpString.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
 					line += lineTmpString;
 				}
 			}
