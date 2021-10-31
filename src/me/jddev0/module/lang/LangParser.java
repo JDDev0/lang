@@ -38,6 +38,7 @@ public final class LangParser {
 				break;
 			}
 			//Parse multiline text & line continuation
+			line = line.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
 			while(line.contains("{{{") || line.endsWith("\\")) {
 				if(line.contains("{{{")) { //Multiline text
 					boolean multipleLinesFlag = true;
@@ -96,6 +97,9 @@ public final class LangParser {
 					line += lineTmpString;
 				}
 			}
+			line = line.replace("\\{\\e", "\\{"); //Fix for "\{{{" would be parsed as mutliline text start sequence
+			                                      //(Without this replace: "\{" would be parsed as TEXT because "\e" is behind the "\{" and not as CHAR)
+			
 			line = currentLine = prepareLine(line);
 			if(line != null) {
 				//Blocks and function bodies
