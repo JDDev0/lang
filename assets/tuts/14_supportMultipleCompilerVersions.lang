@@ -45,7 +45,7 @@ con.else
 	func.printTerminal(5, The Compiler version $ver is not supported!)
 con.endif
 
-# Good practice: Use different lang files for different compiler version dependent functions: # Example: Contains different version of function "fp.test"
+# Best practice: Use different lang files for different compiler version dependent functions: # Example: Contains different version of function "fp.test"
 con.if($ver == v0.1.8)
 	linker.bindLibrary(14_utilsLibrary018.lang)
 con.elif($ver == v0.1.9)
