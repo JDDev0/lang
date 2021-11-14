@@ -103,7 +103,7 @@ func.printTerminal(-1, \n\n\n)
 
 # "Returning" of multiple values
 {
-	# "Return" is also possible with the pointer dereferencing "$*ptr"
+	# "Return" is also possible by dereferencing of a pointer: "$*ptr"
 	
 	# With call by value
 	{
