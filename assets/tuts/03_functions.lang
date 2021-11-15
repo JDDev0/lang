@@ -8,11 +8,11 @@ lang.version = v1.0.0
 # Compiler functions
 # func.isCompilerVersionNewer(void) # Returns 1 if compiler version is newer else 0
 $isCVN = func.isCompilerVersionNewer()
-func.printTerminal(-1, $isCVN)
+func.println($isCVN)
 
 # func.isCompilerVersionOlder(void) # Returns 1 if compiler version is older else 0
 $isCVO = func.isCompilerVersionOlder()
-func.printTerminal(-1, $isCVO)
+func.println($isCVO)
 
 # System functions
 # func.currentTimeMillis(void) # Returns the system date in ms since midnight 1.1.1970 UTC
@@ -22,12 +22,12 @@ $startTime = func.currentTimeMillis()
 func.sleep(1000) # Will sleep 1 second
 
 $endTime = func.currentTimeMillis()
-func.printTerminal(-1, func.subl($endTime, $startTime) ms)
+func.println(func.subl($endTime, $startTime) ms)
 
 # IO functions
 # func.readTerminal(Text) # Will read a user input, the user will see the text {Function is not supported by all interpreters: If not supported -> $LANG_ERRNO will be set}
 $input = func.readTerminal(Enter something:)
-func.printTerminal(-1, Your input: $input)
+func.println(Your input: $input)
 
 # func.printTerminal(loglevel, Text) # Will print the text with the log level log level [-1 - 6]
 func.printTerminal(-1, Test) # Not set/Unset
@@ -40,7 +40,7 @@ func.printTerminal(5, Test) # Error
 func.printTerminal(6, Test) # Critical
 
 # func.isTerminalAvailable() # Will return 1 if the terminal is available else 0
-func.printTerminal(-1, func.isTerminalAvailable())
+func.println(func.isTerminalAvailable())
 
 # func.print(Text) # Will print the text to standard output
 func.print(abc\n)
@@ -55,185 +55,185 @@ func.error(abc)
 func.errorln(abc)
 
 # func.input() # Reads everything until new line from standard input
-func.printTerminal(-1, Input: func.input())
+func.println(Input: func.input())
 
 # func.input(Int) # Reads n characters from standard input
-func.printTerminal(-1, Input: func.input(3))
+func.println(Input: func.input(3))
 
 # Number functions
 # func.hexToDec(Text) # Will convert a base 16 number to a base 10 integer
 $num = func.hexToDec(0x2A)
-func.printTerminal(-1, $num)
+func.println($num)
 
 # func.toIntBits(float) # Will return the bits of the float as an integer value
-func.printTerminal(-1, func.toIntBits(42.42))
+func.println(func.toIntBits(42.42))
 
 # func.toFloatBits(int) # Will return the bits of the integer as an float value
-func.printTerminal(-1, func.toFloatBits(42))
+func.println(func.toFloatBits(42))
 
 # func.toLongBits(double) # Will return the bits of the double as an long value
-func.printTerminal(-1, func.toLongBits(42.42))
+func.println(func.toLongBits(42.42))
 
 # func.toDoubleBits(long) # Will return the bits of the long as an double value
-func.printTerminal(-1, func.toDoubleBits(42))
+func.println(func.toDoubleBits(42))
 
 # func.ttoi(text) # Will parse the text as an int and returns the result
-func.printTerminal(-1, func.ttoi(text))
-func.printTerminal(-1, func.ttoi(-42))
-func.printTerminal(-1, func.ttoi(-0042))
-func.printTerminal(-1, func.ttoi(42))
-func.printTerminal(-1, func.ttoi(0042))
+func.println(func.ttoi(text))
+func.println(func.ttoi(-42))
+func.println(func.ttoi(-0042))
+func.println(func.ttoi(42))
+func.println(func.ttoi(0042))
 
 # func.ttol(text) # Will parse the text as a long and returns the result
-func.printTerminal(-1, func.ttol(text))
-func.printTerminal(-1, func.ttol(-42))
-func.printTerminal(-1, func.ttol(-0042))
-func.printTerminal(-1, func.ttol(42))
-func.printTerminal(-1, func.ttol(0042))
+func.println(func.ttol(text))
+func.println(func.ttol(-42))
+func.println(func.ttol(-0042))
+func.println(func.ttol(42))
+func.println(func.ttol(0042))
 
 # func.ttof(text) # Will parse the text as a float and returns the result
-func.printTerminal(-1, func.ttof(text))
-func.printTerminal(-1, func.ttof(-.42))
-func.printTerminal(-1, func.ttof(-42.0))
-func.printTerminal(-1, func.ttof(42.))
-func.printTerminal(-1, func.ttof(0.42))
+func.println(func.ttof(text))
+func.println(func.ttof(-.42))
+func.println(func.ttof(-42.0))
+func.println(func.ttof(42.))
+func.println(func.ttof(0.42))
 
 # func.ttod(text) # Will parse the text as a double and returns the result
-func.printTerminal(-1, func.ttod(text))
-func.printTerminal(-1, func.ttod(-.42))
-func.printTerminal(-1, func.ttod(-42.0))
-func.printTerminal(-1, func.ttod(42.))
-func.printTerminal(-1, func.ttod(0.42))
+func.println(func.ttod(text))
+func.println(func.ttod(-.42))
+func.println(func.ttod(-42.0))
+func.println(func.ttod(42.))
+func.println(func.ttod(0.42))
 
 # Character functions
 # func.toValue(char) # Will return the Unicode value of a char
 $valA = func.toValue(a)
-func.printTerminal(-1, $valA)
+func.println($valA)
 
 $valEur = func.toValue(€)
-func.printTerminal(-1, $valEur)
+func.println($valEur)
 
 # func.toChar(int) # Will return the Unicode char with the value of the parameter
 $char1 = func.toChar(42)
-func.printTerminal(-1, $char1)
+func.println($char1)
 
 $char2 = func.toChar(8364)
-func.printTerminal(-1, $char2)
+func.println($char2)
 
 # func.ttoc(text) # Will return the first character of the text if the text has a length of 1
-func.printTerminal(-1, func.ttoc(text))
-func.printTerminal(-1, func.ttoc(t))
-func.printTerminal(-1, func.ttoc(µ))
-func.printTerminal(-1, func.ttoc($))
-func.printTerminal(-1, func.ttoc(¤))
+func.println(func.ttoc(text))
+func.println(func.ttoc(t))
+func.println(func.ttoc(µ))
+func.println(func.ttoc($))
+func.println(func.ttoc(¤))
 
 # String functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
 $len = func.strlen(How long I'm? [€¤$])
-func.printTerminal(-1, How long I'm? [€¤$]: $len)
+func.println(How long I'm? [€¤$]: $len)
 
 # func.toUpper(Text) # Will return the upper case version of a string
 $upper = func.toUpper(I'm not in caps - I think...)
-func.printTerminal(-1, $upper)
+func.println($upper)
 
 # func.toLower(Text) # Will return the lower case version of a string
 $lower = func.toLower(I'm not in caps - I think...)
-func.printTerminal(-1, $lower)
+func.println($lower)
 
 # func.trim(Text) # Will remove leading and trailing wihtespaces of the string
 $trimed = func.trim(     Text with many withspaces!         )
-func.printTerminal(-1, $trimed)
+func.println($trimed)
 
 # func.replace(Text, Text, Text) # Will replace the in the first parameter matched (second parameter {RegEx}) sequences with the replacement (thrid paramter)
 $noWhiteSpaces = func.replace(          A    text		  with many 	withspaces!    \s, \\s, -)
-func.printTerminal(-1, $noWhiteSpaces)
+func.println($noWhiteSpaces)
 
 # func.substring(Text, int, [int]) # Will return the Text from the index (2nd parameter) to the index (3rd parameter) or to the end if no 3rd parameter is provided
 $sub1 = func.substring(Not yours!, 4)
-func.printTerminal(-1, $sub1)
+func.println($sub1)
 
 $sub2 = func.substring(This is a long text!, 15, 19)
-func.printTerminal(-1, $sub2)
+func.println($sub2)
 
 # func.charAt(Text, int) # Will return the char at the index (2nd parameter)
-func.printTerminal(-1, func.charAt(abc\, test string, 0))
-func.printTerminal(-1, func.charAt(abc\, test string, 3))
-func.printTerminal(-1, func.charAt(abc\, test string, 5))
-func.printTerminal(-1, func.charAt(abc\, test string, 42))
+func.println(func.charAt(abc\, test string, 0))
+func.println(func.charAt(abc\, test string, 3))
+func.println(func.charAt(abc\, test string, 5))
+func.println(func.charAt(abc\, test string, 42))
 
-func.printTerminal(-1, func.charAt(def\, text, 0))
-func.printTerminal(-1, func.charAt(def\, text, 3))
-func.printTerminal(-1, func.charAt(def\, text, 5))
-func.printTerminal(-1, func.charAt(def\, text, 42))
+func.println(func.charAt(def\, text, 0))
+func.println(func.charAt(def\, text, 3))
+func.println(func.charAt(def\, text, 5))
+func.println(func.charAt(def\, text, 42))
 
-func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 0))
-func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 3))
-func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 5))
-func.printTerminal(-1, func.charAt({{{xyz, nice!}}}, 42))
+func.println(func.charAt({{{xyz, nice!}}}, 0))
+func.println(func.charAt({{{xyz, nice!}}}, 3))
+func.println(func.charAt({{{xyz, nice!}}}, 5))
+func.println(func.charAt({{{xyz, nice!}}}, 42))
 
-func.printTerminal(-1, func.charAt(10042000, 0))
-func.printTerminal(-1, func.charAt(10042000, 3))
-func.printTerminal(-1, func.charAt(10042000, 10))
-func.printTerminal(-1, func.charAt(10042000, 42))
+func.println(func.charAt(10042000, 0))
+func.println(func.charAt(10042000, 3))
+func.println(func.charAt(10042000, 10))
+func.println(func.charAt(10042000, 42))
 
-func.printTerminal(-1, func.charAt(100.42000, 0))
-func.printTerminal(-1, func.charAt(100.42000, 3))
-func.printTerminal(-1, func.charAt(100.42000, 5))
-func.printTerminal(-1, func.charAt(100.42000, 42))
+func.println(func.charAt(100.42000, 0))
+func.println(func.charAt(100.42000, 3))
+func.println(func.charAt(100.42000, 5))
+func.println(func.charAt(100.42000, 42))
 
 # Math functions
 # func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
-func.printTerminal(-1, func.rand())
+func.println(func.rand())
 
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
 $incl = func.incl(-10)
 $incf = func.incf(.2)
 $incd = func.incd(-.78)
-func.printTerminal(-1, |$inci|$incl|$incf|$incd|)
+func.println(|$inci|$incl|$incf|$incd|)
 
 # func.dec[i/l/f/d](int/long/float/double) # Will substract 1
 $deci = func.deci(49)
 $decl = func.decl(-10)
 $decf = func.decf(.2)
 $decd = func.decd(-.78)
-func.printTerminal(-1, |$deci|$decl|$decf|$decd|)
+func.println(|$deci|$decl|$decf|$decd|)
 
 # func.inv[i/l/f/d](int/long/float/double) # Will return 0 - value
 $invi = func.invi(49)
 $invl = func.invl(-10)
 $invf = func.invf(.2)
 $invd = func.invd(-.78)
-func.printTerminal(-1, |$invi|$invl|$invf|$invd|)
+func.println(|$invi|$invl|$invf|$invd|)
 
 # func.add[i/l/f/d]((int/long/float/double)) # Will add 0 or more values toghter
 $addi = func.addi(49, 200, 2003)
 $addl = func.addl(-10)
 $addf = func.addf(-10, .2)
 $addd = func.addd(.4, .5, .6)
-func.printTerminal(-1, |$addi|$addl|$addf|$addd|)
+func.println(|$addi|$addl|$addf|$addd|)
 
 # func.sub[i/l/f/d](int/long/float/double, int/long/float/double) # Will substract the second argument form the first argument
 $subi = func.subi(42, 38)
 $subl = func.subl(10, -69)
 $subf = func.subf(1.42, 1)
 $subd = func.subd(1, 1.42)
-func.printTerminal(-1, |$subi|$subl|$subf|$subd|)
+func.println(|$subi|$subl|$subf|$subd|)
 
 # func.mul[i/l/f/d]((int/long/float/double)) # Will multiply 0 or more values toghter
 $mul = func.mull(10, 42)
-func.printTerminal(-1, |$mul|)
+func.println(|$mul|)
 
 # func.div[i/l/f/d](int/long/float/double, int/long/float/double) # Will divide the second argument form the first argument
 $divi = func.divi(20, 12)
 $divd = func.divd(20, 12)
 $divNull = func.divi(1, 0)
-func.printTerminal(-1, |$divi|$divd|$divNull|)
+func.println(|$divi|$divd|$divNull|)
 
 # func.mod[i/l](int/long, int/long) # Will return the modulus of the second and the first argument
 $mod = func.modi(20, 12)
 $modNull = func.modi(1, 0)
-func.printTerminal(-1, |$mod|$modNull|)
+func.println(|$mod|$modNull|)
 
 # func.pow(double, double) # Will return the power of the first and the second argument
 $pow1 = func.pow(2, 10)
@@ -242,89 +242,89 @@ $pow3 = func.pow(10, -2)
 $pow4 = func.pow(10, 0)
 $pow5 = func.pow(0, 0)
 $pow6 = func.pow(16, .5)
-func.printTerminal(-1, |$pow1|$pow2|$pow3|$pow4|$pow5|$pow6|)
+func.println(|$pow1|$pow2|$pow3|$pow4|$pow5|$pow6|)
 
 # func.sqrt(double) # Will return the square root of the argument
-func.printTerminal(-1, func.sqrt(16))
+func.println(func.sqrt(16))
 
 # func.cbrt(double) # Will return the cube root of the argument
-func.printTerminal(-1, func.cbrt(64))
+func.println(func.cbrt(64))
 
 # func.hypot(double, double) # Will return the hypotenuse of a triangle with sides a and b (= sqrt(a² + b²))
-func.printTerminal(-1, func.hypot(3, 4))
+func.println(func.hypot(3, 4))
 
 # func.toRadians(double) # Will return the to radians converted angle which was in degrees
-func.printTerminal(-1, func.toRadians(90))
+func.println(func.toRadians(90))
 
 # func.toDegrees(double) # Will return the to degrees converted angle which was in radians
-func.printTerminal(-1, func.toDegrees(func.divd($LANG_MATH_PI, 2)))
+func.println(func.toDegrees(func.divd($LANG_MATH_PI, 2)))
 
 # func.sin(double) # Will return the sine of the argument which is in radians
-func.printTerminal(-1, func.sin($LANG_MATH_PI))
+func.println(func.sin($LANG_MATH_PI))
 
 # func.cos(double) # Will return the cosine of the argument which is in radians
-func.printTerminal(-1, func.cos($LANG_MATH_PI))
+func.println(func.cos($LANG_MATH_PI))
 
 # func.tan(double) # Will return the tangent of the argument which is in radians
-func.printTerminal(-1, func.tan(func.divd($LANG_MATH_PI, 2)))
+func.println(func.tan(func.divd($LANG_MATH_PI, 2)))
 
 # func.asin(double) # Will return the arcsine in radians of the argument
-func.printTerminal(-1, func.asin(1))
+func.println(func.asin(1))
 
 # func.acos(double) # Will return the arccosine in radians of the argument
-func.printTerminal(-1, func.acos(1))
+func.println(func.acos(1))
 
 # func.atan(double) # Will return the arctangent in radians of the argument
-func.printTerminal(-1, func.atan(1))
+func.println(func.atan(1))
 
 # func.atan2(double, double) # Will return the arctangent in radians of the second argument divided by the first argument
-func.printTerminal(-1, func.atan2(2, 2))
+func.println(func.atan2(2, 2))
 
 # func.sinh(double) # Will return the hyperbolic sine of the argument which is in radians
-func.printTerminal(-1, func.sinh($LANG_MATH_PI))
+func.println(func.sinh($LANG_MATH_PI))
 
 # func.cosh(double) # Will return the hyperbolic cosine of the argument which is in radians
-func.printTerminal(-1, func.cosh($LANG_MATH_PI))
+func.println(func.cosh($LANG_MATH_PI))
 
 # func.tanh(double) # Will return the hyperbolic tangent of the argument which is in radians
-func.printTerminal(-1, func.tanh(func.divd($LANG_MATH_PI, 2)))
+func.println(func.tanh(func.divd($LANG_MATH_PI, 2)))
 
 # func.exp(double) # Will return e to the power of the argument
-func.printTerminal(-1, func.exp(1))
+func.println(func.exp(1))
 
 # func.loge(double) # Will return the logarithm base e of the argument
-func.printTerminal(-1, func.loge($LANG_MATH_E))
+func.println(func.loge($LANG_MATH_E))
 
 # func.log10(double) # Will return the logarithm base 10 of the argument
-func.printTerminal(-1, func.log10(1000))
+func.println(func.log10(1000))
 
 # func.toInt(number) # Will return an int
 $var1 = func.toInt(10.2)
 $var2 = func.toInt(10.8)
 $var3 = func.toInt(10)
 $var4 = func.toInt(-10)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+func.println(|$var1|$var2|$var3|$var4|)
 
 # func.toLong(number) # Will return a long
 $var1 = func.toLong(10.2)
 $var2 = func.toLong(10.8)
 $var3 = func.toLong(10)
 $var4 = func.toLong(-10)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+func.println(|$var1|$var2|$var3|$var4|)
 
 # func.toFloat(number) # Will return a float
 $var1 = func.toFloat(10.2)
 $var2 = func.toFloat(10.8)
 $var3 = func.toFloat(10)
 $var4 = func.toFloat(-10)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+func.println(|$var1|$var2|$var3|$var4|)
 
 # func.toDouble(number) # Will return a double
 $var1 = func.toDouble(10.2)
 $var2 = func.toDouble(10.8)
 $var3 = func.toDouble(10)
 $var4 = func.toDouble(-10)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|)
+func.println(|$var1|$var2|$var3|$var4|)
 
 # func.round(double) # Will return the rounded value of the argument
 $var1 = func.round(10.2)
@@ -333,7 +333,7 @@ $var3 = func.round(10.8)
 $var4 = func.round(-10.2)
 $var5 = func.round(-10.5)
 $var6 = func.round(-10.8)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
+func.println(|$var1|$var2|$var3|$var4|$var5|$var6|)
 
 # func.ceil(double) # Will return the ceil of the argument
 $var1 = func.ceil(10.2)
@@ -342,7 +342,7 @@ $var3 = func.ceil(10.8)
 $var4 = func.ceil(-10.2)
 $var5 = func.ceil(-10.5)
 $var6 = func.ceil(-10.8)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
+func.println(|$var1|$var2|$var3|$var4|$var5|$var6|)
 
 # func.floor(double) # Will return the floor of the argument
 $var1 = func.floor(10.2)
@@ -351,7 +351,7 @@ $var3 = func.floor(10.8)
 $var4 = func.floor(-10.2)
 $var5 = func.floor(-10.5)
 $var6 = func.floor(-10.8)
-func.printTerminal(-1, |$var1|$var2|$var3|$var4|$var5|$var6|)
+func.println(|$var1|$var2|$var3|$var4|$var5|$var6|)
 
 # Get a random text from a parameter list
 # func.randChoice(Text, (Text)) # Will return a random element
@@ -359,20 +359,20 @@ $rand1 = func.randChoice(1,42,Your Choice,42-The 2nd!)
 $rand2 = func.randChoice(1,42,Your Choice,42-The 2nd!)
 $rand3 = func.randChoice(1)
 $rand4 = func.randChoice()
-func.printTerminal(-1, |$rand1|$rand2|$rand3|$rand4|)
+func.println(|$rand1|$rand2|$rand3|$rand4|)
 
 # Execute dynamically generated code
 $var = func
-func.exec($var.printTerminal(3, test inside exec))
+func.exec($var.println(test inside exec))
 
 # Code executed by func.exec has no access to outside variables, but the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
-func.exec(func.printTerminal(5, $var)\nfunc.printTerminal(5, \$var)) # Would print "func" and than "$var"
+func.exec(func.println($var)\nfunc.println(\$var)) # Would print "func" and than "$var"
 
 # Use multiline text for escaping variables
-func.exec({{{func.printTerminal(2, $var)}}}) # Will print "$var"
+func.exec({{{func.println($var)}}}) # Will print "$var"
 
 # Returning values with exec
 $value = 42\.123
 $a = func.exec(return $value) # return: See [05_functionPointer.lang: return]
-func.printTerminal(1, $a)
+func.println($a)
 # Data types: "$value": TEXT, "$a": FLOAT
