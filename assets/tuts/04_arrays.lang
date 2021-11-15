@@ -12,49 +12,49 @@ func.arrayMake(&c, 0) # Will create an empty array
 # Get the lenght of an array
 # func.arrayLength(arrPtr)
 $len = func.arrayLength(&arr) # Will return the length of the array &arr
-func.printTerminal(-1, $len)
+func.println($len)
 
 # Get all elements of an array
 # func.arrayGetAll(arrPtr)
 $arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " as element separator
-func.printTerminal(-1, $arr)
-func.printTerminal(-1, &arr) # Will return the content of the whole array inside "[]" with ", " as element separator
+func.println($arr)
+func.println(&arr) # Will return the content of the whole array inside "[]" with ", " as element separator
 
 # Set an element of an array
 # func.arraySet(arrPtr, int, Text)
 func.arraySet(&arr, 7, THIS IS A CAPS TEST!) # Will set the element at the index 7 of the array &arr to "THIS IS A CAPS TEST!"
-func.printTerminal(-1, func.arrayGetAll(&arr))
+func.println(func.arrayGetAll(&arr))
 
 # Set all elements of an array
 # func.arraySetAll(arrPtr, Text)
 func.arraySetAll(&arr, value) # Will set all elements of the array &arr to "value"
-func.printTerminal(-1, func.arrayGetAll(&arr))
+func.println(func.arrayGetAll(&arr))
 
 # func.arraySetAll(arrPtr, Text[len]) //len = length of arrPtr
 func.arraySetAll(&arr, value1, 2, 3, test, 6, 5, 10, 42, test, 10th Element) # Will set all elements of the array &arr
-func.printTerminal(-1, func.arrayGetAll(&arr))
+func.println(func.arrayGetAll(&arr))
 
 # Get a element of an array
 # func.arrayGet(arrPtr, int)
 $ele = func.arrayGet(&arr, 7) # Will return the element at the index 7 from the array &arr
-func.printTerminal(-1, $ele)
+func.println($ele)
 
 # Get a random element of an array
 # func.randChoice(arrPtr)
 $ele = func.randChoice(&arr) # Will return a random element of the array &arr
-func.printTerminal(-1, $ele)
+func.println($ele)
 
 # Copy an array
 &arr2 = &arr # Will copy the array pointer (The content will not be copied [Same references])
-func.printTerminal(-1, func.arrayGetAll(&arr2))
+func.println(func.arrayGetAll(&arr2))
 # Copy an array to a normal variable
 $arr = &arr # Will copy the array pointer to $arr
-func.printTerminal(-1, func.arrayGetAll($arr))
+func.println(func.arrayGetAll($arr))
 
 # &LANG arrays can't be copied
 &langArray = &LANG_ARGS
 func.printError() # Will print "&LANG arrays can't be copied"
-func.printTerminal(-1, &langArray) # "&langArray" won't be defined
+func.println(&langArray) # "&langArray" won't be defined
 
 # Combining arrays
 &a1 = func.arrayMake(2)
@@ -62,21 +62,21 @@ func.arraySetAll(&a1, 1, 2)
 &a2 = func.arrayMake(3)
 func.arraySetAll(&a2, test, -1, .42)
 &aR1 = func.arrayCombine(&a1, &a2)
-func.printTerminal(-1, func.arrayGetAll(&aR1))
+func.println(func.arrayGetAll(&aR1))
 &aR2 = func.arrayCombine(&a1, &a2, &a1) # The same array can be combined multible times
-func.printTerminal(-1, func.arrayGetAll(&aR2))
+func.println(func.arrayGetAll(&aR2))
 &aR3 = func.arrayCombine() # Will return an empty array
-func.printTerminal(-1, func.arrayGetAll(&aR3))
+func.println(func.arrayGetAll(&aR3))
 
 # Set all elements to null
 # func.arrayDelete(arrPtr)
 func.arrayDelete(&arr)
-func.printTerminal(-1, func.arrayGetAll(&arr))
+func.println(func.arrayGetAll(&arr))
 
 # Remove an array
 # func.arrayClear(arrPtr)
 func.arrayClear(&arr)
-func.printTerminal(-1, func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore
+func.println(func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore
 
 # Split a Text
 #func.split(arrPtr, Text, Text, [int]) # Creates & Returns arrPtr and splits
@@ -84,22 +84,22 @@ func.printTerminal(-1, func.arrayGetAll(&arr)) # Will result in an error, becaus
 #                                        argument [RegEx] (Optional:
 #                                        It will split maximal n times)
 func.split(&splited, Test;42;1243;fdsds;xyz;f, ;)
-func.printTerminal(-1, func.arrayGetAll(&splited))
+func.println(func.arrayGetAll(&splited))
 
 func.split(&splited, Test;42;1243;fdsds;xyz;f, ;, 3)
-func.printTerminal(-1, func.arrayGetAll(&splited))
+func.println(func.arrayGetAll(&splited))
 
 #func.split(null", Text, Text, [int]) # Returns arrPtr and splits
 #                                        the 2nd argument at the 3rd
 #                                        argument [RegEx] (Optional:
 #                                        It will split maximal n times)
 &split = func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
-func.printTerminal(-1, &split (Len: func.arrayLength(&split)))
-func.printTerminal(-1, func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s))
+func.println(&split (Len: func.arrayLength(&split)))
+func.println(func.split(null, Test\, test\, abc\, def\, 42\, null\, .5, \,\s))
 
 # $split will be overriden because no literal null or anonymous null value was provided
 $split = null
-func.printTerminal(-1, $split)
+func.println($split)
 $split2 = func.split($split, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
-func.printTerminal(-1, $split (Len: func.arrayLength($split)))
-func.printTerminal(-1, $split2 (Len: func.arrayLength($split2)))
+func.println($split (Len: func.arrayLength($split)))
+func.println($split2 (Len: func.arrayLength($split2)))
