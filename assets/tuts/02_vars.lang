@@ -5,11 +5,11 @@ lang.version = v1.0.0
 $var = Text
 $null # null value var
 
-func.printTerminal(-1, $var)  # Will print "Text"
-func.printTerminal(-1, \$var2) # Will print "$var2"
-func.printTerminal(-1, $null) # Will print "null"
+func.println($var)  # Will print "Text"
+func.println(\$var2) # Will print "$var2"
+func.println($null) # Will print "null"
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Var types:
 # Null
@@ -32,18 +32,18 @@ $var8 = 42e-2
 $var9 = 42E3
 $var10 = 42E-3
 
-func.printTerminal(-1, $var1)
-func.printTerminal(-1, $var2)
-func.printTerminal(-1, $var3)
-func.printTerminal(-1, $var4)
-func.printTerminal(-1, $var5)
-func.printTerminal(-1, $var6)
-func.printTerminal(-1, $var7)
-func.printTerminal(-1, $var8)
-func.printTerminal(-1, $var9)
-func.printTerminal(-1, $var10)
+func.println($var1)
+func.println($var2)
+func.println($var3)
+func.println($var4)
+func.println($var5)
+func.println($var6)
+func.println($var7)
+func.println($var8)
+func.println($var9)
+func.println($var10)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Multiline text
 
@@ -52,141 +52,141 @@ $mutlilineText = {{{first line
 3rd: \n not escaped
 4th: # also no comment}}} # Everything between "{{{" and "}}}", no escape chars nor comments
 
-func.printTerminal(-1, $mutlilineText)
+func.println($mutlilineText)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Override values
 $var5 = New value
 
-func.printTerminal(-1, $var5)
+func.println($var5)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Copy values
 $var11 = $var5
 
-func.printTerminal(-1, $var11)
+func.println($var11)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Multi assignment
 $c = A Var
 $a = $b = $c
-func.printTerminal(-1, \$a: $a)
-func.printTerminal(-1, \$b: $b)
-func.printTerminal(-1, \$c: $c)
+func.println(\$a: $a)
+func.println(\$b: $b)
+func.println(\$c: $c)
 
 # A lang translation must come first
 lang.translation = $b = $c # Would be possible
 $a = lang.translation.2 = $c # Wouldn't be possible (Result: $a -> "lang.translation.2 = $c" ("$c": Value of $c))
-func.printTerminal(-1, \$a: $a)
-func.printTerminal(-1, \$b: $b)
-func.printTerminal(-1, \$c: $c)
+func.println(\$a: $a)
+func.println(\$b: $b)
+func.println(\$c: $c)
 
 # An empty assignment is not supported
 $a = $b = # Won't work (Result: $a -> "$b =" ("$b": Value of $b))
-func.printTerminal(-1, \$a: $a)
-func.printTerminal(-1, \$b: $b)
-func.printTerminal(-1, \$c: $c)
+func.println(\$a: $a)
+func.println(\$b: $b)
+func.println(\$c: $c)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Concatination [vars]
 $a = Text\s
 $b = & Test
 
 $c = $a$b
-func.printTerminal(-1, $c)
+func.println($c)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Concatenation [vars & non vars]
 $a = ABC-a
-func.printTerminal(-1, $abc) # Will append "bc" after $a
+func.println($abc) # Will append "bc" after $a
 
 $abc = VALUE
-func.printTerminal(-1, $abc) # Appends nothing to $a, because $abc already exists
+func.println($abc) # Appends nothing to $a, because $abc already exists
 
 $abc = $a
 $abc = $abcbc # Will append "bc" after $abc which is a copy of $a
-func.printTerminal(-1, $abc)
+func.println($abc)
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # Referencing and dereferencing of variables
 $variable = test
-func.printTerminal(-1, $variable)
-func.printTerminal(-1, $[variable]) # Referencing $variable (Pointer to $variable)
+func.println($variable)
+func.println($[variable]) # Referencing $variable (Pointer to $variable)
 
 $ptr = $[variable]
-func.printTerminal(-1, $*ptr) # Dereferencing $ptr (Get value $ptr is pointing to)
+func.println($*ptr) # Dereferencing $ptr (Get value $ptr is pointing to)
 
 $*ptr = 42 # Set the value the pointer is pointing to
-func.printTerminal(-1, $variable)
+func.println($variable)
 
 $pointer = $ptr # Copy a pointer
-func.printTerminal(-1, $*pointer)
+func.println($*pointer)
 
 $*pointer # Set value the pointer is pointing to to null
-func.printTerminal(-1, $variable)
+func.println($variable)
 
 $variable = 42 # Pointers to variable will work after value change
-func.printTerminal(-1, $variable)
+func.println($variable)
 $*pointer = 42 - new
-func.printTerminal(-1, $variable)
+func.println($variable)
 
-func.printTerminal(-1, $*[variable]) # Combined referecing and dereferencing
+func.println($*[variable]) # Combined referecing and dereferencing
 
 $ptr2 = $[ptr] # Pointer to pointer
-func.printTerminal(-1, $**ptr2) # Dereferencing twice
+func.println($**ptr2) # Dereferencing twice
 
 $ptr3 = $[[varibale]] # Also pointer to pointer
-func.printTerminal(-1, $**ptr2) # Dereferencing twice
+func.println($**ptr2) # Dereferencing twice
 
-func.printTerminal(-1, $**[[variable]]) # Combined referecing and dereferencing
+func.println($**[[variable]]) # Combined referecing and dereferencing
 
 $**ptr2 = new value
-func.printTerminal(-1, $variable)
+func.println($variable)
 
-func.printTerminal(-1, $*variable) # Dereferencing a non poitner will return null
+func.println($*variable) # Dereferencing a non poitner will return null
 
-func.printTerminal(-1, $*variableName) # Dereferencing a not defined variable will be parsed as text
+func.println($*variableName) # Dereferencing a not defined variable will be parsed as text
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 # $LANG vars
-func.printTerminal(-1, \$LANG vars)
-func.printTerminal(-1, • "$LANG_COMPILER_VERSION") # Will print the compiler version
-func.printTerminal(-1, • "$LANG_PATH") # Will print the path to the lang file
-func.printTerminal(-1, • "$LANG_RAND_MAX") # Will print the maximal value for func.rand
-func.printTerminal(-1, • "$LANG_OS_NAME") # Will print the name of the operating system
-func.printTerminal(-1, • "$LANG_OS_VER") # Will print the version of the operating system
-func.printTerminal(-1, • "$LANG_OS_ARCH") # Will print the architecture of the operating system
-func.printTerminal(-1, • "$LANG_OS_FILE_SEPARATOR") # Will print the file separator of the operating system
-func.printTerminal(-1, • "$LANG_OS_LINE_SEPARATOR") # Will print the line separator (new line) of the operating system
-func.printTerminal(-1, • "$LANG_FLOAT_NAN") # Will print the NaN float value
-func.printTerminal(-1, • "$LANG_FLOAT_POS_INF") # Will print the positive infinity float value
-func.printTerminal(-1, • "$LANG_FLOAT_NEG_INF") # Will print the negative infinity float value
-func.printTerminal(-1, • "$LANG_DOUBLE_NAN") # Will print the NaN double value
-func.printTerminal(-1, • "$LANG_DOUBLE_POS_INF") # Will print the positive infinity double value
-func.printTerminal(-1, • "$LANG_DOUBLE_NEG_INF") # Will print the negative infinity double value
-func.printTerminal(-1, • "$LANG_MATH_PI") # Will print the closest double value to π
-func.printTerminal(-1, • "$LANG_MATH_E") # Will print the closest double value to e
-func.printTerminal(-1, • "&LANG_ARGS") # Will print the command line arguments (Array of TEXT elements, See: 04_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
-func.printTerminal(-1, • "$LANG_ERRNO") # Will print the errno value or 0 if no error
+func.println(\$LANG vars)
+func.println(• "$LANG_COMPILER_VERSION") # Will print the compiler version
+func.println(• "$LANG_PATH") # Will print the path to the lang file
+func.println(• "$LANG_RAND_MAX") # Will print the maximal value for func.rand
+func.println(• "$LANG_OS_NAME") # Will print the name of the operating system
+func.println(• "$LANG_OS_VER") # Will print the version of the operating system
+func.println(• "$LANG_OS_ARCH") # Will print the architecture of the operating system
+func.println(• "$LANG_OS_FILE_SEPARATOR") # Will print the file separator of the operating system
+func.println(• "$LANG_OS_LINE_SEPARATOR") # Will print the line separator (new line) of the operating system
+func.println(• "$LANG_FLOAT_NAN") # Will print the NaN float value
+func.println(• "$LANG_FLOAT_POS_INF") # Will print the positive infinity float value
+func.println(• "$LANG_FLOAT_NEG_INF") # Will print the negative infinity float value
+func.println(• "$LANG_DOUBLE_NAN") # Will print the NaN double value
+func.println(• "$LANG_DOUBLE_POS_INF") # Will print the positive infinity double value
+func.println(• "$LANG_DOUBLE_NEG_INF") # Will print the negative infinity double value
+func.println(• "$LANG_MATH_PI") # Will print the closest double value to π
+func.println(• "$LANG_MATH_E") # Will print the closest double value to e
+func.println(• "&LANG_ARGS") # Will print the command line arguments (Array of TEXT elements, See: 04_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
+func.println(• "$LANG_ERRNO") # Will print the errno value or 0 if no error
 
 #$LANG_ERRNO_<errorName> # Error code of the error "errorName"
-func.printTerminal(-1, • "$LANG_ERRNO_DIV_BY_ZERO") # Will print the error code of the error "DIV_BY_ZERO" (Used to check the exact error in "$LANG_ERRNO")
+func.println(• "$LANG_ERRNO_DIV_BY_ZERO") # Will print the error code of the error "DIV_BY_ZERO" (Used to check the exact error in "$LANG_ERRNO")
 #$LANG_ERROR_<errorName> # Error object of the error "errorName"
-func.printTerminal(-1, • "$LANG_ERROR_DIV_BY_ZERO") # Will print the error object of the error "DIV_BY_ZERO" (Used to check the exact error for error returned from functions [See: 03_functions.lang])
+func.println(• "$LANG_ERROR_DIV_BY_ZERO") # Will print the error object of the error "DIV_BY_ZERO" (Used to check the exact error for error returned from functions [See: 03_functions.lang])
 
-func.printTerminal(-1, -----------------)
+func.println(-----------------)
 
 $LANG_COMPILER_VERSION = TEST # $LANG vars can't be changed by the lang file
-func.printTerminal(-1, $LANG_COMPILER_VERSION)
+func.println($LANG_COMPILER_VERSION)
 
 $LANG_TEST = TEST # $LANG vars can't be created either
-func.printTerminal(-1, $LANG_TEST)
+func.println($LANG_TEST)
 
-func.printTerminal(-1, $LANG_ERRNO) # $LANG vars can be changed by the interpreter
+func.println($LANG_ERRNO) # $LANG vars can be changed by the interpreter
