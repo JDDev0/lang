@@ -7,5 +7,5 @@ lang.name = Hello World
 lang.version = v1.0.0
 
 # Code
-# func.printTerminal(loglevel, text)
-func.printTerminal(-1, Hello World!)
+# func.println(text)
+func.println(Hello World!)
