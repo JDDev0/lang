@@ -18,7 +18,7 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
 ### Breaking changes
 
 - **v1.0.0**:
-  - Arrays variable names starting with "&LANG_" are no longer allowed
+  - Array variable names starting with "&LANG_" are no longer allowed
   - Var/Array pointer names
   - Many deprecated methods and classes in the Lang class won't work as expected
   - Array names written in a text would now print the array's content instead of the variable name (Variable name of an array can be gotten by "\\&array" \[Escaping of "&"\])
