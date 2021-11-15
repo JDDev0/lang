@@ -12,9 +12,9 @@ ui.exit = Exit
 \$test2 = TEST2
 
 # Get a translation value: func.getTranslationValue(translationKey)
-func.printTerminal(-1, func.getTranslationValue(ui.ok))
-func.printTerminal(-1, func.getTranslationValue(\$test)) #"\$": Escaped "$"
-func.printTerminal(-1, func.getTranslationValue(\$test2))
+func.println(func.getTranslationValue(ui.ok))
+func.println(func.getTranslationValue(\$test)) # "\$": Escaped "$"
+func.println(func.getTranslationValue(\$test2))
 
 ui.test = func.getTranslationValue($test)
 
