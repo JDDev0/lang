@@ -688,6 +688,13 @@ public class LangShellWindow extends JDialog {
 	}
 	private boolean containsMultilineText(String line) {
 		while(line.contains("{{{")) {
+			//Ignore escaped multiline text start sequences
+			int startIndex = line.indexOf("{{{");
+			if(startIndex > 0 && !LangUtils.isBackshlashAtIndexEscaped(line, startIndex - 1)) {
+				line = line.substring(startIndex + 3);
+				continue;
+			}
+			
 			int index = line.indexOf("}}}");
 			if(index == -1)
 				return true;
