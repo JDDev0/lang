@@ -12,52 +12,60 @@ lang.version = v1.0.0
 # con.endif # End of if statement
 $var = 42
 con.if($var)
-	func.printTerminal(-1, $var => True)
+	func.println($var => True)
 con.else
-	func.printTerminal(-1, $var => False)
+	func.println($var => False)
 con.endif
+
+func.println(-----------------)
 
 $var = 0
 con.if($var)
-	func.printTerminal(-1, $var => True)
+	func.println($var => True)
 con.else
-	func.printTerminal(-1, $var => False)
+	func.println($var => False)
 con.endif
+
+func.println(-----------------)
 
 $var = -1
 con.if($var)
-	func.printTerminal(-1, $var => True)
+	func.println($var => True)
 con.else
-	func.printTerminal(-1, $var => False)
+	func.println($var => False)
 con.endif
 
+func.println(-----------------)
+
 fp.testElif = ($varA, $varB, $varC) -> {
-	func.printTerminal(0, Testing: $varA, $varB, $varC)
-	func.printTerminal(-1, 1st)
+	func.println(Testing: $varA, $varB, $varC)
+	func.println(1st)
 	con.if($varA)
-		func.printTerminal(1, \$varA => True)
+		func.println(\$varA => True)
 	con.endif
 	con.if($varB)
-		func.printTerminal(1, \$varB => True)
+		func.println(\$varB => True)
 	con.endif
 	con.if($varC)
-		func.printTerminal(1, \$varC => True)
+		func.println(\$varC => True)
 	con.else
-		func.printTerminal(1, No var is True)
+		func.println(No var is True)
 	con.endif
 	
-	func.printTerminal(-1, 2nd)
+	func.println(-----------------)
+	
+	func.println(2nd)
 	con.if($varA)
-		func.printTerminal(2, \$varA => True)
+		func.println(\$varA => True)
 	con.elif($varB)
-		func.printTerminal(2, \$varB => True)
+		func.println(\$varB => True)
 	con.elif($varC)
-		func.printTerminal(2, \$varC => True)
+		func.println(\$varC => True)
 	con.else
-		func.printTerminal(2, No var is True)
+		func.println(No var is True)
 	con.endif
 	
-	func.printTerminal(-1, End)
+	func.println(-----------------)
 }
 fp.testElif(0, 0, 0)
 fp.testElif(0, 0, 1)
@@ -67,6 +75,8 @@ fp.testElif(1, 0, 0)
 fp.testElif(1, 0, 1)
 fp.testElif(1, 1, 0)
 fp.testElif(1, 1, 1)
+
+func.println(-----------------)
 
 # If statetment inside if statement
 # con.if("condition")
@@ -83,44 +93,52 @@ $var1 = 42
 $var2 = 0
 con.if($var1)
 	con.if($var2)
-		func.printTerminal(-1, \$var1 and \$var2)
+		func.println(\$var1 and \$var2)
 	con.else
-		func.printTerminal(-1, \$var1 only)
+		func.println(\$var1 only)
 	con.endif
 con.else
-	func.printTerminal(-1, not \$var1)
+	func.println(not \$var1)
 con.endif
+
+func.println(-----------------)
 
 $var1 = 42
 $var2 = 12
 con.if($var1)
 	con.if($var2)
-		func.printTerminal(-1, \$var1 and \$var2)
+		func.println(\$var1 and \$var2)
 	con.else
-		func.printTerminal(-1, \$var1 only)
+		func.println(\$var1 only)
 	con.endif
 con.else
-	func.printTerminal(-1, not \$var1)
+	func.println(not \$var1)
 con.endif
+
+func.println(-----------------)
 
 $var1 = 0
 $var2 = 12
 con.if($var1)
 	con.if($var2)
-		func.printTerminal(-1, \$var1 and \$var2)
+		func.println(\$var1 and \$var2)
 	con.else
-		func.printTerminal(-1, \$var1 only)
+		func.println(\$var1 only)
 	con.endif
 con.else
-	func.printTerminal(-1, not \$var1)
+	func.println(not \$var1)
 con.endif
+
+func.println(-----------------)
 
 # Condition function
 # con.condition("condition") # Will return 1 if true else 0
-func.printTerminal(-1, con.condition(0))
-func.printTerminal(-1, con.condition(-1))
-func.printTerminal(-1, con.condition(42))
-func.printTerminal(-1, con.condition(1))
+func.println(con.condition(0))
+func.println(con.condition(-1))
+func.println(con.condition(42))
+func.println(con.condition(1))
+
+func.println(-----------------)
 
 # Operators
 #     For all types:
@@ -137,78 +155,111 @@ func.printTerminal(-1, con.condition(1))
 #         "&&": And
 #         "||": Or
 #         "()": Execute as an unit
-func.printTerminal(2, a compared to a)
-func.printTerminal(3, con.condition(a == a))
-func.printTerminal(3, con.condition(a != a))
-func.printTerminal(2, a compared to d)
-func.printTerminal(3, con.condition(a == d))
-func.printTerminal(3, con.condition(a != d))
+func.println(a compared to a)
+func.println(con.condition(a == a))
+func.println(con.condition(a != a))
 
-func.printTerminal(2, abc compared to abc)
-func.printTerminal(3, con.condition(abc == abc))
-func.printTerminal(3, con.condition(abc != abc))
-func.printTerminal(2, abc compared to def)
-func.printTerminal(3, con.condition(abc == def))
-func.printTerminal(3, con.condition(abc != def))
+func.println(-----------------)
 
-func.printTerminal(3, equals vs strict equals (Strict equals will checks if the data types are equals and the value are equals))
-func.printTerminal(3, con.condition(1 == 1.))
-func.printTerminal(3, con.condition(1 != 1.))
-func.printTerminal(3, con.condition(1 === 1.))
-func.printTerminal(3, con.condition(1 !== 1.))
+func.println(a compared to d)
+func.println(con.condition(a == d))
+func.println(con.condition(a != d))
 
-func.printTerminal(2, 0 compared to 5)
-func.printTerminal(3, con.condition(0 == 5))
-func.printTerminal(3, con.condition(0 != 5))
-func.printTerminal(3, con.condition(0 < 5))
-func.printTerminal(3, con.condition(0 > 5))
-func.printTerminal(3, con.condition(0 <= 5))
-func.printTerminal(3, con.condition(0 >= 5))
-func.printTerminal(2, 5 compared to 5)
-func.printTerminal(3, con.condition(5 == 5))
-func.printTerminal(3, con.condition(5 != 5))
-func.printTerminal(3, con.condition(5 < 5))
-func.printTerminal(3, con.condition(5 > 5))
-func.printTerminal(3, con.condition(5 <= 5))
-func.printTerminal(3, con.condition(5 >= 5))
+func.println(-----------------)
 
-func.printTerminal(-1, 5 == 5 == 5:    con.condition(5 == 5 == 5))
-func.printTerminal(-1, 5 == 5 == 1:    con.condition(5 == 5 == 1))
-func.printTerminal(-1, 1 == 5 == 5:    con.condition(1 == 5 == 5))
-func.printTerminal(-1, (5 == 5) == 5:  con.condition((5 == 5) == 5))
-func.printTerminal(-1, (5 == 5) == 1:  con.condition((5 == 5) == 1))
-func.printTerminal(-1, 5 == (5 == 5):  con.condition(5 == (5 == 5)))
-func.printTerminal(-1, 5 == (5 == 1):  con.condition(5 == (5 == 1)))
-func.printTerminal(-1, 5 == (5 == 5):  con.condition(5 == (5 == 5)))
-func.printTerminal(-1, 1 == (5 == 5):  con.condition(1 == (5 == 5)))
+func.println(abc compared to abc)
+func.println(con.condition(abc == abc))
+func.println(con.condition(abc != abc))
 
-func.printTerminal(4, con.condition(1 || (1 && 0))) #1
-func.printTerminal(4, con.condition(1 || 1 && 0)) #1
-func.printTerminal(4, con.condition((1 || 1) && 0)) #0
+func.println(-----------------)
 
-func.printTerminal(4, con.condition(1 && (0 || 1))) #1
-func.printTerminal(4, con.condition(1 && 0 || 1)) #1
-func.printTerminal(4, con.condition((1 && 0) || 1)) #1
+func.println(abc compared to def)
+func.println(con.condition(abc == def))
+func.println(con.condition(abc != def))
 
-func.printTerminal(4, con.condition(0 && (1 || 0))) #0
-func.printTerminal(4, con.condition(0 && 1 || 0)) #0
-func.printTerminal(4, con.condition((0 && 1) || 0)) #0
+func.println(-----------------)
 
-func.printTerminal(4, con.condition(0 && (0 || 1))) #0
-func.printTerminal(4, con.condition(0 && 0 || 1)) #0
-func.printTerminal(4, con.condition((0 && 0) || 1)) #1
+func.println(equals vs strict equals (Strict equals will checks if the data types are equals and the value are equals))
+func.println(con.condition(1 == 1.))
+func.println(con.condition(1 != 1.))
+func.println(con.condition(1 === 1.))
+func.println(con.condition(1 !== 1.))
 
-func.printTerminal(4, con.condition(!(0 && (0 || 1)))) #1
-func.printTerminal(4, con.condition(!(0 && 0 || 1))) #1
-func.printTerminal(4, con.condition(!((0 && 0) || 1))) #0
+func.println(-----------------)
 
-func.printTerminal(4, con.condition(!0 && (0 || 1))) #1
-func.printTerminal(4, con.condition(!0 && 0 || 1)) #1
-func.printTerminal(4, con.condition(!(0 && 0) || 1)) #0
+func.println(0 compared to 5)
+func.println(con.condition(0 == 5))
+func.println(con.condition(0 != 5))
+func.println(con.condition(0 < 5))
+func.println(con.condition(0 > 5))
+func.println(con.condition(0 <= 5))
+func.println(con.condition(0 >= 5))
 
-func.printTerminal(4, con.condition((!0) && (0 || 1))) #1
-func.printTerminal(4, con.condition((!0 && 0) || 1)) #1
-func.printTerminal(4, con.condition((!(0 && 0)) || 1)) #1
+func.println(-----------------)
+
+func.println(5 compared to 5)
+func.println(con.condition(5 == 5))
+func.println(con.condition(5 != 5))
+func.println(con.condition(5 < 5))
+func.println(con.condition(5 > 5))
+func.println(con.condition(5 <= 5))
+func.println(con.condition(5 >= 5))
+
+func.println(-----------------)
+
+func.println(5 == 5 == 5:    con.condition(5 == 5 == 5))
+func.println(5 == 5 == 1:    con.condition(5 == 5 == 1))
+func.println(1 == 5 == 5:    con.condition(1 == 5 == 5))
+func.println((5 == 5) == 5:  con.condition((5 == 5) == 5))
+func.println((5 == 5) == 1:  con.condition((5 == 5) == 1))
+func.println(5 == (5 == 5):  con.condition(5 == (5 == 5)))
+func.println(5 == (5 == 1):  con.condition(5 == (5 == 1)))
+func.println(5 == (5 == 5):  con.condition(5 == (5 == 5)))
+func.println(1 == (5 == 5):  con.condition(1 == (5 == 5)))
+
+func.println(-----------------)
+
+func.println(con.condition(1 || (1 && 0))) #1
+func.println(con.condition(1 || 1 && 0)) #1
+func.println(con.condition((1 || 1) && 0)) #0
+
+func.println(-----------------)
+
+func.println(con.condition(1 && (0 || 1))) #1
+func.println(con.condition(1 && 0 || 1)) #1
+func.println(con.condition((1 && 0) || 1)) #1
+
+func.println(-----------------)
+
+func.println(con.condition(0 && (1 || 0))) #0
+func.println(con.condition(0 && 1 || 0)) #0
+func.println(con.condition((0 && 1) || 0)) #0
+
+func.println(-----------------)
+
+func.println(con.condition(0 && (0 || 1))) #0
+func.println(con.condition(0 && 0 || 1)) #0
+func.println(con.condition((0 && 0) || 1)) #1
+
+func.println(-----------------)
+
+func.println(con.condition(!(0 && (0 || 1)))) #1
+func.println(con.condition(!(0 && 0 || 1))) #1
+func.println(con.condition(!((0 && 0) || 1))) #0
+
+func.println(-----------------)
+
+func.println(con.condition(!0 && (0 || 1))) #1
+func.println(con.condition(!0 && 0 || 1)) #1
+func.println(con.condition(!(0 && 0) || 1)) #0
+
+func.println(-----------------)
+
+func.println(con.condition((!0) && (0 || 1))) #1
+func.println(con.condition((!0 && 0) || 1)) #1
+func.println(con.condition((!(0 && 0)) || 1)) #1
+
+func.println(-----------------)
 
 # Check for null values
 $var = Not null
@@ -216,79 +267,99 @@ $var2 = null
 $var3 = nul\!l
 $var4
 
-func.printTerminal(2, $var  -> con.condition($var === null)) #0
-func.printTerminal(2, $var2 -> con.condition($var2 === null)) #1
-func.printTerminal(2, $var3 -> con.condition($var3 === null)) #0
-func.printTerminal(2, $var4 -> con.condition($var4 === null)) #1
+func.println($var  -> con.condition($var === null)) #0
+func.println($var2 -> con.condition($var2 === null)) #1
+func.println($var3 -> con.condition($var3 === null)) #0
+func.println($var4 -> con.condition($var4 === null)) #1
+
+func.println(-----------------)
 
 # Advanced conditions
 {
 	# Check the length of an array
 	&arr = func.arrayMake(3)
 	
-	func.printTerminal(3, Check with normal equals)
-	func.printTerminal(3, con.condition(&arr == 3))
-	func.printTerminal(3, con.condition(3 == &arr))
-	func.printTerminal(3, con.condition(&arr == 2))
-	func.printTerminal(3, con.condition(2 == &arr))
+	func.println(Check with normal equals)
+	func.println(con.condition(&arr == 3))
+	func.println(con.condition(3 == &arr))
+	func.println(con.condition(&arr == 2))
+	func.println(con.condition(2 == &arr))
 	
-	func.printTerminal(3, Check with strict equals)
-	func.printTerminal(3, con.condition(&arr === 3))
-	func.printTerminal(3, con.condition(3 === &arr))
-	func.printTerminal(3, con.condition(&arr === 2))
-	func.printTerminal(3, con.condition(2 === &arr))
+	func.println(-----------------)
+	
+	func.println(Check with strict equals)
+	func.println(con.condition(&arr === 3))
+	func.println(con.condition(3 === &arr))
+	func.println(con.condition(&arr === 2))
+	func.println(con.condition(2 === &arr))
+	
+	func.println(-----------------)
 	
 	# Check the exact error of $LANG_ERRNO
 	func.divd(1, 0) # Set error to "div by zero"
 	
-	func.printTerminal(2, Check with normal equals with \$LANG_ERRNO_...)
-	func.printTerminal(2, con.condition($LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO))
-	func.printTerminal(2, con.condition($LANG_ERRNO_DIV_BY_ZERO == $LANG_ERRNO))
-	func.printTerminal(2, con.condition($LANG_ERRNO == $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.printTerminal(2, con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $LANG_ERRNO))
+	func.println(Check with normal equals with \$LANG_ERRNO_...)
+	func.println(con.condition($LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO == $LANG_ERRNO))
+	func.println(con.condition($LANG_ERRNO == $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $LANG_ERRNO))
 	
-	func.printTerminal(2, Check with normal equals with \$LANG_ERROR_...)
-	func.printTerminal(2, con.condition($LANG_ERRNO == $LANG_ERROR_DIV_BY_ZERO))
-	func.printTerminal(2, con.condition($LANG_ERROR_DIV_BY_ZERO == $LANG_ERRNO))
-	func.printTerminal(2, con.condition($LANG_ERRNO == $LANG_ERROR_INVALID_ARGUMENTS))
-	func.printTerminal(2, con.condition($LANG_ERROR_INVALID_ARGUMENTS == $LANG_ERRNO))
+	func.println(-----------------)
 	
-	func.printTerminal(2, Check with strict equals with \$LANG_ERRNO_...)
-	func.printTerminal(2, con.condition($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO))
-	func.printTerminal(2, con.condition($LANG_ERRNO_DIV_BY_ZERO === $LANG_ERRNO))
-	func.printTerminal(2, con.condition($LANG_ERRNO === $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.printTerminal(2, con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $LANG_ERRNO))
+	func.println(Check with normal equals with \$LANG_ERROR_...)
+	func.println(con.condition($LANG_ERRNO == $LANG_ERROR_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO == $LANG_ERRNO))
+	func.println(con.condition($LANG_ERRNO == $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS == $LANG_ERRNO))
 	
-	func.printTerminal(2, Check with strict equals with \$LANG_ERROR_...)
-	func.printTerminal(2, con.condition($LANG_ERRNO === $LANG_ERROR_DIV_BY_ZERO))
-	func.printTerminal(2, con.condition($LANG_ERROR_DIV_BY_ZERO === $LANG_ERRNO))
-	func.printTerminal(2, con.condition($LANG_ERRNO === $LANG_ERROR_INVALID_ARGUMENTS))
-	func.printTerminal(2, con.condition($LANG_ERROR_INVALID_ARGUMENTS === $LANG_ERRNO))
+	func.println(-----------------)
+	
+	func.println(Check with strict equals with \$LANG_ERRNO_...)
+	func.println(con.condition($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO === $LANG_ERRNO))
+	func.println(con.condition($LANG_ERRNO === $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $LANG_ERRNO))
+	
+	func.println(-----------------)
+	
+	func.println(Check with strict equals with \$LANG_ERROR_...)
+	func.println(con.condition($LANG_ERRNO === $LANG_ERROR_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO === $LANG_ERRNO))
+	func.println(con.condition($LANG_ERRNO === $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS === $LANG_ERRNO))
+	
+	func.println(-----------------)
 	
 	# Check the exact error of a returned error object
 	$err = func.divd(1, 0) # Will return "div by zero" error object
 	
-	func.printTerminal(4, Check with normal equals with \$LANG_ERRNO_...)
-	func.printTerminal(4, con.condition($err == $LANG_ERRNO_DIV_BY_ZERO))
-	func.printTerminal(4, con.condition($LANG_ERRNO_DIV_BY_ZERO == $err))
-	func.printTerminal(4, con.condition($err == $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.printTerminal(4, con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $err))
+	func.println(Check with normal equals with \$LANG_ERRNO_...)
+	func.println(con.condition($err == $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO == $err))
+	func.println(con.condition($err == $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $err))
 	
-	func.printTerminal(4, Check with normal equals with \$LANG_ERROR_...)
-	func.printTerminal(4, con.condition($err == $LANG_ERROR_DIV_BY_ZERO))
-	func.printTerminal(4, con.condition($LANG_ERROR_DIV_BY_ZERO == $err))
-	func.printTerminal(4, con.condition($err == $LANG_ERROR_INVALID_ARGUMENTS))
-	func.printTerminal(4, con.condition($LANG_ERROR_INVALID_ARGUMENTS == $err))
+	func.println(-----------------)
 	
-	func.printTerminal(4, Check with strict equals with \$LANG_ERRNO_...)
-	func.printTerminal(4, con.condition($err === $LANG_ERRNO_DIV_BY_ZERO))
-	func.printTerminal(4, con.condition($LANG_ERRNO_DIV_BY_ZERO === $err))
-	func.printTerminal(4, con.condition($err === $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.printTerminal(4, con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $err))
+	func.println(Check with normal equals with \$LANG_ERROR_...)
+	func.println(con.condition($err == $LANG_ERROR_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO == $err))
+	func.println(con.condition($err == $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS == $err))
 	
-	func.printTerminal(4, Check with strict equals with \$LANG_ERROR_...)
-	func.printTerminal(4, con.condition($err === $LANG_ERROR_DIV_BY_ZERO))
-	func.printTerminal(4, con.condition($LANG_ERROR_DIV_BY_ZERO === $err))
-	func.printTerminal(4, con.condition($err === $LANG_ERROR_INVALID_ARGUMENTS))
-	func.printTerminal(4, con.condition($LANG_ERROR_INVALID_ARGUMENTS === $err))
+	func.println(-----------------)
+	
+	func.println(Check with strict equals with \$LANG_ERRNO_...)
+	func.println(con.condition($err === $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO === $err))
+	func.println(con.condition($err === $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $err))
+	
+	func.println(-----------------)
+	
+	func.println(Check with strict equals with \$LANG_ERROR_...)
+	func.println(con.condition($err === $LANG_ERROR_DIV_BY_ZERO))
+	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO === $err))
+	func.println(con.condition($err === $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS === $err))
 }
