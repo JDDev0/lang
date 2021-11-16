@@ -38,7 +38,7 @@ public final class LangParser {
 				break;
 			}
 			//Parse multiline text & line continuation
-			line = line.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
+			line = maskEscapedMultilineStringStartSequences(line);
 			while(line.contains("{{{") || line.endsWith("\\")) {
 				if(line.contains("{{{")) { //Multiline text
 					boolean multipleLinesFlag = true;
@@ -70,7 +70,7 @@ public final class LangParser {
 								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
 								return ast;
 							}
-							lineTmpString = lineTmpString.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
+							lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
 							lineTmp.append('\n');
 							if(lineTmpString.contains("}}}")) {
 								int endIndex = lineTmpString.indexOf("}}}");
@@ -95,12 +95,11 @@ public final class LangParser {
 						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
 						return ast;
 					}
-					lineTmpString = lineTmpString.replace("\\{", "\\{\\e"); //Fix for "\{{{" would be parsed as mutliline text start sequence
+					lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
 					line += lineTmpString;
 				}
 			}
-			line = line.replace("\\{\\e", "\\{"); //Fix for "\{{{" would be parsed as mutliline text start sequence
-			                                      //(Without this replace: "\{" would be parsed as TEXT because "\e" is behind the "\{" and not as CHAR)
+			line = unmaskEscapedMultilineStringStartSequences(line);
 			
 			line = currentLine = prepareLine(line);
 			if(line != null) {
@@ -826,6 +825,49 @@ public final class LangParser {
 		
 		if(line.isEmpty())
 			return null;
+		
+		return line;
+	}
+	
+	/**
+	 * Fix for "\{{{" would be parsed as mutliline text start sequence
+	 */
+	private String maskEscapedMultilineStringStartSequences(String line) {
+		int i = 0;
+		while(i < line.length()) {
+			i = line.indexOf("\\{", i);
+			if(i == -1)
+				break;
+			
+			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+				i += 2;
+				line = line.substring(0, i) + "\\e" + line.substring(i); //Add "\e" after "\{"
+				continue;
+			}
+			
+			i++;
+		}
+		
+		return line;
+	}
+	/**
+	 * Fix for "\{{{" would be parsed as mutliline text start sequence ({"\{" -&gt; "{" [CHAR]} should be parsed as CHAR and not as TEXT {"\{\e" -&gt; "{" [TEXT]})
+	 */
+	private String unmaskEscapedMultilineStringStartSequences(String line) {
+		int i = 0;
+		while(i < line.length()) {
+			i = line.indexOf("\\{\\e", i);
+			if(i == -1)
+				break;
+			
+			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+				i += 2;
+				line = line.substring(0, i) + line.substring(i + 2); //Remove "\e" after "\{"
+				continue;
+			}
+			
+			i++;
+		}
 		
 		return line;
 	}

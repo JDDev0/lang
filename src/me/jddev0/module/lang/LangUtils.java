@@ -115,4 +115,18 @@ public final class LangUtils {
 		replace("!", "\\!!").replace(".", "\\!.\\!").replace("null", "nul\\!l").replace("return", "retur\\!n").
 		replace("throw", "thro\\!w") + "\\e";
 	}
+	
+	/**
+	 * @return Returns true if the backslash at the index index is escaped else false
+	 */
+	public static boolean isBackshlashAtIndexEscaped(String str, int index) {
+		if(str == null || str.length() <= index || index < 0 || str.charAt(index) != '\\')
+			return false;
+		
+		for(int i = index - 1;i >= 0;i--)
+			if(str.charAt(i) != '\\')
+				return (index - i) % 2 == 0;
+		
+		return index % 2 == 1;
+	}
 }
