@@ -298,7 +298,7 @@ public class LangShellWindow extends JDialog {
 			private StringBuilder printingTmp = new StringBuilder();
 			private int type = 0;
 			//Colors for the levels
-			private Color[] colors = {Color.WHITE, Color.BLUE, Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
+			private Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
 			
 			@Override
 			public void write(int b) throws IOException {
