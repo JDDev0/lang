@@ -2,5 +2,5 @@ lang.name = Utils Library for v1.0.0
 lang.version = v1.0.0
 
 fp.test = ($var) -> {
-	func.printTerminal(3, $var in v1.0.0)
+	func.println($var in v1.0.0)
 }

@@ -33,13 +33,13 @@ con.elif($ver == v0.2.1)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v1.0.0)
-	func.printTerminal(2, This is Code for the compiler version v1.0.0!)
+	func.println(This is Code for the compiler version v1.0.0!)
 	
 	$a = A final variable
 	func.makeFinal($[a])
-	func.printTerminal(2, $a)
+	func.println($a)
 	$a = New var
-	func.printTerminal(2, $a)
+	func.println($a)
 	func.printError()
 con.else
 	func.printTerminal(5, The Compiler version $ver is not supported!)
