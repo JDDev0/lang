@@ -24,50 +24,50 @@ func.repeat(fp.printColor, 8)
 $a = Test
 fp.changeA = ($a) -> {
 	func.copyAfterFP($[a], $[a])
-	func.printTerminal(1, Local: $a)
+	func.println(Local: $a)
 }
-func.printTerminal(-1, $a)
+func.println($a)
 fp.changeA(100)
-func.printTerminal(-1, $a)
+func.println($a)
 
 $var = Test2
 fp.change = ($ptr, $value) -> {
-	func.printTerminal(1, Local: $value)
+	func.println(Local: $value)
 	func.copyAfterFP($ptr, $[value])
 }
-func.printTerminal(-1, $var)
+func.println($var)
 fp.change($[var], 42)
-func.printTerminal(-1, $var)
+func.println($var)
 
 $test = Test3
 fp.change = () -> {
 	$test = $test - Tested
-	func.printTerminal(1, Local: $test)
+	func.println(Local: $test)
 	func.copyAfterFP($[test], $[test])
 }
-func.printTerminal(-1, $test)
+func.println($test)
 fp.change()
-func.printTerminal(-1, $test)
+func.println($test)
 
 $test = Test4
 fp.change = () -> {
 	func.copyAfterFP($[test], $[test]) # Can be executed anywere
 	                                   # in the function
 	$test = $test - Tested
-	func.printTerminal(1, Local: $test)
+	func.println(Local: $test)
 }
-func.printTerminal(-1, $test)
+func.println($test)
 fp.change()
-func.printTerminal(-1, $test)
+func.println($test)
 
 $test = Test5
 fp.change = () -> {
 	$test = $test - Tested
-	func.printTerminal(1, Local: $test)
+	func.println(Local: $test)
 }
-func.printTerminal(-1, $test)
+func.println($test)
 fp.change()
-func.printTerminal(-1, $test)
+func.println($test)
 
 # While loop
 # func.repeatWhile(funcPtr, funcPtr) # Will call the first function pointer
@@ -75,7 +75,7 @@ func.printTerminal(-1, $test)
 $num = 50
 
 fp.printFunc = () -> {
-	func.printTerminal(4, $num)
+	func.println($num)
 	$num = func.subi($num, 1)
 	func.copyAfterFP($[num], $[num])
 }
@@ -111,7 +111,7 @@ func.arrayMake(&a, 10)
 func.arraySetAll(&a, 0, 2, 4, 5, 6, abc, test, 42, 90, 100)
 
 fp.printElement = ($ele) -> {
-	func.printTerminal(-1, Element: $ele)
+	func.println(Element: $ele)
 }
 func.arrayForEach(&a, fp.printElement)
 
@@ -126,4 +126,4 @@ fp.addElementToOuput = ($e) -> {
 	func.copyAfterFP($[output], $[output])
 }
 func.arrayForEach(&a, fp.addElementToOuput)
-func.printTerminal(2, $output)
+func.println($output)
