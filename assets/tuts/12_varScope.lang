@@ -2,74 +2,74 @@ lang.name = Variable Scope
 lang.version = v1.0.0
 
 $a = test # "Global Scope Variable"
-func.printTerminal(-1, Global scope)
-func.printTerminal(-1, \$a: $a)
+func.println(Global scope)
+func.println(\$a: $a)
 {
-	func.printTerminal(-1, \s)
-	func.printTerminal(-1, Global scope ["Block"])
-	func.printTerminal(-1, \$a: $a)
+	func.println(\s)
+	func.println(Global scope ["Block"])
+	func.println(\$a: $a)
 	$b = test2 # Also "Global Scope Variable", because "{"-"Block" is no block
-	func.printTerminal(-1, \$b: $b)
+	func.println(\$b: $b)
 }
-func.printTerminal(-1, \s)
-func.printTerminal(-1, Global scope)
-func.printTerminal(-1, \$b: $b)
+func.println(\s)
+func.println(Global scope)
+func.println(\$b: $b)
 
 fp.test = ($d) -> { # "Function Scope Variable"
-	func.printTerminal(-1, \s)
-	func.printTerminal(-1, Function scope [fp.test])
-	func.printTerminal(-1, \$d: $d)
-	func.printTerminal(-1, \$a: $a)
-	func.printTerminal(-1, \$b: $b)
+	func.println(\s)
+	func.println(Function scope [fp.test])
+	func.println(\$d: $d)
+	func.println(\$a: $a)
+	func.println(\$b: $b)
 	$a = overriden # "Function Scope Variable"
 	               # {"Global Scope Variable" $a will be shadowed}
-	func.printTerminal(-1, \$a: $a)
-	func.printTerminal(-1, \$c: $c)
+	func.println(\$a: $a)
+	func.println(\$c: $c)
 	$c = new # "Function Scope Variable" {"Global Scope Variable" $c will be shadowed}
-	func.printTerminal(-1, \$c: $c)
+	func.println(\$c: $c)
 	
 	fp.innerTest = () -> {
-		func.printTerminal(-1, \s)
-		func.printTerminal(-1, Function scope [fp.test [fp.innerTest]])
-		func.printTerminal(-1, \$a: $a)
-		func.printTerminal(-1, \$b: $b)
-		func.printTerminal(-1, \$c: $c)
-		func.printTerminal(-1, \$d: $d)
+		func.println(\s)
+		func.println(Function scope [fp.test [fp.innerTest]])
+		func.println(\$a: $a)
+		func.println(\$b: $b)
+		func.println(\$c: $c)
+		func.println(\$d: $d)
 		$a = new new var # "(Inner) Function Scope Variable" {$a will be shadowed}
-		func.printTerminal(-1, \$a: $a)
+		func.println(\$a: $a)
 		
 		func.copyAfterFP($[a], $[a]) # Will copy $a to the callers variable scope [After function]
 	}
 	fp.innerTest()
 	
-	func.printTerminal(-1, \s)
-	func.printTerminal(-1, Function scope [fp.test])
-	func.printTerminal(-1, \$a: $a)
+	func.println(\s)
+	func.println(Function scope [fp.test])
+	func.println(\$a: $a)
 	func.copyAfterFP($[a], $[a]) # Will copy $a to the callers variable scope [After function]
 }
 fp.test(Tested)
 
-func.printTerminal(-1, \s)
-func.printTerminal(-1, Global scope)
-func.printTerminal(-1, \$a: $a)
+func.println(\s)
+func.println(Global scope)
+func.println(\$a: $a)
 
 $a = test # "Global Scope Variable"
 $c = var test # "Global Scope Variable"
 fp.test(Tested) # All varibales of the scope of the function call will be copied
-func.printTerminal(-1, \s)
-func.printTerminal(-1, Global scope)
-func.printTerminal(-1, \$a: $a)
+func.println(\s)
+func.println(Global scope)
+func.println(\$a: $a)
 
 con.if(1)
-	func.printTerminal(-1, \s)
-	func.printTerminal(-1, Global scope ["IF"])
+	func.println(\s)
+	func.println(Global scope ["IF"])
 	$e = test
-	func.printTerminal(-1, \$e: $e)
+	func.println(\$e: $e)
 con.endif
 
-func.printTerminal(-1, \s)
-func.printTerminal(-1, Global scope)
-func.printTerminal(-1, \$e: $e)
+func.println(\s)
+func.println(Global scope)
+func.println(\$e: $e)
 
 # Translations will allways be in the global scope
 fp.a = () -> {
@@ -92,5 +92,5 @@ fp.a = () -> {
 }
 fp.a()
 
-func.printTerminal(-1, \s)
-func.printTerminal(-1, global.translation = func.getTranslationValue(global.translation))
+func.println(\s)
+func.println(global.translation = func.getTranslationValue(global.translation))
