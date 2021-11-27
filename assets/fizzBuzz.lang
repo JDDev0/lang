@@ -1,0 +1,27 @@
+lang.name = GuessANumber
+lang.version = v1.0.0
+
+$MAX = 50
+
+$i = 0
+fp.fizzBuzz = () -> {
+	$3or5flag = 0
+	
+	con.if(func.modi($i, 3) == 0)
+		func.print(Fizz)
+		$3or5flag = 1
+	con.endif
+	con.if(func.modi($i, 5) == 0)
+		func.print(Buzz)
+		$3or5flag = 1
+	con.endif
+	con.if(!$3or5flag)
+		func.print($i)
+	con.endif
+	func.println()
+	
+	$i = func.addi($i, 1)
+	func.copyAfterFP($[i], $[i])
+}
+fp.endless = () -> return con.condition($i <= $MAX)
+func.repeatWhile(fp.fizzBuzz, fp.endless)
