@@ -23,5 +23,5 @@ fp.fizzBuzz = () -> {
 	$i = func.addi($i, 1)
 	func.copyAfterFP($[i], $[i])
 }
-fp.endless = () -> return con.condition($i <= $MAX)
-func.repeatWhile(fp.fizzBuzz, fp.endless)
+fp.check = () -> return con.condition($i <= $MAX)
+func.repeatWhile(fp.fizzBuzz, fp.check)
