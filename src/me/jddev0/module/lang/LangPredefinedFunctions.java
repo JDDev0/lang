@@ -2,6 +2,7 @@ package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -1712,6 +1713,9 @@ final class LangPredefinedFunctions {
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
 			interpreter.interpretLines(reader, NEW_DATA_ID);
+		}catch(FileNotFoundException e) {
+			interpreter.data.remove(NEW_DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, DATA_ID);
 		}catch(IOException e) {
 			if(interpreter.term == null)
 				e.printStackTrace();
@@ -1719,7 +1723,7 @@ final class LangPredefinedFunctions {
 				interpreter.term.logStackTrace(e, LangInterpreter.class);
 			
 			interpreter.data.remove(NEW_DATA_ID);
-			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
 		}finally {
 			//Set lang path to old lang path
 			interpreter.langPath = oldLangPath;
