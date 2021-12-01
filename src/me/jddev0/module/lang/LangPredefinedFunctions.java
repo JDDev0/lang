@@ -1720,15 +1720,15 @@ final class LangPredefinedFunctions {
 			
 			interpreter.data.remove(NEW_DATA_ID);
 			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, DATA_ID);
+		}finally {
+			//Set lang path to old lang path
+			interpreter.langPath = oldLangPath;
 		}
 		
 		function.accept(NEW_DATA_ID);
 		
 		//Remove data map
 		interpreter.data.remove(NEW_DATA_ID);
-		
-		//Set lang path to old lang path
-		interpreter.langPath = oldLangPath;
 		
 		//Get returned value from executed lang file
 		return interpreter.getAndResetReturnValue(DATA_ID);
