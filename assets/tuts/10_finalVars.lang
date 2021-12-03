@@ -39,8 +39,7 @@ func.printTerminal(2, $a)
 func.printError()
 
 # Final arrPtrs
-func.arrayMake(&a, 2)
-func.arraySetAll(&a, 10, 42)
+&a = func.arrayOf(10, 42)
 func.makeFinal(&a)
 func.printTerminal(3, func.arrayGetAll(&a))
 
