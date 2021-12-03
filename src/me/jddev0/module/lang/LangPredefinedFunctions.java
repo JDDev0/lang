@@ -554,6 +554,36 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedNumberFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("binToDec", (argumentList, DATA_ID) -> {
+			DataObject binObject = LangUtils.combineDataObjects(argumentList);
+			if(binObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String binString = binObject.getText();
+			if(!binString.startsWith("0b") && !binString.startsWith("0B"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(binString.substring(2), 2));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
+		funcs.put("octToDec", (argumentList, DATA_ID) -> {
+			DataObject octObject = LangUtils.combineDataObjects(argumentList);
+			if(octObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			String octString = octObject.getText();
+			if(!octString.startsWith("0o") && !octString.startsWith("0O"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
