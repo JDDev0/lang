@@ -34,7 +34,7 @@ func.println(func.arrayGetAll(&arr))
 func.arraySetAll(&arr, value1, 2, 3, test, 6, 5, 10, 42, test, 10th Element) # Will set all elements of the array &arr
 func.println(func.arrayGetAll(&arr))
 
-# Get a element of an array
+# Get an element of an array
 # func.arrayGet(arrPtr, int)
 $ele = func.arrayGet(&arr, 7) # Will return the element at the index 7 from the array &arr
 func.println($ele)
@@ -43,6 +43,19 @@ func.println($ele)
 # func.randChoice(arrPtr)
 $ele = func.randChoice(&arr) # Will return a random element of the array &arr
 func.println($ele)
+
+# Get count of an element in an array
+# func.arrayCountOf(arrPtr, ele)
+$count = func.arrayCountOf(&arr, value1) # Will return 1
+func.println($count)
+$count = func.arrayCountOf(&arr, 5) # Will return 1
+func.println($count)
+$count = func.arrayCountOf(&arr, {{{5}}}) # Will return 0 (Uses strict equals internally See [06_if.lang: strict equals])
+func.println($count)
+
+func.arraySet(&arr, 2, 2)
+$count = func.arrayCountOf(&arr, 2) # Will return 2
+func.println($count)
 
 # Copy an array
 &arr2 = &arr # Will copy the array pointer (The content will not be copied [Same references])
