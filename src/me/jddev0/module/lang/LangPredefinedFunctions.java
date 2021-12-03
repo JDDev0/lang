@@ -1555,7 +1555,7 @@ final class LangPredefinedFunctions {
 			else if(index >= arr.length)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			
-			arr[index].setData(new DataObject(valueObject));
+			arr[index] = new DataObject(valueObject);
 			
 			return null;
 		});
