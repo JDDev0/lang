@@ -1530,6 +1530,14 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("arrayOf", (argumentList, DATA_ID) -> {
+			List<DataObject> elements = new LinkedList<>();
+			
+			while(argumentList.size() > 0)
+				elements.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+			
+			return new DataObject().setArray(elements.toArray(new DataObject[0]));
+		});
 		funcs.put("arraySet", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
