@@ -61,8 +61,34 @@ func.println(Input: func.input())
 func.println(Input: func.input(3))
 
 # Number functions
+# func.binToDec(Text) # Will convert a base 2 number to a base 10 integer
+$num = func.binToDec(0b101100)
+func.println($num)
+
+# func.octToDec(Text) # Will convert a base 8 number to a base 10 integer
+$num = func.octToDec(0o53)
+func.println($num)
+
 # func.hexToDec(Text) # Will convert a base 16 number to a base 10 integer
 $num = func.hexToDec(0x2A)
+func.println($num)
+
+# func.toNumberBase(Text, int) # Will convert a base n number to a base 10 integer
+$num = func.toNumberBase(XX, 36)
+func.println($num)
+$num = func.toNumberBase(xx, 36)
+func.println($num)
+$num = func.toNumberBase(1B, 14)
+func.println($num)
+$num = func.toNumberBase(30, 4)
+func.println($num)
+
+# func.toTextBase(int, int) # Will convert a base 10 integer to a base n number
+$num = func.toTextBase(1221, 36)
+func.println($num)
+$num = func.toTextBase(25, 14)
+func.println($num)
+$num = func.toTextBase(12, 4)
 func.println($num)
 
 # func.toIntBits(float) # Will return the bits of the float as an integer value
