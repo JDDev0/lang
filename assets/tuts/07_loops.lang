@@ -107,8 +107,7 @@ func.repeatUntil(fp.printFunc, fp.test)
 # fp.funcPtr = ($ele) -> ...
 # The provived function will be executed for each element of the array
 
-func.arrayMake(&a, 10)
-func.arraySetAll(&a, 0, 2, 4, 5, 6, abc, test, 42, 90, 100)
+&a = func.arrayOf(0, 2, 4, 5, 6, abc, test, 42, 90, 100)
 
 fp.printElement = ($ele) -> {
 	func.println(Element: $ele)
