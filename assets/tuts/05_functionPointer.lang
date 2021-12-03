@@ -212,8 +212,7 @@ func.println(-----------------)
 	
 	func.println(-----------------)
 	
-	&a = func.arrayMake(10)
-	func.arraySetAll(&a, 6, 8, 9, 4, 2, 0, 1, 5, 3, 7)
+	&a = func.arrayOf(6, 8, 9, 4, 2, 0, 1, 5, 3, 7)
 	$tmpIndex = 0
 	fp.next = (&arr) -> {
 		func.copyAfterFP($[tmpIndex], $[tmpIndex]) # See [07_loops.lang: func.copyAfterFP]
