@@ -9,6 +9,13 @@ func.arrayMake(&arr, 10) # Will create the array &arr with the lenght of 10
 func.arrayMake(&c, 0) # Will create an empty array
 &d = func.arrayMake(0) # Will also create an empty array
 
+# Creation of an array with setting values in one line
+&e = func.arrayOf() # Will create an empty array
+&f = func.arrayOf(1, 2, test)
+&g = func.arrayOf({{{1}}}, func.ttoc(1), 1, func.toLong(1))
+&h = func.arrayOf(null, &e, 1, 2, , test)
+&i = func.arrayOf(func.arrayOf(1, 2, 3), func.arrayOf(a, b, c), func.arrayOf(A, B, C)) # Will create an array with anonymous array elements
+
 # Get the lenght of an array
 # func.arrayLength(arrPtr)
 $len = func.arrayLength(&arr) # Will return the length of the array &arr
@@ -19,6 +26,7 @@ func.println($len)
 $arr = func.arrayGetAll(&arr) # Will return the content of the whole array with ", " as element separator
 func.println($arr)
 func.println(&arr) # Will return the content of the whole array inside "[]" with ", " as element separator
+func.println(func.arrayGetAll(func.arrayOf(1, 2, A, B, null))) # Will print the values of an anonymous array
 
 # Set an element of an array
 # func.arraySet(arrPtr, int, Text)
