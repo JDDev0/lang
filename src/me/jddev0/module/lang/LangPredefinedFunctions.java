@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -1639,6 +1640,21 @@ final class LangPredefinedFunctions {
 			if(builder.length() > 0) //Remove last ", " only if at least 1 element is in array
 				builder.delete(builder.length() - 2, builder.length()); //Remove leading ", "
 			return new DataObject(builder.toString());
+		});
+		funcs.put("arrayCountOf", (argumentList, DATA_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			DataObject[] arr = arrPointerObject.getArray();
+			if(arr == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			
+			long count = Arrays.stream(arr).filter(ele -> ele.isStrictEquals(elementObject)).count();
+			return new DataObject().setLong(count);
 		});
 		funcs.put("arrayLength", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
