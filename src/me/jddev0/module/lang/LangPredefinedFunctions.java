@@ -632,6 +632,46 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
 			}
 		});
+		funcs.put("toNumberBase", (argumentList, DATA_ID) -> {
+			DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject baseObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(numberObject == null || baseObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			String numberString = numberObject.getText();
+			Number base = baseObject.getNumber();
+			if(base == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
+		funcs.put("toTextBase", (argumentList, DATA_ID) -> {
+			DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject baseObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(numberObject == null || baseObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			Number number = numberObject.getNumber();
+			Number base = baseObject.getNumber();
+			if(number == null || base == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			try {
+				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+		});
 		funcs.put("toIntBits", (argumentList, DATA_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setInt(Float.floatToRawIntBits(number.floatValue()));
