@@ -1402,6 +1402,9 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 2 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
+			if(interpreter.copyAfterFP.get(DATA_ID) == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+			
 			String to = null;
 			switch(toPointerObject.getType()) {
 				case ARRAY:
