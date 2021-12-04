@@ -181,7 +181,27 @@ final class LangPredefinedFunctions {
 				return "func.getErrorText";
 			}
 		});
-		funcs.put("getErrorText", (argumentList, DATA_ID) -> new DataObject().setText(interpreter.getAndClearErrnoErrorObject(DATA_ID).getErrorText()));
+		funcs.put("getErrorText", (argumentList, DATA_ID) -> new DataObject(interpreter.getAndClearErrnoErrorObject(DATA_ID).getErrorText()));
+		funcs.put("errorText", (argumentList, DATA_ID) -> {
+			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(errorObject.getType() != DataType.ERROR)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			return new DataObject(errorObject.getError().getErrmsg());
+		});
+		funcs.put("errorCode", (argumentList, DATA_ID) -> {
+			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(errorObject.getType() != DataType.ERROR)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			return new DataObject().setInt(errorObject.getError().getErrno());
+		});
 	}
 	private void addPredefinedCompilerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("isCompilerVersionNewer", (argumentList, DATA_ID) -> {
