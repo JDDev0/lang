@@ -287,6 +287,14 @@ con.else
 	func.printTerminal(1, Result: $ret)
 con.endif
 
+# Get the error text from an error value
+# func.errorText(ERROR)
+func.println(func.errorText($LANG_ERROR_INVALID_ARGUMENTS))
+
+# Get the error code from an error value
+# func.errorCode(ERROR)
+func.println(func.errorCode($LANG_ERROR_INVALID_ARGUMENTS))
+
 # End the program early & throw error
 func.println(Will be executed)
 throw $LANG_ERROR_EOF # A throw statement outside of a function pointer function body will end the program execution early
