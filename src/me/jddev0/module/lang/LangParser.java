@@ -552,7 +552,7 @@ public final class LangParser {
 			}
 			
 			//Force node split
-			if(token.startsWith("$")) {
+			if(token.startsWith("$") || token.startsWith("&")) {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilder(builder, nodes);
 			}
@@ -788,7 +788,7 @@ public final class LangParser {
 				}
 				
 				//Force node split
-				if(parameterList.startsWith("$") && builder.length() > 0)
+				if(parameterList.startsWith("$") || parameterList.startsWith("&"))
 					clearAndParseStringBuilder(builder, nodes);
 				
 				//Variable split after invalid character (Not [A-Za-z0-9_]
