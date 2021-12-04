@@ -94,6 +94,30 @@ func.println(func.arrayGetAll(&aR3))
 func.arrayDelete(&arr)
 func.println(func.arrayGetAll(&arr))
 
+func.println()
+
+# Changing every value of an array to another (mapping)
+# func.arrayMap(arrPtr, funcPtr)
+&testArray = func.arrayOf(A, B, C, D, E, F, G)
+func.println(func.arrayGetAll(&testArray))
+
+fp.map = ($ele) -> return func.toValue($ele) # Will convert the char to an ASCII value
+func.arrayMap(&testArray, fp.map) # fp.map will be called for every element of the array and every element of the array will be set to the returned value of fp.map
+func.println(func.arrayGetAll(&testArray))
+
+func.println()
+
+&testArray = func.arrayOf(A, B, C, D, E, F, G)
+func.println(func.arrayGetAll(&testArray))
+
+func.arrayMap(&testArray, func.toValue) # Other function types could be used too: Predefined functions, Linker functions, External functions
+func.println(func.arrayGetAll(&testArray))
+
+func.arrayMap(&testArray, func.toChar)
+func.println(func.arrayGetAll(&testArray))
+
+func.println()
+
 # Remove an array
 # func.arrayClear(arrPtr)
 func.arrayClear(&arr)
