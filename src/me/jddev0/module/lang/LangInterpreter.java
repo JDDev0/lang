@@ -2227,8 +2227,7 @@ public final class LangInterpreter {
 				return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
 				Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
 				this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
-				this.charValue == that.charValue && Objects.equals(this.error, that.error) && Objects.equals(this.variableName, that.variableName) &&
-				this.finalData == that.finalData;
+				this.charValue == that.charValue && Objects.equals(this.error, that.error);
 			}catch(StackOverflowError e) {
 				return false;
 			}
@@ -2236,7 +2235,7 @@ public final class LangInterpreter {
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, variableName, finalData);
+			return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error);
 		}
 	}
 	public static final class Data {
