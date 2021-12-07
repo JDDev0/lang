@@ -565,7 +565,7 @@ public final class LangInterpreter {
 				break;
 			
 			case "lang.name":
-				//Nothing do to
+				//Nothing to do
 				break;
 			
 			//Flags
