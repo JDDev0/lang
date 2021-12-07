@@ -572,17 +572,17 @@ final class LangPredefinedFunctions {
 		funcs.put("error", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
-				System.err.println();
-			else
-				System.err.println(textObject.getText());
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			System.err.print(textObject.getText());
 			return null;
 		});
 		funcs.put("errorln", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
-			
-			System.err.println(textObject.getText());
+				System.err.println();
+			else
+				System.err.println(textObject.getText());
 			return null;
 		});
 	}
