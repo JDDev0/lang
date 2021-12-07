@@ -1413,7 +1413,7 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("round", (argumentList, DATA_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong((Math.signum(number.doubleValue()) < 0?-1:1)*Math.round(Math.abs(number.doubleValue())));
+				return new DataObject().setLong((Math.signum(number.doubleValue()) < 0?-1:1) * Math.round(Math.abs(number.doubleValue())));
 			}, DATA_ID);
 		});
 		funcs.put("ceil", (argumentList, DATA_ID) -> {
