@@ -194,6 +194,8 @@ ui.button.canel = Cancel
 	fp.manyArgs(A, B, C, D, E, F, G, H)
 	fp.manyArgs(A, B, C, D, E, F, G, H, I)
 	
+	lang.errorOutput = 0 # Disable error ouput
+	
 	# Coping of functions
 	{
 		fp.a = ($i) -> {
@@ -215,12 +217,17 @@ ui.button.canel = Cancel
 		
 		func.printTerminal(1, \s\n\s)
 	}
+	
+	lang.errorOutput = 1 # Reenable error ouput
 }
 
 # \$ -> escape sequence for $
 # \s is needed, because leading whitespaces are behind the argument separator
 # will be removed in every function argument
 func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
+
+lang.errorOutput = 0 # Disable error ouput
+
 # Error handling
 {
 	# Will print no error since errno is 0
@@ -270,6 +277,8 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 	user.setting.1 = func.readTerminal(Enter setting 1:)
 }
 
+lang.errorOutput = 1 # Reenable error ouput
+
 # Arrays
 {
 	# Print array function pointer
@@ -314,7 +323,7 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 	
 	# Array index out of bounds
 	$ele = func.arrayGet(&arr, 10)
-	func.printError(This Language starts with the 0th index)
+	func.printTerminal(-1, This Language starts with the 0th index)
 	
 	# Gets all values of array
 	$eles = func.arrayGetAll(&arr)
@@ -499,6 +508,8 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		func.printTerminal(1, $x) # Prints: "$x"
 	}
 	
+	lang.errorOutput = 0 # Disable error ouput
+	
 	# Final variables test
 	{
 		$a = DO NOT modify!
@@ -561,6 +572,8 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		func.printTerminal(2, $a)
 		func.printError()
 	}
+	
+	lang.errorOutput = 1 # Reenable error ouput
 	
 	# Bitwise operations
 	{
@@ -699,6 +712,8 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		fp.test2(abc)
 	}
 	
+	lang.errorOutput = 0 # Disable error ouput
+	
 	# Varargs
 	{
 		# Text varargs
@@ -733,6 +748,8 @@ func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
 		fp.testArrayVarArgs(1, 2, 3, 4, 5)
 		fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
 	}
+	
+	lang.errorOutput = 1 # Reenable error ouput
 	
 	# Pointer dereferencing
 	{
