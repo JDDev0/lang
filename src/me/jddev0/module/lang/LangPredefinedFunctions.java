@@ -2,7 +2,6 @@ package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -32,6 +31,10 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  * @version v1.0.0
  */
 final class LangPredefinedFunctions {
+	//Error string formats
+	private static final String TOO_MANY_ARGUMENTS_FORMAT = "Too many arguments (%s needed)";
+	private static final String ARGUMENT_TYPE = "Argument %smust be from type %s";
+	
 	private final LangInterpreter interpreter;
 
 	public LangPredefinedFunctions(LangInterpreter interpreter) {
@@ -48,7 +51,7 @@ final class LangPredefinedFunctions {
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int DATA_ID) {
 		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 		
 		Number number = numberObject.getNumber();
 		if(number == null)
@@ -60,15 +63,15 @@ final class LangPredefinedFunctions {
 		DataObject leftNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 		DataObject rightNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 2 arguments
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 		
 		Number leftNumber = leftNumberObject.getNumber();
 		if(leftNumber == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Left operand is no number", DATA_ID);
 		
 		Number rightNumber = rightNumberObject.getNumber();
 		if(rightNumber == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Right operand is no number", DATA_ID);
 		
 		return operation.apply(leftNumber, rightNumber);
 	}
@@ -89,6 +92,8 @@ final class LangPredefinedFunctions {
 	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("clearVar", (argumentList, DATA_ID) -> {
 			DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			DataObject dereferencedVarPointer = null;
 			switch(pointerObject.getType()) {
@@ -185,20 +190,20 @@ final class LangPredefinedFunctions {
 		funcs.put("errorText", (argumentList, DATA_ID) -> {
 			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(errorObject.getType() != DataType.ERROR)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE, "", DataType.ERROR.name()), DATA_ID);
 			
 			return new DataObject(errorObject.getError().getErrmsg());
 		});
 		funcs.put("errorCode", (argumentList, DATA_ID) -> {
 			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(errorObject.getType() != DataType.ERROR)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE, "", DataType.ERROR.name()), DATA_ID);
 			
 			return new DataObject().setInt(errorObject.getError().getErrno());
 		});
@@ -216,6 +221,9 @@ final class LangPredefinedFunctions {
 	private void addPredefinedSystemFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("sleep", (argumentList, DATA_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
 			Number number = dataObject.getNumber();
 			if(number == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
@@ -223,7 +231,7 @@ final class LangPredefinedFunctions {
 			try {
 				Thread.sleep(number.longValue());
 			}catch(InterruptedException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), DATA_ID);
 			}
 			
 			return null;
@@ -233,7 +241,7 @@ final class LangPredefinedFunctions {
 			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject repeatCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, DATA_ID);
@@ -260,10 +268,12 @@ final class LangPredefinedFunctions {
 			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject checkFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
-			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER || checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, DATA_ID);
+			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, "Loop function FP", DATA_ID);
+			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function FP", DATA_ID);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
@@ -277,10 +287,12 @@ final class LangPredefinedFunctions {
 			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject checkFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
-			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER || checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, DATA_ID);
+			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, "Loop function FP", DATA_ID);
+			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function FP", DATA_ID);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
@@ -332,7 +344,7 @@ final class LangPredefinedFunctions {
 		funcs.put("makeFinal", (argumentList, DATA_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(dataObject.getVariableName() == null && dataObject.getType() == DataType.VAR_POINTER) {
 				dataObject = dataObject.getVarPointer().getVar();
@@ -399,7 +411,7 @@ final class LangPredefinedFunctions {
 				//Clear copyAfterFP
 				interpreter.copyAfterFP.remove(NEW_DATA_ID);
 				
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), DATA_ID);
 			}
 			
 			//Add lang after call
@@ -517,10 +529,10 @@ final class LangPredefinedFunctions {
 			if(!argumentList.isEmpty()) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				if(argumentList.size() > 0) //Not 0 or 1 arguments
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "0 or 1"), DATA_ID);
 				maxCount = numberObject.getNumber();
 				if(maxCount == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			}
 			
 			try {
@@ -538,7 +550,7 @@ final class LangPredefinedFunctions {
 					return new DataObject(new String(buf));
 				}
 			}catch(IOException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("print", (argumentList, DATA_ID) -> {
@@ -582,12 +594,12 @@ final class LangPredefinedFunctions {
 			
 			String binString = binObject.getText();
 			if(!binString.startsWith("0b") && !binString.startsWith("0B"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Wrong prefix (Should be 0b or 0B)", DATA_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(binString.substring(2), 2));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("octToDec", (argumentList, DATA_ID) -> {
@@ -597,12 +609,12 @@ final class LangPredefinedFunctions {
 			
 			String octString = octObject.getText();
 			if(!octString.startsWith("0o") && !octString.startsWith("0O"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Wrong prefix (Should be 0o or 0O)", DATA_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
@@ -614,12 +626,12 @@ final class LangPredefinedFunctions {
 				
 				String hexString = hexObject.getText();
 				if(!hexString.startsWith("0x") && !hexString.startsWith("0X"))
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, "Wrong prefix (Should be 0x or 0X)", DATA_ID);
 				
 				try {
 					return new DataObject().setInt(Integer.parseInt(hexString.substring(2), 16));
 				}catch(NumberFormatException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, e.getMessage(), DATA_ID);
 				}
 			}
 			
@@ -645,19 +657,19 @@ final class LangPredefinedFunctions {
 			
 			String hexString = hexObject.getText();
 			if(!hexString.startsWith("0x") && !hexString.startsWith("0X"))
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, "Wrong prefix (Should be 0x or 0X)", DATA_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(hexString.substring(2), 16));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("toNumberBase", (argumentList, DATA_ID) -> {
 			DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject baseObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(numberObject == null || baseObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
@@ -665,19 +677,19 @@ final class LangPredefinedFunctions {
 			String numberString = numberObject.getText();
 			Number base = baseObject.getNumber();
 			if(base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", DATA_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("toTextBase", (argumentList, DATA_ID) -> {
 			DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject baseObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(numberObject == null || baseObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
@@ -685,12 +697,12 @@ final class LangPredefinedFunctions {
 			Number number = numberObject.getNumber();
 			Number base = baseObject.getNumber();
 			if(number == null || base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", DATA_ID);
 			
 			try {
 				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
 			}
 		});
 		funcs.put("toIntBits", (argumentList, DATA_ID) -> {
@@ -736,7 +748,7 @@ final class LangPredefinedFunctions {
 		funcs.put("toNumber", (argumentList, DATA_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			dataObject = dataObject.convertToNumberAndCreateNewDataObject();
 			if(dataObject.getType() == DataType.NULL)
@@ -747,7 +759,7 @@ final class LangPredefinedFunctions {
 		funcs.put("ttoi", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			String str = textObject.getText();
 			try {
@@ -759,7 +771,7 @@ final class LangPredefinedFunctions {
 		funcs.put("ttol", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			String str = textObject.getText();
 			try {
@@ -771,7 +783,7 @@ final class LangPredefinedFunctions {
 		funcs.put("ttof", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			String str = textObject.getText();
 			try {
@@ -783,7 +795,7 @@ final class LangPredefinedFunctions {
 		funcs.put("ttod", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			String str = textObject.getText();
 			try {
@@ -797,7 +809,7 @@ final class LangPredefinedFunctions {
 		funcs.put("toValue", (argumentList, DATA_ID) -> {
 			DataObject charObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(charObject.getType() != DataType.CHAR)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_CHAR, DATA_ID);
@@ -807,7 +819,7 @@ final class LangPredefinedFunctions {
 		funcs.put("toChar", (argumentList, DATA_ID) -> {
 			DataObject asciiValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			Number asciiValue = asciiValueObject.getNumber();
 			if(asciiValue == null)
@@ -818,7 +830,7 @@ final class LangPredefinedFunctions {
 		funcs.put("ttoc", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			String str = textObject.getText();
 			if(str.length() == 1)
@@ -837,7 +849,7 @@ final class LangPredefinedFunctions {
 			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			String replacement = getArgumentListAsString(argumentList, false);
 			if(replacement == null) //Not 3 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (3 needed)", DATA_ID);
 			
 			return new DataObject(textObject.getText().replaceAll(regexObject.getText(), replacement));
 		});
@@ -852,11 +864,11 @@ final class LangPredefinedFunctions {
 				endIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
 			if(argumentList.size() > 0) //Not 2 or 3 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), DATA_ID);
 			
 			Number startIndex = startIndexObject.getNumber();
 			if(startIndex == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "startIndex is no number", DATA_ID);
 			
 			try {
 				if(endIndexObject == null) {
@@ -864,7 +876,7 @@ final class LangPredefinedFunctions {
 				}else {
 					Number endIndex = endIndexObject.getNumber();
 					if(endIndex == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "endIndex is no number", DATA_ID);
 					
 					return new DataObject(textObject.getText().substring(startIndex.intValue(), endIndex.intValue()));
 				}
@@ -876,7 +888,7 @@ final class LangPredefinedFunctions {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			Number index = indexObject.getNumber();
 			if(index == null)
@@ -900,7 +912,7 @@ final class LangPredefinedFunctions {
 				maxSplitCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			
 			if(argumentList.size() > 0) //Not 3 or 4 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "3 or 4"), DATA_ID);
 			
 			String[] arrTmp;
 			
@@ -1420,10 +1432,10 @@ final class LangPredefinedFunctions {
 			DataObject toPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject fromPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(interpreter.copyAfterFP.get(DATA_ID) == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "func.copyAfterFP can not be used outside of functions or func.exec", DATA_ID);
 			
 			String to = null;
 			switch(toPointerObject.getType()) {
@@ -1435,7 +1447,7 @@ final class LangPredefinedFunctions {
 				case VAR_POINTER:
 					DataObject toVar = toPointerObject.getVarPointer().getVar();
 					if(toVar == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "to pointer is invalid", DATA_ID);
 						
 					to = toVar.getVariableName();
 					break;
@@ -1458,7 +1470,7 @@ final class LangPredefinedFunctions {
 					break;
 			}
 			if(to == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "to pointer is invalid", DATA_ID);
 			
 			String from = null;
 			switch(fromPointerObject.getType()) {
@@ -1470,7 +1482,7 @@ final class LangPredefinedFunctions {
 				case VAR_POINTER:
 					DataObject fromVar = fromPointerObject.getVarPointer().getVar();
 					if(fromVar == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "from pointer is invalid", DATA_ID);
 						
 					from = fromVar.getVariableName();
 					break;
@@ -1493,7 +1505,7 @@ final class LangPredefinedFunctions {
 					break;
 			}
 			if(from == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "from pointer is invalid", DATA_ID);
 			
 			interpreter.copyAfterFP.get(DATA_ID).put(to, from);
 			
@@ -1512,7 +1524,7 @@ final class LangPredefinedFunctions {
 				lengthObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 				
 				if(argumentList.size() > 0) //Not 1 or 2 arguments
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), DATA_ID);
 			}else {
 				lengthObject = dataObject;
 			}
@@ -1566,7 +1578,7 @@ final class LangPredefinedFunctions {
 			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject valueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 3 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1631,7 +1643,7 @@ final class LangPredefinedFunctions {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject indexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1654,7 +1666,7 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayGetAll", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1676,7 +1688,7 @@ final class LangPredefinedFunctions {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1690,7 +1702,7 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayLength", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1704,7 +1716,7 @@ final class LangPredefinedFunctions {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1729,7 +1741,7 @@ final class LangPredefinedFunctions {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1752,7 +1764,7 @@ final class LangPredefinedFunctions {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(arrPointerObject.getType() == DataType.ARRAY) {
 				if(argumentList.size() > 0) //Not 1 argument
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), DATA_ID);
 				
 				DataObject[] arr = arrPointerObject.getArray();
 				if(arr == null)
@@ -1791,7 +1803,7 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayDelete", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1809,7 +1821,7 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayClear", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1855,17 +1867,9 @@ final class LangPredefinedFunctions {
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
 			interpreter.interpretLines(reader, NEW_DATA_ID);
-		}catch(FileNotFoundException e) {
-			interpreter.data.remove(NEW_DATA_ID);
-			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, DATA_ID);
 		}catch(IOException e) {
-			if(interpreter.term == null)
-				e.printStackTrace();
-			else
-				interpreter.term.logStackTrace(e, LangInterpreter.class);
-			
 			interpreter.data.remove(NEW_DATA_ID);
-			return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, DATA_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), DATA_ID);
 		}finally {
 			//Set lang path to old lang path
 			interpreter.langPath = oldLangPath;
