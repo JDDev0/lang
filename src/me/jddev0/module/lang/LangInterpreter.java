@@ -57,6 +57,10 @@ public final class LangInterpreter {
 	 * Allow terminal function to redirect to standard input, output, or error if no terminal is available
 	 */
 	boolean allowTermRedirect = true;
+	/**
+	 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
+	 */
+	boolean errorOutput = true;
 	
 	//DATA
 	Map<Integer, Data> data = new HashMap<>();
@@ -544,7 +548,7 @@ public final class LangInterpreter {
 		stopParsingFlag = true;
 	}
 	
-	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value) {
+	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value, final int DATA_ID) {
 		if(value == null)
 			value = new DataObject().setNull();
 		
@@ -583,6 +587,15 @@ public final class LangInterpreter {
 					return;
 				}
 				allowTermRedirect = number.intValue() != 0;
+				break;
+			case "lang.errorOutput":
+				number = value.getNumber();
+				if(number == null) {
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.errorOutput flag!", DATA_ID);
+					
+					return;
+				}
+				errorOutput = number.intValue() != 0;
 				break;
 		}
 	}
@@ -657,15 +670,15 @@ public final class LangInterpreter {
 				case TEXT_VALUE:
 				case VARIABLE_NAME:
 				case VOID_VALUE:
-					DataObject lvalue = interpretNode(lvalueNode, DATA_ID);
-					if(lvalue == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					DataObject translationKeyDataObject = interpretNode(lvalueNode, DATA_ID);
+					if(translationKeyDataObject == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid translationKey", DATA_ID);
 					
-					String langRequest = lvalue.getText();
-					if(langRequest.startsWith("lang."))
-						interpretLangDataAndCompilerFlags(langRequest, rvalue);
+					String translationKey = translationKeyDataObject.getText();
+					if(translationKey.startsWith("lang."))
+						interpretLangDataAndCompilerFlags(translationKey, rvalue, DATA_ID);
 					
-					data.get(DATA_ID).lang.put(langRequest, rvalue.getText());
+					data.get(DATA_ID).lang.put(translationKey, rvalue.getText());
 					break;
 					
 				case GENERAL:
@@ -1201,6 +1214,12 @@ public final class LangInterpreter {
 	}
 	
 	void setErrno(InterpretingError error, final int DATA_ID) {
+		setErrno(error, "", DATA_ID);
+	}
+	void setErrno(InterpretingError error, String message, final int DATA_ID) {
+		setErrno(error, message, false, DATA_ID);
+	}
+	private void setErrno(InterpretingError error, String message, boolean forceNoErrorOutput, final int DATA_ID) {
 		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setVariableName("$LANG_ERRNO"));
 		
 		int currentErrno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();
@@ -1208,10 +1227,25 @@ public final class LangInterpreter {
 		
 		if(newErrno >= 0 || currentErrno < 1)
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
+		
+		if(!forceNoErrorOutput && errorOutput && newErrno != 0) {
+			String output = String.format("An %s occured in \"%s\" (DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath, DATA_ID, error.getErrorText(),
+					error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message);
+			if(term == null)
+				System.err.println(output);
+			else
+				term.logln(newErrno < 0?Level.WARNING:Level.ERROR, output, LangInterpreter.class);
+		}
 	}
 	
 	DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
-		setErrno(error, DATA_ID);
+		return setErrnoErrorObject(error, "", DATA_ID);
+	}
+	DataObject setErrnoErrorObject(InterpretingError error, String message, final int DATA_ID) {
+		return setErrnoErrorObject(error, message, false, DATA_ID);
+	}
+	private DataObject setErrnoErrorObject(InterpretingError error, String message, boolean forceNoErrorOutput, final int DATA_ID) {
+		setErrno(error, message, forceNoErrorOutput, DATA_ID);
 		
 		return new DataObject().setError(new ErrorObject(error));
 	}
@@ -2452,10 +2486,16 @@ public final class LangInterpreter {
 		}
 		
 		public void setErrno(InterpretingError error, final int DATA_ID) {
-			interpreter.setErrno(error, DATA_ID);
+			setErrno(error, "", DATA_ID);
+		}
+		public void setErrno(InterpretingError error, String message, final int DATA_ID) {
+			interpreter.setErrno(error, message, DATA_ID);
 		}
 		public DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
-			return interpreter.setErrnoErrorObject(error, DATA_ID);
+			return setErrnoErrorObject(error, "", DATA_ID);
+		}
+		public DataObject setErrnoErrorObject(InterpretingError error, String message, final int DATA_ID) {
+			return interpreter.setErrnoErrorObject(error, message, DATA_ID);
 		}
 		public InterpretingError getAndClearErrnoErrorObject(final int DATA_ID) {
 			return interpreter.getAndClearErrnoErrorObject(DATA_ID);
