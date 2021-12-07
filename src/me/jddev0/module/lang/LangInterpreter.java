@@ -2268,7 +2268,7 @@ public final class LangInterpreter {
 		NO_ERROR              ( 0, "No Error"),
 		
 		//ERRORS
-		FINAL_VAR_CHANGE      ( 1, "LANG or final vars mustn't be changed"),
+		FINAL_VAR_CHANGE      ( 1, "LANG or final vars must not be changed"),
 		TO_MANY_INNER_LINKS   ( 2, "To many inner links"),
 		NO_LANG_FILE          ( 3, "No .lang-File"),
 		FILE_NOT_FOUND        ( 4, "File not found"),
@@ -2293,7 +2293,7 @@ public final class LangInterpreter {
 		EOF                   (23, "End of file was reached early"),
 		SYSTEM_ERROR          (24, "System Error"),
 		NEGATIVE_REPEAT_COUNT (25, "Negative repeat count"),
-		TRANS_KEY_NOT_FOUND   (26, "Translation key dosen't exist"),
+		TRANS_KEY_NOT_FOUND   (26, "Translation key does not exist"),
 		FUNCTION_NOT_SUPPORTED(27, "Function not supported"),
 		BRACKET_MISMATCH      (28, "Bracket mismatch"),
 		IF_CONDITION_MISSING  (29, "If statement condition missing"),
