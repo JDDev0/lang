@@ -303,7 +303,7 @@ public final class LangInterpreter {
 			
 			variableName = variableName.substring(7);
 		}else {
-			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			setErrno(InterpretingError.INVALID_AST_NODE, "Invalid variable name", DATA_ID);
 			
 			return new TextValueNode(variableName);
 		}
@@ -381,7 +381,7 @@ public final class LangInterpreter {
 					return new DataObject().setVoid();
 				
 				default:
-					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					break;
 			}
 		}catch(ClassCastException e) {
 			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
@@ -418,7 +418,7 @@ public final class LangInterpreter {
 	private boolean interpretIfStatementNode(IfStatementNode node, final int DATA_ID) {
 		List<IfStatementPartNode> ifPartNodes = node.getIfStatementPartNodes();
 		if(ifPartNodes.isEmpty()) {
-			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			setErrno(InterpretingError.INVALID_AST_NODE, "Empty if statement", DATA_ID);
 			
 			return false;
 		}
@@ -460,7 +460,7 @@ public final class LangInterpreter {
 				node.getOperator() == Operator.OR?null:interpretNode(node.getRightSideOperand(), DATA_ID);
 		if(leftSideOperand == null || (!node.getOperator().isUnary() && node.getOperator() != Operator.AND &&
 				node.getOperator() != Operator.OR && rightSideOperand == null))
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
 		switch(node.getOperator()) {
 			//Unary (Logical operators)
@@ -478,7 +478,7 @@ public final class LangInterpreter {
 				if(leftSideOperandBoolean) {
 					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
 					if(rightSideOperand == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 					conditionOuput = rightSideOperand.getBoolean();
 				}else {
 					conditionOuput = false;
@@ -491,7 +491,7 @@ public final class LangInterpreter {
 				}else {
 					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
 					if(rightSideOperand == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 					conditionOuput = rightSideOperand.getBoolean();
 				}
 				break;
@@ -557,17 +557,10 @@ public final class LangInterpreter {
 			case "lang.version":
 				String langVer = value.getText();
 				if(!langVer.equals(VERSION)) {
-					if(term == null) {
-						if(VERSION.compareTo(langVer) > 0)
-							System.err.println("Lang file's version is older than this version! Maybe the lang file won't be compiled right!");
-						else
-							System.err.println("Lang file's version is newer than this version! Maybe the lang file won't be compiled right!");
-					}else {
-						if(VERSION.compareTo(langVer) > 0)
-							term.logln(Level.WARNING, "Lang file's version is older than this version! Maybe the lang file won't be compiled right!", LangInterpreter.class);
-						else
-							term.logln(Level.ERROR, "Lang file's version is newer than this version! Maybe the lang file won't be compiled right!", LangInterpreter.class);
-					}
+					if(VERSION.compareTo(langVer) > 0)
+						setErrno(InterpretingError.COMP_VER_WARNING, "Lang file's version is older than this version! The lang file could not be compiled right", DATA_ID);
+					else
+						setErrno(InterpretingError.COMP_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be compiled right!", DATA_ID);
 				}
 				break;
 			
@@ -579,10 +572,7 @@ public final class LangInterpreter {
 			case "lang.allowTermRedirect":
 				Number number = value.getNumber();
 				if(number == null) {
-					if(term == null)
-						System.err.println("Invalid Data Type for lang.allowTermRedirect flag!");
-					else
-						term.logln(Level.ERROR, "Invalid Data Type for lang.allowTermRedirect flag!", LangInterpreter.class);
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.allowTermRedirect flag!", DATA_ID);
 					
 					return;
 				}
@@ -597,6 +587,8 @@ public final class LangInterpreter {
 				}
 				errorOutput = number.intValue() != 0;
 				break;
+			default:
+				setErrno(InterpretingError.INVALID_COMP_FLAG_DATA, "\"" + langDataCompilerFlag + "\" is neither compiler data nor a lang flag", DATA_ID);
 		}
 	}
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int DATA_ID) {
@@ -606,7 +598,7 @@ public final class LangInterpreter {
 		
 		Node lvalueNode = node.getLvalue();
 		if(lvalueNode == null)
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Assignment without lvalue", DATA_ID);
 		
 		try {
 			switch(lvalueNode.getNodeType()) {
@@ -621,12 +613,14 @@ public final class LangInterpreter {
 							if(rvalue.getType() != DataType.NULL &&
 							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
 							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
-								//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno
+								//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno, but print "INCOMPATIBLE_DATA_TYPE" anyway
 								InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
-								if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode())
-									return setErrnoErrorObject(error, DATA_ID);
+								if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode()) {
+									setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID); //Print only, $LANG_ERRNO will be overridden below
+									return setErrnoErrorObject(error, "", true, DATA_ID);
+								}
 								
-								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
+								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
 							}
 							
 							if(rvalue.getVariableName() != null && rvalue.getVariableName().startsWith("&LANG_"))
@@ -683,7 +677,7 @@ public final class LangInterpreter {
 					
 				case GENERAL:
 				case ARGUMENT_SEPARATOR:
-					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Neither lvalue nor translationKey", DATA_ID);
 			}
 		}catch(ClassCastException e) {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
@@ -720,7 +714,7 @@ public final class LangInterpreter {
 			int indexOpeningBracket = variableName.indexOf("[");
 			int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 			if(indexMatchingBracket != variableName.length() - 1)
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching dereferencing prackets", DATA_ID);
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
 			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, DATA_ID);
@@ -747,9 +741,8 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int DATA_ID) {
 		String variableName = node.getVariableName();
 		
-		if(!patterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS) &&
-		!patterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE))
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+		if(!patterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && !patterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE))
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", DATA_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
 			return getOrCreateDataObjectFromVariableName(variableName, variableName.startsWith("$"), variableName.startsWith("$"),
@@ -765,7 +758,7 @@ public final class LangInterpreter {
 			
 			variableName = variableName.substring(7);
 		}else {
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", DATA_ID);
 		}
 		
 		final String variableNameCopy = variableName;
@@ -776,7 +769,7 @@ public final class LangInterpreter {
 		}).findFirst();
 		
 		if(!ret.isPresent())
-			return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, DATA_ID);
+			return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + variableName + "\" was not found", DATA_ID);
 		
 		return new DataObject().setFunctionPointer(new FunctionPointerObject(ret.get().getValue())).setVariableName(node.getVariableName());
 	}
@@ -858,30 +851,30 @@ public final class LangInterpreter {
 						DataObject dataTo = data.get(DATA_ID_TO).var.get(to);
 						 //$LANG and final vars can't be change
 						if(to.startsWith("$LANG_") || to.startsWith("&LANG_") || (dataTo != null && dataTo.isFinalData())) {
-							setErrno(InterpretingError.FINAL_VAR_CHANGE, DATA_ID_TO);
+							setErrno(InterpretingError.FINAL_VAR_CHANGE, "during copy after FP execution", DATA_ID_TO);
 							return;
 						}
 						
 						if(patterns.matches(from, LangPatterns.LANG_VAR_ARRAY)) {
-							setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID_TO);
+							setErrno(InterpretingError.LANG_ARRAYS_COPY, "during copy after FP execution", DATA_ID_TO);
 							return;
 						}
 						
 						if(!patterns.matches(to, LangPatterns.VAR_NAME) && !patterns.matches(to, LangPatterns.VAR_NAME_PTR)) {
-							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
+							setErrno(InterpretingError.INVALID_PTR, "during copy after FP execution", DATA_ID_TO);
 							return;
 						}
 						int indexOpeningBracket = to.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(to, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket != -1 && indexMatchingBracket != to.length() - 1) {
-							setErrno(InterpretingError.INVALID_PTR, DATA_ID_TO);
+							setErrno(InterpretingError.INVALID_PTR, "Non matching dereferencing prackets", DATA_ID_TO);
 							return;
 						}
 						
 						if(valFrom.getType() != DataType.NULL &&
 						((to.startsWith("&") && valFrom.getType() != DataType.ARRAY) ||
 						(to.startsWith("fp.") && valFrom.getType() != DataType.FUNCTION_POINTER))) {
-							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID_TO);
+							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "during copy after FP execution", DATA_ID_TO);
 							return;
 						}
 						
@@ -891,7 +884,7 @@ public final class LangInterpreter {
 				}
 			}
 			
-			setErrno(InterpretingError.INVALID_ARGUMENTS, DATA_ID_TO);
+			setErrno(InterpretingError.INVALID_ARGUMENTS, "for copy after FP", DATA_ID_TO);
 		});
 		
 		//Clear copyAfterFP
@@ -903,7 +896,7 @@ public final class LangInterpreter {
 				List<VariableNameNode> parameterList = fp.getParameterList();
 				AbstractSyntaxTree functionBody = fp.getFunctionBody();
 				if(parameterList == null || functionBody == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", DATA_ID);
 				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
@@ -959,7 +952,7 @@ public final class LangInterpreter {
 					}
 					
 					if(!patterns.matches(variableName, LangPatterns.VAR_NAME) || patterns.matches(variableName, LangPatterns.LANG_VAR)) {
-						setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+						setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", DATA_ID);
 						
 						continue;
 					}
@@ -970,7 +963,7 @@ public final class LangInterpreter {
 						lastDataObject = new DataObject().setVoid();
 					
 					if(lastDataObject.getVariableName() != null && patterns.matches(lastDataObject.getVariableName(), LangPatterns.LANG_VAR_ARRAY)) {
-						setErrno(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
+						setErrno(InterpretingError.LANG_ARRAYS_COPY, "Variable name of a parameter starts with \"&LANG\"", DATA_ID);
 						
 						continue;
 					}
@@ -978,7 +971,7 @@ public final class LangInterpreter {
 					if(lastDataObject.getType() != DataType.NULL &&
 					((variableName.startsWith("&") && lastDataObject.getType() != DataType.ARRAY) ||
 					(variableName.startsWith("fp.") && lastDataObject.getType() != DataType.FUNCTION_POINTER))) {
-						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, DATA_ID);
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", DATA_ID);
 						
 						continue;
 					}
@@ -1003,31 +996,26 @@ public final class LangInterpreter {
 			case FunctionPointerObject.PREDEFINED:
 				LangPredefinedFunctionObject function = fp.getPredefinedFunction();
 				if(function == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
-				if(function.isDeprecated()) {
-					if(term == null)
-						System.err.printf("Use of deprecated function \"%s\", this function won't be supported in \"%s\"!\n%s", functionName, function.
-						getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(), (function.
-						getDeprecatedReplacementFunction() == null?"":("Use \"" + function.getDeprecatedReplacementFunction() + "\" instead!\n")));
-					else
-						term.logf(Level.WARNING, "Use of deprecated function \"%s\", this function won't be supported in \"%s\"!\n%s", LangInterpreter.class,
-						functionName, function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
-						(function.getDeprecatedReplacementFunction() == null?"":("Use \"" + function.getDeprecatedReplacementFunction() + "\" instead!\n")));
-				}
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", DATA_ID);
+				
 				DataObject ret = function.callFunc(argumentValueList, DATA_ID);
-				if(function.isDeprecated())
-					setErrno(InterpretingError.DEPRECATED_FUNC_CALL, DATA_ID);
+				if(function.isDeprecated()) {
+					String message = String.format("Use of deprecated function \"%s\", this function woll no longer be supported in \"%s\"!%s", functionName,
+					function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
+					function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
+					setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, DATA_ID);
+				}
 				return ret == null?new DataObject().setVoid():ret;
 			
 			case FunctionPointerObject.EXTERNAL:
 				LangExternalFunctionObject externalFunction = fp.getExternalFunction();
 				if(externalFunction == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", DATA_ID);
 				ret = externalFunction.callFunc(argumentValueList, DATA_ID);
 				return ret == null?new DataObject().setVoid():ret;
 			
 			default:
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP type", DATA_ID);
 		}
 	}
 	private DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int DATA_ID) {
@@ -1082,7 +1070,7 @@ public final class LangInterpreter {
 				
 				functionName = functionName.substring(7);
 			}else {
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid predfined, linker, or external function name", DATA_ID);
 			}
 			
 			final String functionNameCopy = functionName;
@@ -1091,17 +1079,17 @@ public final class LangInterpreter {
 			}).findFirst();
 			
 			if(!ret.isPresent())
-				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "Predfined, linker, or external function was not found", DATA_ID);
 			
 			fp = new FunctionPointerObject(ret.get().getValue());
 		}else if(patterns.matches(functionName, LangPatterns.VAR_NAME_FUNC_PTR)) {
 			DataObject ret = data.get(DATA_ID).var.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer was not found", DATA_ID);
 			
 			fp = ret.getFunctionPointer();
 		}else {
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID);
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid function type", DATA_ID);
 		}
 		
 		return interpretFunctionPointer(fp, functionName, node.getChildren(), DATA_ID);
@@ -1122,15 +1110,14 @@ public final class LangInterpreter {
 			Node child = childrenIterator.next();
 			try {
 				if(child.getNodeType() != NodeType.VARIABLE_NAME) {
-					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid AST node type for parameter", DATA_ID);
 					
 					continue;
 				}
 				
 				VariableNameNode parameter = (VariableNameNode)child;
 				String variableName = parameter.getVariableName();
-				if(!childrenIterator.hasNext() && !patterns.matches(variableName, LangPatterns.LANG_VAR) &&
-				patterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
+				if(!childrenIterator.hasNext() && !patterns.matches(variableName, LangPatterns.LANG_VAR) && patterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
 					//Varargs (only the last parameter can be a varargs parameter)
 					parameterList.add(parameter);
 					break;
@@ -1138,7 +1125,7 @@ public final class LangInterpreter {
 				
 				if((!patterns.matches(variableName, LangPatterns.VAR_NAME) && !patterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR)) ||
 				patterns.matches(variableName, LangPatterns.LANG_VAR)) {
-					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter", DATA_ID);
 					
 					continue;
 				}
@@ -2313,11 +2300,14 @@ public final class LangInterpreter {
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
 		INVALID_PTR           (31, "Invalid Pointer"),
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
-		LANG_ARRAYS_COPY      (33, "&LANG arrays can't be copied"),
+		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
+		COMP_VER_ERROR        (34, "Lang file's version is not compatible with the compiler version"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
-		NO_TERMINAL_WARNING   (-2, "No terminal available");
+		NO_TERMINAL_WARNING   (-2, "No terminal available"),
+		COMP_VER_WARNING      (-3, "Lang file's version is not compatible with the compiler version"),
+		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid");
 		
 		private final int errorCode;
 		private final String errorText;
