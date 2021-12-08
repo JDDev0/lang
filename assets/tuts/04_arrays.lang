@@ -159,6 +159,15 @@ func.println(func.arrayMapToOne(&testArray, \e, fp.combineInt))
 
 func.println()
 
+# Flatten array
+&testArray = func.arrayOf(func.arrayOf(0, 2, 3), func.arrayOf(a, b, c), func.arrayOf(test, abc, null))
+func.println(&testArray)
+func.println([func.arrayGet(&testArray, 0), func.arrayGet(&testArray, 1), func.arrayGet(&testArray, 2)])
+&flattenArray = func.arrayMapToOne(&testArray, func.arrayOf(), func.arrayCombine)
+func.println(&flattenArray)
+
+func.println()
+
 # Execute a function for every element of the array
 # FuncPtr [See: 05_functionPointer.lang]
 # func.arrayForEach(arrPtr, funcPtr) # funcPtr call for every element: funcPtr(currentElement)
