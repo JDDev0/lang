@@ -1760,6 +1760,31 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("arrayEnumerate", (argumentList, DATA_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			DataObject[] arr = arrPointerObject.getArray();
+			if(arr == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
+			
+			for(int i = 0;i < arr.length;i++) {
+				List<DataObject> argumentListFuncCall = new ArrayList<>();
+				argumentListFuncCall.add(new DataObject().setInt(i));
+				argumentListFuncCall.add(new DataObject().setArgumentSeparator(", "));
+				argumentListFuncCall.add(arr[i]);
+				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, DATA_ID);
+			}
+			
+			return null;
+		});
 		funcs.put("randChoice", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(arrPointerObject.getType() == DataType.ARRAY) {
