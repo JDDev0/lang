@@ -1757,9 +1757,9 @@ final class LangPredefinedFunctions {
 			
 			for(DataObject ele:arr) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(ele);
-				argumentListFuncCall.add(new DataObject().setArgumentSeparator(", "));
 				argumentListFuncCall.add(currentValueObject);
+				argumentListFuncCall.add(new DataObject().setArgumentSeparator(", "));
+				argumentListFuncCall.add(ele);
 				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, DATA_ID);
 			}
 			
