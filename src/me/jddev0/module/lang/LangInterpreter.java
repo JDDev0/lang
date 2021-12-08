@@ -846,7 +846,7 @@ public final class LangInterpreter {
 		copyAfterFP.get(DATA_ID_FROM).forEach((to, from) -> {
 			if(from != null && to != null) {
 				DataObject valFrom = data.get(DATA_ID_FROM).var.get(from);
-				if(valFrom != null && valFrom.getType() != DataType.NULL) {
+				if(valFrom != null) {
 					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
 						DataObject dataTo = data.get(DATA_ID_TO).var.get(to);
 						 //$LANG and final vars can't be change
