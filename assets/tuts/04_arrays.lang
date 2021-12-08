@@ -98,6 +98,7 @@ func.println()
 
 # Changing every value of an array to another (mapping)
 # func.arrayMap(arrPtr, funcPtr)
+# FuncPtr [See: 05_functionPointer.lang]
 &testArray = func.arrayOf(A, B, C, D, E, F, G)
 func.println(func.arrayGetAll(&testArray))
 
@@ -115,6 +116,30 @@ func.println(func.arrayGetAll(&testArray))
 
 func.arrayMap(&testArray, func.toChar)
 func.println(func.arrayGetAll(&testArray))
+
+func.println()
+
+# Execute a function for every element of the array
+# FuncPtr [See: 05_functionPointer.lang]
+# func.arrayForEach(arrPtr, funcPtr) # funcPtr call for every element: funcPtr(currentElement)
+# func.arrayEnumerate(arrPtr, funcPtr) # funcPtr call for every element: funcPtr(currentIndex, currentElement)
+&testArray = func.arrayOf(1, 2, 3, a, b, c, null)
+
+fp.forEach = ($ele) -> func.println($ele)
+func.arrayForEach(&testArray, fp.forEach)
+
+func.println()
+
+func.arrayForEach(&testArray, func.println)
+
+func.println()
+
+fp.enumerate = ($i, $ele) -> func.println($i: $ele)
+func.arrayEnumerate(&testArray, fp.enumerate)
+
+func.println()
+
+func.arrayEnumerate(&testArray, func.printTerminal)
 
 func.println()
 
