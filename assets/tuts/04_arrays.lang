@@ -119,6 +119,46 @@ func.println(func.arrayGetAll(&testArray))
 
 func.println()
 
+# Map the array to a single value
+# func.arrayMapToOne(arrPtr, value, funcPtr) # funcPtr call for the first element: funcPtr(currentElement, value)
+                                             # funcPtr call for other every element: funcPtr(currentElement, previousReturnedValue)
+# FuncPtr [See: 05_functionPointer.lang]
+
+&testArray = func.arrayOf(1, 2, 3, 4, 42, -1)
+$sum = func.arrayMapToOne(&testArray, 0, func.addi) # Will return the sum of all elements
+$prod = func.arrayMapToOne(&testArray, 1, func.muli) # Will return the product of all elements
+func.println(Sum of func.arrayGetAll(&testArray): $sum\nProduct of func.arrayGetAll(&testArray): $prod)
+
+func.println()
+
+fp.sumAndMultiplyBy2 = ($ele, $prevValue) -> {
+	func.println(Input: $ele and $prevValue)
+	$res = func.addi(func.muli($ele, 2), $prevValue)
+	func.println(Ouput: $res)
+	return $res
+}
+$sum2 = func.arrayMapToOne(&testArray, 0, fp.sumAndMultiplyBy2)
+func.println(Last Output: $sum2)
+
+func.println()
+
+&testArray = func.arrayOf(1, 2, 3, b, def, \s, 4, 42, a)
+fp.combineText = ($txt1, $txt2) -> return $txt2$txt1
+func.println(func.arrayMapToOne(&testArray, \e, fp.combineText))
+
+func.println()
+
+fp.combineTextInverted = ($txt1, $txt2) -> return $txt1$txt2
+func.println(func.arrayMapToOne(&testArray, \e, fp.combineTextInverted))
+
+func.println()
+
+&testArray = func.arrayOf(5, 2, 1, 6)
+fp.combineInt = ($num1, $num2) -> return func.toInt($num2$num1)
+func.println(func.arrayMapToOne(&testArray, \e, fp.combineInt))
+
+func.println()
+
 # Execute a function for every element of the array
 # FuncPtr [See: 05_functionPointer.lang]
 # func.arrayForEach(arrPtr, funcPtr) # funcPtr call for every element: funcPtr(currentElement)
