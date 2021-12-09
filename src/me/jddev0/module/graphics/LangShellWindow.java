@@ -384,7 +384,7 @@ public class LangShellWindow extends JDialog {
 		
 		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
 		lii.addPredefinedFunction("input", (argumentList, DATA_ID) -> {
-			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
+			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", DATA_ID);
 			return new DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
 		});
 		
