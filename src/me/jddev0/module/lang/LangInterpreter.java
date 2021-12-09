@@ -39,6 +39,12 @@ public final class LangInterpreter {
 	TerminalIO term;
 	LangPlatformAPI langPlatformAPI;
 	
+	//Lang tests
+	final LangTest langTestStore = new LangTest();
+	InterpretingError langTestExpectedThrowValue = null;
+	DataObject langTestExpectedReturnValue = null;
+	boolean langTestExpectedNoReturnValue = false;
+	
 	//Fields for return node
 	/**
 	 * Will be set to true for returning a value
@@ -61,6 +67,10 @@ public final class LangInterpreter {
 	 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
 	 */
 	boolean errorOutput = true;
+	/**
+	 * Will enable langTests unit test (Can not be disabled if enabled once)
+	 */
+	boolean langTest = false;
 	
 	//DATA
 	Map<Integer, Data> data = new HashMap<>();
@@ -587,6 +597,23 @@ public final class LangInterpreter {
 				}
 				errorOutput = number.intValue() != 0;
 				break;
+			case "lang.langTest":
+				number = value.getNumber();
+				if(number == null) {
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.langTest flag!", DATA_ID);
+					
+					return;
+				}
+				
+				boolean langTestNewValue = number.intValue() != 0;
+				if(langTest && !langTestNewValue) {
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "The lang.langTest flag can not be changed if it was once set to true!", DATA_ID);
+					
+					return;
+				}
+				
+				langTest = langTestNewValue;
+				break;
 			default:
 				setErrno(InterpretingError.INVALID_COMP_FLAG_DATA, "\"" + langDataCompilerFlag + "\" is neither compiler data nor a lang flag", DATA_ID);
 		}
@@ -837,6 +864,28 @@ public final class LangInterpreter {
 		returnedOrThrowedValue = null;
 		if(isThrowedValue && DATA_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), DATA_ID);
+		
+		if(langTest) {
+			if(langTestExpectedThrowValue != null) {
+				InterpretingError gotError = isThrowedValue?retTmp.getError().getInterprettingError():null;
+				langTestStore.addAssertResult(new LangTest.AssertResultError(gotError == langTestExpectedThrowValue, gotError, langTestExpectedThrowValue));
+				
+				langTestExpectedThrowValue = null;
+			}
+			
+			if(langTestExpectedReturnValue != null) {
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrowedValue && langTestExpectedReturnValue.isStrictEquals(retTmp), retTmp, langTestExpectedReturnValue));
+				
+				langTestExpectedReturnValue = null;
+			}
+			
+			if(langTestExpectedNoReturnValue) {
+				langTestStore.addAssertResult(new LangTest.AssertResultNoReturn(retTmp == null, retTmp));
+				
+				langTestExpectedNoReturnValue = false;
+			}
+		}
+		
 		isThrowedValue = false;
 		stopParsingFlag = false;
 		return retTmp;

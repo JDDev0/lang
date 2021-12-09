@@ -88,6 +88,7 @@ final class LangPredefinedFunctions {
 		addPredefinedMathFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
+		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("clearVar", (argumentList, DATA_ID) -> {
@@ -1889,6 +1890,208 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
 			interpreter.data.get(DATA_ID).var.remove(variableName);
+			return null;
+		});
+	}
+	
+	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("langTestUnit", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
+			if(textObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addUnit(textObject.getText());
+			
+			return null;
+		});
+		funcs.put("langTestSubUnit", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
+			if(textObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			try {
+				interpreter.langTestStore.addSubUnit(textObject.getText());
+			}catch(IllegalStateException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
+			}
+			
+			return null;
+		});
+		funcs.put("langTestAssertError", (argumentList, DATA_ID) -> {
+			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			if(errorObject.getType() != DataType.ERROR)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			InterpretingError langErrno = interpreter.getAndClearErrnoErrorObject(DATA_ID);
+			InterpretingError expectedError = errorObject.getError().getInterprettingError();
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultError(langErrno == expectedError, langErrno, expectedError));
+			
+			return null;
+		});
+		funcs.put("langTestAssertEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(gotValueObject.isEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertNotEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(!gotValueObject.isEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertLessThan", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(gotValueObject.isLessThan(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertLessThanOrEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(gotValueObject.isLessThanOrEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertGreaterThan", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(gotValueObject.isGreaterThan(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertGreaterThanOrEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(gotValueObject.isGreaterThanOrEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertStrictEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(gotValueObject.isStrictEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertStrictNotEquals", (argumentList, DATA_ID) -> {
+			DataObject gotValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!gotValueObject.isStrictEquals(expectedValueObject), gotValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertThrow", (argumentList, DATA_ID) -> {
+			DataObject expectedThrowObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			if(expectedThrowObject.getType() != DataType.ERROR)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			InterpretingError expectedError = expectedThrowObject.getError().getInterprettingError();
+			
+			interpreter.langTestExpectedThrowValue = expectedError;
+			
+			return null;
+		});
+		funcs.put("langTestAssertReturn", (argumentList, DATA_ID) -> {
+			DataObject expectedReturnObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestExpectedReturnValue = expectedReturnObject;
+			
+			return null;
+		});
+		funcs.put("langTestAssertNoReturn", (argumentList, DATA_ID) -> {
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestExpectedNoReturnValue = true;
+			
+			return null;
+		});
+		funcs.put("langTestPrintResults", (argumentList, DATA_ID) -> {
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			String results = interpreter.langTestStore.printResults();
+			if(interpreter.term == null)
+				System.out.println(results);
+			else
+				interpreter.term.logln(Level.INFO, results, LangInterpreter.class);
+			
 			return null;
 		});
 	}
