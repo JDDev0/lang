@@ -1569,7 +1569,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> elements = new LinkedList<>();
 			
 			while(argumentList.size() > 0)
-				elements.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+				elements.add(new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true)));
 			
 			return new DataObject().setArray(elements.toArray(new DataObject[0]));
 		});
