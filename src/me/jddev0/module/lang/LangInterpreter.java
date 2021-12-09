@@ -541,7 +541,7 @@ public final class LangInterpreter {
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
 		Node returnValueNode = node.getReturnValue();
 		
-		returnedOrThrowedValue = returnValueNode == null?new DataObject().setVoid():interpretNode(returnValueNode, DATA_ID);
+		returnedOrThrowedValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
 		isThrowedValue = false;
 		stopParsingFlag = true;
 	}
