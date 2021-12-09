@@ -343,7 +343,7 @@ public class LangTest {
 		
 		@Override
 		public String getGotValue() {
-			return gotValue == null?"nothing thrown":(gotValue.getErrorCode() + " (" + gotValue.name() + ")");
+			return gotValue.getErrorCode() + " (" + gotValue.name() + ")";
 		}
 		
 		@Override

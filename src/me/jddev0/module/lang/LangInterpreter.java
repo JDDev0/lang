@@ -868,7 +868,7 @@ public final class LangInterpreter {
 		if(langTest) {
 			if(langTestExpectedThrowValue != null) {
 				InterpretingError gotError = isThrownValue?retTmp.getError().getInterprettingError():null;
-				langTestStore.addAssertResult(new LangTest.AssertResultError(gotError == langTestExpectedThrowValue, gotError, langTestExpectedThrowValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, gotError, langTestExpectedThrowValue));
 				
 				langTestExpectedThrowValue = null;
 			}
