@@ -50,8 +50,8 @@ public final class LangInterpreter {
 	 * Will be set to true for returning a value
 	 */
 	private boolean stopParsingFlag;
-	private DataObject returnedOrThrowedValue;
-	private boolean isThrowedValue;
+	private DataObject returnedOrThrownValue;
+	private boolean isThrownValue;
 	/**
 	 * <DATA_ID (of function), <to, from>><br>
 	 * Data tmp for "func.copyAfterFP"
@@ -541,8 +541,8 @@ public final class LangInterpreter {
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
 		Node returnValueNode = node.getReturnValue();
 		
-		returnedOrThrowedValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
-		isThrowedValue = false;
+		returnedOrThrownValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
+		isThrownValue = false;
 		stopParsingFlag = true;
 	}
 	
@@ -551,10 +551,10 @@ public final class LangInterpreter {
 		
 		DataObject errorObject = interpretNode(throwValueNode, DATA_ID);
 		if(errorObject == null || errorObject.getType() != DataType.ERROR)
-			returnedOrThrowedValue = new DataObject().setError(new ErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE));
+			returnedOrThrownValue = new DataObject().setError(new ErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE));
 		else
-			returnedOrThrowedValue = errorObject;
-		isThrowedValue = true;
+			returnedOrThrownValue = errorObject;
+		isThrownValue = true;
 		stopParsingFlag = true;
 	}
 	
@@ -860,21 +860,21 @@ public final class LangInterpreter {
 	}
 	
 	DataObject getAndResetReturnValue(final int DATA_ID) {
-		DataObject retTmp = returnedOrThrowedValue;
-		returnedOrThrowedValue = null;
-		if(isThrowedValue && DATA_ID > -1)
+		DataObject retTmp = returnedOrThrownValue;
+		returnedOrThrownValue = null;
+		if(isThrownValue && DATA_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), DATA_ID);
 		
 		if(langTest) {
 			if(langTestExpectedThrowValue != null) {
-				InterpretingError gotError = isThrowedValue?retTmp.getError().getInterprettingError():null;
+				InterpretingError gotError = isThrownValue?retTmp.getError().getInterprettingError():null;
 				langTestStore.addAssertResult(new LangTest.AssertResultError(gotError == langTestExpectedThrowValue, gotError, langTestExpectedThrowValue));
 				
 				langTestExpectedThrowValue = null;
 			}
 			
 			if(langTestExpectedReturnValue != null) {
-				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrowedValue && langTestExpectedReturnValue.isStrictEquals(retTmp), retTmp, langTestExpectedReturnValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), retTmp, langTestExpectedReturnValue));
 				
 				langTestExpectedReturnValue = null;
 			}
@@ -886,7 +886,7 @@ public final class LangInterpreter {
 			}
 		}
 		
-		isThrowedValue = false;
+		isThrownValue = false;
 		stopParsingFlag = false;
 		return retTmp;
 	}
@@ -2496,7 +2496,7 @@ public final class LangInterpreter {
 		 * Must be called before {@link #LangInterpreter.LangInterpreterInterface.getAndResetReturnValue() getAndResetReturnValue()} method
 		 */
 		public boolean isReturnedValueThrowValue() {
-			return interpreter.isThrowedValue;
+			return interpreter.isThrownValue;
 		}
 		public DataObject getAndResetReturnValue() {
 			return interpreter.getAndResetReturnValue(-1);
