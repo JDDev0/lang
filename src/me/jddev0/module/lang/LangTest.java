@@ -88,7 +88,7 @@ public class LangTest {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
 							out += "\n\t\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\t\tGot:      " + failedTest.getGotValue() + "\n" +
+							       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
 							       "\t\t\tExcepted: " + failedTest.getExpectedValue();
 						}
 					}
@@ -100,7 +100,7 @@ public class LangTest {
 					out += "\n\t\tSubUnit: \"" + subUnit.getName() + "\"";
 					for(AssertResult failedTest:failedTests) {
 						out += "\n\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\t\tGot:      " + failedTest.getGotValue() + "\n" +
+						       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
 						       "\t\t\t\tExcepted: " + failedTest.getExpectedValue();
 					}
 				}
@@ -172,7 +172,7 @@ public class LangTest {
 						
 						for(AssertResult failedTest:failedTests) {
 							out += "\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\tGot:      " + failedTest.getGotValue() + "\n" +
+							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
 							       "\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
 						}
 						
@@ -186,7 +186,7 @@ public class LangTest {
 					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
 					for(AssertResult failedTest:failedTests) {
 						out += "\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\tGot:      " + failedTest.getGotValue() + "\n" +
+						       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
 						       "\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
 					}
 					
@@ -282,7 +282,7 @@ public class LangTest {
 				
 				for(AssertResult failedTest:failedTests) {
 					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-					       "\t\t\t\tGot:      " + failedTest.getGotValue() + "\n" +
+					       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
 					       "\t\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
 				}
 			}
@@ -316,18 +316,18 @@ public class LangTest {
 	private static interface AssertResult {
 		boolean hasTestPassed();
 		String getAssertTestName();
-		String getGotValue();
+		String getActualValue();
 		String getExpectedValue();
 	}
 	
 	public static final class AssertResultError implements AssertResult {
 		private final boolean testPassed;
-		private final InterpretingError gotValue;
+		private final InterpretingError actualValue;
 		private final InterpretingError expectedValue;
 		
-		public AssertResultError(boolean testPassed, InterpretingError gotValue, InterpretingError expectedValue) {
+		public AssertResultError(boolean testPassed, InterpretingError actualValue, InterpretingError expectedValue) {
 			this.testPassed = testPassed;
-			this.gotValue = gotValue;
+			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
 
@@ -342,8 +342,8 @@ public class LangTest {
 		}
 		
 		@Override
-		public String getGotValue() {
-			return gotValue.getErrorCode() + " (" + gotValue.name() + ")";
+		public String getActualValue() {
+			return actualValue.getErrorCode() + " (" + actualValue.name() + ")";
 		}
 		
 		@Override
@@ -354,13 +354,13 @@ public class LangTest {
 	
 	private static abstract class AssertResultDataObject implements AssertResult {
 		private final boolean testPassed;
-		private final DataObject gotValue;
+		private final DataObject actualValue;
 		private final DataObject expectedValue;
 		private final String expectedValueOperator;
 		
-		public AssertResultDataObject(boolean testPassed, DataObject gotValue, DataObject expectedValue, String expectedValueOperator) {
+		public AssertResultDataObject(boolean testPassed, DataObject actualValue, DataObject expectedValue, String expectedValueOperator) {
 			this.testPassed = testPassed;
-			this.gotValue = gotValue;
+			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 			this.expectedValueOperator = expectedValueOperator;
 		}
@@ -371,8 +371,8 @@ public class LangTest {
 		}
 		
 		@Override
-		public String getGotValue() {
-			return "\"" + gotValue.getText() + "\"" + ", Type: " + gotValue.getType().name();
+		public String getActualValue() {
+			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
 		}
 		
 		@Override
@@ -382,8 +382,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultEquals extends AssertResultDataObject {
-		public AssertResultEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "==");
+		public AssertResultEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "==");
 		}
 		
 		@Override
@@ -393,8 +393,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultNotEquals extends AssertResultDataObject {
-		public AssertResultNotEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "!=");
+		public AssertResultNotEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "!=");
 		}
 		
 		@Override
@@ -404,8 +404,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultLessThan extends AssertResultDataObject {
-		public AssertResultLessThan(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "<");
+		public AssertResultLessThan(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "<");
 		}
 		
 		@Override
@@ -415,8 +415,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultGreaterThan extends AssertResultDataObject {
-		public AssertResultGreaterThan(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, ">");
+		public AssertResultGreaterThan(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, ">");
 		}
 		
 		@Override
@@ -426,8 +426,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultLessThanOrEquals extends AssertResultDataObject {
-		public AssertResultLessThanOrEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "<=");
+		public AssertResultLessThanOrEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "<=");
 		}
 		
 		@Override
@@ -437,8 +437,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultGreaterThanOrEquals extends AssertResultDataObject {
-		public AssertResultGreaterThanOrEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, ">=");
+		public AssertResultGreaterThanOrEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, ">=");
 		}
 		
 		@Override
@@ -448,8 +448,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultStrictEquals extends AssertResultDataObject {
-		public AssertResultStrictEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "===");
+		public AssertResultStrictEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "===");
 		}
 		
 		@Override
@@ -459,8 +459,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultStrictNotEquals extends AssertResultDataObject {
-		public AssertResultStrictNotEquals(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
-			super(testPassed, gotValue, expectedValue, "!==");
+		public AssertResultStrictNotEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, actualValue, expectedValue, "!==");
 		}
 		
 		@Override
@@ -471,12 +471,12 @@ public class LangTest {
 	
 	public static final class AssertResultThrow implements AssertResult {
 		private final boolean testPassed;
-		private final InterpretingError gotValue;
+		private final InterpretingError actualValue;
 		private final InterpretingError expectedValue;
 		
-		public AssertResultThrow(boolean testPassed, InterpretingError gotValue, InterpretingError expectedValue) {
+		public AssertResultThrow(boolean testPassed, InterpretingError actualValue, InterpretingError expectedValue) {
 			this.testPassed = testPassed;
-			this.gotValue = gotValue;
+			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
 
@@ -491,8 +491,8 @@ public class LangTest {
 		}
 		
 		@Override
-		public String getGotValue() {
-			return gotValue == null?"nothing thrown":(gotValue.getErrorCode() + " (" + gotValue.name() + ")");
+		public String getActualValue() {
+			return actualValue == null?"nothing thrown":(actualValue.getErrorCode() + " (" + actualValue.name() + ")");
 		}
 		
 		@Override
@@ -503,12 +503,12 @@ public class LangTest {
 	
 	public static class AssertResultReturn implements AssertResult {
 		private final boolean testPassed;
-		private final DataObject gotValue;
+		private final DataObject actualValue;
 		private final DataObject expectedValue;
 		
-		public AssertResultReturn(boolean testPassed, DataObject gotValue, DataObject expectedValue) {
+		public AssertResultReturn(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
 			this.testPassed = testPassed;
-			this.gotValue = gotValue;
+			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
 
@@ -523,8 +523,8 @@ public class LangTest {
 		}
 		
 		@Override
-		public String getGotValue() {
-			return gotValue == null?"nothing returned":("\"" + gotValue.getText() + "\"" + ", Type: " + gotValue.getType().name());
+		public String getActualValue() {
+			return actualValue == null?"nothing returned":("\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name());
 		}
 		
 		@Override
@@ -535,11 +535,11 @@ public class LangTest {
 	
 	public static class AssertResultNoReturn implements AssertResult {
 		private final boolean testPassed;
-		private final DataObject gotValue;
+		private final DataObject actualValue;
 		
-		public AssertResultNoReturn(boolean testPassed, DataObject gotValue) {
+		public AssertResultNoReturn(boolean testPassed, DataObject actualValue) {
 			this.testPassed = testPassed;
-			this.gotValue = gotValue;
+			this.actualValue = actualValue;
 		}
 
 		@Override
@@ -553,8 +553,8 @@ public class LangTest {
 		}
 		
 		@Override
-		public String getGotValue() {
-			return "\"" + gotValue.getText() + "\"" + ", Type: " + gotValue.getType().name();
+		public String getActualValue() {
+			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
 		}
 		
 		@Override
