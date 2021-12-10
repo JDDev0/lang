@@ -629,7 +629,7 @@ public class LangTest {
 		
 		@Override
 		public String getAssertTestName() {
-			return "assertResultStrictNull";
+			return "assertResultNull";
 		}
 	}
 	
@@ -640,7 +640,7 @@ public class LangTest {
 		
 		@Override
 		public String getAssertTestName() {
-			return "assertResultStrictNotNull";
+			return "assertResultNotNull";
 		}
 	}
 	
@@ -651,7 +651,7 @@ public class LangTest {
 		
 		@Override
 		public String getAssertTestName() {
-			return "assertResultStrictVoid";
+			return "assertResultVoid";
 		}
 	}
 	
@@ -662,7 +662,7 @@ public class LangTest {
 		
 		@Override
 		public String getAssertTestName() {
-			return "assertResultStrictNotVoid";
+			return "assertResultNotVoid";
 		}
 	}
 	
