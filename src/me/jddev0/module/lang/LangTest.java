@@ -209,7 +209,7 @@ public class LangTest {
 			
 			term.logln(Level.CONFIG,
 					"Unit: " + (name == null?"noname":("\"" + name + "\"")) + ":\n" +
-					"Test passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+					"Tests passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
 			
 			String out = "";
 			if(getTestPassedCount() != getTestCount())
@@ -261,7 +261,7 @@ public class LangTest {
 				return "";
 			
 			String out = "Unit: " + (name == null?"noname":("\"" + name + "\"")) + ":\n" +
-			             "Test passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
+			             "Tests passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
 			
 			if(getTestPassedCount() != getTestCount())
 				out += "Failed tests:\n";
@@ -374,7 +374,7 @@ public class LangTest {
 			
 			term.logln(Level.CONFIG,
 					"\tSubUnit: \"" + name + "\":\n" +
-					"\t\tTest passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+					"\t\tTests passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
 			
 			String out = "";
 			List<AssertResult> failedTests = getFailedTests();
@@ -400,7 +400,7 @@ public class LangTest {
 				return "";
 			
 			String out = "\tSubUnit: \"" + name + "\":\n" +
-			             "\t\tTest passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
+			             "\t\tTests passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
 			
 			List<AssertResult> failedTests = getFailedTests();
 			if(failedTests.size() > 0) {
