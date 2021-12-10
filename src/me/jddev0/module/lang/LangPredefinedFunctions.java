@@ -2086,11 +2086,10 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			String results = interpreter.langTestStore.printResults();
 			if(interpreter.term == null)
-				System.out.println(results);
+				System.out.println(interpreter.langTestStore.printResults());
 			else
-				interpreter.term.logln(Level.INFO, results, LangInterpreter.class);
+				interpreter.langTestStore.printResultsToTerminal(interpreter.term);
 			
 			return null;
 		});

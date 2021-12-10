@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import me.jddev0.module.io.TerminalIO;
+import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.LangInterpreter.DataObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
@@ -62,6 +64,52 @@ public class LangTest {
 	
 	public String printResults() {
 		return toString();
+	}
+	
+	public void printResultsToTerminal(TerminalIO term) {
+		units.forEach(unit -> unit.printResultsToTerminal(term));
+		
+		term.logln(Level.INFO, "------------------------------------------", LangTest.class);
+		term.logln(Level.CONFIG, "Summary:\nTests passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+		
+		String out = "";
+		if(getTestPassedCount() != getTestCount())
+			out += "Failed tests:";
+		
+		for(Unit unit:units) {
+			if(unit.getTestPassedCount() == unit.getTestCount() || unit.getTestCount() == 0)
+				continue;
+			
+			out += "\n\tUnit: " + (unit.getName() == null?"noname":("\"" + unit.getName() + "\"")) + ":";
+			
+			for(SubUnit subUnit:unit.getSubUnits()) {
+				List<AssertResult> failedTests = subUnit.getFailedTests();
+				
+				if(subUnit.getName() == null) {
+					if(failedTests.size() > 0) {
+						for(AssertResult failedTest:failedTests) {
+							out += "\n\t\t" + failedTest.getAssertTestName() + ":\n" +
+							       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
+							       "\t\t\tExcepted: " + failedTest.getExpectedValue();
+						}
+					}
+					
+					continue;
+				}
+				
+				if(failedTests.size() > 0) {
+					out += "\n\t\tSubUnit: \"" + subUnit.getName() + "\"";
+					for(AssertResult failedTest:failedTests) {
+						out += "\n\t\t\t" + failedTest.getAssertTestName() + ":\n" +
+						       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
+						       "\t\t\t\tExcepted: " + failedTest.getExpectedValue();
+					}
+				}
+			}
+		}
+		
+		if(!out.isEmpty())
+			term.logln(Level.ERROR, out, LangTest.class);
 	}
 	
 	@Override
@@ -153,6 +201,58 @@ public class LangTest {
 		
 		public String printResults() {
 			return toString();
+		}
+		
+		public void printResultsToTerminal(TerminalIO term) {
+			if(getTestCount() == 0)
+				return;
+			
+			term.logln(Level.CONFIG,
+					"Unit: " + (name == null?"noname":("\"" + name + "\"")) + ":\n" +
+					"Test passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+			
+			String out = "";
+			for(SubUnit subUnit:subUnits) {
+				List<AssertResult> failedTests = subUnit.getFailedTests();
+				
+				if(subUnit.getName() == null) {
+					if(failedTests.size() > 0) {
+						out += "Failed tests:\n";
+						
+						for(AssertResult failedTest:failedTests) {
+							out += "\t" + failedTest.getAssertTestName() + ":\n" +
+							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
+							       "\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+						}
+						
+						out += "\n";
+					}
+					
+					continue;
+				}
+				
+				if(failedTests.size() > 0) {
+					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
+					for(AssertResult failedTest:failedTests) {
+						out += "\t\t" + failedTest.getAssertTestName() + ":\n" +
+						       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
+						       "\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+					}
+					
+					out += "\n";
+				}
+			}
+			
+			if(!out.isEmpty())
+				term.logln(Level.ERROR, out, LangTest.class);
+			
+			
+			if(subUnits.size() > 1) {
+				term.logln(Level.CONFIG, "SubUnits:", LangTest.class);
+				
+				for(SubUnit subUnit:subUnits)
+					subUnit.printResultsToTerminal(term);
+			}
 		}
 		
 		@Override
@@ -266,6 +366,32 @@ public class LangTest {
 		
 		public String printResults() {
 			return toString();
+		}
+		
+		public void printResultsToTerminal(TerminalIO term) {
+			if(name == null || getTestCount() == 0)
+				return;
+			
+			term.logln(Level.CONFIG,
+					"\tSubUnit: \"" + name + "\":\n" +
+					"\t\tTest passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+			
+			String out = "";
+			List<AssertResult> failedTests = getFailedTests();
+			if(failedTests.size() > 0) {
+				out += "\t\tFaild tests:\n";
+				
+				for(AssertResult failedTest:failedTests) {
+					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
+					       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
+					       "\t\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+				}
+			}
+			
+			out += "\n";
+
+			if(!out.isEmpty())
+				term.logln(Level.ERROR, out, LangTest.class);
 		}
 		
 		@Override
