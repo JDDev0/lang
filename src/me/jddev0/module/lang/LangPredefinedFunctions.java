@@ -2045,6 +2045,54 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("langTestAssertNull", (argumentList, DATA_ID) -> {
+			DataObject actualObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(actualObject.getType() == DataType.NULL, actualObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertNotNull", (argumentList, DATA_ID) -> {
+			DataObject actualObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(actualObject.getType() != DataType.NULL, actualObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertVoid", (argumentList, DATA_ID) -> {
+			DataObject actualObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(actualObject.getType() == DataType.VOID, actualObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertNotVoid", (argumentList, DATA_ID) -> {
+			DataObject actualObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(actualObject.getType() != DataType.VOID, actualObject));
+			
+			return null;
+		});
 		funcs.put("langTestAssertThrow", (argumentList, DATA_ID) -> {
 			DataObject expectedThrowObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument

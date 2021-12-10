@@ -595,6 +595,77 @@ public class LangTest {
 		}
 	}
 	
+	private static abstract class AssertResultDataObjectString implements AssertResult {
+		private final boolean testPassed;
+		private final DataObject actualValue;
+		private final String expectedValue;
+		
+		public AssertResultDataObjectString(boolean testPassed, DataObject actualValue, String expectedValue) {
+			this.testPassed = testPassed;
+			this.actualValue = actualValue;
+			this.expectedValue = expectedValue;
+		}
+
+		@Override
+		public boolean hasTestPassed() {
+			return testPassed;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return expectedValue;
+		}
+	}
+	
+	public static final class AssertResultNull extends AssertResultDataObjectString {
+		public AssertResultNull(boolean testPassed, DataObject actualValue) {
+			super(testPassed, actualValue, "== null");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultStrictNull";
+		}
+	}
+	
+	public static final class AssertResultNotNull extends AssertResultDataObjectString {
+		public AssertResultNotNull(boolean testPassed, DataObject actualValue) {
+			super(testPassed, actualValue, "!= null");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultStrictNotNull";
+		}
+	}
+	
+	public static final class AssertResultVoid extends AssertResultDataObjectString {
+		public AssertResultVoid(boolean testPassed, DataObject actualValue) {
+			super(testPassed, actualValue, "== void");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultStrictVoid";
+		}
+	}
+	
+	public static final class AssertResultNotVoid extends AssertResultDataObjectString {
+		public AssertResultNotVoid(boolean testPassed, DataObject actualValue) {
+			super(testPassed, actualValue, "!= void");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultStrictNotVoid";
+		}
+	}
+	
 	public static final class AssertResultThrow implements AssertResult {
 		private final boolean testPassed;
 		private final InterpretingError actualValue;
