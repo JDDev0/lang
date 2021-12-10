@@ -212,13 +212,13 @@ public class LangTest {
 					"Test passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
 			
 			String out = "";
+			if(getTestPassedCount() != getTestCount())
+				out += "Failed tests:\n";
 			for(SubUnit subUnit:subUnits) {
 				List<AssertResult> failedTests = subUnit.getFailedTests();
 				
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
-						out += "Failed tests:\n";
-						
 						for(AssertResult failedTest:failedTests) {
 							out += "\t" + failedTest.getAssertTestName() + ":\n" +
 							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
@@ -263,13 +263,13 @@ public class LangTest {
 			String out = "Unit: " + (name == null?"noname":("\"" + name + "\"")) + ":\n" +
 			             "Test passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
 			
+			if(getTestPassedCount() != getTestCount())
+				out += "Failed tests:\n";
 			for(SubUnit subUnit:subUnits) {
 				List<AssertResult> failedTests = subUnit.getFailedTests();
 				
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
-						out += "Failed tests:\n";
-						
 						for(AssertResult failedTest:failedTests) {
 							out += "\t" + failedTest.getAssertTestName() + ":\n" +
 							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
