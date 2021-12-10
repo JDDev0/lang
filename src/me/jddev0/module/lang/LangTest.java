@@ -379,7 +379,7 @@ public class LangTest {
 			String out = "";
 			List<AssertResult> failedTests = getFailedTests();
 			if(failedTests.size() > 0) {
-				out += "\t\tFaild tests:\n";
+				out += "\t\tFailed tests:\n";
 				
 				for(AssertResult failedTest:failedTests) {
 					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
@@ -404,7 +404,7 @@ public class LangTest {
 			
 			List<AssertResult> failedTests = getFailedTests();
 			if(failedTests.size() > 0) {
-				out += "\t\tFaild tests:\n";
+				out += "\t\tFailed tests:\n";
 				
 				for(AssertResult failedTest:failedTests) {
 					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
