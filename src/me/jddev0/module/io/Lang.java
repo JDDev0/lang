@@ -363,16 +363,16 @@ public final class Lang {
 				lastCachedLangFileName = langFile;
 			}
 			
-			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-			//Cache lang translations
-			reader.lines().forEach(line -> {
-				if(!line.contains(" = "))
-					return;
-				
-				String[] langTranslation = line.split(" = ", 2);
-				LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
-			});
-			reader.close();
+			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
+				//Cache lang translations
+				reader.lines().forEach(line -> {
+					if(!line.contains(" = "))
+						return;
+					
+					String[] langTranslation = line.split(" = ", 2);
+					LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
+				});
+			}
 			return new HashMap<>(LANG_CACHE);
 		}
 	}
@@ -402,15 +402,9 @@ public final class Lang {
 			//Create new Interpreter instance
 			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 			
-			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-			try {
+			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 				interpreter.interpretLines(reader);
-			}catch(IOException e) {
-				reader.close();
-				
-				throw e;
 			}
-			reader.close();
 			
 			//Cache lang translations
 			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
@@ -560,15 +554,9 @@ public final class Lang {
 		
 		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 		
-		BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-		try {
+		try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 			interpreter.interpretLines(reader);
-		}catch(IOException e) {
-			reader.close();
-			
-			throw e;
 		}
-		reader.close();
 		
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {
@@ -876,7 +864,9 @@ public final class Lang {
 			lii.exec(DATA_ID, lines);
 		}
 		public void exec(final int DATA_ID, String lines) throws IOException {
-			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
+			try(BufferedReader reader = new BufferedReader(new StringReader(lines))) {
+				exec(DATA_ID, reader);
+			}
 		}
 		public String execLine(final int DATA_ID, String line) {
 			try {
@@ -890,8 +880,8 @@ public final class Lang {
 		public String callFunction(final int DATA_ID, String funcName, String funcArgs) {
 			List<Node> argumentList = new LinkedList<>();
 			String code = "func.abc(" + funcArgs + ")";
-			try {
-				AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(code)));
+			try(BufferedReader reader = new BufferedReader(new StringReader(code))) {
+				AbstractSyntaxTree ast = lii.parseLines(reader);
 				argumentList.addAll(ast.getChildren().get(0).getChildren());
 			}catch(Exception e) {
 				argumentList.add(new ParsingErrorNode(ParsingError.EOF));
@@ -1503,8 +1493,8 @@ public final class Lang {
 							case FunctionPointerObject.NORMAL:
 								convertedFP = new LangInterpreter.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, DATA_ID) -> {
 									String function = "fp.abc = (" + fp.getHead() + ") -> {\n" + fp.getBody() + "}";
-									try {
-										AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(function)));
+									try(BufferedReader reader = new BufferedReader(new StringReader(function))) {
+										AbstractSyntaxTree ast = lii.parseLines(reader);
 										FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode)((AssignmentNode)(ast.getChildren().get(0))).getRvalue();
 										AbstractSyntaxTree functionBody = functionDefinitionNode.getFunctionBody();
 										
@@ -1620,8 +1610,8 @@ public final class Lang {
 								BiFunction<String, Integer, String> convertedExternalFunction = (args, DATA_ID) -> {
 									List<Node> argumentList = new LinkedList<>();
 									String code = "func.abc(" + args + ")";
-									try {
-										AbstractSyntaxTree ast = lii.parseLines(new BufferedReader(new StringReader(code)));
+									try(BufferedReader reader = new BufferedReader(new StringReader(code))) {
+										AbstractSyntaxTree ast = lii.parseLines(reader);
 										argumentList.addAll(ast.getChildren().get(0).getChildren());
 									}catch(Exception e) {
 										argumentList.add(new ParsingErrorNode(ParsingError.EOF));

@@ -44,16 +44,16 @@ public final class Lang {
 				lastCachedLangFileName = langFile;
 			}
 			
-			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-			//Cache lang translations
-			reader.lines().forEach(line -> {
-				if(!line.contains(" = "))
-					return;
-				
-				String[] langTranslation = line.split(" = ", 2);
-				LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
-			});
-			reader.close();
+			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
+				//Cache lang translations
+				reader.lines().forEach(line -> {
+					if(!line.contains(" = "))
+						return;
+					
+					String[] langTranslation = line.split(" = ", 2);
+					LANG_CACHE.put(langTranslation[0], langTranslation[1].replace("\\n", "\n"));
+				});
+			}
 			return new HashMap<>(LANG_CACHE);
 		}
 	}
@@ -83,15 +83,9 @@ public final class Lang {
 			//Create new Interpreter instance
 			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 			
-			BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-			try {
+			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 				interpreter.interpretLines(reader);
-			}catch(IOException e) {
-				reader.close();
-				
-				throw e;
 			}
-			reader.close();
 			
 			//Cache lang translations
 			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
@@ -241,15 +235,9 @@ public final class Lang {
 		
 		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
 		
-		BufferedReader reader = langPlatformAPI.getLangReader(langFile);
-		try {
+		try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 			interpreter.interpretLines(reader);
-		}catch(IOException e) {
-			reader.close();
-			
-			throw e;
 		}
-		reader.close();
 		
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {

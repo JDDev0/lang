@@ -434,13 +434,13 @@ public final class LangParser {
 					
 					String functionBody = lrvalue.substring(parameterListEndIndex + 5);
 					
-					BufferedReader functionBodyReader;
-					if(lrvalue.endsWith("{"))
-						functionBodyReader = lines;
-					else
-						functionBodyReader = new BufferedReader(new StringReader(functionBody));
-					nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBodyReader)));
-					
+					if(lrvalue.endsWith("{")) {
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines)));
+					}else {
+						try(BufferedReader reader = new BufferedReader(new StringReader(functionBody))) {
+							nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(reader)));
+						}
+					}
 					
 					return ast;
 				}else if(patterns.matches(lrvalue, LangPatterns.VAR_NAME_FUNC_PTR_WITH_FUNCS)) {

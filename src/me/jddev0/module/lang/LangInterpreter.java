@@ -2489,7 +2489,9 @@ public final class LangInterpreter {
 			interpreter.interpretLines(lines, DATA_ID);
 		}
 		public void exec(final int DATA_ID, String lines) throws IOException {
-			exec(DATA_ID, new BufferedReader(new StringReader(lines)));
+			try(BufferedReader reader = new BufferedReader(new StringReader(lines))) {
+				exec(DATA_ID, reader);
+			}
 		}
 		
 		/**

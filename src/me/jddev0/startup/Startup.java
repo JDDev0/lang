@@ -124,10 +124,8 @@ public class Startup {
 				return;
 			}
 			
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(lang));
+			try(BufferedReader reader = new BufferedReader(new FileReader(lang))) {
 				System.out.println(new LangParser().parseLines(reader));
-				reader.close();
 			}catch(IOException e) {
 				term.logStackTrace(e, Startup.class);
 			}
