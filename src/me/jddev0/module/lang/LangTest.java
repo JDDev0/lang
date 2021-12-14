@@ -23,11 +23,15 @@ public class LangTest {
 	
 	private static final String printFailedTestResult(String linePrefix, AssertResult assertResult) {
 		String message = assertResult.getMessage();
+		String actualValue = assertResult.getActualValue();
+		String expectedValue = assertResult.getExpectedValue();
 		
 		return assertResult.getAssertTestName() + ":\n" + (message == null?"":(
-		       linePrefix + "Message:  " + assertResult.getMessage() + "\n")) +
-		       linePrefix + "Actual:   " + assertResult.getActualValue() + "\n" +
-		       linePrefix + "Excepted: " + assertResult.getExpectedValue();
+		       linePrefix + "Message:  " + message + "\n")) +
+		       
+		       ((actualValue == null || expectedValue == null)?"":(
+		       linePrefix + "Actual:   " + actualValue + "\n" +
+		       linePrefix + "Excepted: " + expectedValue));
 	}
 	
 	public LangTest() {
@@ -789,6 +793,39 @@ public class LangTest {
 		@Override
 		public String getExpectedValue() {
 			return "=== nothing returned";
+		}
+	}
+	
+	public static class AssertResultFail implements AssertResult {
+		private final String message;
+		
+		public AssertResultFail(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public boolean hasTestPassed() {
+			return false;
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultFail";
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return null;
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return null;
 		}
 	}
 }

@@ -2135,6 +2135,18 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("langTestAssertFail", (argumentList, DATA_ID) -> {
+			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
+			if(messageObject == null) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (1 needed)", DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFail(messageObject.getText()));
+			
+			return null;
+		});
 		funcs.put("langTestPrintResults", (argumentList, DATA_ID) -> {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
