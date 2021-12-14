@@ -419,7 +419,7 @@ public final class LangInterpreter {
 		
 		if(error == null)
 			error = InterpretingError.INVALID_AST_NODE;
-		return new DataObject().setError(new ErrorObject(error));
+		return setErrnoErrorObject(error, DATA_ID);
 	}
 	
 	/**
