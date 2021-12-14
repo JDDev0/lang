@@ -2163,9 +2163,11 @@ final class LangPredefinedFunctions {
 		String langPathTmp = absolutePath;
 		langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
 		
-		//Change lang path for createDataMap
+		//Change lang path and lang file for createDataMap
 		String oldLangPath = interpreter.langPath;
+		String oldLangFile = interpreter.langFile;
 		interpreter.langPath = langPathTmp;
+		interpreter.langFile = interpreter.langPlatformAPI.getLangFileName(langFileName);
 		interpreter.createDataMap(NEW_DATA_ID);
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
@@ -2174,8 +2176,9 @@ final class LangPredefinedFunctions {
 			interpreter.data.remove(NEW_DATA_ID);
 			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), DATA_ID);
 		}finally {
-			//Set lang path to old lang path
+			//Set lang path and lang file to old lang path and old lang file
 			interpreter.langPath = oldLangPath;
+			interpreter.langFile = oldLangFile;
 		}
 		
 		function.accept(NEW_DATA_ID);

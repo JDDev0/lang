@@ -47,6 +47,9 @@ public class LangPlatformAPI {
 		langFile = new File(langFile).getAbsolutePath();
 		return langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
 	}
+	public String getLangFileName(String langFile) {
+		return new File(langFile).getName();
+	}
 	
 	public BufferedReader getLangReader(String langFile) throws IOException {
 		return new BufferedReader(new FileReader(new File(langFile)));

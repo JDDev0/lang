@@ -36,6 +36,7 @@ public final class LangInterpreter {
 	final LangPatterns patterns = new LangPatterns();
 	
 	String langPath;
+	String langFile;
 	TerminalIO term;
 	LangPlatformAPI langPlatformAPI;
 	
@@ -83,11 +84,34 @@ public final class LangInterpreter {
 		predefinedFunctions.addLinkerFunctions(funcs);
 	}
 	
+	/**
+	 * @param term can be null
+	 */
 	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI) {
-		this(langPath, term, langPlatformAPI, null);
+		this(langPath, null, term, langPlatformAPI, null);
 	}
+	/**
+	 * @param langFile can be null
+	 * @param term can be null
+	 */
+	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+		this(langPath, langFile, term, langPlatformAPI, null);
+	}
+	/**
+	 * @param term can be null
+	 * @param langArgs can be null
+	 */
 	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
+		this(langPath, null, term, langPlatformAPI, langArgs);
+	}
+	/**
+	 * @param langFile can be null
+	 * @param term can be null
+	 * @param langArgs can be null
+	 */
+	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
 		this.langPath = langPath;
+		this.langFile = langFile;
 		this.term = term;
 		this.langPlatformAPI = langPlatformAPI;
 		
@@ -1265,8 +1289,8 @@ public final class LangInterpreter {
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
 		if(!forceNoErrorOutput && errorOutput && newErrno != 0) {
-			String output = String.format("An %s occured in \"%s\" (DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath, DATA_ID, error.getErrorText(),
-					error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message);
+			String output = String.format("An %s occured in \"%s/%s\" (DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath, langFile == null?"<shell>":langFile,
+					DATA_ID, error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message);
 			if(term == null)
 				System.err.println(output);
 			else

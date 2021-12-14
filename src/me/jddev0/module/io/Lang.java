@@ -400,7 +400,7 @@ public final class Lang {
 			String pathLangFile = langPlatformAPI.getLangPath(langFile);
 			
 			//Create new Interpreter instance
-			LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
+			LangInterpreter interpreter = new LangInterpreter(pathLangFile, langPlatformAPI.getLangFileName(langFile), term, langPlatformAPI, langArgs);
 			
 			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 				interpreter.interpretLines(reader);
@@ -552,7 +552,7 @@ public final class Lang {
 		
 		String pathLangFile = langPlatformAPI.getLangPath(langFile);
 		
-		LangInterpreter interpreter = new LangInterpreter(pathLangFile, term, langPlatformAPI, langArgs);
+		LangInterpreter interpreter = new LangInterpreter(pathLangFile, langPlatformAPI.getLangFileName(langFile), term, langPlatformAPI, langArgs);
 		
 		try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 			interpreter.interpretLines(reader);
