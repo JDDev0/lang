@@ -44,8 +44,12 @@ public class LangPlatformAPI {
 	}
 	
 	public String getLangPath(String langFile) {
-		langFile = new File(langFile).getAbsolutePath();
-		return langFile.substring(0, langFile.lastIndexOf(File.separator)); //Remove ending ("/*.lang") for $LANG_PATH
+		File containingFolder = new File(langFile).getParentFile();
+		try {
+			return containingFolder.getCanonicalPath();
+		}catch(IOException e) {
+			return containingFolder.getAbsolutePath();
+		}
 	}
 	public String getLangFileName(String langFile) {
 		return new File(langFile).getName();
