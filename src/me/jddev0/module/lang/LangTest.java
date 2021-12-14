@@ -21,6 +21,15 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 public class LangTest {
 	private final List<Unit> units;
 	
+	private static final String printFailedTestResult(String linePrefix, AssertResult assertResult) {
+		String message = assertResult.getMessage();
+		
+		return assertResult.getAssertTestName() + ":\n" + (message == null?"":(
+		       linePrefix + "Message:  " + assertResult.getMessage() + "\n")) +
+		       linePrefix + "Actual:   " + assertResult.getActualValue() + "\n" +
+		       linePrefix + "Excepted: " + assertResult.getExpectedValue();
+	}
+	
 	public LangTest() {
 		units = new LinkedList<>();
 		units.add(new Unit());
@@ -88,9 +97,7 @@ public class LangTest {
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\n\t\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-							       "\t\t\tExcepted: " + failedTest.getExpectedValue();
+							out += "\n\t\t" + printFailedTestResult("\t\t\t", failedTest);
 						}
 					}
 					
@@ -100,9 +107,7 @@ public class LangTest {
 				if(failedTests.size() > 0) {
 					out += "\n\t\tSubUnit: \"" + subUnit.getName() + "\"";
 					for(AssertResult failedTest:failedTests) {
-						out += "\n\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-						       "\t\t\t\tExcepted: " + failedTest.getExpectedValue();
+						out += "\n\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 					}
 				}
 			}
@@ -135,9 +140,7 @@ public class LangTest {
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\n\t\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-							       "\t\t\tExcepted: " + failedTest.getExpectedValue();
+							out += "\n\t\t" + printFailedTestResult("\t\t\t", failedTest);
 						}
 					}
 					
@@ -147,9 +150,7 @@ public class LangTest {
 				if(failedTests.size() > 0) {
 					out += "\n\t\tSubUnit: \"" + subUnit.getName() + "\"";
 					for(AssertResult failedTest:failedTests) {
-						out += "\n\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-						       "\t\t\t\tExcepted: " + failedTest.getExpectedValue();
+						out += "\n\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 					}
 				}
 			}
@@ -220,9 +221,7 @@ public class LangTest {
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
-							       "\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+							out += "\t" + printFailedTestResult("\t\t", failedTest);
 						}
 						
 						out += "\n";
@@ -234,9 +233,7 @@ public class LangTest {
 				if(failedTests.size() > 0) {
 					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
 					for(AssertResult failedTest:failedTests) {
-						out += "\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-						       "\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+						out += "\t\t" + printFailedTestResult("\t\t\t", failedTest);
 					}
 					
 					out += "\n";
@@ -271,9 +268,7 @@ public class LangTest {
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\t" + failedTest.getAssertTestName() + ":\n" +
-							       "\t\tActual:   " + failedTest.getActualValue() + "\n" +
-							       "\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+							out += "\t" + printFailedTestResult("\t\t", failedTest);
 						}
 						
 						out += "\n";
@@ -285,9 +280,7 @@ public class LangTest {
 				if(failedTests.size() > 0) {
 					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
 					for(AssertResult failedTest:failedTests) {
-						out += "\t\t" + failedTest.getAssertTestName() + ":\n" +
-						       "\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-						       "\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+						out += "\t\t" + printFailedTestResult("\t\t\t", failedTest);
 					}
 					
 					out += "\n";
@@ -382,9 +375,7 @@ public class LangTest {
 				out += "\t\tFailed tests:\n";
 				
 				for(AssertResult failedTest:failedTests) {
-					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-					       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-					       "\t\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+					out += "\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 				}
 			}
 			
@@ -407,9 +398,7 @@ public class LangTest {
 				out += "\t\tFailed tests:\n";
 				
 				for(AssertResult failedTest:failedTests) {
-					out += "\t\t\t" + failedTest.getAssertTestName() + ":\n" +
-					       "\t\t\t\tActual:   " + failedTest.getActualValue() + "\n" +
-					       "\t\t\t\tExcepted: " + failedTest.getExpectedValue() + "\n";
+					out += "\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 				}
 			}
 			
@@ -442,17 +431,20 @@ public class LangTest {
 	private static interface AssertResult {
 		boolean hasTestPassed();
 		String getAssertTestName();
+		String getMessage();
 		String getActualValue();
 		String getExpectedValue();
 	}
 	
 	public static final class AssertResultError implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final InterpretingError actualValue;
 		private final InterpretingError expectedValue;
 		
-		public AssertResultError(boolean testPassed, InterpretingError actualValue, InterpretingError expectedValue) {
+		public AssertResultError(boolean testPassed, String message, InterpretingError actualValue, InterpretingError expectedValue) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
@@ -468,6 +460,11 @@ public class LangTest {
 		}
 		
 		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
 		public String getActualValue() {
 			return actualValue.getErrorCode() + " (" + actualValue.name() + ")";
 		}
@@ -480,20 +477,27 @@ public class LangTest {
 	
 	private static abstract class AssertResultDataObject implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final DataObject actualValue;
 		private final DataObject expectedValue;
 		private final String expectedValueOperator;
 		
-		public AssertResultDataObject(boolean testPassed, DataObject actualValue, DataObject expectedValue, String expectedValueOperator) {
+		public AssertResultDataObject(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue, String expectedValueOperator) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 			this.expectedValueOperator = expectedValueOperator;
 		}
-
+		
 		@Override
 		public boolean hasTestPassed() {
 			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
 		}
 		
 		@Override
@@ -508,8 +512,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultEquals extends AssertResultDataObject {
-		public AssertResultEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "==");
+		public AssertResultEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "==");
 		}
 		
 		@Override
@@ -519,8 +523,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultNotEquals extends AssertResultDataObject {
-		public AssertResultNotEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "!=");
+		public AssertResultNotEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "!=");
 		}
 		
 		@Override
@@ -530,8 +534,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultLessThan extends AssertResultDataObject {
-		public AssertResultLessThan(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "<");
+		public AssertResultLessThan(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "<");
 		}
 		
 		@Override
@@ -541,8 +545,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultGreaterThan extends AssertResultDataObject {
-		public AssertResultGreaterThan(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, ">");
+		public AssertResultGreaterThan(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, ">");
 		}
 		
 		@Override
@@ -552,8 +556,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultLessThanOrEquals extends AssertResultDataObject {
-		public AssertResultLessThanOrEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "<=");
+		public AssertResultLessThanOrEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "<=");
 		}
 		
 		@Override
@@ -563,8 +567,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultGreaterThanOrEquals extends AssertResultDataObject {
-		public AssertResultGreaterThanOrEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, ">=");
+		public AssertResultGreaterThanOrEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, ">=");
 		}
 		
 		@Override
@@ -574,8 +578,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultStrictEquals extends AssertResultDataObject {
-		public AssertResultStrictEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "===");
+		public AssertResultStrictEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "===");
 		}
 		
 		@Override
@@ -585,8 +589,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultStrictNotEquals extends AssertResultDataObject {
-		public AssertResultStrictNotEquals(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
-			super(testPassed, actualValue, expectedValue, "!==");
+		public AssertResultStrictNotEquals(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
+			super(testPassed, message, actualValue, expectedValue, "!==");
 		}
 		
 		@Override
@@ -597,11 +601,13 @@ public class LangTest {
 	
 	private static abstract class AssertResultDataObjectString implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final DataObject actualValue;
 		private final String expectedValue;
 		
-		public AssertResultDataObjectString(boolean testPassed, DataObject actualValue, String expectedValue) {
+		public AssertResultDataObjectString(boolean testPassed, String message, DataObject actualValue, String expectedValue) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
@@ -609,6 +615,11 @@ public class LangTest {
 		@Override
 		public boolean hasTestPassed() {
 			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
 		}
 		
 		@Override
@@ -623,8 +634,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultNull extends AssertResultDataObjectString {
-		public AssertResultNull(boolean testPassed, DataObject actualValue) {
-			super(testPassed, actualValue, "== null");
+		public AssertResultNull(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "== null");
 		}
 		
 		@Override
@@ -634,8 +645,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultNotNull extends AssertResultDataObjectString {
-		public AssertResultNotNull(boolean testPassed, DataObject actualValue) {
-			super(testPassed, actualValue, "!= null");
+		public AssertResultNotNull(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "!= null");
 		}
 		
 		@Override
@@ -645,8 +656,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultVoid extends AssertResultDataObjectString {
-		public AssertResultVoid(boolean testPassed, DataObject actualValue) {
-			super(testPassed, actualValue, "== void");
+		public AssertResultVoid(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "== void");
 		}
 		
 		@Override
@@ -656,8 +667,8 @@ public class LangTest {
 	}
 	
 	public static final class AssertResultNotVoid extends AssertResultDataObjectString {
-		public AssertResultNotVoid(boolean testPassed, DataObject actualValue) {
-			super(testPassed, actualValue, "!= void");
+		public AssertResultNotVoid(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "!= void");
 		}
 		
 		@Override
@@ -668,11 +679,13 @@ public class LangTest {
 	
 	public static final class AssertResultThrow implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final InterpretingError actualValue;
 		private final InterpretingError expectedValue;
 		
-		public AssertResultThrow(boolean testPassed, InterpretingError actualValue, InterpretingError expectedValue) {
+		public AssertResultThrow(boolean testPassed, String message, InterpretingError actualValue, InterpretingError expectedValue) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
@@ -688,6 +701,11 @@ public class LangTest {
 		}
 		
 		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
 		public String getActualValue() {
 			return actualValue == null?"nothing thrown":(actualValue.getErrorCode() + " (" + actualValue.name() + ")");
 		}
@@ -700,11 +718,13 @@ public class LangTest {
 	
 	public static class AssertResultReturn implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final DataObject actualValue;
 		private final DataObject expectedValue;
 		
-		public AssertResultReturn(boolean testPassed, DataObject actualValue, DataObject expectedValue) {
+		public AssertResultReturn(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
@@ -720,6 +740,11 @@ public class LangTest {
 		}
 		
 		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
 		public String getActualValue() {
 			return actualValue == null?"nothing returned":("\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name());
 		}
@@ -732,10 +757,12 @@ public class LangTest {
 	
 	public static class AssertResultNoReturn implements AssertResult {
 		private final boolean testPassed;
+		private final String message;
 		private final DataObject actualValue;
 		
-		public AssertResultNoReturn(boolean testPassed, DataObject actualValue) {
+		public AssertResultNoReturn(boolean testPassed, String message, DataObject actualValue) {
 			this.testPassed = testPassed;
+			this.message = message;
 			this.actualValue = actualValue;
 		}
 
@@ -747,6 +774,11 @@ public class LangTest {
 		@Override
 		public String getAssertTestName() {
 			return "assertResultNoReturn";
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
 		}
 		
 		@Override

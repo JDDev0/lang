@@ -1937,7 +1937,7 @@ final class LangPredefinedFunctions {
 			InterpretingError langErrno = interpreter.getAndClearErrnoErrorObject(DATA_ID);
 			InterpretingError expectedError = errorObject.getError().getInterprettingError();
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultError(langErrno == expectedError, langErrno, expectedError));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultError(langErrno == expectedError, null, langErrno, expectedError));
 			
 			return null;
 		});
@@ -1950,7 +1950,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(actualValueObject.isEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(actualValueObject.isEquals(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -1963,7 +1963,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(!actualValueObject.isEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(!actualValueObject.isEquals(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -1976,7 +1976,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(actualValueObject.isLessThan(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(actualValueObject.isLessThan(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -1989,7 +1989,8 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(actualValueObject.isLessThanOrEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(actualValueObject.isLessThanOrEquals(expectedValueObject), null, actualValueObject,
+					expectedValueObject));
 			
 			return null;
 		});
@@ -2002,7 +2003,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(actualValueObject.isGreaterThan(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(actualValueObject.isGreaterThan(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -2015,7 +2016,8 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(actualValueObject.isGreaterThanOrEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(actualValueObject.isGreaterThanOrEquals(expectedValueObject), null, actualValueObject,
+					expectedValueObject));
 			
 			return null;
 		});
@@ -2028,7 +2030,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(actualValueObject.isStrictEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(actualValueObject.isStrictEquals(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -2041,7 +2043,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!actualValueObject.isStrictEquals(expectedValueObject), actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!actualValueObject.isStrictEquals(expectedValueObject), null, actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -2053,7 +2055,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(actualValueObject.getType() == DataType.NULL, actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(actualValueObject.getType() == DataType.NULL, null, actualValueObject));
 			
 			return null;
 		});
@@ -2065,7 +2067,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(actualValueObject.getType() != DataType.NULL, actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(actualValueObject.getType() != DataType.NULL, null, actualValueObject));
 			
 			return null;
 		});
@@ -2077,7 +2079,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(actualValueObject.getType() == DataType.VOID, actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(actualValueObject.getType() == DataType.VOID, null, actualValueObject));
 			
 			return null;
 		});
@@ -2089,7 +2091,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(actualValueObject.getType() != DataType.VOID, actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(actualValueObject.getType() != DataType.VOID, null, actualValueObject));
 			
 			return null;
 		});
@@ -2107,6 +2109,7 @@ final class LangPredefinedFunctions {
 			InterpretingError expectedError = expectedThrowObject.getError().getInterprettingError();
 			
 			interpreter.langTestExpectedThrowValue = expectedError;
+			interpreter.messageForLastExcpetion = null;
 			
 			return null;
 		});
@@ -2119,6 +2122,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
 			interpreter.langTestExpectedReturnValue = expectedReturnObject;
+			interpreter.messageForLastExcpetion = null;
 			
 			return null;
 		});
@@ -2127,6 +2131,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
 			interpreter.langTestExpectedNoReturnValue = true;
+			interpreter.messageForLastExcpetion = null;
 			
 			return null;
 		});

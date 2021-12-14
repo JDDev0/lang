@@ -42,9 +42,10 @@ public final class LangInterpreter {
 	
 	//Lang tests
 	final LangTest langTestStore = new LangTest();
-	InterpretingError langTestExpectedThrowValue = null;
-	DataObject langTestExpectedReturnValue = null;
-	boolean langTestExpectedNoReturnValue = false;
+	InterpretingError langTestExpectedThrowValue;
+	DataObject langTestExpectedReturnValue;
+	boolean langTestExpectedNoReturnValue;
+	String messageForLastExcpetion;
 	
 	//Fields for return node
 	/**
@@ -892,22 +893,24 @@ public final class LangInterpreter {
 		if(langTest) {
 			if(langTestExpectedThrowValue != null) {
 				InterpretingError gotError = isThrownValue?retTmp.getError().getInterprettingError():null;
-				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, gotError, langTestExpectedThrowValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, messageForLastExcpetion, gotError, langTestExpectedThrowValue));
 				
 				langTestExpectedThrowValue = null;
 			}
 			
 			if(langTestExpectedReturnValue != null) {
-				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), retTmp, langTestExpectedReturnValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), messageForLastExcpetion, retTmp,
+						langTestExpectedReturnValue));
 				
 				langTestExpectedReturnValue = null;
 			}
 			
 			if(langTestExpectedNoReturnValue) {
-				langTestStore.addAssertResult(new LangTest.AssertResultNoReturn(retTmp == null, retTmp));
+				langTestStore.addAssertResult(new LangTest.AssertResultNoReturn(retTmp == null, messageForLastExcpetion, retTmp));
 				
 				langTestExpectedNoReturnValue = false;
 			}
+			messageForLastExcpetion = null;
 		}
 		
 		isThrownValue = false;
