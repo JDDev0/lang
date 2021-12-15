@@ -787,6 +787,20 @@ public final class LangParser {
 					}
 				}
 				
+				//Array unpacking
+				if(patterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_ARRAY_UNPACKING)) {
+					if(builder.length() > 0)
+						clearAndParseStringBuilder(builder, nodes);
+					
+					int index = parameterList.indexOf('.') + 3;
+					String varName = parameterList.substring(0, index);
+					parameterList = parameterList.substring(index);
+					
+					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(varName));
+					hasNodesFlag = true;
+					continue;
+				}
+				
 				//Force node split
 				if(parameterList.startsWith("$") || parameterList.startsWith("&"))
 					clearAndParseStringBuilder(builder, nodes);

@@ -1124,6 +1124,40 @@ public final class LangInterpreter {
 				continue;
 			}
 			
+			//Array unpacking
+			if(argument.getNodeType() == NodeType.UNPROCESSED_VARIABLE_NAME) {
+				try {
+					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
+					if(variableName.startsWith("&") && variableName.endsWith("...")) {
+						DataObject dataObject = getOrCreateDataObjectFromVariableName(variableName.substring(0, variableName.length() - 3), false, false, false, DATA_ID);
+						if(dataObject == null) {
+							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", DATA_ID));
+							
+							continue;
+						}
+						
+						if(dataObject.getType() != DataType.ARRAY) {
+							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of non ARRAY type variable", DATA_ID));
+							
+							continue;
+						}
+						
+						DataObject[] arr = dataObject.getArray();
+						for(int i = 0;i < arr.length;i++) {
+							DataObject ele = arr[i];
+							
+							argumentValueList.add(ele);
+							if(i != arr.length - 1)
+								argumentValueList.add(new DataObject().setArgumentSeparator(", "));
+						}
+						
+						continue;
+					}
+				}catch(ClassCastException e) {
+					argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID));
+				}
+			}
+			
 			DataObject argumentValue = interpretNode(argument, DATA_ID);
 			if(argumentValue == null) {
 				previousDataObject = null;
