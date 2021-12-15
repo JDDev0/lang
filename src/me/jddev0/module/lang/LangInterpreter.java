@@ -37,6 +37,7 @@ public final class LangInterpreter {
 	
 	String langPath;
 	String langFile;
+	String langFunctionName;
 	TerminalIO term;
 	LangPlatformAPI langPlatformAPI;
 	
@@ -974,6 +975,10 @@ public final class LangInterpreter {
 				if(parameterList == null || functionBody == null)
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", DATA_ID);
 				
+				//Change lang function name
+				String oldLangFunctionName = langFunctionName;
+				langFunctionName = functionName == null?fp.toString():functionName;
+				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
 				//Add variables and local variables
@@ -1065,6 +1070,9 @@ public final class LangInterpreter {
 				
 				//Remove data map
 				data.remove(NEW_DATA_ID);
+				
+				//Set lang function name to old function name
+				langFunctionName = oldLangFunctionName;
 				
 				DataObject retTmp = getAndResetReturnValue(DATA_ID);
 				return retTmp == null?new DataObject().setVoid():retTmp;
@@ -1292,8 +1300,9 @@ public final class LangInterpreter {
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
 		if(!forceNoErrorOutput && errorOutput && newErrno != 0) {
-			String output = String.format("An %s occured in \"%s/%s\" (DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath, langFile == null?"<shell>":langFile,
-					DATA_ID, error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message);
+			String output = String.format("An %s occured in \"%s/%s\" (FUNCTION: \"%s\", DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath,
+					langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName, DATA_ID, error.getErrorText(), error.getErrorCode(),
+					message.isEmpty()?"":"\nMessage: " + message);
 			if(term == null)
 				System.err.println(output);
 			else
