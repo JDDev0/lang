@@ -222,3 +222,33 @@ func.println($split)
 $split2 = func.split($split, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
 func.println($split (Len: func.arrayLength($split)))
 func.println($split2 (Len: func.arrayLength($split2)))
+
+func.println()
+
+# Array unpacking (Every element of the array will be unpacked as single arguments for a function call)
+# &arr...
+&arr = func.arrayOf(3, 1, 2, 5, 7, 42)
+$sum = func.addi(&arr...)
+func.println($sum)
+
+func.println()
+
+# Array unpacking as VARARGs argument
+func.println(&arr...)
+func.println(&arr..., test)
+func.println(&arr...test)
+func.println(test, &arr...)
+func.println(test&arr...)
+
+func.println()
+
+# Array copying with array unpacking
+&copy = func.arrayOf(&arr...)
+func.println(&arr)
+func.println(&copy)
+
+func.println()
+
+func.arraySet(&copy, 0, test)
+func.println(&arr)
+func.println(&copy)
