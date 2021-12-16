@@ -688,8 +688,12 @@ final class LangPredefinedFunctions {
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
+			}catch(NumberFormatException e1) {
+				try {
+					return new DataObject().setLong(Long.parseLong(numberString, base.intValue()));
+				}catch(NumberFormatException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
+				}
 			}
 		});
 		funcs.put("toTextBase", (argumentList, DATA_ID) -> {
@@ -708,8 +712,12 @@ final class LangPredefinedFunctions {
 			
 			try {
 				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
+			}catch(NumberFormatException e1) {
+				try {
+					return new DataObject().setText(Long.toString(number.longValue(), base.intValue()).toUpperCase());
+				}catch(NumberFormatException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), DATA_ID);
+				}
 			}
 		});
 		funcs.put("toIntBits", (argumentList, DATA_ID) -> {
