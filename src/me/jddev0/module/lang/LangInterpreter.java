@@ -448,6 +448,10 @@ public final class LangInterpreter {
 			case EOF:
 				error = InterpretingError.EOF;
 				break;
+			
+			case INVALID_CON_PART:
+				error = InterpretingError.INVALID_CON_PART;
+				break;
 		}
 		
 		if(error == null)
@@ -2482,6 +2486,7 @@ public final class LangInterpreter {
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
 		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
 		COMP_VER_ERROR        (34, "Lang file's version is not compatible with the compiler version"),
+		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),

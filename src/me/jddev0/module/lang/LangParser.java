@@ -346,7 +346,7 @@ public final class LangParser {
 					String loopCondition = null;
 					if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
-					}else {
+					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
@@ -354,6 +354,9 @@ public final class LangParser {
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
+					}else {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+						return ast;
 					}
 					
 					AbstractSyntaxTree loopBody = parseLines(lines);
@@ -387,7 +390,7 @@ public final class LangParser {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
 						
 						ifCondition = null;
-					}else {
+					}else if(ifStatement.startsWith("con.if") || ifStatement.startsWith("con.elif")) {
 						int conditionStartIndex = ifStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
@@ -395,6 +398,9 @@ public final class LangParser {
 							return ast;
 						}
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
+					}else {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+						return ast;
 					}
 					
 					AbstractSyntaxTree ifBody = parseLines(lines);
@@ -926,7 +932,8 @@ public final class LangParser {
 	public static enum ParsingError {
 		BRACKET_MISMATCH (-1, "Bracket mismatch"),
 		CONDITION_MISSING(-2, "If statement condition missing"),
-		EOF              (-3, "End of file was reached early");
+		EOF              (-3, "End of file was reached early"),
+		INVALID_CON_PART (-4, "Invalid statement part for conditional statement");
 		
 		private final int errorCode;
 		private final String errorText;
