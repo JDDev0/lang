@@ -4,6 +4,9 @@ lang.version = v1.0.0
 # Loop statements
 {
 	# While loop
+	# con.while(condition)
+	#     ...
+	# con.endloop
 	$num = 50
 	
 	con.while($num > 41)
@@ -11,7 +14,10 @@ lang.version = v1.0.0
 		$num = func.subi($num, 1)
 	con.endloop
 	
-	# Until loop test
+	# Until loop
+	# con.until(condition)
+	#     ...
+	# con.endloop
 	$win = 0
 	$num = func.modi(func.rand(), 10)
 	con.until($win)
@@ -25,6 +31,35 @@ lang.version = v1.0.0
 			
 			func.printTerminal(2, You got the number $guess!)
 		con.endif
+	con.endloop
+	
+	# Repeat loop
+	# con.repeat(varPtr, count) # varPtr can be null
+	#     ...
+	# con.endloop
+	$i
+	func.println(Before Loop: $i)
+	con.repeat($[i], 10)
+		func.println(In Loop: $i)
+	con.endloop
+	func.println(After Loop: $i)
+	
+	con.repeat(null, 10)
+		func.println(In Loop2: $i)
+	con.endloop
+	
+	con.repeat($[i], 8)
+		func.printTerminal(func.subi($i, 1), TEXT-TEXT-TEXT)
+	con.endloop
+	
+	$j
+	con.repeat($[j], func.modi(func.rand(), 10))
+		func.printTerminal(0, RANDOM: $j)
+	con.endloop
+	
+	fp.getFP = () -> return () -> return 10
+	con.repeat($[j], fp.getFP()())
+		func.println($j with call of returned value)
 	con.endloop
 }
 
