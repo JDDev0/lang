@@ -816,5 +816,16 @@ lang.errorOutput = 1 # Reenable error ouput
 				func.printTerminal(2, You got the number $guess!)
 			con.endif
 		con.endloop
+		
+		func.printTerminal(2, con.repeat loop test!)
+		$i
+		con.repeat($[i], 10)
+			func.printTerminal(4, $i)
+		con.endloop
+		func.printTerminal(3, After repeat: $i)
+		
+		con.repeat(null, 5)
+			func.printTerminal(2, $i)
+		con.endloop
 	}
 }
