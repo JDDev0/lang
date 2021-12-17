@@ -750,16 +750,17 @@ public class LangShellWindow extends JDialog {
 				}
 			}
 			
-			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if")))
+			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.while") || line.trim().startsWith("con.until")))
 				indent++;
 			
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
-			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition")))) {
+			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.while") && !line.trim().startsWith("con.until") &&
+					!line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition")))) {
 				indent--;
 				
-				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif"))
+				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop"))
 					indent++;
 				
 				//Remove the first indent from actual line

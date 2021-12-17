@@ -197,6 +197,13 @@ public final class LangInterpreter {
 				case IF_STATEMENT_PART_ELSE:
 				case IF_STATEMENT_PART_IF:
 					return new DataObject().setBoolean(interpretIfStatementPartNode((IfStatementPartNode)node, DATA_ID));
+					
+				case LOOP_STATEMENT:
+					return new DataObject().setBoolean(interpretLoopStatementNode((LoopStatementNode)node, DATA_ID));
+				
+				case LOOP_STATEMENT_PART_WHILE:
+				case LOOP_STATEMENT_PART_UNTIL:
+					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
 				
 				case CONDITION:
 					return interpretConditionNode((ConditionNode)node, DATA_ID);
@@ -489,6 +496,57 @@ public final class LangInterpreter {
 		return false;
 	}
 	
+	/**
+	 * @return Returns true if at least one loop iteration was executed
+	 */
+	private boolean interpretLoopStatementNode(LoopStatementNode node, final int DATA_ID) {
+		List<LoopStatementPartNode> loopPartNodes = node.getLoopStatementPartNodes();
+		if(loopPartNodes.isEmpty()) {
+			setErrno(InterpretingError.INVALID_AST_NODE, "Empty loop statement", DATA_ID);
+			
+			return false;
+		}
+		
+		for(LoopStatementPartNode loopPartNode:loopPartNodes)
+			if(interpretLoopStatementPartNode(loopPartNode, DATA_ID))
+				return true;
+		
+		return false;
+	}
+	
+	/**
+	 * @return Returns true if at least one loop iteration was executed
+	 */
+	private boolean interpretLoopStatementPartNode(LoopStatementPartNode node, final int DATA_ID) {
+		boolean flag = false;
+		
+		try {
+			switch(node.getNodeType()) {
+				case LOOP_STATEMENT_PART_WHILE:
+					while(interpretConditionNode(((LoopStatementPartWhileNode)node).getCondition(), DATA_ID).getBoolean()) {
+						flag = true;
+						
+						interpretAST(node.getLoopBody(), DATA_ID);
+					}
+					break;
+				case LOOP_STATEMENT_PART_UNTIL:
+					while(!interpretConditionNode(((LoopStatementPartUntilNode)node).getCondition(), DATA_ID).getBoolean()) {
+						flag = true;
+						
+						interpretAST(node.getLoopBody(), DATA_ID);
+					}
+					break;
+				
+				default:
+					break;
+			}
+		}catch(ClassCastException e) {
+			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+		}
+		
+		return flag;
+	}
+	
 	private DataObject interpretConditionNode(ConditionNode node, final int DATA_ID) {
 		boolean conditionOuput = false;
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
@@ -707,6 +765,9 @@ public final class LangInterpreter {
 				case IF_STATEMENT:
 				case IF_STATEMENT_PART_ELSE:
 				case IF_STATEMENT_PART_IF:
+				case LOOP_STATEMENT:
+				case LOOP_STATEMENT_PART_WHILE:
+				case LOOP_STATEMENT_PART_UNTIL:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:

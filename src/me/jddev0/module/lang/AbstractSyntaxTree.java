@@ -1009,6 +1009,225 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	//Is only super class for other nodes
+	public static class LoopStatementPartNode extends ChildlessNode {
+		private final AbstractSyntaxTree loopBody;
+		
+		public LoopStatementPartNode(AbstractSyntaxTree loopBody) {
+			this.loopBody = loopBody;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.GENERAL;
+		}
+		
+		public AbstractSyntaxTree getLoopBody() {
+			return loopBody;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartNode))
+				return false;
+			
+			LoopStatementPartNode that = (LoopStatementPartNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.loopBody.equals(that.loopBody);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.loopBody);
+		}
+	}
+	
+	public static final class LoopStatementPartWhileNode extends LoopStatementPartNode {
+		private final ConditionNode condition;
+		
+		public LoopStatementPartWhileNode(AbstractSyntaxTree loopBody, ConditionNode condition) {
+			super(loopBody);
+			
+			this.condition = condition;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.LOOP_STATEMENT_PART_WHILE;
+		}
+		
+		public ConditionNode getCondition() {
+			return condition;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LoopStatementPartWhileNode: Condition: {\n");
+			String[] tokens = condition.toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}, LoopBody: {\n");
+			tokens = getLoopBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartWhileNode))
+				return false;
+			
+			LoopStatementPartWhileNode that = (LoopStatementPartWhileNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.condition.equals(that.condition) && this.getLoopBody().equals(that.getLoopBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.condition, this.getLoopBody());
+		}
+	}
+	
+	public static final class LoopStatementPartUntilNode extends LoopStatementPartNode {
+		private final ConditionNode condition;
+		
+		public LoopStatementPartUntilNode(AbstractSyntaxTree loopBody, ConditionNode condition) {
+			super(loopBody);
+			
+			this.condition = condition;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.LOOP_STATEMENT_PART_UNTIL;
+		}
+		
+		public ConditionNode getCondition() {
+			return condition;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LoopStatementPartUntilNode: Condition: {\n");
+			String[] tokens = condition.toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}, LoopBody: {\n");
+			tokens = getLoopBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartUntilNode))
+				return false;
+			
+			LoopStatementPartUntilNode that = (LoopStatementPartUntilNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.condition.equals(that.condition) && this.getLoopBody().equals(that.getLoopBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.condition, this.getLoopBody());
+		}
+	}
+	
+	public static final class LoopStatementNode implements Node {
+		private final List<LoopStatementPartNode> nodes;
+		
+		public LoopStatementNode(List<LoopStatementPartNode> nodes) {
+			this.nodes = nodes;
+		}
+		
+		@Override
+		public List<Node> getChildren() {
+			return new ArrayList<>(nodes);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.LOOP_STATEMENT;
+		}
+		
+		public List<LoopStatementPartNode> getLoopStatementPartNodes() {
+			return nodes;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LoopStatementNode: Children: {\n");
+			nodes.forEach(node -> {
+				String[] tokens = node.toString().split("\\n");
+				for(String token:tokens) {
+					builder.append("\t");
+					builder.append(token);
+					builder.append("\n");
+				}
+			});
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementNode))
+				return false;
+			
+			LoopStatementNode that = (LoopStatementNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.nodes.equals(that.nodes);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.nodes);
+		}
+	}
+	
 	public static final class ReturnNode implements Node {
 		private final List<Node> nodes;
 		
@@ -1520,6 +1739,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	public static enum NodeType {
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
-		IF_STATEMENT, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE;
+		IF_STATEMENT, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT, RETURN, THROW, INT_VALUE, LONG_VALUE,
+		FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE;
 	}
 }
