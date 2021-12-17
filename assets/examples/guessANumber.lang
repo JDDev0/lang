@@ -4,13 +4,13 @@ lang.version = v1.0.0
 $end = 0
 $low = 1
 $high = 10
-fp.gameLoop = () -> {
+con.until($end)
 	$win = 0
 	$guesses = 0
 	
 	# Generate random number between $low and $high
 	$num = func.addi(func.modi(func.rand(), func.addi(func.subi($high, $low), 1)), $low)
-	fp.game = () -> {
+	con.until($win)
 		func.println(Guesss a number between $low and $high!)
 		$in = func.input()
 		con.if($in < $num)
@@ -19,25 +19,18 @@ fp.gameLoop = () -> {
 			func.println(The number is lower than your input!)
 		con.elif($in == $num)
 			$win = 1
-			func.copyAfterFP($[win], $[win])
 		con.else
 			func.errorln(Invalid Input!)
 			$guesses = func.subi($guesses, 1)
 		con.endif
 		
 		$guesses = func.addi($guesses, 1)
-		func.copyAfterFP($[guesses], $[guesses])
-	}
-	fp.gameWin = () -> return $win
-	func.repeatUntil(fp.game, fp.gameWin)
+	con.endloop
 	
 	func.println(You have won the game after $guesses guesses!\nType YES, if you'd like to play again!)
 	$in = func.input()
 	con.if($in != YES)
 		$end = 1
-		func.copyAfterFP($[end], $[end])
 		func.println(Thanks for playing!)
 	con.endif
-}
-fp.gameEnd = () -> return $end
-func.repeatUntil(fp.gameLoop, fp.gameEnd)
+con.endloop
