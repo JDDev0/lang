@@ -346,6 +346,7 @@ public final class LangParser {
 					String loopCondition = null;
 					if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
+						return ast;
 					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
