@@ -1169,6 +1169,81 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	public static final class LoopStatementPartRepeatNode extends LoopStatementPartNode {
+		private final Node varPointerNode;
+		private final Node repeatCountNode;
+		
+		public LoopStatementPartRepeatNode(AbstractSyntaxTree loopBody, Node varPointerNode, Node repeatCountNode) {
+			super(loopBody);
+			
+			this.varPointerNode = varPointerNode;
+			this.repeatCountNode = repeatCountNode;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.LOOP_STATEMENT_PART_REPEAT;
+		}
+		
+		public Node getVarPointerNode() {
+			return varPointerNode;
+		}
+		
+		public Node getRepeatCountNode() {
+			return repeatCountNode;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LoopStatementPartRepeatNode: varPointer: {\n");
+			String[] tokens = varPointerNode.toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}, repeatCount: {\n");
+			tokens = repeatCountNode.toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}, LoopBody: {\n");
+			tokens = getLoopBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartRepeatNode))
+				return false;
+			
+			LoopStatementPartRepeatNode that = (LoopStatementPartRepeatNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.varPointerNode.equals(that.varPointerNode) && this.repeatCountNode.equals(that.repeatCountNode) &&
+					this.getLoopBody().equals(that.getLoopBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.varPointerNode, this.repeatCountNode, this.getLoopBody());
+		}
+	}
+	
 	public static final class LoopStatementNode implements Node {
 		private final List<LoopStatementPartNode> nodes;
 		
@@ -1739,7 +1814,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	public static enum NodeType {
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
-		IF_STATEMENT, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT, RETURN, THROW, INT_VALUE, LONG_VALUE,
-		FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE;
+		IF_STATEMENT, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT, RETURN, THROW,
+		INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE;
 	}
 }

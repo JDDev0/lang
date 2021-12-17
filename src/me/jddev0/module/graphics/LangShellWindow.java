@@ -615,7 +615,7 @@ public class LangShellWindow extends JDialog {
 		}else if(lastToken.matches("con\\..*")) {
 			int indexConNameStart = lastToken.indexOf('.') + 1;
 			String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-			List<String> autoCompletes = Arrays.asList("condition(", "elif(", "else", "endif", "endloop", "if(", "until(", "while(").stream().
+			List<String> autoCompletes = Arrays.asList("condition(", "elif(", "else", "endif", "endloop", "if(", "repeat(", "until(", "while(").stream().
 			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
@@ -722,7 +722,8 @@ public class LangShellWindow extends JDialog {
 			flagMultilineText = containsMultilineText(line);
 			if(!flagMultilineText)
 				flagLineContinuation = line.endsWith("\\");
-			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.condition")) ||
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop") &&
+					!line.trim().startsWith("con.condition")) ||
 			flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
@@ -750,14 +751,15 @@ public class LangShellWindow extends JDialog {
 				}
 			}
 			
-			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.while") || line.trim().startsWith("con.until")))
+			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.while") || line.trim().startsWith("con.until") ||
+					line.trim().startsWith("con.repeat")))
 				indent++;
 			
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
 			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.while") && !line.trim().startsWith("con.until") &&
-					!line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition")))) {
+					!line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition")))) {
 				indent--;
 				
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop"))

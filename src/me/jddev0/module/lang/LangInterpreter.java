@@ -203,6 +203,7 @@ public final class LangInterpreter {
 				
 				case LOOP_STATEMENT_PART_WHILE:
 				case LOOP_STATEMENT_PART_UNTIL:
+				case LOOP_STATEMENT_PART_REPEAT:
 					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
 				
 				case CONDITION:
@@ -532,6 +533,7 @@ public final class LangInterpreter {
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
 					}
+					
 					break;
 				case LOOP_STATEMENT_PART_UNTIL:
 					while(!interpretConditionNode(((LoopStatementPartUntilNode)node).getCondition(), DATA_ID).getBoolean()) {
@@ -539,6 +541,40 @@ public final class LangInterpreter {
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
 					}
+					
+					break;
+				case LOOP_STATEMENT_PART_REPEAT:
+					LoopStatementPartRepeatNode repeatNode = (LoopStatementPartRepeatNode)node;
+					DataObject varPointer = interpretNode(repeatNode.getVarPointerNode(), DATA_ID);
+					if(varPointer.getType() != DataType.VAR_POINTER && varPointer.getType() != DataType.NULL) {
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat needs a variablePointer or a null value for the current iteration variable", DATA_ID);
+						return false;
+					}
+					DataObject var = varPointer.getType() == DataType.NULL?null:varPointer.getVarPointer().getVar();
+					
+					Number number = interpretNode(repeatNode.getRepeatCountNode(), DATA_ID).getNumber();
+					if(number == null) {
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat needs a repeat count value", DATA_ID);
+						return false;
+					}
+					
+					int iterations = number.intValue();
+					if(iterations < 0) {
+						setErrno(InterpretingError.INVALID_ARGUMENTS, "con.repeat repeat count can not be less than 0", DATA_ID);
+						return false;
+					}
+					
+					for(int i = 0;i < iterations;i++) {
+						if(var != null) {
+							if(var.isFinalData())
+								setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.repeat current iteration value can not be set", DATA_ID);
+							else
+								var.setInt(i);
+						}
+						
+						interpretAST(node.getLoopBody(), DATA_ID);
+					}
+					
 					break;
 				
 				default:
@@ -772,6 +808,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT:
 				case LOOP_STATEMENT_PART_WHILE:
 				case LOOP_STATEMENT_PART_UNTIL:
+				case LOOP_STATEMENT_PART_REPEAT:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:

@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -338,7 +340,7 @@ public final class LangParser {
 		
 		//If statement
 		if(token.startsWith("con.") && !token.startsWith("con.condition")) {
-			if(token.startsWith("con.while") || token.startsWith("con.until")) {
+			if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				String loopStatement = token;
@@ -355,6 +357,14 @@ public final class LangParser {
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
+					}else if(loopStatement.startsWith("con.repeat")) {
+						int argumetnsStartIndex = loopStatement.indexOf('(');
+						int argumetnsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumetnsStartIndex, Integer.MAX_VALUE, '(', ')');
+						if(argumetnsEndIndex == -1) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+							return ast;
+						}
+						loopCondition = loopStatement.substring(argumetnsStartIndex + 1, argumetnsEndIndex);
 					}else {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
 						return ast;
@@ -368,10 +378,47 @@ public final class LangParser {
 						return ast;
 					}
 					
-					if(token.startsWith("con.while"))
+					if(token.startsWith("con.while")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
-					else if(token.startsWith("con.until"))
+					}else if(token.startsWith("con.until")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, parseCondition(loopCondition)));
+					}else if(token.startsWith("con.repeat")) {
+						List<AbstractSyntaxTree.Node> arguments = parseFunctionParameterList(loopCondition, false).getChildren();
+						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
+						
+						AbstractSyntaxTree.Node varPointerNode = null;
+						boolean flag = false;
+						while(argumentIter.hasNext()) {
+							AbstractSyntaxTree.Node node = argumentIter.next();
+							
+							if(node.getNodeType() == AbstractSyntaxTree.NodeType.ARGUMENT_SEPARATOR || varPointerNode != null) {
+								flag = true;
+								break;
+							}
+							
+							varPointerNode = node;
+						}
+						if(!flag) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							return ast;
+						}
+						
+						List<AbstractSyntaxTree.Node> repeatCountArgument = new LinkedList<>();
+						while(argumentIter.hasNext()) {
+							AbstractSyntaxTree.Node node = argumentIter.next();
+							
+							if(node.getNodeType() == AbstractSyntaxTree.NodeType.ARGUMENT_SEPARATOR) {
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								return ast;
+							}
+							
+							repeatCountArgument.add(node);
+						}
+						
+						AbstractSyntaxTree.Node repeatCountNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
+						
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountNode));
+					}
 					
 					loopStatement = currentLine;
 				}while(loopStatement != null && !loopStatement.equals("con.endloop"));
