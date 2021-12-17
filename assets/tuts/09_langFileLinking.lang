@@ -50,9 +50,9 @@ func.printTerminal(-1, $lib2_var)
 fp.lib2Test(--- TEST ---)
 
 # Return value from executed lang file
-fp.loop = ($i) -> {
+$i
+con.repeat($[i], 4)
 	func.printTerminal(1, \nRun num $i:)
 	$ret = linker.link(09_linkTestReturn.lang)
 	func.printTerminal(1, Returned value: "$ret")
-}
-func.repeat(fp.loop, 4)
+con.endloop
