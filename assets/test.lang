@@ -790,4 +790,31 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.clearVar($[pointer]) # Undefine $pointer
 		func.printTerminal(3, $pointer) # Will print "$*pointer", because "$pointer" is not defined
 	}
+	
+	# Loop statements
+	{
+		func.printTerminal(2, con.while loop test!)
+		$num = 50
+		con.while($num > 41)
+			func.printTerminal(4, $num)
+			$num = func.subi($num, 1)
+			func.printTerminal(3, $num)
+		con.endloop
+		
+		func.printTerminal(2, con.until loop test!)
+		$win = 0
+		$num = func.modi(func.rand(), 10)
+		con.until($win)
+			$guess = func.addi(func.modi(func.rand(), 10))
+			con.if($guess < $num)
+				func.printTerminal(3, The number is larger than $guess!)
+			con.elif($guess > $num)
+				func.printTerminal(3, The number is smaller than $guess!)
+			con.else
+				$win = 1
+				
+				func.printTerminal(2, You got the number $guess!)
+			con.endif
+		con.endloop
+	}
 }
