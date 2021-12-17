@@ -338,7 +338,7 @@ public final class LangParser {
 		
 		//If statement
 		if(token.startsWith("con.") && !token.startsWith("con.condition")) {
-			if(token.startsWith("con.while")) {
+			if(token.startsWith("con.while") || token.startsWith("con.until")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				String loopStatement = token;
@@ -364,41 +364,10 @@ public final class LangParser {
 						return ast;
 					}
 					
-					loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
-					
-					loopStatement = currentLine;
-				}while(loopStatement != null && !loopStatement.equals("con.endloop"));
-				
-				nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
-				
-				return ast;
-			}else if(token.startsWith("con.until")) {
-				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
-				
-				String loopStatement = token;
-				do {
-					String loopCondition = null;
-					if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
-					}else {
-						int conditionStartIndex = loopStatement.indexOf('(');
-						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
-						if(conditionEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
-							return ast;
-						}
-						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
-					}
-					
-					AbstractSyntaxTree loopBody = parseLines(lines);
-					if(loopBody == null) {
-						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
-						
-						return ast;
-					}
-					
-					loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, parseCondition(loopCondition)));
+					if(token.startsWith("con.while"))
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
+					else if(token.startsWith("con.until"))
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, parseCondition(loopCondition)));
 					
 					loopStatement = currentLine;
 				}while(loopStatement != null && !loopStatement.equals("con.endloop"));
