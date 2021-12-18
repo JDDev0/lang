@@ -362,7 +362,7 @@ public class LangShellWindow extends JDialog {
 		//Add debug functions
 		lii.addPredefinedFunction("printHelp", (argumentList, DATA_ID) -> {
 			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
-			"func.printDebug(ptr) # Prints debug information about the provided DataObject", LangShellWindow.class);
+			"func.printDebug(value) # Prints debug information about the provided DataObject", LangShellWindow.class);
 			
 			return null;
 		});
