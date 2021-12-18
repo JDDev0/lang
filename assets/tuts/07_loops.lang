@@ -95,6 +95,7 @@ lang.version = v1.0.0
 	# Continue and break of outer loops
 	# con.break(num) # Breaks the nth loop level (loop level 1 is the same as con.break without an argument
 	# con.continue(num) # Breaks current iteration and skips to the next iteration in the nth loop level (loop level 1 is the same as con.continue without an argument
+	# -> num can be an expression with function call of returned value
 	$val = 42
 	$i
 	con.while(1)
