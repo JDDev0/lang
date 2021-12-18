@@ -340,7 +340,24 @@ public final class LangParser {
 		
 		//If statement
 		if(token.startsWith("con.") && !token.startsWith("con.condition")) {
-			if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat")) {
+			if(token.startsWith("con.continue") || token.startsWith("con.break")) {
+				List<AbstractSyntaxTree.Node> argumentNodes;
+				if(!token.contains("(") && !token.contains(")")) {
+					argumentNodes = null;
+				}else {
+					int argumentsStartIndex = token.indexOf('(');
+					int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(token, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
+					if(argumentsEndIndex == -1) {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						return ast;
+					}
+					argumentNodes = parseFunctionParameterList(token.substring(argumentsStartIndex + 1, argumentsEndIndex), false).getChildren();
+				}
+				
+				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
+				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
+				return ast;
+			}else if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				String loopStatement = token;
@@ -358,13 +375,13 @@ public final class LangParser {
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}else if(loopStatement.startsWith("con.repeat")) {
-						int argumetnsStartIndex = loopStatement.indexOf('(');
-						int argumetnsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumetnsStartIndex, Integer.MAX_VALUE, '(', ')');
-						if(argumetnsEndIndex == -1) {
+						int argumentsStartIndex = loopStatement.indexOf('(');
+						int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
+						if(argumentsEndIndex == -1) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
 							return ast;
 						}
-						loopCondition = loopStatement.substring(argumetnsStartIndex + 1, argumetnsEndIndex);
+						loopCondition = loopStatement.substring(argumentsStartIndex + 1, argumentsEndIndex);
 					}else {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
 						return ast;

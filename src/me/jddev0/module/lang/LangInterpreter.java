@@ -75,6 +75,13 @@ public final class LangInterpreter {
 	 */
 	boolean langTest = false;
 	
+	//Loop control
+	/**
+	 * If > 0: break or continue statement is beeing processes
+	 */
+	private int breakContinueCount;
+	private boolean isContinueStatement;
+	
 	//DATA
 	Map<Integer, Data> data = new HashMap<>();
 	
@@ -205,6 +212,10 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
 					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
+					
+				case LOOP_STATEMENT_CONTINUE_BREAK:
+					interpretLoopStatementContinueBreak((LoopStatementContinueBreakStatement)node, DATA_ID);
+					return null;
 				
 				case CONDITION:
 					return interpretConditionNode((ConditionNode)node, DATA_ID);
@@ -532,6 +543,22 @@ public final class LangInterpreter {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
+						if(stopParsingFlag) {
+							if(breakContinueCount == 0)
+								return true;
+							
+							//Handle continue and break
+							breakContinueCount -= 1;
+							if(breakContinueCount > 0)
+								return true;
+							
+							stopParsingFlag = false;
+							
+							if(isContinueStatement)
+								continue;
+							else
+								return true;
+						}
 					}
 					
 					break;
@@ -540,6 +567,22 @@ public final class LangInterpreter {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
+						if(stopParsingFlag) {
+							if(breakContinueCount == 0)
+								return true;
+							
+							//Handle continue and break
+							breakContinueCount -= 1;
+							if(breakContinueCount > 0)
+								return true;
+							
+							stopParsingFlag = false;
+							
+							if(isContinueStatement)
+								continue;
+							else
+								return true;
+						}
 					}
 					
 					break;
@@ -552,7 +595,8 @@ public final class LangInterpreter {
 					}
 					DataObject var = varPointer.getType() == DataType.NULL?null:varPointer.getVarPointer().getVar();
 					
-					Number number = interpretNode(repeatNode.getRepeatCountNode(), DATA_ID).getNumber();
+					DataObject numberObject = interpretNode(repeatNode.getRepeatCountNode(), DATA_ID);
+					Number number = numberObject == null?null:numberObject.getNumber();
 					if(number == null) {
 						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat needs a repeat count value", DATA_ID);
 						return false;
@@ -573,6 +617,22 @@ public final class LangInterpreter {
 						}
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
+						if(stopParsingFlag) {
+							if(breakContinueCount == 0)
+								return true;
+							
+							//Handle continue and break
+							breakContinueCount -= 1;
+							if(breakContinueCount > 0)
+								return true;
+							
+							stopParsingFlag = false;
+							
+							if(isContinueStatement)
+								continue;
+							else
+								return true;
+						}
 					}
 					
 					break;
@@ -585,6 +645,31 @@ public final class LangInterpreter {
 		}
 		
 		return flag;
+	}
+	
+	private void interpretLoopStatementContinueBreak(LoopStatementContinueBreakStatement node, final int DATA_ID) {
+		Node numberNode = node.getNumberNode();
+		if(numberNode == null) {
+			breakContinueCount = 1;
+		}else {
+			DataObject numberObject = interpretNode(numberNode, DATA_ID);
+			Number number = numberObject == null?null:numberObject.getNumber();
+			if(number == null) {
+				setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con." + (node.isContinueNode()?"continue":"break") + " needs either non value or a number value", DATA_ID);
+				return;
+			}
+			
+			breakContinueCount = number.intValue();
+			if(breakContinueCount < 1) {
+				breakContinueCount = 0;
+				
+				setErrno(InterpretingError.INVALID_ARGUMENTS, "con." + (node.isContinueNode()?"continue":"break") + " the number must be > 0", DATA_ID);
+				return;
+			}
+		}
+		
+		isContinueStatement = node.isContinueNode();
+		stopParsingFlag = true;
 	}
 	
 	private DataObject interpretConditionNode(ConditionNode node, final int DATA_ID) {
@@ -809,6 +894,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_WHILE:
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
+				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:
