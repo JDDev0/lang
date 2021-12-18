@@ -655,7 +655,7 @@ public final class LangInterpreter {
 			DataObject numberObject = interpretNode(numberNode, DATA_ID);
 			Number number = numberObject == null?null:numberObject.getNumber();
 			if(number == null) {
-				setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con." + (node.isContinueNode()?"continue":"break") + " needs either non value or a number value", DATA_ID);
+				setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con." + (node.isContinueNode()?"continue":"break") + " needs either non value or a level number", DATA_ID);
 				return;
 			}
 			
@@ -663,7 +663,7 @@ public final class LangInterpreter {
 			if(breakContinueCount < 1) {
 				breakContinueCount = 0;
 				
-				setErrno(InterpretingError.INVALID_ARGUMENTS, "con." + (node.isContinueNode()?"continue":"break") + " the number must be > 0", DATA_ID);
+				setErrno(InterpretingError.INVALID_ARGUMENTS, "con." + (node.isContinueNode()?"continue":"break") + " the level must be > 0", DATA_ID);
 				return;
 			}
 		}
