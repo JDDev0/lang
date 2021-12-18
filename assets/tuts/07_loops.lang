@@ -61,6 +61,74 @@ lang.version = v1.0.0
 	con.repeat($[j], fp.getFP()())
 		func.println($j with call of returned value)
 	con.endloop
+	
+	func.println()
+	
+	# Continue and break
+	# con.break # Breaks the current loop
+	# con.continue # Breaks the current iteration and skips to the next iteration
+	$val = 42
+	con.while(1)
+		con.if($val == 50)
+			con.break
+		con.endif
+		
+		func.println(Value: $val)
+		$val = func.addi($val, 1)
+	con.endloop # Will output numbers from 42 to 49
+	
+	func.println()
+	
+	$val = 41
+	con.while($val < 50)
+		$val = func.addi($val, 1)
+		
+		con.if($val == 45)
+			con.continue
+		con.endif
+		
+		func.println(Value: $val)
+	con.endloop # Will output numbers from 42 to 49 without 45
+	
+	func.println()
+	
+	# Continue and break of outer loops
+	# con.break(num) # Breaks the nth loop level (loop level 1 is the same as con.break without an argument
+	# con.continue(num) # Breaks current iteration and skips to the next iteration in the nth loop level (loop level 1 is the same as con.continue without an argument
+	$val = 42
+	$i
+	con.while(1)
+		con.repeat($[i], 2)
+			func.println(	Inner Value: $i)
+			
+			con.if($val == 50)
+				con.break(2) # Will break the "con.while(1)" loop
+			con.endif
+		con.endloop
+		
+		func.println(Value: $val)
+		$val = func.addi($val, 1)
+	con.endloop # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
+	
+	func.println()
+	func.println()
+	
+	$val = 41
+	con.while($val < 50)
+		$val = func.addi($val, 1)
+		
+		func.println()
+		
+		con.repeat($[i], 2)
+			func.println(	Inner Value: $i)
+			
+			con.if($val == 45)
+				con.continue(2) # Will continue the "con.while($val < 50)" loop
+			con.endif
+		con.endloop
+		
+		func.println(Value: $val)
+	con.endloop # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
 }
 
 # Loop functions
