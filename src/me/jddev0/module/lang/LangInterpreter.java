@@ -2779,20 +2779,22 @@ public final class LangInterpreter {
 			}
 		}
 		/**
-		 * Can be called in another thread
+		 * Can be called in another thread<br>
+		 * Any execution method previously called which are still running or any future call of execution methods if the stop flag is set will throw a
+		 * {@link me.jddev0.module.lang.LangInterpreter.StoppedException StoppedExecution} exception
 		 */
 		public void stop() {
 			interpreter.forceStopParsingFlag = true;
 		}
 		/**
-		 * Must be called before execution if the {@link #LangInterpreter.LangInterpreterInterface.stop() stop()} method was previously called
+		 * Must be called before execution if the {@link LangInterpreter.LangInterpreterInterface#stop() stop()} method was previously called
 		 */
 		public void resetStopFlag() {
 			interpreter.forceStopParsingFlag = false;
 		}
 		
 		/**
-		 * Must be called before {@link #LangInterpreter.LangInterpreterInterface.getAndResetReturnValue() getAndResetReturnValue()} method
+		 * Must be called before {@link LangInterpreter.LangInterpreterInterface#getAndResetReturnValue() getAndResetReturnValue()} method
 		 */
 		public boolean isReturnedValueThrowValue() {
 			return interpreter.isThrownValue;
