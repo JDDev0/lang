@@ -48,11 +48,14 @@ public final class LangInterpreter {
 	boolean langTestExpectedNoReturnValue;
 	String messageForLastExcpetion;
 	
-	//Fields for return node
+	//Fields for return node, continue/break node, and force stopping execution
 	/**
-	 * Will be set to true for returning a value
+	 * Will be set to true for returning a value or breaking/continuing a loop
 	 */
 	private boolean stopParsingFlag;
+	private boolean forceStopParsingFlag;
+	
+	//Fields for return node
 	private DataObject returnedOrThrownValue;
 	private boolean isThrownValue;
 	/**
@@ -131,11 +134,11 @@ public final class LangInterpreter {
 		return parser.parseLines(lines);
 	}
 	
-	public void interpretAST(AbstractSyntaxTree ast) {
+	public void interpretAST(AbstractSyntaxTree ast) throws StoppedException {
 		interpretAST(ast, 0);
 	}
 	
-	public void interpretLines(BufferedReader lines) throws IOException {
+	public void interpretLines(BufferedReader lines) throws IOException, StoppedException {
 		interpretLines(lines, 0);
 	}
 	
@@ -143,11 +146,15 @@ public final class LangInterpreter {
 		return new HashMap<>(data);
 	}
 	
-	boolean interpretCondition(ConditionNode node, final int DATA_ID) {
+	public boolean isForceStopParsingFlag() {
+		return forceStopParsingFlag;
+	}
+	
+	boolean interpretCondition(ConditionNode node, final int DATA_ID) throws StoppedException {
 		return interpretConditionNode(node, DATA_ID).getBoolean();
 	}
 	
-	void interpretLines(BufferedReader lines, final int DATA_ID) throws IOException {
+	void interpretLines(BufferedReader lines, final int DATA_ID) throws IOException, StoppedException {
 		interpretAST(parseLines(lines), DATA_ID);
 	}
 	
@@ -167,6 +174,9 @@ public final class LangInterpreter {
 	 * @return Might return null
 	 */
 	private DataObject interpretNode(Node node, final int DATA_ID) {
+		if(forceStopParsingFlag)
+			throw new StoppedException();
+		
 		if(node == null) {
 			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 			
@@ -2731,6 +2741,22 @@ public final class LangInterpreter {
 			setVar(DATA_ID, varName, new DataObject().setError(new ErrorObject(error)), false);
 		}
 		
+		public void setErrno(InterpretingError error, final int DATA_ID) {
+			setErrno(error, "", DATA_ID);
+		}
+		public void setErrno(InterpretingError error, String message, final int DATA_ID) {
+			interpreter.setErrno(error, message, DATA_ID);
+		}
+		public DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
+			return setErrnoErrorObject(error, "", DATA_ID);
+		}
+		public DataObject setErrnoErrorObject(InterpretingError error, String message, final int DATA_ID) {
+			return interpreter.setErrnoErrorObject(error, message, DATA_ID);
+		}
+		public InterpretingError getAndClearErrnoErrorObject(final int DATA_ID) {
+			return interpreter.getAndClearErrnoErrorObject(DATA_ID);
+		}
+		
 		/**
 		 * Creates an function which is accessible globally in the Compiler (= in all DATA_IDs)<br>
 		 * If function already exists, it will be overridden<br>
@@ -2743,14 +2769,26 @@ public final class LangInterpreter {
 			return interpreter.funcs;
 		}
 		
-		public void exec(final int DATA_ID, BufferedReader lines) throws IOException {
+		public void exec(final int DATA_ID, BufferedReader lines) throws IOException, StoppedException {
 			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
 			interpreter.interpretLines(lines, DATA_ID);
 		}
-		public void exec(final int DATA_ID, String lines) throws IOException {
+		public void exec(final int DATA_ID, String lines) throws IOException, StoppedException {
 			try(BufferedReader reader = new BufferedReader(new StringReader(lines))) {
 				exec(DATA_ID, reader);
 			}
+		}
+		/**
+		 * Can be called in another thread
+		 */
+		public void stop() {
+			interpreter.forceStopParsingFlag = true;
+		}
+		/**
+		 * Must be called before execution if the {@link #LangInterpreter.LangInterpreterInterface.stop() stop()} method was previously called
+		 */
+		public void resetStopFlag() {
+			interpreter.forceStopParsingFlag = false;
 		}
 		
 		/**
@@ -2767,38 +2805,30 @@ public final class LangInterpreter {
 			return interpreter.parseLines(lines);
 		}
 		
-		public void interpretAST(final int DATA_ID, AbstractSyntaxTree ast) {
+		public void interpretAST(final int DATA_ID, AbstractSyntaxTree ast) throws StoppedException {
 			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
 			interpreter.interpretAST(ast, DATA_ID);
 		}
-		public DataObject inerpretNode(final int DATA_ID, Node node) {
+		public DataObject inerpretNode(final int DATA_ID, Node node) throws StoppedException {
 			return interpreter.interpretNode(node, DATA_ID);
 		}
-		public DataObject interpretFunctionCallNode(final int DATA_ID, FunctionCallNode node, String funcArgs) {
+		public DataObject interpretFunctionCallNode(final int DATA_ID, FunctionCallNode node, String funcArgs) throws StoppedException {
 			return interpreter.interpretFunctionCallNode(node, DATA_ID);
 		}
-		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int DATA_ID) {
+		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int DATA_ID) throws StoppedException {
 			return interpreter.interpretFunctionPointer(fp, functionName, argumentList, DATA_ID);
 		}
 		
-		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int DATA_ID) {
+		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int DATA_ID) throws StoppedException {
 			return interpreter.callFunctionPointer(fp, functionName, argumentValueList, DATA_ID);
 		}
-		
-		public void setErrno(InterpretingError error, final int DATA_ID) {
-			setErrno(error, "", DATA_ID);
-		}
-		public void setErrno(InterpretingError error, String message, final int DATA_ID) {
-			interpreter.setErrno(error, message, DATA_ID);
-		}
-		public DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
-			return setErrnoErrorObject(error, "", DATA_ID);
-		}
-		public DataObject setErrnoErrorObject(InterpretingError error, String message, final int DATA_ID) {
-			return interpreter.setErrnoErrorObject(error, message, DATA_ID);
-		}
-		public InterpretingError getAndClearErrnoErrorObject(final int DATA_ID) {
-			return interpreter.getAndClearErrnoErrorObject(DATA_ID);
+	}
+	
+	public static class StoppedException extends RuntimeException {
+		private static final long serialVersionUID = 3184689513001702458L;
+
+		public StoppedException() {
+			super("The execution was stopped!");
 		}
 	}
 }

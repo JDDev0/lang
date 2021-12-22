@@ -72,6 +72,7 @@ public class LangShellWindow extends JDialog {
 	private boolean flagMultilineText = false;
 	private boolean flagLineContinuation = false;
 	private boolean flagEnd = false;
+	private boolean flagRunning = false;
 	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
@@ -201,11 +202,14 @@ public class LangShellWindow extends JDialog {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
-					end();
-					return;
+					if(flagRunning) {
+						lii.stop();
+						GraphicsHelper.addText(shell, "^C\n", Color.WHITE);
+					}else {
+						end();
+					}
 				}else if(e.getKeyCode() == KeyEvent.VK_L && e.isControlDown()) {
 					clear();
-					return;
 				}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 					removeAutoCompleteText();
 					if(historyPos < history.size() - 1) {
@@ -731,14 +735,8 @@ public class LangShellWindow extends JDialog {
 				
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
-				try {
-					addToHistory(line);
-					
-					lii.exec(0, line);
-				}catch(IOException e) {
-					term.logStackTrace(e, LangShellWindow.class);
-				}
-				GraphicsHelper.addText(shell, "> ", Color.WHITE);
+				addToHistory(line);
+				executeCode(line);
 			}
 		}else {
 			if(!flagMultilineText) {
@@ -812,19 +810,39 @@ public class LangShellWindow extends JDialog {
 				String multiLineTmpString = multiLineTmp.toString();
 				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
 				
-				try {
-					lii.exec(0, multiLineTmp.toString());
-				}catch(IOException e) {
-					term.logStackTrace(e, LangShellWindow.class);
-				}
+				String code = multiLineTmp.toString();
+				executeCode(code);
 				
 				multiLineTmp.delete(0, multiLineTmp.length());
 				currentCommand = "";
+			}else {
+				for(int i = 0;i < indent;i++)
+					GraphicsHelper.addText(shell, "    ", Color.WHITE);
+				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 			}
-			
-			for(int i = 0;i < indent;i++)
-				GraphicsHelper.addText(shell, "    ", Color.WHITE);
-			GraphicsHelper.addText(shell, "> ", Color.WHITE);
+		}
+	}
+	
+	private void executeCode(String code) {
+		if(flagRunning) {
+			term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
+		}else {
+			flagRunning = true;
+			Thread t = new Thread(() -> {
+				try {
+					lii.exec(0, code);
+				}catch(IOException e) {
+					term.logStackTrace(e, LangShellWindow.class);
+				}catch(LangInterpreter.StoppedException e) {
+					term.logStackTrace(e, LangShellWindow.class);
+					lii.resetStopFlag();
+				}
+				GraphicsHelper.addText(shell, "> ", Color.WHITE);
+				
+				flagRunning = false;
+			});
+			t.setDaemon(true);
+			t.start();
 		}
 	}
 	
