@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import me.jddev0.module.io.TerminalIO;
 
@@ -85,6 +87,55 @@ public final class Lang {
 			
 			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 				interpreter.interpretLines(reader);
+			}
+			
+			//Cache lang translations
+			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
+			return new HashMap<>(LANG_CACHE);
+		}
+	}
+	
+	/**
+	 * @return Returns all translations of <b>langFile</b> with a timeout
+	 * @param timeout Will cancel the execution of the lang file after timeout milliseconds
+	 * @throws StoppedException if the execution of the lang file was force stopped
+	 */
+	public static Map<String, String> getTranslationMapTimeout(String langFile, boolean reloadNotFromChache, int timeout, TerminalIO term, LangPlatformAPI langPlatformAPI)
+	throws IOException, LangInterpreter.StoppedException {
+		return getTranslationMapTimeout(langFile, reloadNotFromChache, timeout, term, langPlatformAPI, null);
+	}
+
+	/**
+	 * @return Returns all translations of <b>langFile</b> with a timeout
+	 * @param timeout Will cancel the execution of the lang file after timeout milliseconds
+	 * @throws StoppedException if the execution of the lang file was force stopped
+	 */
+	public static Map<String, String> getTranslationMapTimeout(String langFile, boolean reloadNotFromChache, int timeout, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs)
+	throws IOException, LangInterpreter.StoppedException {
+		synchronized(LANG_CACHE) {
+			if(langFile.equals(lastCachedLangFileName) && !reloadNotFromChache) {
+				return new HashMap<>(LANG_CACHE);
+			}else {
+				LANG_CACHE.clear();
+				lastCachedLangFileName = langFile;
+			}
+			
+			//Set path for Interpreter
+			String pathLangFile = langPlatformAPI.getLangPath(langFile);
+			
+			//Create new Interpreter instance
+			LangInterpreter interpreter = new LangInterpreter(pathLangFile, langPlatformAPI.getLangFileName(langFile), term, langPlatformAPI, langArgs);
+			
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					interpreter.forceStop();
+				}
+			}, timeout);
+			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
+				interpreter.interpretLines(reader);
+				timer.cancel();
 			}
 			
 			//Cache lang translations

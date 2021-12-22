@@ -146,6 +146,10 @@ public final class LangInterpreter {
 		return new HashMap<>(data);
 	}
 	
+	public void forceStop() {
+		forceStopParsingFlag = true;
+	}
+	
 	public boolean isForceStopParsingFlag() {
 		return forceStopParsingFlag;
 	}
