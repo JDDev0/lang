@@ -432,6 +432,25 @@ final class LangPredefinedFunctions {
 			return interpreter.getAndResetReturnValue(DATA_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(interpreter.term != null));
+		funcs.put("len", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			switch(dataObject.getType()) {
+				case TEXT:
+					return new DataObject().setInt(dataObject.getText().length());
+				case CHAR:
+					return new DataObject().setInt(1);
+				case ARRAY:
+					return new DataObject().setInt(dataObject.getArray().length);
+				
+				default:
+					break;
+			}
+			
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Data type " + dataObject.getType().name() + " does not support \"func.len()\"!", DATA_ID);
+		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, DATA_ID) -> {
