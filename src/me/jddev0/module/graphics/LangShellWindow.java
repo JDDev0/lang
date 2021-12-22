@@ -396,7 +396,7 @@ public class LangShellWindow extends JDialog {
 	}
 	private void printWelcomeText() {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
-		GraphicsHelper.addText(shell, " - Press CTRL + C to exit!\n" +
+		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
 		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
 		"• Press UP and DOWN for scrolling through the history\n" +
 		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
