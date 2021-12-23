@@ -432,12 +432,12 @@ public final class LangParser {
 							repeatCountArgument.add(node);
 						}
 						
-						AbstractSyntaxTree.Node repeatCountNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
+						AbstractSyntaxTree.Node repeatCountOrArrayOrTextNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
 						
 						if(token.startsWith("con.repeat"))
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountNode));
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountOrArrayOrTextNode));
 						else
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, varPointerNode, repeatCountNode));
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, varPointerNode, repeatCountOrArrayOrTextNode));
 					}
 					
 					loopStatement = currentLine;
