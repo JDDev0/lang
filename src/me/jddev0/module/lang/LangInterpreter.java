@@ -225,6 +225,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_WHILE:
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
+				case LOOP_STATEMENT_PART_FOR_EACH:
 					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
 					
 				case LOOP_STATEMENT_CONTINUE_BREAK:
@@ -650,6 +651,76 @@ public final class LangInterpreter {
 					}
 					
 					break;
+				case LOOP_STATEMENT_PART_FOR_EACH:
+					LoopStatementPartForEachNode forEachNode = (LoopStatementPartForEachNode)node;
+					varPointer = interpretNode(forEachNode.getVarPointerNode(), DATA_ID);
+					if(varPointer.getType() != DataType.VAR_POINTER) {
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach needs a variablePointer for the current element variable", DATA_ID);
+						return false;
+					}
+					
+					var = varPointer.getVarPointer().getVar();
+					
+					DataObject arrayOrTextNode = interpretNode(forEachNode.getArrayOrTextNode(), DATA_ID);
+					if(arrayOrTextNode.getType() == DataType.ARRAY) {
+						DataObject[] arr = arrayOrTextNode.getArray();
+						for(int i = 0;i < arr.length;i++) {
+							if(var != null) {
+								if(var.isFinalData())
+									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
+								else
+									var.setData(arr[i]);
+							}
+							
+							interpretAST(node.getLoopBody(), DATA_ID);
+							if(stopParsingFlag) {
+								if(breakContinueCount == 0)
+									return true;
+								
+								//Handle continue and break
+								breakContinueCount -= 1;
+								if(breakContinueCount > 0)
+									return true;
+								
+								stopParsingFlag = false;
+								
+								if(isContinueStatement)
+									continue;
+								else
+									return true;
+							}
+						}
+					}else {
+						String text = arrayOrTextNode.getText();
+						for(int i = 0;i < text.length();i++) {
+							if(var != null) {
+								if(var.isFinalData())
+									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
+								else
+									var.setChar(text.charAt(i));
+							}
+							
+							interpretAST(node.getLoopBody(), DATA_ID);
+							if(stopParsingFlag) {
+								if(breakContinueCount == 0)
+									return true;
+								
+								//Handle continue and break
+								breakContinueCount -= 1;
+								if(breakContinueCount > 0)
+									return true;
+								
+								stopParsingFlag = false;
+								
+								if(isContinueStatement)
+									continue;
+								else
+									return true;
+							}
+						}
+					}
+					
+					break;
 				
 				default:
 					break;
@@ -908,6 +979,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_WHILE:
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
+				case LOOP_STATEMENT_PART_FOR_EACH:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case INT_VALUE:
 				case LIST:

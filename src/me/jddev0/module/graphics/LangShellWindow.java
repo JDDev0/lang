@@ -619,7 +619,7 @@ public class LangShellWindow extends JDialog {
 		}else if(lastToken.matches("con\\..*")) {
 			int indexConNameStart = lastToken.indexOf('.') + 1;
 			String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-			List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "repeat(", "until(", "while(").stream().
+			List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "repeat(", "until(", "while(").stream().
 			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
@@ -750,15 +750,15 @@ public class LangShellWindow extends JDialog {
 			}
 			
 			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.while") || line.trim().startsWith("con.until") ||
-					line.trim().startsWith("con.repeat")))
+					line.trim().startsWith("con.repeat") || line.trim().startsWith("con.foreach")))
 				indent++;
 			
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
 			
 			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.while") && !line.trim().startsWith("con.until") &&
-					!line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition") && !line.trim().startsWith("con.break") &&
-					!line.trim().startsWith("con.continue")))) {
+					!line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.foreach") && !line.trim().startsWith("con.if") && !line.trim().startsWith("con.condition") &&
+					!line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")))) {
 				indent--;
 				
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop"))

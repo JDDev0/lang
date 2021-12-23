@@ -357,7 +357,7 @@ public final class LangParser {
 				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
 				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
 				return ast;
-			}else if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat")) {
+			}else if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				String loopStatement = token;
@@ -374,7 +374,7 @@ public final class LangParser {
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
-					}else if(loopStatement.startsWith("con.repeat")) {
+					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
 						int argumentsStartIndex = loopStatement.indexOf('(');
 						int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(argumentsEndIndex == -1) {
@@ -399,7 +399,7 @@ public final class LangParser {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
 					}else if(token.startsWith("con.until")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, parseCondition(loopCondition)));
-					}else if(token.startsWith("con.repeat")) {
+					}else if(token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 						List<AbstractSyntaxTree.Node> arguments = parseFunctionParameterList(loopCondition, false).getChildren();
 						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
 						
@@ -434,7 +434,10 @@ public final class LangParser {
 						
 						AbstractSyntaxTree.Node repeatCountNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
 						
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountNode));
+						if(token.startsWith("con.repeat"))
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountNode));
+						else
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, varPointerNode, repeatCountNode));
 					}
 					
 					loopStatement = currentLine;
