@@ -546,6 +546,32 @@ public final class LangInterpreter {
 	}
 	
 	/**
+	 * @return null if neither continue nor break<br>
+	 * true if break or continue with level > 1<br>
+	 * false if continue for the current level
+	 */
+	private Boolean interpretLoopContinueAndBreak() {
+		if(stopParsingFlag) {
+			if(breakContinueCount == 0)
+				return true;
+			
+			//Handle continue and break
+			breakContinueCount -= 1;
+			if(breakContinueCount > 0)
+				return true;
+			
+			stopParsingFlag = false;
+			
+			if(isContinueStatement)
+				return false;
+			else
+				return true;
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * @return Returns true if at least one loop iteration was executed
 	 */
 	private boolean interpretLoopStatementPartNode(LoopStatementPartNode node, final int DATA_ID) {
@@ -558,21 +584,12 @@ public final class LangInterpreter {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
-						if(stopParsingFlag) {
-							if(breakContinueCount == 0)
+						Boolean ret = interpretLoopContinueAndBreak();
+						if(ret != null) {
+							if(ret)
 								return true;
-							
-							//Handle continue and break
-							breakContinueCount -= 1;
-							if(breakContinueCount > 0)
-								return true;
-							
-							stopParsingFlag = false;
-							
-							if(isContinueStatement)
-								continue;
 							else
-								return true;
+								continue;
 						}
 					}
 					
@@ -582,21 +599,12 @@ public final class LangInterpreter {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
-						if(stopParsingFlag) {
-							if(breakContinueCount == 0)
+						Boolean ret = interpretLoopContinueAndBreak();
+						if(ret != null) {
+							if(ret)
 								return true;
-							
-							//Handle continue and break
-							breakContinueCount -= 1;
-							if(breakContinueCount > 0)
-								return true;
-							
-							stopParsingFlag = false;
-							
-							if(isContinueStatement)
-								continue;
 							else
-								return true;
+								continue;
 						}
 					}
 					
@@ -632,21 +640,12 @@ public final class LangInterpreter {
 						}
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
-						if(stopParsingFlag) {
-							if(breakContinueCount == 0)
+						Boolean ret = interpretLoopContinueAndBreak();
+						if(ret != null) {
+							if(ret)
 								return true;
-							
-							//Handle continue and break
-							breakContinueCount -= 1;
-							if(breakContinueCount > 0)
-								return true;
-							
-							stopParsingFlag = false;
-							
-							if(isContinueStatement)
-								continue;
 							else
-								return true;
+								continue;
 						}
 					}
 					
@@ -673,21 +672,12 @@ public final class LangInterpreter {
 							}
 							
 							interpretAST(node.getLoopBody(), DATA_ID);
-							if(stopParsingFlag) {
-								if(breakContinueCount == 0)
+							Boolean ret = interpretLoopContinueAndBreak();
+							if(ret != null) {
+								if(ret)
 									return true;
-								
-								//Handle continue and break
-								breakContinueCount -= 1;
-								if(breakContinueCount > 0)
-									return true;
-								
-								stopParsingFlag = false;
-								
-								if(isContinueStatement)
-									continue;
 								else
-									return true;
+									continue;
 							}
 						}
 					}else {
@@ -701,21 +691,12 @@ public final class LangInterpreter {
 							}
 							
 							interpretAST(node.getLoopBody(), DATA_ID);
-							if(stopParsingFlag) {
-								if(breakContinueCount == 0)
+							Boolean ret = interpretLoopContinueAndBreak();
+							if(ret != null) {
+								if(ret)
 									return true;
-								
-								//Handle continue and break
-								breakContinueCount -= 1;
-								if(breakContinueCount > 0)
-									return true;
-								
-								stopParsingFlag = false;
-								
-								if(isContinueStatement)
-									continue;
 								else
-									return true;
+									continue;
 							}
 						}
 					}
