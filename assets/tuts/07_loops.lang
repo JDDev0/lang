@@ -49,7 +49,7 @@ lang.version = v1.0.0
 	con.endloop
 	
 	con.repeat($[i], 8)
-		func.printTerminal(func.subi($i, 1), TEXT-TEXT-TEXT)
+		func.printTerminal(func.deci($i), TEXT-TEXT-TEXT)
 	con.endloop
 	
 	$j
@@ -74,14 +74,14 @@ lang.version = v1.0.0
 		con.endif
 		
 		func.println(Value: $val)
-		$val = func.addi($val, 1)
+		$val = func.inci($val)
 	con.endloop # Will output numbers from 42 to 49
 	
 	func.println()
 	
 	$val = 41
 	con.while($val < 50)
-		$val = func.addi($val, 1)
+		$val = func.inci($val)
 		
 		con.if($val == 45)
 			con.continue
@@ -108,7 +108,7 @@ lang.version = v1.0.0
 		con.endloop
 		
 		func.println(Value: $val)
-		$val = func.addi($val, 1)
+		$val = func.inci($val)
 	con.endloop # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
 	
 	func.println()
@@ -116,7 +116,7 @@ lang.version = v1.0.0
 	
 	$val = 41
 	con.while($val < 50)
-		$val = func.addi($val, 1)
+		$val = func.inci($val)
 		
 		func.println()
 		
@@ -139,7 +139,7 @@ lang.version = v1.0.0
 	#                             the funcPtr gets the actual iteration number
 
 	fp.printColor = ($i) -> {
-		$i = func.subi($i, 1) #[0, 7] for repeat will be changed to [-1, 6]
+		$i = func.deci($i) #[0, 7] for repeat will be changed to [-1, 6]
 		
 		func.printTerminal($i, $i: This is a for loop test!)
 	}
@@ -209,7 +209,7 @@ lang.version = v1.0.0
 
 	fp.printFunc = () -> {
 		func.println($num)
-		$num = func.subi($num, 1)
+		$num = func.deci($num)
 		func.copyAfterFP($[num], $[num])
 	}
 	fp.test = () -> return con.condition($num > 41)
