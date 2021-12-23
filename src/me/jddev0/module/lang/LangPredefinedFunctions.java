@@ -934,6 +934,60 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			}
 		});
+		funcs.put("lpad", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject paddingTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject lenObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 3 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), DATA_ID);
+			
+			Number lenNum = lenObject.getNumber();
+			if(lenNum == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			int len = lenNum.intValue();
+			
+			String text = textObject.getText();
+			String paddingText = paddingTextObject.getText();
+			
+			if(text.length() >= len)
+				return new DataObject(textObject);
+			
+			StringBuilder builder = new StringBuilder(text);
+			while(builder.length() < len)
+				builder.insert(0, paddingText);
+			
+			if(builder.length() > len)
+				builder.delete(0, builder.length() - len);
+			
+			return new DataObject(builder.toString());
+		});
+		funcs.put("rpad", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject paddingTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject lenObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 3 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), DATA_ID);
+			
+			Number lenNum = lenObject.getNumber();
+			if(lenNum == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
+			int len = lenNum.intValue();
+			
+			String text = textObject.getText();
+			String paddingText = paddingTextObject.getText();
+			
+			if(text.length() >= len)
+				return new DataObject(textObject);
+			
+			StringBuilder builder = new StringBuilder(text);
+			while(builder.length() < len)
+				builder.append(paddingText);
+			
+			if(builder.length() >= len)
+				builder.delete(len, builder.length());
+			
+			return new DataObject(builder.toString());
+		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
