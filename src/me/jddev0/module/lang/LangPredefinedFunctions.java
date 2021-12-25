@@ -451,6 +451,32 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Data type " + dataObject.getType().name() + " does not support \"func.len()\"!", DATA_ID);
 		});
+		funcs.put("min", (argumentList, DATA_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			while(argumentList.size() > 0) {
+				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(dataObject.isLessThan(min))
+					min = dataObject;
+			}
+			
+			return min;
+		});
+		funcs.put("max", (argumentList, DATA_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			while(argumentList.size() > 0) {
+				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(dataObject.isGreaterThan(min))
+					min = dataObject;
+			}
+			
+			return min;
+		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, DATA_ID) -> {
