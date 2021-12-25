@@ -70,7 +70,7 @@ func.println(Error code: $LANG_ERRNO)
 #        32: INCOMPATIBLE_DATA_TYPE
 #        33: LANG_ARRAYS_COPY
 #    Compiler errors:
-#        34: COMP_VER_ERROR
+#        34: LANG_VER_ERROR
 #    Conditionals errors:
 #        35: INVALID_CON_PART
 #    Format errors:
@@ -82,7 +82,7 @@ func.println(Error code: $LANG_ERRNO)
 #    System warnings:
 #        -2: NO_TERMINAL_WARNING
 #    Compiler warnings:
-#        -3: COMP_VER_WARNING
+#        -3: LANG_VER_WARNING
 #        -4: INVALID_COMP_FLAG_DATA
 
 # Error Handling example
