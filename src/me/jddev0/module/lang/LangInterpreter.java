@@ -843,9 +843,9 @@ public final class LangInterpreter {
 				String langVer = value.getText();
 				if(!langVer.equals(VERSION)) {
 					if(VERSION.compareTo(langVer) > 0)
-						setErrno(InterpretingError.COMP_VER_WARNING, "Lang file's version is older than this version! The lang file could not be compiled right", DATA_ID);
+						setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be compiled right", DATA_ID);
 					else
-						setErrno(InterpretingError.COMP_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be compiled right!", DATA_ID);
+						setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be compiled right!", DATA_ID);
 				}
 				break;
 			
@@ -2675,14 +2675,14 @@ public final class LangInterpreter {
 		INVALID_PTR           (31, "Invalid Pointer"),
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
 		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
-		COMP_VER_ERROR        (34, "Lang file's version is not compatible with the compiler version"),
+		LANG_VER_ERROR        (34, "Lang file's version is not compatible with this version"),
 		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
 		INVALID_FORMAT        (36, "Invalid format sequence"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
 		NO_TERMINAL_WARNING   (-2, "No terminal available"),
-		COMP_VER_WARNING      (-3, "Lang file's version is not compatible with the compiler version"),
+		LANG_VER_WARNING      (-3, "Lang file's version is not compatible with this version"),
 		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid");
 		
 		private final int errorCode;
