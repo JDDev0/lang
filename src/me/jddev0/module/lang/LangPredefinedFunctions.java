@@ -1008,6 +1008,9 @@ final class LangPredefinedFunctions {
 			if(number == null || base == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", DATA_ID);
 			
+			if(base.intValue() < 2 || base.intValue() > 36)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be between 2 (inclusive) and 36 (inclusive)", DATA_ID);
+			
 			try {
 				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
 			}catch(NumberFormatException e1) {
