@@ -154,7 +154,7 @@ final class LangPredefinedFunctions {
 		switch(formatType) { //Invalid arguments for formatType
 			case 'd':
 				if(decimalPlaces)
-					return -1;
+					return -1; //Invalid format sequence
 				break;
 			
 			case 'f':
@@ -163,7 +163,7 @@ final class LangPredefinedFunctions {
 			case 's':
 			case 't':
 				if(forceSign || leadingZeros || decimalPlaces)
-					return -1;
+					return -1; //Invalid format sequence
 				
 				break;
 		}
