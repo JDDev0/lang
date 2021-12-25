@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
@@ -33,15 +34,15 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import me.jddev0.module.lang.Lang;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
+import me.jddev0.module.lang.LangInterpreter.DataObject;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
 import me.jddev0.module.lang.LangUtils;
-import me.jddev0.module.lang.LangInterpreter.DataObject;
-import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
  * Uses the io module<br>
@@ -67,12 +68,14 @@ public class LangShellWindow extends JDialog {
 	private int autoCompletePos = 0;
 	private Color lastColor = Color.BLACK;
 	
+	private Queue<String> executionQueue = new LinkedList<String>();
 	private StringBuilder multiLineTmp = new StringBuilder();
 	private int indent = 0;
 	private boolean flagMultilineText = false;
 	private boolean flagLineContinuation = false;
 	private boolean flagEnd = false;
 	private boolean flagRunning = false;
+	private boolean flagExecutingQueue = false;
 	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
@@ -143,7 +146,7 @@ public class LangShellWindow extends JDialog {
 				}else if(c == '\n') {
 					if(autoCompleteText.isEmpty()) {
 						removeAutoCompleteText();
-						addLine(lineTmp.toString());
+						addLine(lineTmp.toString(), false);
 						lineTmp.delete(0, lineTmp.length());
 						lastHistoryEntryUsed = "";
 					}else {
@@ -190,10 +193,18 @@ public class LangShellWindow extends JDialog {
 								highlightSyntaxLastLine();
 								lineTmp.append(line);
 								if(i != lines.length - 1 || copied.endsWith("\n")) { //Line has an '\n' at end -> finished line
-									addLine(lineTmp.toString());
+									addLine(lineTmp.toString(), true);
 									lineTmp.delete(0, lineTmp.length());
 								}
 							}
+						}
+						if(flagRunning) {
+							if(!flagExecutingQueue) {
+								executionQueue.clear();
+								term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
+							}
+						}else {
+							executeCodeFromExecutionQueue();
 						}
 						updateAutoCompleteText(lineTmp.toString());
 					}catch(UnsupportedFlavorException e1) {
@@ -240,7 +251,7 @@ public class LangShellWindow extends JDialog {
 							String line = lines[i];
 							GraphicsHelper.addText(shell, line, Color.WHITE);
 							highlightSyntaxLastLine();
-							addLine(line);
+							addLine(line, false);
 						}
 						lineTmp.delete(0, lineTmp.length());
 						lineTmp.append(lines[lines.length - 1]);
@@ -682,7 +693,7 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, line, Color.WHITE);
 				highlightSyntaxLastLine();
 				
-				addLine(line);
+				addLine(line, false);
 			}
 			lastLine = lines[lines.length - 1];
 		}
@@ -719,7 +730,7 @@ public class LangShellWindow extends JDialog {
 		
 		return false;
 	}
-	private void addLine(String line) {
+	private void addLine(String line, boolean addToExecutionQueueOrExecute) {
 		if(!flagMultilineText && !flagLineContinuation && indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			
@@ -736,7 +747,10 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				addToHistory(line);
-				executeCode(line);
+				if(addToExecutionQueueOrExecute)
+					executionQueue.add(line);
+				else
+					executeCode(line);
 			}
 		}else {
 			if(!flagMultilineText) {
@@ -811,7 +825,10 @@ public class LangShellWindow extends JDialog {
 				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
 				
 				String code = multiLineTmp.toString();
-				executeCode(code);
+				if(addToExecutionQueueOrExecute)
+					executionQueue.add(code);
+				else
+					executeCode(code);
 				
 				multiLineTmp.delete(0, multiLineTmp.length());
 				currentCommand = "";
@@ -839,6 +856,33 @@ public class LangShellWindow extends JDialog {
 				}
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
 				
+				flagRunning = false;
+			});
+			t.setDaemon(true);
+			t.start();
+		}
+	}
+	
+	private void executeCodeFromExecutionQueue() {
+		if(flagRunning) {
+			term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
+		}else {
+			flagRunning = true;
+			flagExecutingQueue = true;
+			Thread t = new Thread(() -> {
+				while(!executionQueue.isEmpty()) {
+					try {
+						lii.exec(0, executionQueue.poll());
+					}catch(IOException e) {
+						term.logStackTrace(e, LangShellWindow.class);
+					}catch(LangInterpreter.StoppedException e) {
+						term.logStackTrace(e, LangShellWindow.class);
+						lii.resetStopFlag();
+					}
+				}
+				GraphicsHelper.addText(shell, "> ", Color.WHITE);
+				
+				flagExecutingQueue = false;
 				flagRunning = false;
 			});
 			t.setDaemon(true);
