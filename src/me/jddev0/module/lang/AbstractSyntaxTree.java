@@ -181,19 +181,16 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-	public static final class ParsingErrorNode implements Node {
-		private final List<Node> nodes;
+	public static final class ParsingErrorNode extends ChildlessNode {
 		private final ParsingError error;
-		
-		public ParsingErrorNode(ParsingError error) {
-			this.nodes = new ArrayList<>(0);
-			
+		private final String message;
+
+		public ParsingErrorNode(ParsingError error, String message) {
 			this.error = error;
+			this.message = message;
 		}
-		
-		@Override
-		public List<Node> getChildren() {
-			return nodes;
+		public ParsingErrorNode(ParsingError error) {
+			this(error, null);
 		}
 		
 		@Override
@@ -203,6 +200,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public ParsingError getError() {
 			return error;
+		}
+		
+		public String getMessage() {
+			return message;
 		}
 		
 		@Override
@@ -227,12 +228,12 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				return false;
 			
 			ParsingErrorNode that = (ParsingErrorNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.error == that.error && that.nodes.equals(that.nodes);
+			return this.getNodeType().equals(that.getNodeType()) && this.error == that.error && this.message.equals(that.message);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getNodeType(), this.error, this.nodes);
+			return Objects.hash(this.getNodeType(), this.error, this.message);
 		}
 	}
 	

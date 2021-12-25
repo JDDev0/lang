@@ -483,7 +483,7 @@ public final class LangInterpreter {
 		
 		if(error == null)
 			error = InterpretingError.INVALID_AST_NODE;
-		return setErrnoErrorObject(error, DATA_ID);
+		return setErrnoErrorObject(error, node.getMessage() == null?"":node.getMessage(), DATA_ID);
 	}
 	
 	/**

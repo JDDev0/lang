@@ -63,13 +63,13 @@ public final class LangParser {
 						String lineTmpString;
 						while(true) {
 							if(!lines.ready()) {
-								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
 								return ast;
 							}
 							
 							lineTmpString = lines.readLine();
 							if(lineTmpString == null) {
-								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
 								return ast;
 							}
 							lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
@@ -89,12 +89,12 @@ public final class LangParser {
 					line = line.substring(0, line.length() - 1);
 					
 					if(!lines.ready()) {
-						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
 						return ast;
 					}
 					String lineTmpString = lines.readLine();
 					if(lineTmpString == null) {
-						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
 						return ast;
 					}
 					lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
@@ -180,7 +180,7 @@ public final class LangParser {
 			if(condition.startsWith("(")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(condition, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
 					
 					break;
 				}
@@ -269,7 +269,7 @@ public final class LangParser {
 				int parameterStartIndex = condition.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(condition, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
 					
 					break;
 				}
@@ -348,7 +348,7 @@ public final class LangParser {
 					int argumentsStartIndex = token.indexOf('(');
 					int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(token, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(argumentsEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for con.break or con.continue is missing"));
 						return ast;
 					}
 					argumentNodes = parseFunctionParameterList(token.substring(argumentsStartIndex + 1, argumentsEndIndex), false).getChildren();
@@ -364,13 +364,13 @@ public final class LangParser {
 				do {
 					String loopCondition = null;
 					if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
 						return ast;
 					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
@@ -378,19 +378,19 @@ public final class LangParser {
 						int argumentsStartIndex = loopStatement.indexOf('(');
 						int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(argumentsEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
 							return ast;
 						}
 						loopCondition = loopStatement.substring(argumentsStartIndex + 1, argumentsEndIndex);
 					}else {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Loop statement part is invalid"));
 						return ast;
 					}
 					
 					AbstractSyntaxTree loopBody = parseLines(lines);
 					if(loopBody == null) {
 						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In loop body"));
 						
 						return ast;
 					}
@@ -416,7 +416,7 @@ public final class LangParser {
 							varPointerNode = node;
 						}
 						if(!flag) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 							return ast;
 						}
 						
@@ -425,7 +425,7 @@ public final class LangParser {
 							AbstractSyntaxTree.Node node = argumentIter.next();
 							
 							if(node.getNodeType() == AbstractSyntaxTree.NodeType.ARGUMENT_SEPARATOR) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 								return ast;
 							}
 							
@@ -455,26 +455,26 @@ public final class LangParser {
 					if(ifStatement.startsWith("con.else")) {
 						ifCondition = null;
 					}else if(!ifStatement.contains("(") || !ifStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing if statement condition"));
 						
 						ifCondition = null;
 					}else if(ifStatement.startsWith("con.if") || ifStatement.startsWith("con.elif")) {
 						int conditionStartIndex = ifStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Missing if statement condition"));
 							return ast;
 						}
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}else {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "If statement part is invalid"));
 						return ast;
 					}
 					
 					AbstractSyntaxTree ifBody = parseLines(lines);
 					if(ifBody == null) {
 						nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In if body"));
 						
 						return ast;
 					}
@@ -535,7 +535,7 @@ public final class LangParser {
 				if(lrvalue.startsWith("(") && lrvalue.contains(") -> ")) {
 					int parameterListEndIndex = LangUtils.getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterListEndIndex < 1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function definition"));
 						
 						return ast;
 					}
@@ -600,7 +600,7 @@ public final class LangParser {
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
 					return ast;
 				}
 				
@@ -636,7 +636,7 @@ public final class LangParser {
 				int conditionStartIndex = token.indexOf('(');
 				int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(token, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(conditionEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
 					return ast;
 				}
 				String condition = token.substring(conditionStartIndex + 1, conditionEndIndex);
@@ -652,7 +652,7 @@ public final class LangParser {
 				
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in variable pointer"));
 					return ast;
 				}
 				String varPtr = token.substring(0, endIndex + 1);
@@ -790,7 +790,7 @@ public final class LangParser {
 					int parameterStartIndex = parameterList.indexOf('(');
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
 						return ast;
 					}
 					
@@ -830,7 +830,7 @@ public final class LangParser {
 					int conditionStartIndex = parameterList.indexOf('(');
 					int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(conditionEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
 						return ast;
 					}
 					String condition = parameterList.substring(conditionStartIndex + 1, conditionEndIndex);
