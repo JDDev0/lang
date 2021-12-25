@@ -2677,6 +2677,7 @@ public final class LangInterpreter {
 		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
 		COMP_VER_ERROR        (34, "Lang file's version is not compatible with the compiler version"),
 		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
+		INVALID_FORMAT        (36, "Invalid format sequence"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
@@ -2885,7 +2886,7 @@ public final class LangInterpreter {
 	
 	public static class StoppedException extends RuntimeException {
 		private static final long serialVersionUID = 3184689513001702458L;
-
+		
 		public StoppedException() {
 			super("The execution was stopped!");
 		}

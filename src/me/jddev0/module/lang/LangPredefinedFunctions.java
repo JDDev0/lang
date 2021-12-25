@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -74,6 +75,234 @@ final class LangPredefinedFunctions {
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Right operand is no number", DATA_ID);
 		
 		return operation.apply(leftNumber, rightNumber);
+	}
+	
+	/**
+	 * @return The count of chars used for the format sequence<br>
+	 * Will return -1 for invalid format sequences
+	 * Will return -2 for invalid parameters
+	 * Will return -3 for not found translation keys
+	 */
+	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int DATA_ID) {
+		char[] posibleFormats = {'d', 'f', 's', 't'};
+		int[] indices = new int[posibleFormats.length];
+		for(int i = 0;i < posibleFormats.length;i++)
+			indices[i] = format.indexOf(posibleFormats[i]);
+		
+		int minEndIndex = Integer.MAX_VALUE;
+		for(int index:indices) {
+			if(index == -1)
+				continue;
+			
+			if(index < minEndIndex)
+				minEndIndex = index;
+		}
+		
+		if(minEndIndex == Integer.MAX_VALUE)
+			return -1;
+		
+		String fullFormat = format.substring(0, minEndIndex + 1);
+		char formatType = fullFormat.charAt(fullFormat.length() - 1);
+		
+		//Parsing format arguments
+		boolean leftJustify = fullFormat.charAt(0) == '-';
+		if(leftJustify)
+			fullFormat = fullFormat.substring(1);
+		boolean forceSign = fullFormat.charAt(0) == '+';
+		if(forceSign)
+			fullFormat = fullFormat.substring(1);
+		boolean leadingZeros = fullFormat.charAt(0) == '0';
+		if(leadingZeros)
+			fullFormat = fullFormat.substring(1);
+		boolean sizeInArgument = fullFormat.charAt(0) == '*';
+		if(sizeInArgument)
+			fullFormat = fullFormat.substring(1);
+		Integer size = null;
+		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
+			String number = "";
+			while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
+				number += fullFormat.charAt(0);
+				fullFormat = fullFormat.substring(1);
+			}
+			size = Integer.parseInt(number);
+		}
+		boolean decimalPlaces = fullFormat.charAt(0) == '.';
+		boolean decimalPlacesInArgument = false;
+		Integer decimalPlacesCount = null;
+		if(decimalPlaces) {
+			fullFormat = fullFormat.substring(1);
+			decimalPlacesInArgument = fullFormat.charAt(0) == '*';
+			if(decimalPlacesInArgument)
+				fullFormat = fullFormat.substring(1);
+			if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
+				String number = "";
+				while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
+					number += fullFormat.charAt(0);
+					fullFormat = fullFormat.substring(1);
+				}
+				decimalPlacesCount = Integer.parseInt(number);
+			}
+		}
+		
+		//Validate format arguments
+		if(fullFormat.charAt(0) != formatType)
+			return -1; //Invalid characters
+		if((sizeInArgument && size != null) || (decimalPlacesInArgument && decimalPlacesCount != null) || (leftJustify && leadingZeros))
+			return -1; //Invalid format argument combinations
+		if(leftJustify && (!sizeInArgument && size == null))
+			return -1; //Missing size format argument for leftJustify
+		switch(formatType) { //Invalid arguments for formatType
+			case 'd':
+				if(decimalPlaces)
+					return -1;
+				break;
+			
+			case 'f':
+				break;
+			
+			case 's':
+			case 't':
+				if(forceSign || leadingZeros || decimalPlaces)
+					return -1;
+				
+				break;
+		}
+		
+		//Get size from arguments
+		if(sizeInArgument) {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			Number number = dataObject.getNumber();
+			if(number == null)
+				return -2; //Invalid arguments
+			
+			size = number.intValue();
+		}
+		if(decimalPlacesInArgument) {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			Number number = dataObject.getNumber();
+			if(number == null)
+				return -2; //Invalid arguments
+			
+			decimalPlacesCount = number.intValue();
+		}
+		
+		//Format argument
+		String output = null;
+		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		switch(formatType) {
+			case 'd':
+				Number number = dataObject.getNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				output = number.longValue() + "";
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				break;
+			
+			case 'f':
+				number = dataObject.getNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				double value = number.doubleValue();
+				if(Double.isNaN(value)) {
+					output = "NaN";
+					forceSign = false;
+					leadingZeros = false;
+				}else if(Double.isInfinite(value)) {
+					output = (value == Double.NEGATIVE_INFINITY?"-":"") + "Infinity";
+					leadingZeros = false;
+					if(forceSign && output.charAt(0) != '-')
+						output = "+" + output;
+				}else {
+					output = String.format(Locale.ENGLISH, "%" + (decimalPlacesCount == null?"":("." + decimalPlacesCount)) + "f", number.doubleValue());
+					if(forceSign && output.charAt(0) != '-')
+						output = "+" + output;
+				}
+				
+				break;
+				
+			case 's':
+				output = dataObject.getText();
+				
+				break;
+				
+			case 't':
+				String translationKey = dataObject.getText();
+				output = interpreter.getData().get(DATA_ID).lang.get(translationKey);
+				if(output == null)
+					return -3; //Translation key not found
+				
+				break;
+		}
+		
+		if(output != null) {
+			if(size == null) {
+				builder.append(output);
+			}else {
+				if(leftJustify) {
+					while(output.length() < size)
+						output = output + " ";
+				}else if(leadingZeros) {
+					char signOutput = 0;
+					if(output.charAt(0) == '+' || output.charAt(0) == '-') {
+						signOutput = output.charAt(0);
+						output = output.substring(1);
+					}
+					
+					int paddingSize = size - (signOutput == 0?0:1);
+					while(output.length() < paddingSize)
+						output = "0" + output;
+					
+					if(signOutput != 0)
+						output = signOutput + output;
+				}else {
+					while(output.length() < size)
+						output = " " + output;
+				}
+				
+				builder.append(output);
+			}
+		}
+		
+		return minEndIndex + 1;
+	}
+	private DataObject formatText(String format, List<DataObject> argumentList, final int DATA_ID) {
+		StringBuilder builder = new StringBuilder();
+		
+		int i = 0;
+		while(i < format.length()) {
+			char c = format.charAt(i);
+			if(c == '%') {
+				c = format.charAt(++i);
+				if(c == '%') {
+					builder.append(c);
+					
+					i++;
+					continue;
+				}
+				
+				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, DATA_ID);
+				if(charCountUsed == -1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FORMAT, DATA_ID);
+				else if(charCountUsed == -2)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				else if(charCountUsed == -3)
+					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, DATA_ID);
+				
+				i += charCountUsed;
+				
+				continue;
+			}
+			
+			builder.append(c);
+			
+			i++;
+		}
+		
+		return new DataObject(builder.toString());
 	}
 	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -621,6 +850,18 @@ final class LangPredefinedFunctions {
 				System.out.println(textObject.getText());
 			return null;
 		});
+		funcs.put("printf", (argumentList, DATA_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject out = formatText(formatObject.getText(), argumentList, DATA_ID);
+			if(out.getType() == DataType.ERROR)
+				return out;
+			
+			System.out.print(out.getText());
+			return null;
+		});
 		funcs.put("error", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
@@ -635,6 +876,18 @@ final class LangPredefinedFunctions {
 				System.err.println();
 			else
 				System.err.println(textObject.getText());
+			return null;
+		});
+		funcs.put("errorf", (argumentList, DATA_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject out = formatText(formatObject.getText(), argumentList, DATA_ID);
+			if(out.getType() == DataType.ERROR)
+				return out;
+			
+			System.err.print(out.getText());
 			return null;
 		});
 	}
@@ -1013,6 +1266,13 @@ final class LangPredefinedFunctions {
 				builder.delete(len, builder.length());
 			
 			return new DataObject(builder.toString());
+		});
+		funcs.put("format", (argumentList, DATA_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			return formatText(formatObject.getText(), argumentList, DATA_ID);
 		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
