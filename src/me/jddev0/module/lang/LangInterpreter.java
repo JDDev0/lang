@@ -1562,6 +1562,8 @@ public final class LangInterpreter {
 		//Final vars
 		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_COMPILER_VERSION"));
 		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setVariableName("$LANG_PATH"));
+		data.get(DATA_ID).var.put("$LANG_FILE", new DataObject(currentStackElement.getLangFile(), true).setVariableName("$LANG_FILE"));
+		data.get(DATA_ID).var.put("$LANG_CURRENT_FUNCTION", new DataObject(currentStackElement.getLangFunctionName(), true).setVariableName("$LANG_CURRENT_FUNCTION"));
 		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setVariableName("$LANG_RAND_MAX"));
 		data.get(DATA_ID).var.put("$LANG_OS_NAME", new DataObject(System.getProperty("os.name")).setFinalData(true).setVariableName("$LANG_OS_NAME"));
 		data.get(DATA_ID).var.put("$LANG_OS_VER", new DataObject(System.getProperty("os.version")).setFinalData(true).setVariableName("$LANG_OS_VER"));
