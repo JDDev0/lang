@@ -146,7 +146,7 @@ public class LangShellWindow extends JDialog {
 				}else if(c == '\n') {
 					if(autoCompleteText.isEmpty()) {
 						removeAutoCompleteText();
-						addLine(lineTmp.toString(), false);
+						addLine(lineTmp.toString(), false, false);
 						lineTmp.delete(0, lineTmp.length());
 						lastHistoryEntryUsed = "";
 					}else {
@@ -192,20 +192,25 @@ public class LangShellWindow extends JDialog {
 								GraphicsHelper.addText(shell, line, Color.WHITE);
 								highlightSyntaxLastLine();
 								lineTmp.append(line);
-								if(i != lines.length - 1 || copied.endsWith("\n")) { //Line has an '\n' at end -> finished line
-									addLine(lineTmp.toString(), true);
+								if(i != lines.length - 1) { //Line has an '\n' at end -> finished line
+									addLine(lineTmp.toString(), true, true);
 									lineTmp.delete(0, lineTmp.length());
 								}
 							}
-						}
-						if(flagRunning) {
-							if(!flagExecutingQueue) {
-								executionQueue.clear();
-								term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
+							
+							if(lines.length > 1)
+								addLine(lines[lines.length - 1], true, false);
+							
+							if(flagRunning) {
+								if(!flagExecutingQueue) {
+									executionQueue.clear();
+									term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
+								}
+							}else if(lines.length > 1) {
+								executeCodeFromExecutionQueue();
 							}
-						}else {
-							executeCodeFromExecutionQueue();
 						}
+						
 						updateAutoCompleteText(lineTmp.toString());
 					}catch(UnsupportedFlavorException e1) {
 						term.logln(Level.WARNING, "The clipboard contains no string data!", LangShellWindow.class);
@@ -251,7 +256,7 @@ public class LangShellWindow extends JDialog {
 							String line = lines[i];
 							GraphicsHelper.addText(shell, line, Color.WHITE);
 							highlightSyntaxLastLine();
-							addLine(line, false);
+							addLine(line, false, false);
 						}
 						lineTmp.delete(0, lineTmp.length());
 						lineTmp.append(lines[lines.length - 1]);
@@ -693,7 +698,7 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, line, Color.WHITE);
 				highlightSyntaxLastLine();
 				
-				addLine(line, false);
+				addLine(line, false, false);
 			}
 			lastLine = lines[lines.length - 1];
 		}
@@ -730,7 +735,7 @@ public class LangShellWindow extends JDialog {
 		
 		return false;
 	}
-	private void addLine(String line, boolean addToExecutionQueueOrExecute) {
+	private void addLine(String line, boolean addToExecutionQueueOrExecute, boolean addNewLinePromptForLinesPutInExecutionQueue) {
 		if(!flagMultilineText && !flagLineContinuation && indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			
@@ -747,10 +752,13 @@ public class LangShellWindow extends JDialog {
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				addToHistory(line);
-				if(addToExecutionQueueOrExecute)
+				if(addToExecutionQueueOrExecute) {
 					executionQueue.add(line);
-				else
+					if(addNewLinePromptForLinesPutInExecutionQueue)
+						GraphicsHelper.addText(shell, "> ", Color.WHITE);
+				}else {
 					executeCode(line);
+				}
 			}
 		}else {
 			if(!flagMultilineText) {
@@ -825,10 +833,13 @@ public class LangShellWindow extends JDialog {
 				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
 				
 				String code = multiLineTmp.toString();
-				if(addToExecutionQueueOrExecute)
+				if(addToExecutionQueueOrExecute) {
 					executionQueue.add(code);
-				else
+					if(addNewLinePromptForLinesPutInExecutionQueue)
+						GraphicsHelper.addText(shell, "> ", Color.WHITE);
+				}else {
 					executeCode(code);
+				}
 				
 				multiLineTmp.delete(0, multiLineTmp.length());
 				currentCommand = "";
