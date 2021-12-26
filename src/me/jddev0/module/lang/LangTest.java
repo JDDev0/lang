@@ -26,12 +26,12 @@ public class LangTest {
 		String actualValue = assertResult.getActualValue();
 		String expectedValue = assertResult.getExpectedValue();
 		
-		return assertResult.getAssertTestName() + ":\n" + (message == null?"":(
-		       linePrefix + "Message:  " + message + "\n")) +
+		return assertResult.getAssertTestName() + ":" + (message == null?"":(
+		       "\n" + linePrefix + "Message:  " + message)) +
 		       
 		       ((actualValue == null || expectedValue == null)?"":(
-		       linePrefix + "Actual:   " + actualValue + "\n" +
-		       linePrefix + "Excepted: " + expectedValue));
+		       "\n" + linePrefix + "Actual:   " + actualValue +
+		       "\n" + linePrefix + "Excepted: " + expectedValue));
 	}
 	
 	public LangTest() {
