@@ -159,6 +159,8 @@ func.println(-----------------)
 func.println(\$LANG vars)
 func.println(• "$LANG_COMPILER_VERSION") # Will print the compiler version
 func.println(• "$LANG_PATH") # Will print the path to the lang file
+func.println(• "$LANG_FILE") # Will print the file name of the lang file (Can be NULL)
+func.println(• "$LANG_CURRENT_FUNCTION") # Will print the current function (Can be NULL)
 func.println(• "$LANG_RAND_MAX") # Will print the maximal value for func.rand
 func.println(• "$LANG_OS_NAME") # Will print the name of the operating system
 func.println(• "$LANG_OS_VER") # Will print the version of the operating system
