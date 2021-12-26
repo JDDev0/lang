@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -35,9 +36,8 @@ public final class LangInterpreter {
 	final LangParser parser = new LangParser();
 	final LangPatterns patterns = new LangPatterns();
 	
-	String langPath;
-	String langFile;
-	String langFunctionName;
+	private final LinkedList<StackElement> callStack;
+	
 	TerminalIO term;
 	LangPlatformAPI langPlatformAPI;
 	
@@ -122,8 +122,8 @@ public final class LangInterpreter {
 	 * @param langArgs can be null
 	 */
 	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
-		this.langPath = langPath;
-		this.langFile = langFile;
+		callStack = new LinkedList<>();
+		callStack.add(new StackElement(langPath, langFile, null));
 		this.term = term;
 		this.langPlatformAPI = langPlatformAPI;
 		
@@ -152,6 +152,33 @@ public final class LangInterpreter {
 	
 	public boolean isForceStopParsingFlag() {
 		return forceStopParsingFlag;
+	}
+	
+	public StackElement getCurrentCallStackElement() {
+		return callStack.peekLast();
+	}
+	
+	void pushStackElement(StackElement stackElement) {
+		callStack.addLast(stackElement);
+	}
+	
+	StackElement popStackElement() {
+		return callStack.pollLast();
+	}
+	
+	private String printStackTrace() {
+		StringBuilder builder = new StringBuilder();
+		
+		ListIterator<StackElement> iter = callStack.listIterator(callStack.size());
+		while(true) {
+			builder.append(iter.previous());
+			if(iter.hasPrevious())
+				builder.append("\n");
+			else
+				break;
+		}
+		
+		return builder.toString();
 	}
 	
 	boolean interpretCondition(ConditionNode node, final int DATA_ID) throws StoppedException {
@@ -1230,9 +1257,9 @@ public final class LangInterpreter {
 				if(parameterList == null || functionBody == null)
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", DATA_ID);
 				
-				//Change lang function name
-				String oldLangFunctionName = langFunctionName;
-				langFunctionName = functionName == null?fp.toString():functionName;
+				//Update call stack
+				StackElement currentStackElement = getCurrentCallStackElement();
+				pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), functionName == null?fp.toString():functionName));
 				
 				final int NEW_DATA_ID = DATA_ID + 1;
 				
@@ -1326,8 +1353,8 @@ public final class LangInterpreter {
 				//Remove data map
 				data.remove(NEW_DATA_ID);
 				
-				//Set lang function name to old function name
-				langFunctionName = oldLangFunctionName;
+				//Update call stack
+				popStackElement();
 				
 				DataObject retTmp = getAndResetReturnValue(DATA_ID);
 				return retTmp == null?new DataObject().setVoid():retTmp;
@@ -1530,9 +1557,11 @@ public final class LangInterpreter {
 		DataObject langArgs = data.get(DATA_ID).var.get("&LANG_ARGS");
 		data.get(DATA_ID).var.clear();
 		
+		StackElement currentStackElement = getCurrentCallStackElement();
+		
 		//Final vars
 		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_COMPILER_VERSION"));
-		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(langPath, true).setVariableName("$LANG_PATH"));
+		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setVariableName("$LANG_PATH"));
 		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setVariableName("$LANG_RAND_MAX"));
 		data.get(DATA_ID).var.put("$LANG_OS_NAME", new DataObject(System.getProperty("os.name")).setFinalData(true).setVariableName("$LANG_OS_NAME"));
 		data.get(DATA_ID).var.put("$LANG_OS_VER", new DataObject(System.getProperty("os.version")).setFinalData(true).setVariableName("$LANG_OS_VER"));
@@ -1589,9 +1618,14 @@ public final class LangInterpreter {
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
 		if(!forceNoErrorOutput && errorOutput && newErrno != 0) {
-			String output = String.format("An %s occured in \"%s/%s\" (FUNCTION: \"%s\", DATA_ID: \"%d\")!\nError: %s (%d)%s", newErrno < 0?"warning":"error", langPath,
+			StackElement currentStackElement = getCurrentCallStackElement();
+			String langPath = currentStackElement.getLangPath();
+			String langFile = currentStackElement.getLangFile();
+			String langFunctionName = currentStackElement.getLangFunctionName();
+			
+			String output = String.format("An %s occured in \"%s/%s\" (FUNCTION: \"%s\", DATA_ID: \"%d\")!\nError: %s (%d)%s\nStackTrace:\n%s", newErrno < 0?"warning":"error", langPath,
 					langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName, DATA_ID, error.getErrorText(), error.getErrorCode(),
-					message.isEmpty()?"":"\nMessage: " + message);
+					message.isEmpty()?"":"\nMessage: " + message, printStackTrace());
 			if(term == null)
 				System.err.println(output);
 			else
@@ -2638,6 +2672,36 @@ public final class LangInterpreter {
 		public final Map<String, DataObject> var = new HashMap<>();
 	}
 	
+	//Classes for call stack
+	public static final class StackElement {
+		private final String langPath;
+		private final String langFile;
+		private final String langFunctionName;
+		
+		public StackElement(String langPath, String langFile, String langFunctionName) {
+			this.langPath = langPath;
+			this.langFile = langFile;
+			this.langFunctionName = langFunctionName;
+		}
+		
+		public String getLangPath() {
+			return langPath;
+		}
+		
+		public String getLangFile() {
+			return langFile;
+		}
+		
+		public String getLangFunctionName() {
+			return langFunctionName;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("    at \"%s/%s\" in function \"%s\"", langPath, langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName);
+		}
+	}
+	
 	public static enum InterpretingError {
 		NO_ERROR              ( 0, "No Error"),
 		
@@ -2849,6 +2913,10 @@ public final class LangInterpreter {
 		 */
 		public void resetStopFlag() {
 			interpreter.forceStopParsingFlag = false;
+		}
+		
+		public StackElement getCurrentCallStackElement() {
+			return interpreter.getCurrentCallStackElement();
 		}
 		
 		/**

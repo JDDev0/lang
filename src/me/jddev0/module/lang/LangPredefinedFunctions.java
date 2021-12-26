@@ -23,6 +23,7 @@ import me.jddev0.module.lang.LangInterpreter.DataObject;
 import me.jddev0.module.lang.LangInterpreter.DataType;
 import me.jddev0.module.lang.LangInterpreter.FunctionPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
+import me.jddev0.module.lang.LangInterpreter.StackElement;
 
 /**
  * Lang-Module<br>
@@ -634,9 +635,10 @@ final class LangPredefinedFunctions {
 			
 			final int NEW_DATA_ID = DATA_ID + 1;
 			
-			//Change lang function name
-			String oldLangFunctionName = interpreter.langFunctionName;
-			interpreter.langFunctionName = "func.exec";
+			//Update call stack
+			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
+			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec"));
+			
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
 				
 				//Add variables and local variables
@@ -655,8 +657,8 @@ final class LangPredefinedFunctions {
 				
 				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), DATA_ID);
 			}finally {
-				//Set lang function name to old function name
-				interpreter.langFunctionName = oldLangFunctionName;
+				//Update call stack
+				interpreter.popStackElement();
 			}
 			
 			//Add lang after call
@@ -2621,20 +2623,16 @@ final class LangPredefinedFunctions {
 		if(new File(langFileName).isAbsolute())
 			absolutePath = langFileName;
 		else
-			absolutePath = interpreter.langPath + File.separator + langFileName;
+			absolutePath = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + langFileName;
 		
 		final int NEW_DATA_ID = DATA_ID + 1;
 		
 		String langPathTmp = absolutePath;
 		langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
 		
-		//Change lang path and lang file and lang function name for createDataMap
-		String oldLangPath = interpreter.langPath;
-		String oldLangFile = interpreter.langFile;
-		String oldLangFunctionName = interpreter.langFunctionName;
-		interpreter.langPath = langPathTmp;
-		interpreter.langFile = interpreter.langPlatformAPI.getLangFileName(langFileName);
-		interpreter.langFunctionName = null;
+		//Update call stack
+		interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null));
+		
 		interpreter.createDataMap(NEW_DATA_ID, langArgs);
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
@@ -2643,10 +2641,8 @@ final class LangPredefinedFunctions {
 			interpreter.data.remove(NEW_DATA_ID);
 			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), DATA_ID);
 		}finally {
-			//Set lang path and lang file and lang function name to old lang path and old lang file and lang function name
-			interpreter.langPath = oldLangPath;
-			interpreter.langFile = oldLangFile;
-			interpreter.langFunctionName = oldLangFunctionName;
+			//Update call stack
+			interpreter.popStackElement();
 		}
 		
 		function.accept(NEW_DATA_ID);
