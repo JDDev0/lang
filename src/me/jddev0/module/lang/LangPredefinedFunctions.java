@@ -2696,5 +2696,31 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+		funcs.put("include", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int DATA_ID) {
+				return executeLinkerFunction(argumentList, NEW_DATA_ID -> {
+					//Copy linked translation map (not "lang.* = *") to the "link caller"'s translation map
+					interpreter.data.get(NEW_DATA_ID).lang.forEach((k, v) -> {
+						if(!k.startsWith("lang.")) {
+							interpreter.data.get(DATA_ID).lang.put(k, v); //Copy to "old" DATA_ID
+						}
+					});
+					
+					//Copy all vars, arrPtrs and funcPtrs
+					interpreter.data.get(NEW_DATA_ID).var.forEach((name, val) -> {
+						DataObject oldData = interpreter.data.get(DATA_ID).var.get(name);
+						if(!name.startsWith("$LANG_") && !name.startsWith("&LANG_") && (oldData == null || !oldData.isFinalData())) { //No LANG data vars and no final data
+							interpreter.data.get(DATA_ID).var.put(name, val);
+						}
+					});
+				}, DATA_ID);
+			}
+			
+			@Override
+			public boolean isLinkerFunction() {
+				return true;
+			}
+		});
 	}
 }
