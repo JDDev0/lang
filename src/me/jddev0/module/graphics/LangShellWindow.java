@@ -609,8 +609,11 @@ public class LangShellWindow extends JDialog {
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
 				return;
-			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-			autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
+			autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+			if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
+				autoCompleteText = "";
+			else
+				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
 			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.)");
 			if(tokens.length == 0)
@@ -622,8 +625,11 @@ public class LangShellWindow extends JDialog {
 				varName.startsWith(lastToken) && !varName.equals(lastToken)).sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
-				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-				autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
+					autoCompleteText = "";
+				else
+					autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
 			}else if(lastToken.matches("(func|linker)\\..*")) {
 				boolean isLinkerFunction = lastToken.startsWith("linker.");
 				int indexFunctionNameStart = lastToken.indexOf('.') + 1;
@@ -635,14 +641,18 @@ public class LangShellWindow extends JDialog {
 				sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
-				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-				autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
-				
-				//Mark deprecated function
-				if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
-					col = Color.RED.darker().darker();
-				
-				autoCompleteText += "(";
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size()) {
+					autoCompleteText = "";
+				}else {
+					autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
+					
+					//Mark deprecated function
+					if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
+						col = Color.RED.darker().darker();
+					
+					autoCompleteText += "(";
+				}
 			}else if(lastToken.matches("con\\..*")) {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
@@ -651,8 +661,11 @@ public class LangShellWindow extends JDialog {
 				collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
-				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
+					autoCompleteText = "";
+				else
+					autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 			}else {
 				return;
 			}
