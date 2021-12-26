@@ -29,9 +29,9 @@ func.printError()
 func.println()
 
 # linker.link(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
-linker.link(08_linkTestLangArgs.lang)
-linker.link(08_linkTestLangArgs.lang, arg1, arg2)
-linker.link(08_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
+linker.link(09_linkTestLangArgs.lang)
+linker.link(09_linkTestLangArgs.lang, arg1, arg2)
+linker.link(09_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
 func.println()
 
 # Bind Library
@@ -58,9 +58,9 @@ fp.lib2Test(--- TEST ---)
 func.println()
 
 # linker.bindLibrary(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
-linker.bindLibrary(08_linkTestLangArgs.lang)
-linker.bindLibrary(08_linkTestLangArgs.lang, arg1, arg2)
-linker.bindLibrary(08_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
+linker.bindLibrary(09_linkTestLangArgs.lang)
+linker.bindLibrary(09_linkTestLangArgs.lang, arg1, arg2)
+linker.bindLibrary(09_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
 func.println()
 
 # Return value from executed lang file
