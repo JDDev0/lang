@@ -2272,7 +2272,6 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 	}
-	
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("langTestUnit", (argumentList, DATA_ID) -> {
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
@@ -2423,6 +2422,62 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!actualValueObject.isStrictEquals(expectedValueObject), null, actualValueObject, expectedValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertTranslationValueEquals", (argumentList, DATA_ID) -> {
+			DataObject translationKey = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			String translationValue = interpreter.getData().get(DATA_ID).lang.get(translationKey.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueEquals(translationValue != null && translationValue.equals(expectedValueObject.getText()),
+					null, translationKey.getText(), translationValue, expectedValueObject.getText()));
+			
+			return null;
+		});
+		funcs.put("langTestAssertTranslationValueNotEquals", (argumentList, DATA_ID) -> {
+			DataObject translationKey = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			String translationValue = interpreter.getData().get(DATA_ID).lang.get(translationKey.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(translationValue != null && !translationValue.equals(expectedValueObject.getText()),
+					null, translationKey.getText(), translationValue, expectedValueObject.getText()));
+			
+			return null;
+		});
+		funcs.put("langTestAssertTranslationKeyFound", (argumentList, DATA_ID) -> {
+			DataObject translationKey = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			String translationValue = interpreter.getData().get(DATA_ID).lang.get(translationKey.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(translationValue != null, null, translationKey.getText(), translationValue));
+			
+			return null;
+		});
+		funcs.put("langTestAssertTranslationKeyNotFound", (argumentList, DATA_ID) -> {
+			DataObject translationKey = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			String translationValue = interpreter.getData().get(DATA_ID).lang.get(translationKey.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(translationValue == null, null, translationKey.getText(), translationValue));
 			
 			return null;
 		});

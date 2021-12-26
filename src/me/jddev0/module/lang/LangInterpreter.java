@@ -74,7 +74,7 @@ public final class LangInterpreter {
 	 */
 	boolean errorOutput = true;
 	/**
-	 * Will enable langTests unit test (Can not be disabled if enabled once)
+	 * Will enable langTest unit tests (Can not be disabled if enabled once)
 	 */
 	boolean langTest = false;
 	

@@ -603,6 +603,166 @@ public class LangTest {
 		}
 	}
 	
+	public static final class AssertResultTranslationValueEquals implements AssertResult {
+		private final boolean testPassed;
+		private final String message;
+		private final String translationKey;
+		private final String translationValue;
+		private final String expectedValue;
+		
+		public AssertResultTranslationValueEquals(boolean testPassed, String message, String translationKey, String translationValue, String expectedValue) {
+			this.testPassed = testPassed;
+			this.message = message;
+			this.translationValue = translationValue;
+			this.translationKey = translationKey;
+			this.expectedValue = expectedValue;
+		}
+		
+		@Override
+		public boolean hasTestPassed() {
+			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return translationKey + ": " + (translationValue == null?"Translation key not found":("\"" + translationValue + "\""));
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return "== \"" + expectedValue + "\"";
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultTranslationValueEquals";
+		}
+	}
+	
+	public static final class AssertResultTranslationValueNotEquals implements AssertResult {
+		private final boolean testPassed;
+		private final String message;
+		private final String translationKey;
+		private final String translationValue;
+		private final String expectedValue;
+		
+		public AssertResultTranslationValueNotEquals(boolean testPassed, String message, String translationKey, String translationValue, String expectedValue) {
+			this.testPassed = testPassed;
+			this.message = message;
+			this.translationValue = translationValue;
+			this.translationKey = translationKey;
+			this.expectedValue = expectedValue;
+		}
+		
+		@Override
+		public boolean hasTestPassed() {
+			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return translationKey + ": " + (translationValue == null?"Translation key not found":("\"" + translationValue + "\""));
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return "!= \"" + expectedValue + "\"";
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultTranslationValueNotEquals";
+		}
+	}
+	
+	public static final class AssertResultTranslationKeyFound implements AssertResult {
+		private final boolean testPassed;
+		private final String message;
+		private final String translationKey;
+		private final String translationValue;
+		
+		public AssertResultTranslationKeyFound(boolean testPassed, String message, String translationKey, String translationValue) {
+			this.testPassed = testPassed;
+			this.message = message;
+			this.translationValue = translationValue;
+			this.translationKey = translationKey;
+		}
+		
+		@Override
+		public boolean hasTestPassed() {
+			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return translationKey + ": " + (translationValue == null?"Translation key not found":"Translation key found");
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return "== Translation key found";
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultTranslationKeyFound";
+		}
+	}
+	
+	public static final class AssertResultTranslationKeyNotFound implements AssertResult {
+		private final boolean testPassed;
+		private final String message;
+		private final String translationKey;
+		private final String translationValue;
+		
+		public AssertResultTranslationKeyNotFound(boolean testPassed, String message, String translationKey, String translationValue) {
+			this.testPassed = testPassed;
+			this.message = message;
+			this.translationValue = translationValue;
+			this.translationKey = translationKey;
+		}
+		
+		@Override
+		public boolean hasTestPassed() {
+			return testPassed;
+		}
+		
+		@Override
+		public String getMessage() {
+			return message;
+		}
+		
+		@Override
+		public String getActualValue() {
+			return translationKey + ": " + (translationValue == null?"Translation key not found":"Translation key found");
+		}
+		
+		@Override
+		public String getExpectedValue() {
+			return "== Translation key not found";
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultTranslationKeyNotFound";
+		}
+	}
+	
 	private static abstract class AssertResultDataObjectString implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
