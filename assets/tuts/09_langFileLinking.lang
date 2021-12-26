@@ -47,20 +47,30 @@ func.printTerminal(-1, fp.gtv(lib.name)) # Will print "Error":
                                          # be copied
 func.printTerminal(-1, $lib_var)
 fp.libTest(--- Test_42 ---)
-
-# Link lang file and bind library
-linker.link(09_linkTestAll.lang)
-linker.bindLibrary(09_linkTestAll.lang)
-
-func.printTerminal(-1, fp.gtv(lib2.name), fp.gtv(lib2.data))
-func.printTerminal(-1, $lib2_var)
-fp.lib2Test(--- TEST ---)
 func.println()
 
 # linker.bindLibrary(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
 linker.bindLibrary(09_linkTestLangArgs.lang)
 linker.bindLibrary(09_linkTestLangArgs.lang, arg1, arg2)
 linker.bindLibrary(09_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
+func.println()
+
+# Include
+# linker.include(FILE) # Will execute the lang file FILE and will
+#                        copy all translations and all variables
+#                        with the same restrictions as linker.link
+#                        and linker.bindLibrary
+linker.include(09_linkTestAll.lang)
+
+func.printTerminal(-1, fp.gtv(lib2.name), fp.gtv(lib2.data))
+func.printTerminal(-1, $lib2_var)
+fp.lib2Test(--- TEST ---)
+func.println()
+
+# linker.include(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
+linker.include(09_linkTestLangArgs.lang)
+linker.include(09_linkTestLangArgs.lang, arg1, arg2)
+linker.include(09_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
 func.println()
 
 # Return value from executed lang file
@@ -70,6 +80,7 @@ con.repeat($[i], 4)
 	$ret = linker.link(09_linkTestReturn.lang)
 	func.printTerminal(1, Returned value: "$ret")
 con.endloop
+func.println()
 
 # Thrown value from executed lang file
 $ret = linker.link(09_linkTestThrow.lang)
