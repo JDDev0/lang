@@ -955,7 +955,7 @@ public class LangTest {
 		
 		@Override
 		public String getExpectedValue() {
-			return "=== nothing returned";
+			return "== nothing returned";
 		}
 	}
 	
