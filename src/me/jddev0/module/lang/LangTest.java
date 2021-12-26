@@ -218,14 +218,14 @@ public class LangTest {
 			
 			String out = "";
 			if(getTestPassedCount() != getTestCount())
-				out += "Failed tests:\n";
+				out += "Failed tests:";
 			for(SubUnit subUnit:subUnits) {
 				List<AssertResult> failedTests = subUnit.getFailedTests();
 				
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\t" + printFailedTestResult("\t\t", failedTest);
+							out += "\n\t" + printFailedTestResult("\t\t", failedTest);
 						}
 						
 						out += "\n";
@@ -235,9 +235,9 @@ public class LangTest {
 				}
 				
 				if(failedTests.size() > 0) {
-					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
+					out += "\n\tSubUnit: \"" + subUnit.getName() + "\"";
 					for(AssertResult failedTest:failedTests) {
-						out += "\t\t" + printFailedTestResult("\t\t\t", failedTest);
+						out += "\n\t\t" + printFailedTestResult("\t\t\t", failedTest);
 					}
 					
 					out += "\n";
@@ -265,14 +265,14 @@ public class LangTest {
 			             "Tests passed: " + getTestPassedCount() + "/" + getTestCount() + "\n";
 			
 			if(getTestPassedCount() != getTestCount())
-				out += "Failed tests:\n";
+				out += "Failed tests:";
 			for(SubUnit subUnit:subUnits) {
 				List<AssertResult> failedTests = subUnit.getFailedTests();
 				
 				if(subUnit.getName() == null) {
 					if(failedTests.size() > 0) {
 						for(AssertResult failedTest:failedTests) {
-							out += "\t" + printFailedTestResult("\t\t", failedTest);
+							out += "\n\t" + printFailedTestResult("\t\t", failedTest);
 						}
 						
 						out += "\n";
@@ -282,9 +282,9 @@ public class LangTest {
 				}
 				
 				if(failedTests.size() > 0) {
-					out += "\tSubUnit: \"" + subUnit.getName() + "\"\n";
+					out += "\n\tSubUnit: \"" + subUnit.getName() + "\"";
 					for(AssertResult failedTest:failedTests) {
-						out += "\t\t" + printFailedTestResult("\t\t\t", failedTest);
+						out += "\n\t\t" + printFailedTestResult("\t\t\t", failedTest);
 					}
 					
 					out += "\n";
@@ -376,10 +376,10 @@ public class LangTest {
 			String out = "";
 			List<AssertResult> failedTests = getFailedTests();
 			if(failedTests.size() > 0) {
-				out += "\t\tFailed tests:\n";
+				out += "\t\tFailed tests:";
 				
 				for(AssertResult failedTest:failedTests) {
-					out += "\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
+					out += "\n\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 				}
 			}
 			
@@ -399,10 +399,10 @@ public class LangTest {
 			
 			List<AssertResult> failedTests = getFailedTests();
 			if(failedTests.size() > 0) {
-				out += "\t\tFailed tests:\n";
+				out += "\t\tFailed tests:";
 				
 				for(AssertResult failedTest:failedTests) {
-					out += "\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
+					out += "\n\t\t\t" + printFailedTestResult("\t\t\t\t", failedTest);
 				}
 			}
 			
