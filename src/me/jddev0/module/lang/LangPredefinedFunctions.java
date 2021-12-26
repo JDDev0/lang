@@ -640,7 +640,6 @@ final class LangPredefinedFunctions {
 			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec"));
 			
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
-				
 				//Add variables and local variables
 				interpreter.createDataMap(NEW_DATA_ID);
 				//Create clean data map without coping from caller's data map
