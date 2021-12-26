@@ -597,45 +597,14 @@ public class LangShellWindow extends JDialog {
 	}
 	
 	private void updateAutoCompleteText(String line) {
-		String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.)");
-		if(tokens.length == 0)
-			return;
-		
 		Color col = lastColor.darker().darker();
 		if(col.equals(lastColor)) //Color is already the darkest
 			col = lastColor.brighter().brighter();
 		
-		final String lastToken = tokens[tokens.length - 1];
-		if(lastToken.matches("(\\$|&|fp\\.).*")) {
-			List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName ->
-			varName.startsWith(lastToken) && !varName.equals(lastToken)).sorted().collect(Collectors.toList());
-			if(autoCompletes.isEmpty())
-				return;
-			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-			autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
-		}else if(lastToken.matches("(func|linker)\\..*")) {
-			boolean isLinkerFunction = lastToken.startsWith("linker.");
-			int indexFunctionNameStart = lastToken.indexOf('.') + 1;
-			String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
-			List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
-				return entry.getValue().isLinkerFunction() == isLinkerFunction;
-			}).map(Entry<String, LangPredefinedFunctionObject>::getKey).filter(functionName ->
-			functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
-			sorted().collect(Collectors.toList());
-			if(autoCompletes.isEmpty())
-				return;
-			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
-			autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
-			
-			//Mark deprecated function
-			if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
-				col = Color.RED.darker().darker();
-			
-			autoCompleteText += "(";
-		}else if(lastToken.matches("con\\..*")) {
-			int indexConNameStart = lastToken.indexOf('.') + 1;
-			String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-			List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "repeat(", "until(", "while(").stream().
+		if(line.startsWith("lang.") && !line.contains(" ")) {
+			int indexConNameStart = line.indexOf('.') + 1;
+			String conNameStart = indexConNameStart == line.length()?"":line.substring(indexConNameStart);
+			List<String> autoCompletes = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ").stream().
 			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
@@ -643,7 +612,50 @@ public class LangShellWindow extends JDialog {
 			autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
 			autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
-			return;
+			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.)");
+			if(tokens.length == 0)
+				return;
+			
+			final String lastToken = tokens[tokens.length - 1];
+			if(lastToken.matches("(\\$|&|fp\\.).*")) {
+				List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName ->
+				varName.startsWith(lastToken) && !varName.equals(lastToken)).sorted().collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+				autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
+			}else if(lastToken.matches("(func|linker)\\..*")) {
+				boolean isLinkerFunction = lastToken.startsWith("linker.");
+				int indexFunctionNameStart = lastToken.indexOf('.') + 1;
+				String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
+				List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
+					return entry.getValue().isLinkerFunction() == isLinkerFunction;
+				}).map(Entry<String, LangPredefinedFunctionObject>::getKey).filter(functionName ->
+				functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
+				sorted().collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+				autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
+				
+				//Mark deprecated function
+				if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
+					col = Color.RED.darker().darker();
+				
+				autoCompleteText += "(";
+			}else if(lastToken.matches("con\\..*")) {
+				int indexConNameStart = lastToken.indexOf('.') + 1;
+				String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
+				List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "repeat(", "until(", "while(").stream().
+				filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
+				collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(0, Math.min(autoCompletePos, autoCompletes.size() - 1));
+				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
+			}else {
+				return;
+			}
 		}
 		
 		GraphicsHelper.addText(shell, autoCompleteText, col);
