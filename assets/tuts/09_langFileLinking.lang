@@ -24,8 +24,15 @@ fp.gtv = func.getTranslationValue # Copy func.getTranslationValue for shorter co
 
 func.printTerminal(-1, fp.gtv(test.name), fp.gtv(test.age), fp.gtv(test.data))
 func.printTerminal(-1, $var) # Will print "$var", because $var is no translation
-fp.printTest(42) # Will result in an error
+fp.printTest(42) # Will throw an error
 func.printError()
+func.println()
+
+# linker.link(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
+linker.link(08_linkTestLangArgs.lang)
+linker.link(08_linkTestLangArgs.lang, arg1, arg2)
+linker.link(08_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
+func.println()
 
 # Bind Library
 # linker.bindLibrary(FILE) # Will execute the lang file FILE
@@ -48,6 +55,13 @@ linker.bindLibrary(09_linkTestAll.lang)
 func.printTerminal(-1, fp.gtv(lib2.name), fp.gtv(lib2.data))
 func.printTerminal(-1, $lib2_var)
 fp.lib2Test(--- TEST ---)
+func.println()
+
+# linker.bindLibrary(FILE, (any)) # &LANG_ARGS can be set for the linked lang file
+linker.bindLibrary(08_linkTestLangArgs.lang)
+linker.bindLibrary(08_linkTestLangArgs.lang, arg1, arg2)
+linker.bindLibrary(08_linkTestLangArgs.lang, 42, 0000.02, linker.link) # Arguments will automatically be cast to Text values
+func.println()
 
 # Return value from executed lang file
 $i
