@@ -247,12 +247,13 @@ public class LangTest {
 			if(!out.isEmpty())
 				term.logln(Level.ERROR, out, LangTest.class);
 			
-			
 			if(subUnits.size() > 1) {
 				term.logln(Level.CONFIG, "SubUnits:", LangTest.class);
 				
 				for(SubUnit subUnit:subUnits)
 					subUnit.printResultsToTerminal(term);
+			}else if(out.isEmpty()) {
+				term.logln(Level.ERROR, "", LangTest.class);
 			}
 		}
 		
@@ -296,6 +297,8 @@ public class LangTest {
 				
 				for(SubUnit subUnit:subUnits)
 					out += subUnit.printResults();
+			}else if(out.isEmpty()) {
+				out += "\n";
 			}
 			
 			return out;
@@ -384,7 +387,7 @@ public class LangTest {
 			}
 			
 			out += "\n";
-
+			
 			if(!out.isEmpty())
 				term.logln(Level.ERROR, out, LangTest.class);
 		}
