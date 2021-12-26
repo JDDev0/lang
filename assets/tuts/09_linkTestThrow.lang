@@ -1,0 +1,7 @@
+lang.name = Link Test Throw
+lang.version = v1.0.0
+
+func.printTerminal(1, 4 - Return)
+func.printTerminal(1, 4 - Finished)
+
+throw $LANG_ERROR_EOF

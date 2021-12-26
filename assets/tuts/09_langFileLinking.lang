@@ -70,3 +70,7 @@ con.repeat($[i], 4)
 	$ret = linker.link(09_linkTestReturn.lang)
 	func.printTerminal(1, Returned value: "$ret")
 con.endloop
+
+# Thrown value from executed lang file
+$ret = linker.link(09_linkTestThrow.lang)
+func.println(Returned: $ret: func.errorCode($ret) [func.errorText($ret)])
