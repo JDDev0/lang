@@ -45,6 +45,8 @@ public class LangPlatformAPI {
 	
 	public String getLangPath(String langFile) {
 		File containingFolder = new File(langFile).getParentFile();
+		if(containingFolder == null)
+			containingFolder = new File("./");
 		try {
 			return containingFolder.getCanonicalPath();
 		}catch(IOException e) {
