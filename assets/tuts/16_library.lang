@@ -1,0 +1,30 @@
+lang.name = Lang Test (Library to be tested)
+lang.version = v1.0.0
+
+lang.errorOutput = 0
+lang.invalidLangFlag = abc
+
+xyz.lib.ver = v1.0.0
+
+xyz.lib.open.button = Open Button
+xyz.lib.close.button = Close Button
+
+xyz.lib.abc = ABC
+
+fp.xyz = ($a, $b) -> return func.subi(func.inci($a), $b)
+
+fp.xyz_throw = ($err) -> throw $err
+fp.xyz_ret = ($ret) -> return $ret
+fp.xyz_noRet = () -> return
+
+$xyz = A VARIABLE
+$xyz_num = 4224
+$xyz_final = test var
+func.makeFinal($xyz_final)
+
+$xyz_null
+$xyz_void = func.exec( ) # The space is important
+
+&xyzData = func.arrayOf(func.getTranslationValue(xyz.lib.ver), func.getTranslationValue(xyz.lib.abc))
+
+return 42
