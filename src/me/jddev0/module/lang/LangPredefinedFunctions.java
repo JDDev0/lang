@@ -49,6 +49,15 @@ final class LangPredefinedFunctions {
 		
 		return dataObject.getText();
 	}
+	private List<DataObject> getAllArguments(List<DataObject> argumentList) {
+		List<DataObject> arguments = new LinkedList<>();
+		
+		while(!argumentList.isEmpty())
+			arguments.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+		
+		return arguments;
+	}
+	
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int DATA_ID) {
 		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
@@ -2595,9 +2604,14 @@ final class LangPredefinedFunctions {
 	}
 	
 	private DataObject executeLinkerFunction(List<DataObject> argumentList, Consumer<Integer> function, int DATA_ID) {
-		DataObject langFileNameObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		DataObject langFileNameObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 		if(langFileNameObject.getType() != DataType.TEXT)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+		
+		List<DataObject> langArgsList = getAllArguments(argumentList);
+		String[] langArgs = new String[langArgsList.size()];
+		for(int i = 0;i < langArgsList.size();i++)
+			langArgs[i] = langArgsList.get(i).getText();
 		
 		String langFileName = langFileNameObject.getText();
 		if(!langFileName.endsWith(".lang"))
@@ -2621,7 +2635,7 @@ final class LangPredefinedFunctions {
 		interpreter.langPath = langPathTmp;
 		interpreter.langFile = interpreter.langPlatformAPI.getLangFileName(langFileName);
 		interpreter.langFunctionName = null;
-		interpreter.createDataMap(NEW_DATA_ID);
+		interpreter.createDataMap(NEW_DATA_ID, langArgs);
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
 			interpreter.interpretLines(reader, NEW_DATA_ID);

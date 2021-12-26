@@ -1514,7 +1514,7 @@ public final class LangInterpreter {
 	void createDataMap(final int DATA_ID) {
 		createDataMap(DATA_ID, null);
 	}
-	private void createDataMap(final int DATA_ID, String[] langArgs) {
+	void createDataMap(final int DATA_ID, String[] langArgs) {
 		data.put(DATA_ID, new Data());
 		
 		if(langArgs != null) {
