@@ -363,6 +363,11 @@ public final class LangParser {
 				do {
 					String loopCondition = null;
 					if(loopStatement.startsWith("con.else")) {
+						if(loopStatement.contains("(") || loopStatement.contains(")")) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+							return ast;
+						}
+ 						
 						loopCondition = null;
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
@@ -448,6 +453,11 @@ public final class LangParser {
 				do {
 					String ifCondition;
 					if(ifStatement.startsWith("con.else")) {
+						if(ifStatement.contains("(") || ifStatement.contains(")")) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+							return ast;
+						}
+						
 						ifCondition = null;
 					}else if(!ifStatement.contains("(") || !ifStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing if statement condition"));
