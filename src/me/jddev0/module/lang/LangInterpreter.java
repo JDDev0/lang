@@ -192,6 +192,9 @@ public final class LangInterpreter {
 		if(ast == null)
 			return;
 		
+		if(forceStopParsingFlag)
+			throw new StoppedException();
+		
 		for(Node node:ast) {
 			if(stopParsingFlag)
 				return;
