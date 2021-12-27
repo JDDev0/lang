@@ -252,6 +252,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
 				case LOOP_STATEMENT_PART_FOR_EACH:
+				case LOOP_STATEMENT_PART_ELSE:
 					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
 					
 				case LOOP_STATEMENT_CONTINUE_BREAK:
@@ -658,6 +659,8 @@ public final class LangInterpreter {
 					}
 					
 					for(int i = 0;i < iterations;i++) {
+						flag = true;
+						
 						if(var != null) {
 							if(var.isFinalData())
 								setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.repeat current iteration value can not be set", DATA_ID);
@@ -690,6 +693,8 @@ public final class LangInterpreter {
 					if(arrayOrTextNode.getType() == DataType.ARRAY) {
 						DataObject[] arr = arrayOrTextNode.getArray();
 						for(int i = 0;i < arr.length;i++) {
+							flag = true;
+							
 							if(var != null) {
 								if(var.isFinalData())
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
@@ -709,6 +714,8 @@ public final class LangInterpreter {
 					}else {
 						String text = arrayOrTextNode.getText();
 						for(int i = 0;i < text.length();i++) {
+							flag = true;
+							
 							if(var != null) {
 								if(var.isFinalData())
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
@@ -727,6 +734,10 @@ public final class LangInterpreter {
 						}
 					}
 					
+					break;
+				case LOOP_STATEMENT_PART_ELSE:
+					flag = true;
+					interpretAST(node.getLoopBody(), DATA_ID);
 					break;
 				
 				default:
@@ -984,6 +995,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
 				case LOOP_STATEMENT_PART_FOR_EACH:
+				case LOOP_STATEMENT_PART_ELSE:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case INT_VALUE:
 				case LIST:
