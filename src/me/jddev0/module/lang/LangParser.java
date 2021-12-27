@@ -365,7 +365,7 @@ public final class LangParser {
 					if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
 						return ast;
-					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until")) {
+					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until") || loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
@@ -373,14 +373,6 @@ public final class LangParser {
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
-					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
-						int argumentsStartIndex = loopStatement.indexOf('(');
-						int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
-						if(argumentsEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
-							return ast;
-						}
-						loopCondition = loopStatement.substring(argumentsStartIndex + 1, argumentsEndIndex);
 					}else {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Loop statement part is invalid"));
 						return ast;
