@@ -123,7 +123,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile("((\\$\\**|&|fp\\.)\\w+||(\\$\\**\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*");
 	
-	public boolean matches(String str, Pattern pattern) {
+	public static boolean matches(String str, Pattern pattern) {
 		return pattern.matcher(str).matches();
 	}
+	
+	private LangPatterns() {}
 }

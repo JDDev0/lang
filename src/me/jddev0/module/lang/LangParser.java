@@ -16,7 +16,6 @@ import java.util.List;
  * @version v1.0.0
  */
 public final class LangParser {
-	private final LangPatterns patterns = new LangPatterns();
 	
 	private String currentLine;
 	
@@ -148,7 +147,7 @@ public final class LangParser {
 		StringBuilder builder = new StringBuilder();
 		while(condition.length() > 0) {
 			//Ignore whitespaces
-			if(patterns.matches(condition, LangPatterns.PARSING_LEADING_WHITSPACE)) {
+			if(LangPatterns.matches(condition, LangPatterns.PARSING_LEADING_WHITSPACE)) {
 				if(condition.length() == 1)
 					break;
 				
@@ -260,7 +259,7 @@ public final class LangParser {
 			}
 			
 			//Function calls
-			if(patterns.matches(condition, LangPatterns.PARSING_FUNCTION_CALL)) {
+			if(LangPatterns.matches(condition, LangPatterns.PARSING_FUNCTION_CALL)) {
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
 					builder.delete(0, builder.length());
@@ -313,7 +312,7 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
-		if(isInnerAssignment?patterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME):patterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
+		if(isInnerAssignment?LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME):LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
 			String[] tokens = line.split(" = ", 2);
 			
 			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
@@ -324,7 +323,7 @@ public final class LangParser {
 			return null;
 		
 		//Only for non multi assignments
-		if(line.endsWith(" =") || patterns.matches(line, LangPatterns.VAR_NAME_FULL) || patterns.matches(line, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE)) {
+		if(line.endsWith(" =") || LangPatterns.matches(line, LangPatterns.VAR_NAME_FULL) || LangPatterns.matches(line, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE)) {
 			//Empty translation/assignment ("<var/lang> =" or "$varName")
 			if(line.endsWith(" ="))
 				line = line.substring(0, line.length() - 2);
@@ -554,7 +553,7 @@ public final class LangParser {
 					}
 					
 					return ast;
-				}else if(patterns.matches(lrvalue, LangPatterns.VAR_NAME_FUNC_PTR_WITH_FUNCS)) {
+				}else if(LangPatterns.matches(lrvalue, LangPatterns.VAR_NAME_FUNC_PTR_WITH_FUNCS)) {
 					//Function pointer copying
 					
 					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lrvalue));
@@ -594,7 +593,7 @@ public final class LangParser {
 			}
 			
 			//Function calls
-			if(patterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterStartIndex = token.indexOf('(');
@@ -614,7 +613,7 @@ public final class LangParser {
 				continue;
 			}
 			//Function call of previous value
-			if(patterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
@@ -630,7 +629,7 @@ public final class LangParser {
 			}
 			
 			//con.condition
-			if(patterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int conditionStartIndex = token.indexOf('(');
@@ -647,7 +646,7 @@ public final class LangParser {
 			}
 			
 			//VarPtr
-			if(patterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
@@ -667,7 +666,7 @@ public final class LangParser {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilder(builder, nodes);
 			}
-			if(patterns.matches(builder.toString(), LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && patterns.matches(token, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
+			if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
 				//Variable split after invalid character (Not [A-Za-z0-9_]
 				clearAndParseStringBuilder(builder, nodes);
 			}
@@ -692,13 +691,13 @@ public final class LangParser {
 		builder.delete(0, builder.length());
 		
 		//Vars & FuncPtrs
-		if(patterns.matches(token, LangPatterns.VAR_NAME_FULL_WITH_FUNCS)) {
+		if(LangPatterns.matches(token, LangPatterns.VAR_NAME_FULL_WITH_FUNCS)) {
 			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(token));
 			
 			return;
 		}
 		
-		if(!patterns.matches(token, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+		if(!LangPatterns.matches(token, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
 			//INT
 			try {
 				nodes.add(new AbstractSyntaxTree.IntValueNode(Integer.parseInt(token)));
@@ -784,7 +783,7 @@ public final class LangParser {
 				}
 				
 				//Function calls
-				if(patterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterStartIndex = parameterList.indexOf('(');
@@ -806,7 +805,7 @@ public final class LangParser {
 					continue;
 				}
 				//Function call of previous value
-				if(patterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
@@ -824,7 +823,7 @@ public final class LangParser {
 				}
 				
 				//con.condition
-				if(patterns.matches(parameterList, LangPatterns.PARSING_CON_CONDITION)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_CON_CONDITION)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int conditionStartIndex = parameterList.indexOf('(');
@@ -840,7 +839,7 @@ public final class LangParser {
 					continue;
 				}
 				
-				if(patterns.matches(parameterList, LangPatterns.PARSING_ARGUMENT_SEPARATOR_LEADING_WHITESPACE)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_ARGUMENT_SEPARATOR_LEADING_WHITESPACE)) {
 					//Create new ArgumentSeparatorNode with "," surrounded by whitespaces
 					
 					if(builder.length() == 0) {
@@ -855,7 +854,7 @@ public final class LangParser {
 					int commaIndex = parameterList.indexOf(',');
 					builder.append(parameterList.substring(0, commaIndex + 1));
 					parameterList = parameterList.substring(commaIndex + 1);
-					while(parameterList.length() > 0 && patterns.matches(parameterList, LangPatterns.PARSING_LEADING_WHITSPACE)) {
+					while(parameterList.length() > 0 && LangPatterns.matches(parameterList, LangPatterns.PARSING_LEADING_WHITSPACE)) {
 						builder.append(parameterList.charAt(0));
 						if(parameterList.length() > 1) {
 							parameterList = parameterList.substring(1);
@@ -883,7 +882,7 @@ public final class LangParser {
 				}
 				
 				//VarPtr
-				if(patterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
 					if(builder.length() > 0)
 						clearAndParseStringBuilder(builder, nodes);
 					
@@ -899,7 +898,7 @@ public final class LangParser {
 				}
 				
 				//Array unpacking
-				if(patterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_ARRAY_UNPACKING)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_ARRAY_UNPACKING)) {
 					if(builder.length() > 0)
 						clearAndParseStringBuilder(builder, nodes);
 					
@@ -917,8 +916,8 @@ public final class LangParser {
 					clearAndParseStringBuilder(builder, nodes);
 				
 				//Variable split after invalid character (Not [A-Za-z0-9_]
-				if(patterns.matches(builder.toString(), LangPatterns.VAR_NAME_DEREFERENCE_AND_ARRAY) &&
-				patterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR))
+				if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_DEREFERENCE_AND_ARRAY) &&
+				LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR))
 					clearAndParseStringBuilder(builder, nodes);
 				
 				builder.append(parameterList.charAt(0));
