@@ -1048,6 +1048,52 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	public static final class LoopStatementPartLoopNode extends LoopStatementPartNode {
+		public LoopStatementPartLoopNode(AbstractSyntaxTree loopBody) {
+			super(loopBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.LOOP_STATEMENT_PART_LOOP;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LoopStatementPartLoopNode: LoopBody: {\n");
+			String[] tokens = getLoopBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartLoopNode))
+				return false;
+			
+			LoopStatementPartLoopNode that = (LoopStatementPartLoopNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getLoopBody().equals(that.getLoopBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getLoopBody());
+		}
+	}
+	
 	public static final class LoopStatementPartWhileNode extends LoopStatementPartNode {
 		private final ConditionNode condition;
 		
@@ -2000,8 +2046,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	public static enum NodeType {
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
-		IF_STATEMENT, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH, LOOP_STATEMENT_PART_ELSE,
-		LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE,
-		VOID_VALUE;
+		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
+		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
+		TEXT_VALUE, NULL_VALUE, VOID_VALUE;
 	}
 }

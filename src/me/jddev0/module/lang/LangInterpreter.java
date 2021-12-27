@@ -255,6 +255,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
 				case LOOP_STATEMENT_PART_FOR_EACH:
+				case LOOP_STATEMENT_PART_LOOP:
 				case LOOP_STATEMENT_PART_ELSE:
 					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, DATA_ID));
 					
@@ -609,6 +610,17 @@ public final class LangInterpreter {
 		
 		try {
 			switch(node.getNodeType()) {
+				case LOOP_STATEMENT_PART_LOOP:
+					while(true) {
+						interpretAST(node.getLoopBody(), DATA_ID);
+						Boolean ret = interpretLoopContinueAndBreak();
+						if(ret != null) {
+							if(ret)
+								return true;
+							else
+								continue;
+						}
+					}
 				case LOOP_STATEMENT_PART_WHILE:
 					while(interpretConditionNode(((LoopStatementPartWhileNode)node).getCondition(), DATA_ID).getBoolean()) {
 						flag = true;
@@ -998,6 +1010,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_UNTIL:
 				case LOOP_STATEMENT_PART_REPEAT:
 				case LOOP_STATEMENT_PART_FOR_EACH:
+				case LOOP_STATEMENT_PART_LOOP:
 				case LOOP_STATEMENT_PART_ELSE:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case INT_VALUE:

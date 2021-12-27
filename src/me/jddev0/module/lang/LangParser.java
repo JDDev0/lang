@@ -356,18 +356,18 @@ public final class LangParser {
 				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
 				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
 				return ast;
-			}else if(token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
+			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				String loopStatement = token;
 				do {
 					String loopCondition = null;
-					if(loopStatement.startsWith("con.else")) {
+					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
 						if(loopStatement.contains("(") || loopStatement.contains(")")) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
 							return ast;
 						}
- 						
+						
 						loopCondition = null;
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
@@ -395,6 +395,8 @@ public final class LangParser {
 					
 					if(loopStatement.startsWith("con.else")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartElseNode(loopBody));
+					}else if(loopStatement.startsWith("con.loop")) {
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody));
 					}else if(loopStatement.startsWith("con.while")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
 					}else if(loopStatement.startsWith("con.until")) {

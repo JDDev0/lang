@@ -656,7 +656,7 @@ public class LangShellWindow extends JDialog {
 			}else if(lastToken.matches("con\\..*")) {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-				List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "repeat(", "until(", "while(").stream().
+				List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(").stream().
 				filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 				collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
