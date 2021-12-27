@@ -79,7 +79,7 @@ public final class LangInterpreter {
 	
 	//Loop control
 	/**
-	 * If > 0: break or continue statement is beeing processes
+	 * If > 0: break or continue statement is being processed
 	 */
 	private int breakContinueCount;
 	private boolean isContinueStatement;
