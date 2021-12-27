@@ -844,6 +844,28 @@ public class LangTest {
 		}
 	}
 	
+	public static final class AssertResultFinal extends AssertResultDataObjectString {
+		public AssertResultFinal(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "== final");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultFinal";
+		}
+	}
+	
+	public static final class AssertResultNotFinal extends AssertResultDataObjectString {
+		public AssertResultNotFinal(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "!= final");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultNotFinal";
+		}
+	}
+	
 	public static final class AssertResultThrow implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
