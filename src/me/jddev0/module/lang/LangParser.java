@@ -364,7 +364,7 @@ public final class LangParser {
 					String loopCondition = null;
 					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
 						if(loopStatement.contains("(") || loopStatement.contains(")")) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else/Loop part with condition"));
 							return ast;
 						}
 						
