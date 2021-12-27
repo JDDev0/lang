@@ -1972,8 +1972,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -1999,8 +1997,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -2110,8 +2106,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -2136,8 +2130,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -2250,8 +2242,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
@@ -2268,8 +2258,6 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			if(arrPointerObject.getVariableName() != null && arrPointerObject.getVariableName().startsWith("&LANG_"))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);

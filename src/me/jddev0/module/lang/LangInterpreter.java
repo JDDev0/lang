@@ -952,9 +952,6 @@ public final class LangInterpreter {
 								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
 							}
 							
-							if(rvalue.getVariableName() != null && rvalue.getVariableName().startsWith("&LANG_"))
-								return setErrnoErrorObject(InterpretingError.LANG_ARRAYS_COPY, DATA_ID);
-							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
@@ -1214,11 +1211,6 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						if(patterns.matches(from, LangPatterns.LANG_VAR_ARRAY)) {
-							setErrno(InterpretingError.LANG_ARRAYS_COPY, "during copy after FP execution", DATA_ID_TO);
-							return;
-						}
-						
 						if(!patterns.matches(to, LangPatterns.VAR_NAME) && !patterns.matches(to, LangPatterns.VAR_NAME_PTR)) {
 							setErrno(InterpretingError.INVALID_PTR, "during copy after FP execution", DATA_ID_TO);
 							return;
@@ -1324,12 +1316,6 @@ public final class LangInterpreter {
 						lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 					else if(lastDataObject == null)
 						lastDataObject = new DataObject().setVoid();
-					
-					if(lastDataObject.getVariableName() != null && patterns.matches(lastDataObject.getVariableName(), LangPatterns.LANG_VAR_ARRAY)) {
-						setErrno(InterpretingError.LANG_ARRAYS_COPY, "Variable name of a parameter starts with \"&LANG\"", DATA_ID);
-						
-						continue;
-					}
 					
 					if(lastDataObject.getType() != DataType.NULL &&
 					((variableName.startsWith("&") && lastDataObject.getType() != DataType.ARRAY) ||
