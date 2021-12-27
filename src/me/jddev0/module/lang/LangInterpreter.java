@@ -2229,28 +2229,30 @@ public final class LangInterpreter {
 		public DataObject convertToNumberAndCreateNewDataObject() {
 			switch(type) {
 				case TEXT:
-					//INT
-					try {
-						return new DataObject().setInt(Integer.parseInt(txt));
-					}catch(NumberFormatException ignore) {}
+					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+						//INT
+						try {
+							return new DataObject().setInt(Integer.parseInt(txt));
+						}catch(NumberFormatException ignore) {}
+						
+						//LONG
+						try {
+							return new DataObject().setLong(Long.parseLong(txt));
+						}catch(NumberFormatException ignore) {}
 					
-					//LONG
-					try {
-						return new DataObject().setLong(Long.parseLong(txt));
-					}catch(NumberFormatException ignore) {}
-					
-					//FLOAT
-					try {
-						float floatNumber = Float.parseFloat(txt);
-						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-							return new DataObject().setFloat(floatNumber);
-						}
-					}catch(NumberFormatException ignore) {}
-					
-					//DOUBLE
-					try {
-						return new DataObject().setDouble(Double.parseDouble(txt));
-					}catch(NumberFormatException ignore) {}
+						//FLOAT
+						try {
+							float floatNumber = Float.parseFloat(txt);
+							if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+								return new DataObject().setFloat(floatNumber);
+							}
+						}catch(NumberFormatException ignore) {}
+						
+						//DOUBLE
+						try {
+							return new DataObject().setDouble(Double.parseDouble(txt));
+						}catch(NumberFormatException ignore) {}
+					}
 					
 					//CHAR
 					if(txt.length() == 1)
@@ -2283,28 +2285,30 @@ public final class LangInterpreter {
 		public Number getNumber() {
 			switch(type) {
 				case TEXT:
-					//INT
-					try {
-						return Integer.parseInt(txt);
-					}catch(NumberFormatException ignore) {}
-					
-					//LONG
-					try {
-						return Long.parseLong(txt);
-					}catch(NumberFormatException ignore) {}
-					
-					//FLOAT
-					try {
-						float floatNumber = Float.parseFloat(txt);
-						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-							return floatNumber;
-						}
-					}catch(NumberFormatException ignore) {}
-					
-					//DOUBLE
-					try {
-						return Double.parseDouble(txt);
-					}catch(NumberFormatException ignore) {}
+					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+						//INT
+						try {
+							return Integer.parseInt(txt);
+						}catch(NumberFormatException ignore) {}
+						
+						//LONG
+						try {
+							return Long.parseLong(txt);
+						}catch(NumberFormatException ignore) {}
+						
+						//FLOAT
+						try {
+							float floatNumber = Float.parseFloat(txt);
+							if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
+								return floatNumber;
+							}
+						}catch(NumberFormatException ignore) {}
+						
+						//DOUBLE
+						try {
+							return Double.parseDouble(txt);
+						}catch(NumberFormatException ignore) {}
+					}
 					
 					//CHAR
 					if(txt.length() == 1)
