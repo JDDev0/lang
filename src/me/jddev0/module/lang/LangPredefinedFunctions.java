@@ -2583,6 +2583,17 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("langTestClearAllTranslations", (argumentList, DATA_ID) -> {
+			if(!interpreter.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			new HashSet<>(interpreter.data.get(DATA_ID).lang.keySet()).forEach(translationKey -> {
+				if(!translationKey.startsWith("lang."))
+					interpreter.data.get(DATA_ID).lang.remove(translationKey);
+			});
+			
+			return null;
+		});
 		funcs.put("langTestPrintResults", (argumentList, DATA_ID) -> {
 			if(!interpreter.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
