@@ -363,8 +363,11 @@ public final class LangParser {
 				do {
 					String loopCondition = null;
 					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
-						if(loopStatement.contains("(") || loopStatement.contains(")")) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else/Loop part with condition"));
+						if(!loopStatement.equals("con.else") && !loopStatement.equals("con.loop")) {
+							if(loopStatement.startsWith("con.else(") || loopStatement.startsWith("con.loop("))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else/Loop part with condition"));
+							else
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
 							return ast;
 						}
 						
@@ -372,7 +375,7 @@ public final class LangParser {
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
 						return ast;
-					}else if(loopStatement.startsWith("con.while") || loopStatement.startsWith("con.until") || loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
+					}else if(loopStatement.startsWith("con.while(") || loopStatement.startsWith("con.until(") || loopStatement.startsWith("con.repeat(") || loopStatement.startsWith("con.foreach(")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
@@ -455,8 +458,11 @@ public final class LangParser {
 				do {
 					String ifCondition;
 					if(ifStatement.startsWith("con.else")) {
-						if(ifStatement.contains("(") || ifStatement.contains(")")) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+						if(!ifStatement.equals("con.else")) {
+							if(ifStatement.startsWith("con.else("))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+							else
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
 							return ast;
 						}
 						
@@ -465,7 +471,7 @@ public final class LangParser {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing if statement condition"));
 						
 						ifCondition = null;
-					}else if(ifStatement.startsWith("con.if") || ifStatement.startsWith("con.elif")) {
+					}else if(ifStatement.startsWith("con.if(") || ifStatement.startsWith("con.elif(")) {
 						int conditionStartIndex = ifStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
