@@ -382,6 +382,10 @@ public final class LangParser {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
 							return ast;
 						}
+						if(conditionEndIndex != loopStatement.length() - 1) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
+							return ast;
+						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}else {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Loop statement part is invalid"));
@@ -476,6 +480,10 @@ public final class LangParser {
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Missing if statement condition"));
+							return ast;
+						}
+						if(conditionEndIndex != ifStatement.length() - 1) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
 							return ast;
 						}
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
