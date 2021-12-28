@@ -79,6 +79,19 @@ lang.version = v1.0.0
 	
 	func.println()
 	
+	# Endless loop with con.loop (Can only be exited with break or continue with level > 1)
+	$val = 42
+	con.loop
+		con.if($val == 50)
+			con.break
+		con.endif
+		
+		func.println(Value: $val)
+		$val = func.inci($val)
+	con.endloop # Will output numbers from 42 to 49
+	
+	func.println()
+	
 	$val = 41
 	con.while($val < 50)
 		$val = func.inci($val)
@@ -98,12 +111,12 @@ lang.version = v1.0.0
 	# -> num can be an expression with function call of returned value
 	$val = 42
 	$i
-	con.while(1)
+	con.loop
 		con.repeat($[i], 2)
 			func.println(	Inner Value: $i)
 			
 			con.if($val == 50)
-				con.break(2) # Will break the "con.while(1)" loop
+				con.break(2) # Will break the "con.loop" loop
 			con.endif
 		con.endloop
 		
