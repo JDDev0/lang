@@ -2,6 +2,7 @@ package me.jddev0.module.lang;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -20,6 +21,8 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  */
 public class LangTest {
 	private final List<Unit> units;
+	
+	private Long startTime = null;
 	
 	private static final String printFailedTestResult(String linePrefix, AssertResult assertResult) {
 		String message = assertResult.getMessage();
@@ -61,6 +64,9 @@ public class LangTest {
 		if(assertResult == null)
 			throw new IllegalStateException("assertResult must not be null");
 		
+		if(startTime == null)
+			startTime = System.currentTimeMillis();
+		
 		Unit currentUnit = units.get(units.size() - 1);
 		SubUnit currentSubUnit = currentUnit.getSubUnits().get(currentUnit.getSubUnits().size() - 1);
 		
@@ -80,10 +86,17 @@ public class LangTest {
 	}
 	
 	public void printResultsToTerminal(TerminalIO term) {
+		long endTime = System.currentTimeMillis();
+		Long startTime = this.startTime;
+		if(startTime == null)
+			startTime = endTime;
+		
 		units.forEach(unit -> unit.printResultsToTerminal(term));
 		
 		term.logln(Level.INFO, "------------------------------------------", LangTest.class);
-		term.logln(Level.CONFIG, "Summary:\nTests passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
+		term.logln(Level.CONFIG, "Summary:\nTime taken: " + String.format(Locale.ENGLISH,
+				"%.3f s", (endTime - startTime) / 1000.) +
+				"\nTests passed: " + getTestPassedCount() + "/" + getTestCount(), LangTest.class);
 		
 		String out = "";
 		if(getTestPassedCount() != getTestCount())
@@ -123,10 +136,16 @@ public class LangTest {
 	
 	@Override
 	public String toString() {
+		long endTime = System.currentTimeMillis();
+		Long startTime = this.startTime;
+		if(startTime == null)
+			startTime = endTime;
+		
 		String out = units.stream().map(Unit::printResults).collect(Collectors.joining());
 		
 		out += "------------------------------------------\n" +
 		       "Summary:\n" +
+		       "Time taken: " + String.format(Locale.ENGLISH, "%.3f s", (endTime - startTime) / 1000.) +
 		       "Tests passed: " + getTestPassedCount() + "/" + getTestCount();
 		
 		if(getTestPassedCount() != getTestCount())
