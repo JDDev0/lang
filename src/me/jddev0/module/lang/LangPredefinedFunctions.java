@@ -743,7 +743,7 @@ final class LangPredefinedFunctions {
 				}
 			}else {
 				try {
-					return new DataObject().setText(interpreter.langPlatformAPI.showInputDialog(message));
+					return new DataObject(interpreter.langPlatformAPI.showInputDialog(message));
 				}catch(Exception e) {
 					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, DATA_ID);
 				}
