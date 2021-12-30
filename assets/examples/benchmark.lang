@@ -3,8 +3,7 @@ lang.version = v1.0.0
 
 fp.benchmark = ($runs, fp.func) -> {
 	$time = 0
-	$i = 0
-	con.repeat($[i], $runs)
+	con.repeat(null, $runs)
 		$start = func.currentTimeMillis()
 		fp.func()
 		$end = func.currentTimeMillis()
