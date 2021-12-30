@@ -21,7 +21,7 @@ con.until($end)
 			$win = 1
 		con.else
 			func.errorln(Invalid Input!)
-			$guesses = func.subi($guesses, 1)
+			con.continue
 		con.endif
 		
 		$guesses = func.addi($guesses, 1)
