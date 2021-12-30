@@ -12,11 +12,11 @@ lang.version = v1.0.0
 #items.test.state.7 = State FXY
 
 # Translation with programming
-fp.testStates = ($i) -> {
-	items.test.state.$i = State func.arrayGet(&a, $i)
+fp.testStates = ($i, $ele) -> {
+	items.test.state.$i = State $ele
 }
 func.split(&a, XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY, ;)
-func.repeat(fp.testStates, func.arrayLength(&a))
+func.arrayEnumerate(&a, fp.testStates)
 
 # Easy to expand: Simply add a new Text to the func.split call
 # func.split(&a, XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY;NEW_VALUE, ;)
