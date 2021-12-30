@@ -84,7 +84,7 @@ public class LangPlatformAPI {
 		return true;
 	}
 	
-	//Interpreter methods
+	//Function helper methods
 	public String showInputDialog(String text) throws Exception {
 		String input = JOptionPane.showInputDialog(null, text, "Lang input", JOptionPane.PLAIN_MESSAGE);
 		
