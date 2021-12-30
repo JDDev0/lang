@@ -81,6 +81,10 @@ public class LangShellWindow extends JDialog {
 	private LangInterpreter.LangInterpreterInterface lii;
 	private PrintStream oldOut;
 	
+	//Lists for auto complete
+	private final List<String> langDataAndCompilerFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
+	private final List<String> controlFlowStatements = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
+	
 	public LangShellWindow(JFrame owner, TerminalIO term) {
 		this(owner, term, 12);
 	}
@@ -604,7 +608,7 @@ public class LangShellWindow extends JDialog {
 		if(line.startsWith("lang.") && !line.contains(" ")) {
 			int indexConNameStart = line.indexOf('.') + 1;
 			String conNameStart = indexConNameStart == line.length()?"":line.substring(indexConNameStart);
-			List<String> autoCompletes = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ").stream().
+			List<String> autoCompletes = langDataAndCompilerFlags.stream().
 			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
@@ -656,7 +660,7 @@ public class LangShellWindow extends JDialog {
 			}else if(lastToken.matches("con\\..*")) {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-				List<String> autoCompletes = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(").stream().
+				List<String> autoCompletes = controlFlowStatements.stream().
 				filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 				collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
