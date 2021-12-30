@@ -22,12 +22,8 @@ $ret = linker.include(16_library.lang)
 #   - a subUnit (= In a SubUnit if "func.langTestSubUnit()" was called)
 
 # Assert fail:
-#   func.langTestAssertFail(reason) # Will always fail (Should be used in combination with a condition)
-func.langTestAssertFail(Because)
-
-con.if(1)
-	func.langTestAssertFail(Condition XYZ was true but should not be true)
-con.endif
+#   func.langTestAssertFail(reason) # Will always fail (Should be used for not yet finished implementations of tests)
+func.langTestAssertFail(Not implemented yet)
 
 # Unit creation:
 #   func.langTestUnit(TEXT)
