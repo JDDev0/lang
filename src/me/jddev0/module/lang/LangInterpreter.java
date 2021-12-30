@@ -37,8 +37,8 @@ public final class LangInterpreter {
 	
 	private final LinkedList<StackElement> callStack;
 	
-	TerminalIO term;
-	LangPlatformAPI langPlatformAPI;
+	final TerminalIO term;
+	final LangPlatformAPI langPlatformAPI;
 	
 	//Lang tests
 	final LangTest langTestStore = new LangTest();
@@ -47,45 +47,17 @@ public final class LangInterpreter {
 	boolean langTestExpectedNoReturnValue;
 	String messageForLastExcpetion;
 	
-	//Fields for return node, continue/break node, and force stopping execution
-	/**
-	 * Will be set to true for returning a value or breaking/continuing a loop
-	 */
-	private boolean stopParsingFlag;
-	private boolean forceStopParsingFlag;
-	
-	//Fields for return node
-	private DataObject returnedOrThrownValue;
-	private boolean isThrownValue;
+	//Fields for return/throw node, continue/break node, and force stopping execution
+	private final ExecutionState excutionState = new ExecutionState();
 	/**
 	 * <DATA_ID (of function), <to, from>><br>
 	 * Data tmp for "func.copyAfterFP"
 	 */
-	Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>();
-	
-	//Execution flags
-	/**
-	 * Allow terminal function to redirect to standard input, output, or error if no terminal is available
-	 */
-	boolean allowTermRedirect = true;
-	/**
-	 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
-	 */
-	boolean errorOutput = true;
-	/**
-	 * Will enable langTest unit tests (Can not be disabled if enabled once)
-	 */
-	boolean langTest = false;
-	
-	//Loop control
-	/**
-	 * If > 0: break or continue statement is being processed
-	 */
-	private int breakContinueCount;
-	private boolean isContinueStatement;
+	final Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>();
+	final ExecutionFlags executionFlags = new ExecutionFlags();
 	
 	//DATA
-	Map<Integer, Data> data = new HashMap<>();
+	final Map<Integer, Data> data = new HashMap<>();
 	
 	//Predefined functions & linker functions (= Predefined functions)
 	private Map<String, LangPredefinedFunctionObject> funcs = new HashMap<>();
@@ -146,11 +118,11 @@ public final class LangInterpreter {
 	}
 	
 	public void forceStop() {
-		forceStopParsingFlag = true;
+		excutionState.forceStopParsingFlag = true;
 	}
 	
 	public boolean isForceStopParsingFlag() {
-		return forceStopParsingFlag;
+		return excutionState.forceStopParsingFlag;
 	}
 	
 	public StackElement getCurrentCallStackElement() {
@@ -192,11 +164,11 @@ public final class LangInterpreter {
 		if(ast == null)
 			return;
 		
-		if(forceStopParsingFlag)
+		if(excutionState.forceStopParsingFlag)
 			throw new StoppedException();
 		
 		for(Node node:ast) {
-			if(stopParsingFlag)
+			if(excutionState.stopParsingFlag)
 				return;
 			
 			interpretNode(node, DATA_ID);
@@ -207,7 +179,7 @@ public final class LangInterpreter {
 	 * @return Might return null
 	 */
 	private DataObject interpretNode(Node node, final int DATA_ID) {
-		if(forceStopParsingFlag)
+		if(excutionState.forceStopParsingFlag)
 			throw new StoppedException();
 		
 		if(node == null) {
@@ -582,18 +554,18 @@ public final class LangInterpreter {
 	 * false if continue for the current level
 	 */
 	private Boolean interpretLoopContinueAndBreak() {
-		if(stopParsingFlag) {
-			if(breakContinueCount == 0)
+		if(excutionState.stopParsingFlag) {
+			if(excutionState.breakContinueCount == 0)
 				return true;
 			
 			//Handle continue and break
-			breakContinueCount -= 1;
-			if(breakContinueCount > 0)
+			excutionState.breakContinueCount -= 1;
+			if(excutionState.breakContinueCount > 0)
 				return true;
 			
-			stopParsingFlag = false;
+			excutionState.stopParsingFlag = false;
 			
-			if(isContinueStatement)
+			if(excutionState.isContinueStatement)
 				return false;
 			else
 				return true;
@@ -768,7 +740,7 @@ public final class LangInterpreter {
 	private void interpretLoopStatementContinueBreak(LoopStatementContinueBreakStatement node, final int DATA_ID) {
 		Node numberNode = node.getNumberNode();
 		if(numberNode == null) {
-			breakContinueCount = 1;
+			excutionState.breakContinueCount = 1;
 		}else {
 			DataObject numberObject = interpretNode(numberNode, DATA_ID);
 			Number number = numberObject == null?null:numberObject.getNumber();
@@ -777,17 +749,17 @@ public final class LangInterpreter {
 				return;
 			}
 			
-			breakContinueCount = number.intValue();
-			if(breakContinueCount < 1) {
-				breakContinueCount = 0;
+			excutionState.breakContinueCount = number.intValue();
+			if(excutionState.breakContinueCount < 1) {
+				excutionState.breakContinueCount = 0;
 				
 				setErrno(InterpretingError.INVALID_ARGUMENTS, "con." + (node.isContinueNode()?"continue":"break") + " the level must be > 0", DATA_ID);
 				return;
 			}
 		}
 		
-		isContinueStatement = node.isContinueNode();
-		stopParsingFlag = true;
+		excutionState.isContinueStatement = node.isContinueNode();
+		excutionState.stopParsingFlag = true;
 	}
 	
 	private DataObject interpretConditionNode(ConditionNode node, final int DATA_ID) {
@@ -868,9 +840,9 @@ public final class LangInterpreter {
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
 		Node returnValueNode = node.getReturnValue();
 		
-		returnedOrThrownValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
-		isThrownValue = false;
-		stopParsingFlag = true;
+		excutionState.returnedOrThrownValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
+		excutionState.isThrownValue = false;
+		excutionState.stopParsingFlag = true;
 	}
 	
 	private void interpretThrowNode(ThrowNode node, final int DATA_ID) {
@@ -878,11 +850,11 @@ public final class LangInterpreter {
 		
 		DataObject errorObject = interpretNode(throwValueNode, DATA_ID);
 		if(errorObject == null || errorObject.getType() != DataType.ERROR)
-			returnedOrThrownValue = new DataObject().setError(new ErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE));
+			excutionState.returnedOrThrownValue = new DataObject().setError(new ErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE));
 		else
-			returnedOrThrownValue = errorObject;
-		isThrownValue = true;
-		stopParsingFlag = true;
+			excutionState.returnedOrThrownValue = errorObject;
+		excutionState.isThrownValue = true;
+		excutionState.stopParsingFlag = true;
 	}
 	
 	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value, final int DATA_ID) {
@@ -913,7 +885,7 @@ public final class LangInterpreter {
 					
 					return;
 				}
-				allowTermRedirect = number.intValue() != 0;
+				executionFlags.allowTermRedirect = number.intValue() != 0;
 				break;
 			case "lang.errorOutput":
 				number = value.getNumber();
@@ -922,7 +894,7 @@ public final class LangInterpreter {
 					
 					return;
 				}
-				errorOutput = number.intValue() != 0;
+				executionFlags.errorOutput = number.intValue() != 0;
 				break;
 			case "lang.langTest":
 				number = value.getNumber();
@@ -933,13 +905,13 @@ public final class LangInterpreter {
 				}
 				
 				boolean langTestNewValue = number.intValue() != 0;
-				if(langTest && !langTestNewValue) {
+				if(executionFlags.langTest && !langTestNewValue) {
 					setErrno(InterpretingError.INVALID_ARGUMENTS, "The lang.langTest flag can not be changed if it was once set to true!", DATA_ID);
 					
 					return;
 				}
 				
-				langTest = langTestNewValue;
+				executionFlags.langTest = langTestNewValue;
 				break;
 			default:
 				setErrno(InterpretingError.INVALID_COMP_FLAG_DATA, "\"" + langDataCompilerFlag + "\" is neither compiler data nor a lang flag", DATA_ID);
@@ -1192,21 +1164,21 @@ public final class LangInterpreter {
 	}
 	
 	DataObject getAndResetReturnValue(final int DATA_ID) {
-		DataObject retTmp = returnedOrThrownValue;
-		returnedOrThrownValue = null;
-		if(isThrownValue && DATA_ID > -1)
+		DataObject retTmp = excutionState.returnedOrThrownValue;
+		excutionState.returnedOrThrownValue = null;
+		if(excutionState.isThrownValue && DATA_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), DATA_ID);
 		
-		if(langTest) {
+		if(executionFlags.langTest) {
 			if(langTestExpectedThrowValue != null) {
-				InterpretingError gotError = isThrownValue?retTmp.getError().getInterprettingError():null;
+				InterpretingError gotError = excutionState.isThrownValue?retTmp.getError().getInterprettingError():null;
 				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, messageForLastExcpetion, gotError, langTestExpectedThrowValue));
 				
 				langTestExpectedThrowValue = null;
 			}
 			
 			if(langTestExpectedReturnValue != null) {
-				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), messageForLastExcpetion, retTmp,
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!excutionState.isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), messageForLastExcpetion, retTmp,
 						langTestExpectedReturnValue));
 				
 				langTestExpectedReturnValue = null;
@@ -1220,8 +1192,8 @@ public final class LangInterpreter {
 			messageForLastExcpetion = null;
 		}
 		
-		isThrownValue = false;
-		stopParsingFlag = false;
+		excutionState.isThrownValue = false;
+		excutionState.stopParsingFlag = false;
 		return retTmp;
 	}
 	void executeAndClearCopyAfterFP(final int DATA_ID_TO, final int DATA_ID_FROM) {
@@ -1632,7 +1604,7 @@ public final class LangInterpreter {
 		if(newErrno >= 0 || currentErrno < 1)
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
-		if(!forceNoErrorOutput && errorOutput && newErrno != 0) {
+		if(!forceNoErrorOutput && executionFlags.errorOutput && newErrno != 0) {
 			StackElement currentStackElement = getCurrentCallStackElement();
 			String langPath = currentStackElement.getLangPath();
 			String langFile = currentStackElement.getLangFile();
@@ -2721,6 +2693,40 @@ public final class LangInterpreter {
 		}
 	}
 	
+	//Classes for execution flags and execution of execution state
+	public static class ExecutionFlags {
+		/**
+		 * Allow terminal function to redirect to standard input, output, or error if no terminal is available
+		 */
+		boolean allowTermRedirect = true;
+		/**
+		 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
+		 */
+		boolean errorOutput = true;
+		/**
+		 * Will enable langTest unit tests (Can not be disabled if enabled once)
+		 */
+		boolean langTest = false;
+	}
+	public static class ExecutionState {
+		/**
+		 * Will be set to true for returning a value or breaking/continuing a loop
+		 */
+		private boolean stopParsingFlag;
+		private boolean forceStopParsingFlag;
+		
+		//Fields for return node
+		private DataObject returnedOrThrownValue;
+		private boolean isThrownValue;
+		
+		//Fields for continue & break node
+		/**
+		 * If > 0: break or continue statement is being processed
+		 */
+		private int breakContinueCount;
+		private boolean isContinueStatement;
+	}
+	
 	public static enum InterpretingError {
 		NO_ERROR              ( 0, "No Error"),
 		
@@ -2925,13 +2931,13 @@ public final class LangInterpreter {
 		 * {@link me.jddev0.module.lang.LangInterpreter.StoppedException StoppedException} exception
 		 */
 		public void stop() {
-			interpreter.forceStopParsingFlag = true;
+			interpreter.excutionState.forceStopParsingFlag = true;
 		}
 		/**
 		 * Must be called before execution if the {@link LangInterpreter.LangInterpreterInterface#stop() stop()} method was previously called
 		 */
 		public void resetStopFlag() {
-			interpreter.forceStopParsingFlag = false;
+			interpreter.excutionState.forceStopParsingFlag = false;
 		}
 		
 		public StackElement getCurrentCallStackElement() {
@@ -2942,7 +2948,7 @@ public final class LangInterpreter {
 		 * Must be called before {@link LangInterpreter.LangInterpreterInterface#getAndResetReturnValue() getAndResetReturnValue()} method
 		 */
 		public boolean isReturnedValueThrowValue() {
-			return interpreter.isThrownValue;
+			return interpreter.excutionState.isThrownValue;
 		}
 		public DataObject getAndResetReturnValue() {
 			return interpreter.getAndResetReturnValue(-1);
