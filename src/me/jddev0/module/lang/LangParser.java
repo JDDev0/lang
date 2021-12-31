@@ -583,8 +583,8 @@ public final class LangParser {
 				}
 			}
 		}else if(lrvalue.startsWith("%$")) {
-			//Prepare unescaping of "%$" for lang request (lvalue only)
-			lrvalue = "\\" + lrvalue.substring(1);
+			//Prepare "%$" for translation key (lvalue only)
+			lrvalue = lrvalue.substring(1) + "\\e";
 		}
 		
 		nodes.addAll(parseToken(lrvalue, lines).getChildren());
