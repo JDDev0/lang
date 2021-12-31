@@ -1302,6 +1302,28 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
 		});
+		funcs.put("repeatText", (argumentList, DATA_ID) -> {
+			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			
+			if(argumentList.size() == 0) //Not at least 2 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+			
+			DataObject textObject = LangUtils.combineDataObjects(argumentList);
+			
+			Number count = countObject.getNumber();
+			if(count == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be a number", DATA_ID);
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", DATA_ID);
+			
+			String text = textObject.getText();
+			
+			StringBuilder builder = new StringBuilder();
+			for(int i = 0;i < count.intValue();i++)
+				builder.append(text);
+			
+			return new DataObject(builder.toString());
+		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
