@@ -8,15 +8,22 @@ ui.cancel = Cancel
 ui.exit = Exit
 
 # Translation key with leading "$"
-%$test = TEST
-\$test2 = TEST2
+\$test = TEST
+{{{$test2}}} = TEST2
+
+# Translation key wich is the value of a variable
+$test = trans.test.key # [See: 02_vars.lang]
+%$test = TEST3
+
+# "%$" can be dropped if translation key is not only the value of a variable
+$test.abc = TEST4
 
 # Get a translation value: func.getTranslationValue(translationKey)
 func.println(func.getTranslationValue(ui.ok))
 func.println(func.getTranslationValue(\$test)) # "\$": Escaped "$"
 func.println(func.getTranslationValue(\$test2))
 
-ui.test = func.getTranslationValue($test)
+ui.test = func.getTranslationValue(\$test)
 
 # Escape chars
 esc.zero = \0 # NUL (Null character)
