@@ -1602,9 +1602,6 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("divf", (argumentList, DATA_ID) -> {
 			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.floatValue() == 0.f)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, DATA_ID);
-				
 				return new DataObject().setFloat(leftNumber.floatValue() / rightNumber.floatValue());
 			}, DATA_ID);
 		});
@@ -1658,9 +1655,6 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("divd", (argumentList, DATA_ID) -> {
 			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.doubleValue() == 0.d)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, DATA_ID);
-				
 				return new DataObject().setDouble(leftNumber.doubleValue() / rightNumber.doubleValue());
 			}, DATA_ID);
 		});
