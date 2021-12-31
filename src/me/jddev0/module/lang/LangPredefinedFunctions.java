@@ -1302,6 +1302,22 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
 		});
+		funcs.put("startsWith", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject startsWithTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			return new DataObject().setBoolean(textObject.getText().startsWith(startsWithTextObject.getText()));
+		});
+		funcs.put("endsWith", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject endsWithTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			return new DataObject().setBoolean(textObject.getText().endsWith(endsWithTextObject.getText()));
+		});
 		funcs.put("repeatText", (argumentList, DATA_ID) -> {
 			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			
