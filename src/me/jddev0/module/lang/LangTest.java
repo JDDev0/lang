@@ -145,7 +145,7 @@ public class LangTest {
 		
 		out += "------------------------------------------\n" +
 		       "Summary:\n" +
-		       "Time taken: " + String.format(Locale.ENGLISH, "%.3f s", (endTime - startTime) / 1000.) +
+		       "Time taken: " + String.format(Locale.ENGLISH, "%.3f s", (endTime - startTime) / 1000.) + "\n" +
 		       "Tests passed: " + getTestPassedCount() + "/" + getTestCount();
 		
 		if(getTestPassedCount() != getTestCount())
