@@ -3316,6 +3316,33 @@ public final class LangInterpreter {
 					return null;
 				
 				case TEXT:
+					switch(dataObject.type) {
+						case INT:
+							if(dataObject.intValue < 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS));
+							
+							StringBuilder builder = new StringBuilder();
+							for(int i = 0;i < dataObject.intValue;i++)
+								builder.append(txt);
+							
+							return new DataObject(builder.toString());
+						
+						case LONG:
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				
 				case CHAR:
 				case ARRAY:
 				case ERROR:
