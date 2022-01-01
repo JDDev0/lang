@@ -2879,9 +2879,10 @@ public final class LangInterpreter {
 					return new DataObject().setFloat(floatValue + 1.f);
 				case DOUBLE:
 					return new DataObject().setDouble(doubleValue + 1.d);
+				case CHAR:
+					return new DataObject().setChar((char)(charValue + 1));
 				
 				case TEXT:
-				case CHAR:
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
@@ -2904,9 +2905,10 @@ public final class LangInterpreter {
 					return new DataObject().setFloat(floatValue - 1.f);
 				case DOUBLE:
 					return new DataObject().setDouble(doubleValue - 1.d);
+				case CHAR:
+					return new DataObject().setChar((char)(charValue - 1));
 				
 				case TEXT:
-				case CHAR:
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
@@ -2929,9 +2931,10 @@ public final class LangInterpreter {
 					return new DataObject().setFloat(-floatValue);
 				case DOUBLE:
 					return new DataObject().setDouble(-doubleValue);
+				case CHAR:
+					return new DataObject().setChar((char)(-charValue));
 				
 				case TEXT:
-				case CHAR:
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
@@ -2956,9 +2959,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(intValue + dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(intValue + dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setInt(intValue + dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -2978,9 +2982,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(longValue + dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(longValue + dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setLong(longValue + dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3000,9 +3005,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(floatValue + dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(floatValue + dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setFloat(floatValue + dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3022,9 +3028,33 @@ public final class LangInterpreter {
 							return new DataObject().setDouble(doubleValue + dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(doubleValue + dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setDouble(doubleValue + dataObject.charValue);
 						
 						case TEXT:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case CHAR:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setInt(charValue + dataObject.intValue);
+						case LONG:
+							return new DataObject().setLong(charValue + dataObject.longValue);
+						case FLOAT:
+							return new DataObject().setFloat(charValue + dataObject.floatValue);
+						case DOUBLE:
+							return new DataObject().setDouble(charValue + dataObject.doubleValue);
 						case CHAR:
+							return new DataObject().setInt(charValue + dataObject.charValue);
+						
+						case TEXT:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3036,7 +3066,6 @@ public final class LangInterpreter {
 					}
 				
 				case TEXT:
-				case CHAR:
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
@@ -3061,9 +3090,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(intValue - dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(intValue - dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setInt(intValue - dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3083,9 +3113,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(longValue - dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(longValue - dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setLong(longValue - dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3105,9 +3136,10 @@ public final class LangInterpreter {
 							return new DataObject().setFloat(floatValue - dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(floatValue - dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setFloat(floatValue - dataObject.charValue);
 						
 						case TEXT:
-						case CHAR:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3127,9 +3159,33 @@ public final class LangInterpreter {
 							return new DataObject().setDouble(doubleValue - dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(doubleValue - dataObject.doubleValue);
+						case CHAR:
+							return new DataObject().setDouble(doubleValue - dataObject.charValue);
 						
 						case TEXT:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case CHAR:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setInt(charValue - dataObject.intValue);
+						case LONG:
+							return new DataObject().setLong(charValue - dataObject.longValue);
+						case FLOAT:
+							return new DataObject().setFloat(charValue - dataObject.floatValue);
+						case DOUBLE:
+							return new DataObject().setDouble(charValue - dataObject.doubleValue);
 						case CHAR:
+							return new DataObject().setInt(charValue - dataObject.charValue);
+						
+						case TEXT:
 						case ARRAY:
 						case ERROR:
 						case VAR_POINTER:
@@ -3141,7 +3197,6 @@ public final class LangInterpreter {
 					}
 				
 				case TEXT:
-				case CHAR:
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
