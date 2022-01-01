@@ -2152,6 +2152,42 @@ final class LangPredefinedFunctions {
 			long count = Arrays.stream(arr).filter(ele -> ele.isStrictEquals(elementObject)).count();
 			return new DataObject().setLong(count);
 		});
+		funcs.put("arrayIndexOf", (argumentList, DATA_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			DataObject[] arr = arrPointerObject.getArray();
+			if(arr == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			
+			for(int i = 0;i < arr.length;i++)
+				if(arr[i].isStrictEquals(elementObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		});
+		funcs.put("arrayLastIndexOf", (argumentList, DATA_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			DataObject[] arr = arrPointerObject.getArray();
+			if(arr == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			
+			for(int i = arr.length - 1;i >= 0;i--)
+				if(arr[i].isStrictEquals(elementObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		});
 		funcs.put("arrayLength", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
