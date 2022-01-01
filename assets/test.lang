@@ -425,7 +425,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		# But ($a == $b == 1) will be true
 		func.printTerminal(4, con.condition($a == $b == 1))
 		# Use following to check if $a and $b and $c are the same:
-		func.printTerminal(3, con.condition(($a == $b) && ($b == $c)))
+		func.printTerminal(3, con.condition($a == $b && $b == $c))
 	}
 	
 	# Advanced conditions
