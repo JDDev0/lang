@@ -2341,7 +2341,7 @@ public final class LangInterpreter {
 			return null;
 		}
 		
-		//Comparison functions for conditions
+		//Comparison functions
 		public boolean isEquals(DataObject other) {
 			if(this == other)
 				return true;
