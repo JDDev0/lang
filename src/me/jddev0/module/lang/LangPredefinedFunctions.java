@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.PatternSyntaxException;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.LangInterpreter.DataObject;
@@ -1317,6 +1318,18 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
 			return new DataObject().setBoolean(textObject.getText().endsWith(endsWithTextObject.getText()));
+		});
+		funcs.put("matches", (argumentList, DATA_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject matchTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			try {
+				return new DataObject().setBoolean(textObject.getText().matches(matchTextObject.getText()));
+			}catch(PatternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), DATA_ID);
+			}
 		});
 		funcs.put("repeatText", (argumentList, DATA_ID) -> {
 			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
