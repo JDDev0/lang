@@ -238,20 +238,20 @@ func.println(con.condition((0 && 1) || 0)) #0
 func.println(-----------------)
 
 func.println(con.condition(0 && (0 || 1))) #0
-func.println(con.condition(0 && 0 || 1)) #0
+func.println(con.condition(0 && 0 || 1)) #1
 func.println(con.condition((0 && 0) || 1)) #1
 
 func.println(-----------------)
 
 func.println(con.condition(!(0 && (0 || 1)))) #1
-func.println(con.condition(!(0 && 0 || 1))) #1
+func.println(con.condition(!(0 && 0 || 1))) #0
 func.println(con.condition(!((0 && 0) || 1))) #0
 
 func.println(-----------------)
 
 func.println(con.condition(!0 && (0 || 1))) #1
 func.println(con.condition(!0 && 0 || 1)) #1
-func.println(con.condition(!(0 && 0) || 1)) #0
+func.println(con.condition(!(0 && 0) || 1)) #1
 
 func.println(-----------------)
 
