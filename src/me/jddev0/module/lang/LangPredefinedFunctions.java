@@ -60,6 +60,32 @@ final class LangPredefinedFunctions {
 		return arguments;
 	}
 	
+	private DataObject throwErrorOnNullOrErrorTypeHelper(DataObject dataObject, final int DATA_ID) {
+		if(dataObject == null)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+		
+		if(dataObject.getType() == DataType.ERROR)
+			return interpreter.setErrnoErrorObject(dataObject.getError().getInterprettingError(), DATA_ID);
+		
+		return dataObject;
+	}
+	
+	private DataObject unaryOperationHelper(List<DataObject> argumentList, Function<DataObject, DataObject> operation, final int DATA_ID) {
+		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 1 argument
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+		
+		return operation.apply(dataObject);
+	}
+	private DataObject binaryOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, DataObject> operation, final int DATA_ID) {
+		DataObject leftDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject rightDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 2 arguments
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+		
+		return operation.apply(leftDataObject, rightDataObject);
+	}
+	
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int DATA_ID) {
 		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
@@ -325,6 +351,7 @@ final class LangPredefinedFunctions {
 		addPredefinedNumberFunctions(funcs);
 		addPredefinedCharacterFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
+		addPredefinedOperationFunctions(funcs);
 		addPredefinedMathFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
@@ -1420,6 +1447,23 @@ final class LangPredefinedFunctions {
 				return arrPointerObject;
 			}
 		});
+	}
+	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("inc", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInc, DATA_ID), DATA_ID));
+		funcs.put("dec", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDec, DATA_ID), DATA_ID));
+		funcs.put("inv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInv, DATA_ID), DATA_ID));
+		funcs.put("add", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opAdd, DATA_ID), DATA_ID));
+		funcs.put("sub", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSub, DATA_ID), DATA_ID));
+		funcs.put("mul", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMul, DATA_ID), DATA_ID));
+		funcs.put("div", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opDiv, DATA_ID), DATA_ID));
+		funcs.put("mod", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMod, DATA_ID), DATA_ID));
+		funcs.put("and", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opAnd, DATA_ID), DATA_ID));
+		funcs.put("or", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opOr, DATA_ID), DATA_ID));
+		funcs.put("xor", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opXor, DATA_ID), DATA_ID));
+		funcs.put("not", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opNot, DATA_ID), DATA_ID));
+		funcs.put("lshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opLshift, DATA_ID), DATA_ID));
+		funcs.put("rshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRshift, DATA_ID), DATA_ID));
+		funcs.put("rzshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRzshift, DATA_ID), DATA_ID));
 	}
 	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("rand", (argumentList, DATA_ID) -> new DataObject().setInt(LangInterpreter.RAN.nextInt(interpreter.data.get(DATA_ID).var.get("$LANG_RAND_MAX").getInt())));

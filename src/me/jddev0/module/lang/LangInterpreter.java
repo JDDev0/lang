@@ -2868,6 +2868,1059 @@ public final class LangInterpreter {
 			return isGreaterThan(other) || isEquals(other);
 		}
 		
+		//Operation functions
+		public DataObject opInc() {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					return number.setInt(number.getInt() + 1);
+				case LONG:
+					return number.setLong(number.getLong() + 1);
+				case FLOAT:
+					return number.setFloat(number.getFloat() + 1.f);
+				case DOUBLE:
+					return number.setDouble(number.getDouble() + 1.d);
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opDec() {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					return number.setInt(number.getInt() - 1);
+				case LONG:
+					return number.setLong(number.getLong() - 1);
+				case FLOAT:
+					return number.setFloat(number.getFloat() - 1.f);
+				case DOUBLE:
+					return number.setDouble(number.getDouble() - 1.d);
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opInv() {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					return number.setInt(-number.getInt());
+				case LONG:
+					return number.setLong(-number.getLong());
+				case FLOAT:
+					return number.setFloat(-number.getFloat());
+				case DOUBLE:
+					return number.setDouble(-number.getDouble());
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opAdd(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() + otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() + otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getInt() + otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getInt() + otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() + otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() + otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getLong() + otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getLong() + otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setFloat(number.getFloat() + otherNumber.getInt());
+						case LONG:
+							return number.setFloat(number.getFloat() + otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getFloat() + otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getFloat() + otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case DOUBLE:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setDouble(number.getDouble() + otherNumber.getInt());
+						case LONG:
+							return number.setDouble(number.getDouble() + otherNumber.getLong());
+						case FLOAT:
+							return number.setDouble(number.getDouble() + otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getDouble() + otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opSub(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() - otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() - otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getInt() - otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getInt() - otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() - otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() - otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getLong() - otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getLong() - otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setFloat(number.getFloat() - otherNumber.getInt());
+						case LONG:
+							return number.setFloat(number.getFloat() - otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getFloat() - otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getFloat() - otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case DOUBLE:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setDouble(number.getDouble() - otherNumber.getInt());
+						case LONG:
+							return number.setDouble(number.getDouble() - otherNumber.getLong());
+						case FLOAT:
+							return number.setDouble(number.getDouble() - otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getDouble() - otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opMul(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() * otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() * otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getInt() * otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getInt() * otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() * otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() * otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getLong() * otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getLong() * otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setFloat(number.getFloat() * otherNumber.getInt());
+						case LONG:
+							return number.setFloat(number.getFloat() * otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getFloat() * otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getFloat() * otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case DOUBLE:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setDouble(number.getDouble() * otherNumber.getInt());
+						case LONG:
+							return number.setDouble(number.getDouble() * otherNumber.getLong());
+						case FLOAT:
+							return number.setDouble(number.getDouble() * otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getDouble() * otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opDiv(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							if(otherNumber.getInt() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setInt(number.getInt() / otherNumber.getInt());
+						case LONG:
+							if(otherNumber.getLong() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getInt() / otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getInt() / otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getInt() / otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							if(otherNumber.getInt() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getLong() / otherNumber.getInt());
+						case LONG:
+							if(otherNumber.getLong() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getLong() / otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getLong() / otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getLong() / otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setFloat(number.getFloat() / otherNumber.getInt());
+						case LONG:
+							return number.setFloat(number.getFloat() / otherNumber.getLong());
+						case FLOAT:
+							return number.setFloat(number.getFloat() / otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getFloat() / otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case DOUBLE:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setDouble(number.getDouble() / otherNumber.getInt());
+						case LONG:
+							return number.setDouble(number.getDouble() / otherNumber.getLong());
+						case FLOAT:
+							return number.setDouble(number.getDouble() / otherNumber.getFloat());
+						case DOUBLE:
+							return number.setDouble(number.getDouble() / otherNumber.getDouble());
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opMod(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							if(otherNumber.getInt() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setInt(number.getInt() % otherNumber.getInt());
+						case LONG:
+							if(otherNumber.getLong() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getInt() % otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							if(otherNumber.getInt() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getLong() % otherNumber.getInt());
+						case LONG:
+							if(otherNumber.getLong() == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return number.setLong(number.getLong() % otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opAnd(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() & otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() & otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() & otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() & otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opOr(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() | otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() | otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() | otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() | otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opXor(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() ^ otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getInt() ^ otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() ^ otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() ^ otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opNot() {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					return number.setInt(~number.getInt());
+				case LONG:
+					return number.setLong(~number.getLong());
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opLshift(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() << otherNumber.getInt());
+						case LONG:
+							return number.setLong((long)number.getInt() << otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() << otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() << otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opRshift(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() >> otherNumber.getInt());
+						case LONG:
+							return number.setLong((long)number.getInt() >> otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() >> otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() >> otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opRzshift(DataObject dataObject) {
+			DataObject number = convertToNumberAndCreateNewDataObject();
+			if(number.getType() == DataType.NULL)
+				return null;
+			
+			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
+			if(otherNumber.getType() == DataType.NULL)
+				return null;
+			
+			switch(number.getType()) {
+				case INT:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setInt(number.getInt() >>> otherNumber.getInt());
+						case LONG:
+							return number.setLong((long)number.getInt() >>> otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case LONG:
+					switch(otherNumber.getType()) {
+						case INT:
+							return number.setLong(number.getLong() >>> otherNumber.getInt());
+						case LONG:
+							return number.setLong(number.getLong() >>> otherNumber.getLong());
+						
+						case FLOAT:
+						case DOUBLE:
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+				case FLOAT:
+				case DOUBLE:
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		
 		@Override
 		public String toString() {
 			return getText();
