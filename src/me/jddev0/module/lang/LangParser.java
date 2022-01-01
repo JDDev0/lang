@@ -16,7 +16,6 @@ import java.util.List;
  * @version v1.0.0
  */
 public final class LangParser {
-	
 	private String currentLine;
 	
 	public void resetCurrentLine() {
@@ -137,6 +136,9 @@ public final class LangParser {
 	}
 	
 	AbstractSyntaxTree.ConditionNode parseCondition(String condition) throws IOException {
+		return parseCondition(condition, null, 0);
+	}
+	private AbstractSyntaxTree.ConditionNode parseCondition(String condition, StringBuilder tokensLeft, int currentOperatorPrecedence) throws IOException {
 		if(condition == null)
 			return null;
 		
@@ -186,23 +188,41 @@ public final class LangParser {
 				
 				//Ignore "()" if something was before (=> "Escaped" "()") -> Add "(" to builder (below outer if)
 				if(builder.length() == 0) {
-					leftNodes.add(parseCondition(condition.substring(1, endIndex)));
+					leftNodes.add(parseCondition(condition.substring(1, endIndex), null, 0));
 					condition = condition.substring(endIndex + 1);
 					
 					continue;
 				}
-			}else if(condition.startsWith("!==") || condition.startsWith("!=") || condition.startsWith("&&") || condition.startsWith("||") || condition.startsWith("===") ||
-			condition.startsWith("==") || condition.startsWith("<=") || condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">")) {
+			}else if(condition.startsWith("!==") || condition.startsWith("!=") || condition.startsWith("===") || condition.startsWith("==") || condition.startsWith("<=") ||
+			condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">")) {
+				if(tokensLeft != null && currentOperatorPrecedence <= 2) {
+					tokensLeft.append(condition);
+					
+					//Parse value
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					}
+					
+					if(operator == null)
+						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					if(operator.isUnary())
+						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
+					
+					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+				}
 				int operatorLength = 2;
 				if(condition.startsWith("!==")) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.ConditionNode.Operator.STRICT_NOT_EQUALS;
 				}else if(condition.startsWith("!=")) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.NOT_EQUALS;
-				}else if(condition.startsWith("&&")) {
-					operator = AbstractSyntaxTree.ConditionNode.Operator.AND;
-				}else if(condition.startsWith("||")) {
-					operator = AbstractSyntaxTree.ConditionNode.Operator.OR;
 				}else if(condition.startsWith("===")) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.ConditionNode.Operator.STRICT_EQUALS;
@@ -233,28 +253,203 @@ public final class LangParser {
 					builder.delete(0, builder.length());
 				}
 				
-				AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(operatorLength));
+				StringBuilder innerTokensLeft = new StringBuilder();
+				AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(operatorLength), innerTokensLeft, 2);
+				condition = innerTokensLeft.toString();
 				
-				//Add node directly if node has NON operator
-				if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
-					rightNode = node.getLeftSideOperand();
-				else
-					rightNode = node;
+				if(condition.isEmpty()) {
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						rightNode = node.getLeftSideOperand();
+					else
+						rightNode = node;
+					
+					break;
+				}else {
+					AbstractSyntaxTree.Node innerRightNode;
+					
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						innerRightNode = node.getLeftSideOperand();
+					else
+						innerRightNode = node;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					leftNodes.clear();
+					leftNodes.add(new AbstractSyntaxTree.ConditionNode(leftNode, innerRightNode, operator));
+					operator = null;
+					continue;
+				}
+			}else if(condition.startsWith("&&")) {
+				if(tokensLeft != null && currentOperatorPrecedence <= 3) {
+					tokensLeft.append(condition);
+					
+					//Parse value
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					}
+					
+					if(operator == null)
+						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					if(operator.isUnary())
+						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
+					
+					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+				}
+				operator = AbstractSyntaxTree.ConditionNode.Operator.AND;
 				
-				break;
+				//Add as value if nothing is behind "operator"
+				if(condition.length() == 2) {
+					operator = null;
+					builder.append(condition);
+					
+					break;
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				StringBuilder innerTokensLeft = new StringBuilder();
+				AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(2), innerTokensLeft, 3);
+				condition = innerTokensLeft.toString();
+				
+				if(condition.isEmpty()) {
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						rightNode = node.getLeftSideOperand();
+					else
+						rightNode = node;
+					
+					break;
+				}else {
+					AbstractSyntaxTree.Node innerRightNode;
+					
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						innerRightNode = node.getLeftSideOperand();
+					else
+						innerRightNode = node;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					leftNodes.clear();
+					leftNodes.add(new AbstractSyntaxTree.ConditionNode(leftNode, innerRightNode, operator));
+					operator = null;
+					continue;
+				}
+			}else if(condition.startsWith("||")) {
+				if(tokensLeft != null && currentOperatorPrecedence <= 4) {
+					tokensLeft.append(condition);
+					
+					//Parse value
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					}
+					
+					if(operator == null)
+						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					if(operator.isUnary())
+						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
+					
+					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+				}
+				operator = AbstractSyntaxTree.ConditionNode.Operator.OR;
+				
+				//Add as value if nothing is behind "operator"
+				if(condition.length() == 2) {
+					operator = null;
+					builder.append(condition);
+					
+					break;
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				StringBuilder innerTokensLeft = new StringBuilder();
+				AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(2), innerTokensLeft, 4);
+				condition = innerTokensLeft.toString();
+				
+				if(condition.isEmpty()) {
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						rightNode = node.getLeftSideOperand();
+					else
+						rightNode = node;
+					
+					break;
+				}else {
+					AbstractSyntaxTree.Node innerRightNode;
+					
+					//Add node directly if node has NON operator
+					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
+						innerRightNode = node.getLeftSideOperand();
+					else
+						innerRightNode = node;
+					
+					AbstractSyntaxTree.Node leftNode;
+					if(leftNodes.size() == 1)
+						leftNode = leftNodes.get(0);
+					else
+						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+					
+					leftNodes.clear();
+					leftNodes.add(new AbstractSyntaxTree.ConditionNode(leftNode, innerRightNode, operator));
+					operator = null;
+					continue;
+				}
 			}else if(condition.startsWith("!")) {
 				//Ignore NOT operator if something was before (=> "Escaped" NOT) -> Add "!" to builder (below outer if)
 				if(builder.length() == 0 && leftNodes.size() == 0) {
 					operator = AbstractSyntaxTree.ConditionNode.Operator.NOT;
 					
-					AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(1));
+					StringBuilder innerTokensLeft = new StringBuilder();
+					AbstractSyntaxTree.ConditionNode node = parseCondition(condition.substring(1), innerTokensLeft, 1);
+					condition = innerTokensLeft.toString();
+					
+					AbstractSyntaxTree.Node innerRightNode;
+					
 					//Add node directly if node has NON operator
 					if(node.getOperator() == AbstractSyntaxTree.ConditionNode.Operator.NON)
-						leftNodes.add(node.getLeftSideOperand());
+						innerRightNode = node.getLeftSideOperand();
 					else
-						leftNodes.add(node);
+						innerRightNode = node;
 					
-					break;
+					leftNodes.add(new AbstractSyntaxTree.ConditionNode(innerRightNode, operator));
+					operator = null;
+					
+					if(condition.isEmpty()) {
+						break;
+					}else {
+						continue;
+					}
 				}
 			}
 			
