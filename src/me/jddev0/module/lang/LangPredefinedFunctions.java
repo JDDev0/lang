@@ -1340,6 +1340,16 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject(builder.toString());
 		});
+		funcs.put("charsOf", (argumentList, DATA_ID) -> {
+			String text = getArgumentListAsString(argumentList, true);
+			char[] chars = text.toCharArray();
+			DataObject[] arr = new DataObject[chars.length];
+			
+			for(int i = 0;i < chars.length;i++)
+				arr[i] = new DataObject().setChar(chars[i]);
+			
+			return new DataObject().setArray(arr);
+		});
 		funcs.put("split", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
