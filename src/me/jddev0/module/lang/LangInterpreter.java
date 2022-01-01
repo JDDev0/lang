@@ -2870,19 +2870,15 @@ public final class LangInterpreter {
 		
 		//Operation functions
 		public DataObject opInc() {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					return number.setInt(number.getInt() + 1);
+					return new DataObject().setInt(intValue + 1);
 				case LONG:
-					return number.setLong(number.getLong() + 1);
+					return new DataObject().setLong(longValue + 1);
 				case FLOAT:
-					return number.setFloat(number.getFloat() + 1.f);
+					return new DataObject().setFloat(floatValue + 1.f);
 				case DOUBLE:
-					return number.setDouble(number.getDouble() + 1.d);
+					return new DataObject().setDouble(doubleValue + 1.d);
 				
 				case TEXT:
 				case CHAR:
@@ -2899,19 +2895,15 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opDec() {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					return number.setInt(number.getInt() - 1);
+					return new DataObject().setInt(intValue - 1);
 				case LONG:
-					return number.setLong(number.getLong() - 1);
+					return new DataObject().setLong(longValue - 1);
 				case FLOAT:
-					return number.setFloat(number.getFloat() - 1.f);
+					return new DataObject().setFloat(floatValue - 1.f);
 				case DOUBLE:
-					return number.setDouble(number.getDouble() - 1.d);
+					return new DataObject().setDouble(doubleValue - 1.d);
 				
 				case TEXT:
 				case CHAR:
@@ -2928,19 +2920,15 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opInv() {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					return number.setInt(-number.getInt());
+					return new DataObject().setInt(-intValue);
 				case LONG:
-					return number.setLong(-number.getLong());
+					return new DataObject().setLong(-longValue);
 				case FLOAT:
-					return number.setFloat(-number.getFloat());
+					return new DataObject().setFloat(-floatValue);
 				case DOUBLE:
-					return number.setDouble(-number.getDouble());
+					return new DataObject().setDouble(-doubleValue);
 				
 				case TEXT:
 				case CHAR:
@@ -2957,25 +2945,17 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opAdd(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() + otherNumber.getInt());
+							return new DataObject().setInt(intValue + dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() + otherNumber.getLong());
+							return new DataObject().setLong(intValue + dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getInt() + otherNumber.getFloat());
+							return new DataObject().setFloat(intValue + dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getInt() + otherNumber.getDouble());
+							return new DataObject().setDouble(intValue + dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -2989,15 +2969,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() + otherNumber.getInt());
+							return new DataObject().setLong(longValue + dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() + otherNumber.getLong());
+							return new DataObject().setLong(longValue + dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getLong() + otherNumber.getFloat());
+							return new DataObject().setFloat(longValue + dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getLong() + otherNumber.getDouble());
+							return new DataObject().setDouble(longValue + dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3011,15 +2991,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case FLOAT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setFloat(number.getFloat() + otherNumber.getInt());
+							return new DataObject().setFloat(floatValue + dataObject.intValue);
 						case LONG:
-							return number.setFloat(number.getFloat() + otherNumber.getLong());
+							return new DataObject().setFloat(floatValue + dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getFloat() + otherNumber.getFloat());
+							return new DataObject().setFloat(floatValue + dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getFloat() + otherNumber.getDouble());
+							return new DataObject().setDouble(floatValue + dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3033,15 +3013,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case DOUBLE:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setDouble(number.getDouble() + otherNumber.getInt());
+							return new DataObject().setDouble(new DataObject().getDouble() + dataObject.intValue);
 						case LONG:
-							return number.setDouble(number.getDouble() + otherNumber.getLong());
+							return new DataObject().setDouble(doubleValue + dataObject.longValue);
 						case FLOAT:
-							return number.setDouble(number.getDouble() + otherNumber.getFloat());
+							return new DataObject().setDouble(doubleValue + dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getDouble() + otherNumber.getDouble());
+							return new DataObject().setDouble(doubleValue + dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3070,25 +3050,17 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opSub(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() - otherNumber.getInt());
+							return new DataObject().setInt(intValue - dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() - otherNumber.getLong());
+							return new DataObject().setLong(intValue - dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getInt() - otherNumber.getFloat());
+							return new DataObject().setFloat(intValue - dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getInt() - otherNumber.getDouble());
+							return new DataObject().setDouble(intValue - dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3102,15 +3074,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() - otherNumber.getInt());
+							return new DataObject().setLong(longValue - dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() - otherNumber.getLong());
+							return new DataObject().setLong(longValue - dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getLong() - otherNumber.getFloat());
+							return new DataObject().setFloat(longValue - dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getLong() - otherNumber.getDouble());
+							return new DataObject().setDouble(longValue - dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3124,15 +3096,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case FLOAT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setFloat(number.getFloat() - otherNumber.getInt());
+							return new DataObject().setFloat(floatValue - dataObject.intValue);
 						case LONG:
-							return number.setFloat(number.getFloat() - otherNumber.getLong());
+							return new DataObject().setFloat(floatValue - dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getFloat() - otherNumber.getFloat());
+							return new DataObject().setFloat(floatValue - dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getFloat() - otherNumber.getDouble());
+							return new DataObject().setDouble(floatValue - dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3146,15 +3118,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case DOUBLE:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setDouble(number.getDouble() - otherNumber.getInt());
+							return new DataObject().setDouble(doubleValue - dataObject.intValue);
 						case LONG:
-							return number.setDouble(number.getDouble() - otherNumber.getLong());
+							return new DataObject().setDouble(doubleValue - dataObject.longValue);
 						case FLOAT:
-							return number.setDouble(number.getDouble() - otherNumber.getFloat());
+							return new DataObject().setDouble(doubleValue - dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getDouble() - otherNumber.getDouble());
+							return new DataObject().setDouble(doubleValue - dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3183,25 +3155,17 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opMul(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() * otherNumber.getInt());
+							return new DataObject().setInt(intValue * dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() * otherNumber.getLong());
+							return new DataObject().setLong(intValue * dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getInt() * otherNumber.getFloat());
+							return new DataObject().setFloat(intValue * dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getInt() * otherNumber.getDouble());
+							return new DataObject().setDouble(intValue * dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3215,15 +3179,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() * otherNumber.getInt());
+							return new DataObject().setLong(longValue * dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() * otherNumber.getLong());
+							return new DataObject().setLong(longValue * dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getLong() * otherNumber.getFloat());
+							return new DataObject().setFloat(longValue * dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getLong() * otherNumber.getDouble());
+							return new DataObject().setDouble(longValue * dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3237,15 +3201,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case FLOAT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setFloat(number.getFloat() * otherNumber.getInt());
+							return new DataObject().setFloat(floatValue * dataObject.intValue);
 						case LONG:
-							return number.setFloat(number.getFloat() * otherNumber.getLong());
+							return new DataObject().setFloat(floatValue * dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getFloat() * otherNumber.getFloat());
+							return new DataObject().setFloat(floatValue * dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getFloat() * otherNumber.getDouble());
+							return new DataObject().setDouble(floatValue * dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3259,15 +3223,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case DOUBLE:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setDouble(number.getDouble() * otherNumber.getInt());
+							return new DataObject().setDouble(doubleValue * dataObject.intValue);
 						case LONG:
-							return number.setDouble(number.getDouble() * otherNumber.getLong());
+							return new DataObject().setDouble(doubleValue * dataObject.longValue);
 						case FLOAT:
-							return number.setDouble(number.getDouble() * otherNumber.getFloat());
+							return new DataObject().setDouble(doubleValue * dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getDouble() * otherNumber.getDouble());
+							return new DataObject().setDouble(doubleValue * dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3296,31 +3260,23 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opDiv(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							if(otherNumber.getInt() == 0)
+							if(dataObject.intValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setInt(number.getInt() / otherNumber.getInt());
+							return new DataObject().setInt(intValue / dataObject.intValue);
 						case LONG:
-							if(otherNumber.getLong() == 0)
+							if(dataObject.longValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getInt() / otherNumber.getLong());
+							return new DataObject().setLong(intValue / dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getInt() / otherNumber.getFloat());
+							return new DataObject().setFloat(intValue / dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getInt() / otherNumber.getDouble());
+							return new DataObject().setDouble(intValue / dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3334,21 +3290,21 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							if(otherNumber.getInt() == 0)
+							if(dataObject.intValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getLong() / otherNumber.getInt());
+							return new DataObject().setLong(longValue / dataObject.intValue);
 						case LONG:
-							if(otherNumber.getLong() == 0)
+							if(dataObject.longValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getLong() / otherNumber.getLong());
+							return new DataObject().setLong(longValue / dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getLong() / otherNumber.getFloat());
+							return new DataObject().setFloat(longValue / dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getLong() / otherNumber.getDouble());
+							return new DataObject().setDouble(longValue / dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3362,15 +3318,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case FLOAT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setFloat(number.getFloat() / otherNumber.getInt());
+							return new DataObject().setFloat(floatValue / dataObject.intValue);
 						case LONG:
-							return number.setFloat(number.getFloat() / otherNumber.getLong());
+							return new DataObject().setFloat(floatValue / dataObject.longValue);
 						case FLOAT:
-							return number.setFloat(number.getFloat() / otherNumber.getFloat());
+							return new DataObject().setFloat(floatValue / dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getFloat() / otherNumber.getDouble());
+							return new DataObject().setDouble(floatValue / dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3384,15 +3340,15 @@ public final class LangInterpreter {
 							return null;
 					}
 				case DOUBLE:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setDouble(number.getDouble() / otherNumber.getInt());
+							return new DataObject().setDouble(doubleValue / dataObject.intValue);
 						case LONG:
-							return number.setDouble(number.getDouble() / otherNumber.getLong());
+							return new DataObject().setDouble(doubleValue / dataObject.longValue);
 						case FLOAT:
-							return number.setDouble(number.getDouble() / otherNumber.getFloat());
+							return new DataObject().setDouble(doubleValue / dataObject.floatValue);
 						case DOUBLE:
-							return number.setDouble(number.getDouble() / otherNumber.getDouble());
+							return new DataObject().setDouble(doubleValue / dataObject.doubleValue);
 						
 						case TEXT:
 						case CHAR:
@@ -3421,27 +3377,19 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opMod(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							if(otherNumber.getInt() == 0)
+							if(dataObject.intValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setInt(number.getInt() % otherNumber.getInt());
+							return new DataObject().setInt(intValue % dataObject.intValue);
 						case LONG:
-							if(otherNumber.getLong() == 0)
+							if(dataObject.longValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getInt() % otherNumber.getLong());
+							return new DataObject().setLong(intValue % dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3457,17 +3405,17 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							if(otherNumber.getInt() == 0)
+							if(dataObject.intValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getLong() % otherNumber.getInt());
+							return new DataObject().setLong(longValue % dataObject.intValue);
 						case LONG:
-							if(otherNumber.getLong() == 0)
+							if(dataObject.longValue == 0)
 								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 							
-							return number.setLong(number.getLong() % otherNumber.getLong());
+							return new DataObject().setLong(longValue % dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3499,21 +3447,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opAnd(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() & otherNumber.getInt());
+							return new DataObject().setInt(intValue & dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() & otherNumber.getLong());
+							return new DataObject().setLong(intValue & dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3529,11 +3469,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() & otherNumber.getInt());
+							return new DataObject().setLong(longValue & dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() & otherNumber.getLong());
+							return new DataObject().setLong(longValue & dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3565,21 +3505,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opOr(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() | otherNumber.getInt());
+							return new DataObject().setInt(intValue | dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() | otherNumber.getLong());
+							return new DataObject().setLong(intValue | dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3595,11 +3527,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() | otherNumber.getInt());
+							return new DataObject().setLong(longValue | dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() | otherNumber.getLong());
+							return new DataObject().setLong(longValue | dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3631,21 +3563,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opXor(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() ^ otherNumber.getInt());
+							return new DataObject().setInt(intValue ^ dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getInt() ^ otherNumber.getLong());
+							return new DataObject().setLong(intValue ^ dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3661,11 +3585,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() ^ otherNumber.getInt());
+							return new DataObject().setLong(longValue ^ dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() ^ otherNumber.getLong());
+							return new DataObject().setLong(longValue ^ dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3697,15 +3621,11 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opNot() {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					return number.setInt(~number.getInt());
+					return new DataObject().setInt(~intValue);
 				case LONG:
-					return number.setLong(~number.getLong());
+					return new DataObject().setLong(~longValue);
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3723,21 +3643,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opLshift(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() << otherNumber.getInt());
+							return new DataObject().setInt(intValue << dataObject.intValue);
 						case LONG:
-							return number.setLong((long)number.getInt() << otherNumber.getLong());
+							return new DataObject().setLong((long)intValue << dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3753,11 +3665,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() << otherNumber.getInt());
+							return new DataObject().setLong(longValue << dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() << otherNumber.getLong());
+							return new DataObject().setLong(longValue << dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3789,21 +3701,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opRshift(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() >> otherNumber.getInt());
+							return new DataObject().setInt(intValue >> dataObject.intValue);
 						case LONG:
-							return number.setLong((long)number.getInt() >> otherNumber.getLong());
+							return new DataObject().setLong((long)intValue >> dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3819,11 +3723,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() >> otherNumber.getInt());
+							return new DataObject().setLong(longValue >> dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() >> otherNumber.getLong());
+							return new DataObject().setLong(longValue >> dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3855,21 +3759,13 @@ public final class LangInterpreter {
 			return null;
 		}
 		public DataObject opRzshift(DataObject dataObject) {
-			DataObject number = convertToNumberAndCreateNewDataObject();
-			if(number.getType() == DataType.NULL)
-				return null;
-			
-			DataObject otherNumber = dataObject.convertToNumberAndCreateNewDataObject();
-			if(otherNumber.getType() == DataType.NULL)
-				return null;
-			
-			switch(number.getType()) {
+			switch(type) {
 				case INT:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setInt(number.getInt() >>> otherNumber.getInt());
+							return new DataObject().setInt(intValue >>> dataObject.intValue);
 						case LONG:
-							return number.setLong((long)number.getInt() >>> otherNumber.getLong());
+							return new DataObject().setLong((long)intValue >>> dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
@@ -3885,11 +3781,11 @@ public final class LangInterpreter {
 							return null;
 					}
 				case LONG:
-					switch(otherNumber.getType()) {
+					switch(dataObject.type) {
 						case INT:
-							return number.setLong(number.getLong() >>> otherNumber.getInt());
+							return new DataObject().setLong(longValue >>> dataObject.intValue);
 						case LONG:
-							return number.setLong(number.getLong() >>> otherNumber.getLong());
+							return new DataObject().setLong(longValue >>> dataObject.longValue);
 						
 						case FLOAT:
 						case DOUBLE:
