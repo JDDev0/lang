@@ -2972,6 +2972,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -2995,6 +2996,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case FLOAT:
 					switch(dataObject.type) {
 						case INT:
@@ -3018,6 +3020,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case DOUBLE:
 					switch(dataObject.type) {
 						case INT:
@@ -3041,6 +3044,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case CHAR:
 					switch(dataObject.type) {
 						case INT:
@@ -3064,7 +3068,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
-				
+					return null;
 				case TEXT:
 				case ARRAY:
 				case ERROR:
@@ -3103,6 +3107,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3126,6 +3131,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case FLOAT:
 					switch(dataObject.type) {
 						case INT:
@@ -3149,6 +3155,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case DOUBLE:
 					switch(dataObject.type) {
 						case INT:
@@ -3172,6 +3179,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case CHAR:
 					switch(dataObject.type) {
 						case INT:
@@ -3195,6 +3203,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				
 				case TEXT:
 				case ARRAY:
@@ -3233,6 +3242,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3255,6 +3265,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case FLOAT:
 					switch(dataObject.type) {
 						case INT:
@@ -3277,6 +3288,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case DOUBLE:
 					switch(dataObject.type) {
 						case INT:
@@ -3299,6 +3311,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				
 				case TEXT:
 				case CHAR:
@@ -3344,6 +3357,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3372,6 +3386,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case FLOAT:
 					switch(dataObject.type) {
 						case INT:
@@ -3394,6 +3409,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case DOUBLE:
 					switch(dataObject.type) {
 						case INT:
@@ -3416,6 +3432,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				
 				case TEXT:
 				case CHAR:
@@ -3459,6 +3476,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3485,6 +3503,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3523,6 +3543,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3543,6 +3564,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3581,6 +3604,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3601,6 +3625,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3639,6 +3665,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3659,6 +3686,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3719,6 +3748,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3739,6 +3769,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3777,6 +3809,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3797,6 +3830,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
@@ -3835,6 +3870,7 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
 				case LONG:
 					switch(dataObject.type) {
 						case INT:
@@ -3855,6 +3891,8 @@ public final class LangInterpreter {
 						case ARGUMENT_SEPARATOR:
 							return null;
 					}
+					return null;
+				
 				case FLOAT:
 				case DOUBLE:
 				case TEXT:
