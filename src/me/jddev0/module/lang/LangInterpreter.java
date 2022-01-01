@@ -2439,7 +2439,7 @@ public final class LangInterpreter {
 			if(this == other || other == null)
 				return false;
 			
-			Number number = other.getNumber();
+			DataObject number = other.convertToNumberAndCreateNewDataObject();
 			switch(type) {
 				case TEXT:
 					if(other.type == DataType.TEXT)
@@ -2449,19 +2449,19 @@ public final class LangInterpreter {
 					if(thisNumber == null)
 						return false;
 					
-					switch(other.type) {
-						case CHAR:
+					switch(number.type) {
 						case INT:
+							return thisNumber.intValue() < number.getInt();
+						case LONG:
+							return thisNumber.longValue() < number.getLong();
+						case FLOAT:
+							return thisNumber.floatValue() < number.getFloat();
+						case DOUBLE:
+							return thisNumber.doubleValue() < number.getDouble();
+							
+						case CHAR:
 						case ERROR:
 						case ARRAY:
-							return number != null && thisNumber.intValue() < number.intValue();
-						case LONG:
-							return number != null && thisNumber.longValue() < number.longValue();
-						case FLOAT:
-							return number != null && thisNumber.floatValue() < number.floatValue();
-						case DOUBLE:
-							return number != null && thisNumber.doubleValue() < number.doubleValue();
-							
 						case TEXT:
 						case VAR_POINTER:
 						case FUNCTION_POINTER:
@@ -2474,39 +2474,160 @@ public final class LangInterpreter {
 					return false;
 				
 				case CHAR:
-					return number != null && charValue < number.intValue();
+					switch(number.type) {
+						case INT:
+							return charValue < number.getInt();
+						case LONG:
+							return charValue < number.getLong();
+						case FLOAT:
+							return charValue < number.getFloat();
+						case DOUBLE:
+							return charValue < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case INT:
-					return number != null && intValue < number.intValue();
+					switch(number.type) {
+						case INT:
+							return intValue < number.getInt();
+						case LONG:
+							return intValue < number.getLong();
+						case FLOAT:
+							return intValue < number.getFloat();
+						case DOUBLE:
+							return intValue < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case LONG:
-					return number != null && longValue < number.longValue();
+					switch(number.type) {
+						case INT:
+							return longValue < number.getInt();
+						case LONG:
+							return longValue < number.getLong();
+						case FLOAT:
+							return longValue < number.getFloat();
+						case DOUBLE:
+							return longValue < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case FLOAT:
-					return number != null && floatValue < number.floatValue();
+					switch(number.type) {
+						case INT:
+							return floatValue < number.getInt();
+						case LONG:
+							return floatValue < number.getLong();
+						case FLOAT:
+							return floatValue < number.getFloat();
+						case DOUBLE:
+							return floatValue < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case DOUBLE:
-					return number != null && doubleValue < number.doubleValue();
+					switch(number.type) {
+						case INT:
+							return doubleValue < number.getInt();
+						case LONG:
+							return doubleValue < number.getLong();
+						case FLOAT:
+							return doubleValue < number.getFloat();
+						case DOUBLE:
+							return doubleValue < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case ARRAY:
-					return number != null && arr.length < number.intValue();
+					switch(number.type) {
+						case INT:
+							return arr.length < number.getInt();
+						case LONG:
+							return arr.length < number.getLong();
+						case FLOAT:
+							return arr.length < number.getFloat();
+						case DOUBLE:
+							return arr.length < number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case ERROR:
-					switch(other.type) {
-						case TEXT:
-							if(number == null)
-								return error.getErrmsg().compareTo(other.txt) < 0;
-							return error.getErrno() < number.intValue();
-						
-						case CHAR:
+					if(other.type == DataType.TEXT && number.getType() == DataType.NULL)
+						return error.getErrmsg().compareTo(other.txt) < 0;
+					switch(number.type) {
 						case INT:
+							return error.getErrno() < number.getInt();
 						case LONG:
+							return error.getErrno() < number.getLong();
 						case FLOAT:
+							return error.getErrno() < number.getFloat();
 						case DOUBLE:
-						case ARRAY:
+							return error.getErrno() < number.getDouble();
+							
+						case CHAR:
 						case ERROR:
-							return number != null && error.getErrno() < number.intValue();
-						
+						case ARRAY:
+						case TEXT:
 						case VAR_POINTER:
 						case FUNCTION_POINTER:
 						case NULL:
@@ -2531,7 +2652,7 @@ public final class LangInterpreter {
 			if(this == other || other == null)
 				return false;
 			
-			Number number = other.getNumber();
+			DataObject number = other.convertToNumberAndCreateNewDataObject();
 			switch(type) {
 				case TEXT:
 					if(other.type == DataType.TEXT)
@@ -2541,19 +2662,19 @@ public final class LangInterpreter {
 					if(thisNumber == null)
 						return false;
 					
-					switch(other.type) {
-						case CHAR:
+					switch(number.type) {
 						case INT:
+							return thisNumber.intValue() > number.getInt();
+						case LONG:
+							return thisNumber.longValue() > number.getLong();
+						case FLOAT:
+							return thisNumber.floatValue() > number.getFloat();
+						case DOUBLE:
+							return thisNumber.doubleValue() > number.getDouble();
+							
+						case CHAR:
 						case ERROR:
 						case ARRAY:
-							return number != null && thisNumber.intValue() > number.intValue();
-						case LONG:
-							return number != null && thisNumber.longValue() > number.longValue();
-						case FLOAT:
-							return number != null && thisNumber.floatValue() > number.floatValue();
-						case DOUBLE:
-							return number != null && thisNumber.doubleValue() > number.doubleValue();
-							
 						case TEXT:
 						case VAR_POINTER:
 						case FUNCTION_POINTER:
@@ -2566,39 +2687,160 @@ public final class LangInterpreter {
 					return false;
 				
 				case CHAR:
-					return number != null && charValue > number.intValue();
+					switch(number.type) {
+						case INT:
+							return charValue > number.getInt();
+						case LONG:
+							return charValue > number.getLong();
+						case FLOAT:
+							return charValue > number.getFloat();
+						case DOUBLE:
+							return charValue > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case INT:
-					return number != null && intValue > number.intValue();
+					switch(number.type) {
+						case INT:
+							return intValue > number.getInt();
+						case LONG:
+							return intValue > number.getLong();
+						case FLOAT:
+							return intValue > number.getFloat();
+						case DOUBLE:
+							return intValue > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case LONG:
-					return number != null && longValue > number.longValue();
+					switch(number.type) {
+						case INT:
+							return longValue > number.getInt();
+						case LONG:
+							return longValue > number.getLong();
+						case FLOAT:
+							return longValue > number.getFloat();
+						case DOUBLE:
+							return longValue > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case FLOAT:
-					return number != null && floatValue > number.floatValue();
+					switch(number.type) {
+						case INT:
+							return floatValue > number.getInt();
+						case LONG:
+							return floatValue > number.getLong();
+						case FLOAT:
+							return floatValue > number.getFloat();
+						case DOUBLE:
+							return floatValue > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case DOUBLE:
-					return number != null && doubleValue > number.doubleValue();
+					switch(number.type) {
+						case INT:
+							return doubleValue > number.getInt();
+						case LONG:
+							return doubleValue > number.getLong();
+						case FLOAT:
+							return doubleValue > number.getFloat();
+						case DOUBLE:
+							return doubleValue > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case ARRAY:
-					return number != null && arr.length > number.intValue();
+					switch(number.type) {
+						case INT:
+							return arr.length > number.getInt();
+						case LONG:
+							return arr.length > number.getLong();
+						case FLOAT:
+							return arr.length > number.getFloat();
+						case DOUBLE:
+							return arr.length > number.getDouble();
+							
+						case CHAR:
+						case ERROR:
+						case ARRAY:
+						case TEXT:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return false;
+					}
 				
 				case ERROR:
-					switch(other.type) {
-						case TEXT:
-							if(number == null)
-								return error.getErrmsg().compareTo(other.txt) > 0;
-							return error.getErrno() > number.intValue();
-						
-						case CHAR:
+					if(other.type == DataType.TEXT && number.getType() == DataType.NULL)
+						return error.getErrmsg().compareTo(other.txt) > 0;
+					switch(number.type) {
 						case INT:
+							return error.getErrno() > number.getInt();
 						case LONG:
+							return error.getErrno() > number.getLong();
 						case FLOAT:
+							return error.getErrno() > number.getFloat();
 						case DOUBLE:
-						case ARRAY:
+							return error.getErrno() > number.getDouble();
+							
+						case CHAR:
 						case ERROR:
-							return number != null && error.getErrno() > number.intValue();
-						
+						case ARRAY:
+						case TEXT:
 						case VAR_POINTER:
 						case FUNCTION_POINTER:
 						case NULL:
