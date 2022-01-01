@@ -25,4 +25,5 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
   - The Lang class is now final
   - "return $... = ", "return &... = ", and "return fp.... = " will now be parsed as an assignment (If you want to return something with " = ", you have to escape the "=": "return ... \\= ...")
   - linker function will no longer return 0 or -1 for successful or unsuccessful execution
+  - Change of condition operator precedence and associativity
 
