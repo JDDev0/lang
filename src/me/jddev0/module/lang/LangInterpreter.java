@@ -3070,6 +3070,8 @@ public final class LangInterpreter {
 					}
 					return null;
 				case TEXT:
+					return new DataObject(txt + dataObject.getText());
+				
 				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
