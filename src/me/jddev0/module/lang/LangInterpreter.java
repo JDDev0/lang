@@ -3015,7 +3015,7 @@ public final class LangInterpreter {
 				case DOUBLE:
 					switch(dataObject.type) {
 						case INT:
-							return new DataObject().setDouble(new DataObject().getDouble() + dataObject.intValue);
+							return new DataObject().setDouble(doubleValue + dataObject.intValue);
 						case LONG:
 							return new DataObject().setDouble(doubleValue + dataObject.longValue);
 						case FLOAT:
