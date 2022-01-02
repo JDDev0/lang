@@ -2933,9 +2933,15 @@ public final class LangInterpreter {
 					return new DataObject().setDouble(-doubleValue);
 				case CHAR:
 					return new DataObject().setChar((char)(-charValue));
+				case ARRAY:
+					DataObject[] arrInv = new DataObject[arr.length];
+					int index = arrInv.length - 1;
+					for(DataObject dataObject:arr)
+						arrInv[index--] = dataObject;
+					
+					return new DataObject().setArray(arrInv);
 				
 				case TEXT:
-				case ARRAY:
 				case ERROR:
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
@@ -3071,8 +3077,14 @@ public final class LangInterpreter {
 					return null;
 				case TEXT:
 					return new DataObject(txt + dataObject.getText());
-				
 				case ARRAY:
+					DataObject[] arrNew = new DataObject[arr.length + 1];
+					for(int i = 0;i < arr.length;i++)
+						arrNew[i] = arr[i];
+					
+					arrNew[arr.length] = new DataObject(dataObject);
+					return new DataObject().setArray(arrNew);
+				
 				case ERROR:
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
