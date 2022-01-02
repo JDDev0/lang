@@ -1053,6 +1053,8 @@ public final class LangParser {
 					parameterList = parameterList.substring(conditionEndIndex + 1);
 					
 					nodes.add(parseCondition(condition));
+					
+					hasNodesFlag = true;
 					continue;
 				}
 				
