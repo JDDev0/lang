@@ -590,7 +590,7 @@ public final class LangParser {
 		return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
 	}
 	
-	AbstractSyntaxTree.MathNode parseMathExpr(String mathExpr) throws IOException {
+	private AbstractSyntaxTree.MathNode parseMathExpr(String mathExpr) throws IOException {
 		return parseMathExpr(mathExpr, null, 0);
 	}
 	private AbstractSyntaxTree.MathNode parseMathExpr(String mathExpr, StringBuilder tokensLeft, int currentOperatorPrecedence) throws IOException {
