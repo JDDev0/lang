@@ -1451,11 +1451,14 @@ final class LangPredefinedFunctions {
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("inc", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInc, DATA_ID), DATA_ID));
 		funcs.put("dec", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDec, DATA_ID), DATA_ID));
+		funcs.put("pos", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opPos, DATA_ID), DATA_ID));
 		funcs.put("inv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInv, DATA_ID), DATA_ID));
 		funcs.put("add", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opAdd, DATA_ID), DATA_ID));
 		funcs.put("sub", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSub, DATA_ID), DATA_ID));
 		funcs.put("mul", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMul, DATA_ID), DATA_ID));
+		funcs.put("pow", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opPow, DATA_ID), DATA_ID));
 		funcs.put("div", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opDiv, DATA_ID), DATA_ID));
+		funcs.put("intDiv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opIntDiv, DATA_ID), DATA_ID));
 		funcs.put("mod", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMod, DATA_ID), DATA_ID));
 		funcs.put("and", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opAnd, DATA_ID), DATA_ID));
 		funcs.put("or", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opOr, DATA_ID), DATA_ID));
@@ -1769,11 +1772,6 @@ final class LangPredefinedFunctions {
 		funcs.put("divd", (argumentList, DATA_ID) -> {
 			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
 				return new DataObject().setDouble(leftNumber.doubleValue() / rightNumber.doubleValue());
-			}, DATA_ID);
-		});
-		funcs.put("pow", (argumentList, DATA_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setDouble(Math.pow(leftNumber.doubleValue(), rightNumber.doubleValue()));
 			}, DATA_ID);
 		});
 		funcs.put("sqrt", (argumentList, DATA_ID) -> {
