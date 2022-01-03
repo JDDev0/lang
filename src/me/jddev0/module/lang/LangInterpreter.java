@@ -2254,10 +2254,6 @@ public final class LangInterpreter {
 						}catch(NumberFormatException ignore) {}
 					}
 					
-					//CHAR
-					if(txt.length() == 1)
-						return new DataObject().setInt(txt.charAt(0));
-					
 					return new DataObject().setNull();
 				case CHAR:
 					return new DataObject().setInt(charValue);
@@ -2309,10 +2305,6 @@ public final class LangInterpreter {
 							return Double.parseDouble(txt);
 						}catch(NumberFormatException ignore) {}
 					}
-					
-					//CHAR
-					if(txt.length() == 1)
-						return (int)txt.charAt(0);
 					
 					return null;
 				case CHAR:
