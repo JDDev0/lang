@@ -1856,6 +1856,8 @@ public final class LangParser {
 					parameterList = parameterList.substring(mathExprEndIndex + 1);
 					
 					nodes.add(parseMathExpr(mathExpr));
+					
+					hasNodesFlag = true;
 					continue;
 				}
 				
