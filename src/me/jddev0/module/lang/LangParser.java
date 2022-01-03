@@ -595,7 +595,7 @@ public final class LangParser {
 			if(mathExpr.startsWith("(")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(mathExpr, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in math expression is missing"));
 					
 					break;
 				}
