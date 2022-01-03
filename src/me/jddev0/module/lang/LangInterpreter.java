@@ -4118,7 +4118,7 @@ public final class LangInterpreter {
 		
 		@Override
 		public String toString() {
-			return getText();
+			return toText();
 		}
 		
 		@Override
