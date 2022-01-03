@@ -1229,6 +1229,8 @@ public final class LangInterpreter {
 			case '%':
 			case '|':
 			case '~':
+			case '▲':
+			case '▼':
 				return new DataObject().setChar(node.getEscapeSequenceChar());
 			case '!':
 				return null;
