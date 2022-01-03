@@ -91,7 +91,7 @@ final class LangPredefinedFunctions {
 		if(argumentList.size() > 0) //Not 1 argument
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 		
-		Number number = numberObject.getNumber();
+		Number number = numberObject.toNumber();
 		if(number == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 		
@@ -103,11 +103,11 @@ final class LangPredefinedFunctions {
 		if(argumentList.size() > 0) //Not 2 arguments
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 		
-		Number leftNumber = leftNumberObject.getNumber();
+		Number leftNumber = leftNumberObject.toNumber();
 		if(leftNumber == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Left operand is no number", DATA_ID);
 		
-		Number rightNumber = rightNumberObject.getNumber();
+		Number rightNumber = rightNumberObject.toNumber();
 		if(rightNumber == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Right operand is no number", DATA_ID);
 		
@@ -208,7 +208,7 @@ final class LangPredefinedFunctions {
 		//Get size from arguments
 		if(sizeInArgument) {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			Number number = dataObject.getNumber();
+			Number number = dataObject.toNumber();
 			if(number == null)
 				return -2; //Invalid arguments
 			
@@ -216,7 +216,7 @@ final class LangPredefinedFunctions {
 		}
 		if(decimalPlacesInArgument) {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			Number number = dataObject.getNumber();
+			Number number = dataObject.toNumber();
 			if(number == null)
 				return -2; //Invalid arguments
 			
@@ -228,7 +228,7 @@ final class LangPredefinedFunctions {
 		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 		switch(formatType) {
 			case 'd':
-				Number number = dataObject.getNumber();
+				Number number = dataObject.toNumber();
 				if(number == null)
 					return -2; //Invalid arguments
 				
@@ -239,7 +239,7 @@ final class LangPredefinedFunctions {
 				break;
 			
 			case 'f':
-				number = dataObject.getNumber();
+				number = dataObject.toNumber();
 				if(number == null)
 					return -2; //Invalid arguments
 				
@@ -492,7 +492,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
-			Number number = dataObject.getNumber();
+			Number number = dataObject.toNumber();
 			if(number == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			
@@ -516,7 +516,7 @@ final class LangPredefinedFunctions {
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			
-			Number repeatCountNumber = repeatCountObject.getNumber();
+			Number repeatCountNumber = repeatCountObject.toNumber();
 			if(repeatCountNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			
@@ -786,7 +786,7 @@ final class LangPredefinedFunctions {
 			if(messageObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
 			
-			Number logLevelNumber = logLevelObject.getNumber();
+			Number logLevelNumber = logLevelObject.toNumber();
 			if(logLevelNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int logLevel = logLevelNumber.intValue();
@@ -849,7 +849,7 @@ final class LangPredefinedFunctions {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 				if(argumentList.size() > 0) //Not 0 or 1 arguments
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "0 or 1"), DATA_ID);
-				maxCount = numberObject.getNumber();
+				maxCount = numberObject.toNumber();
 				if(maxCount == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			}
@@ -1018,7 +1018,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
 			String numberString = numberObject.getText();
-			Number base = baseObject.getNumber();
+			Number base = baseObject.toNumber();
 			if(base == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", DATA_ID);
 			
@@ -1044,8 +1044,8 @@ final class LangPredefinedFunctions {
 			if(numberObject == null || baseObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
-			Number number = numberObject.getNumber();
-			Number base = baseObject.getNumber();
+			Number number = numberObject.toNumber();
+			Number base = baseObject.toNumber();
 			if(number == null || base == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", DATA_ID);
 			
@@ -1182,7 +1182,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
-			Number asciiValue = asciiValueObject.getNumber();
+			Number asciiValue = asciiValueObject.toNumber();
 			if(asciiValue == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			
@@ -1227,7 +1227,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 2 or 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), DATA_ID);
 			
-			Number startIndex = startIndexObject.getNumber();
+			Number startIndex = startIndexObject.toNumber();
 			if(startIndex == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "startIndex is no number", DATA_ID);
 			
@@ -1235,7 +1235,7 @@ final class LangPredefinedFunctions {
 				if(endIndexObject == null) {
 					return new DataObject(textObject.getText().substring(startIndex.intValue()));
 				}else {
-					Number endIndex = endIndexObject.getNumber();
+					Number endIndex = endIndexObject.toNumber();
 					if(endIndex == null)
 						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "endIndex is no number", DATA_ID);
 					
@@ -1251,7 +1251,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 2 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
 			
-			Number index = indexObject.getNumber();
+			Number index = indexObject.toNumber();
 			if(index == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			
@@ -1268,7 +1268,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), DATA_ID);
 			
-			Number lenNum = lenObject.getNumber();
+			Number lenNum = lenObject.toNumber();
 			if(lenNum == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int len = lenNum.intValue();
@@ -1295,7 +1295,7 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), DATA_ID);
 			
-			Number lenNum = lenObject.getNumber();
+			Number lenNum = lenObject.toNumber();
 			if(lenNum == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int len = lenNum.intValue();
@@ -1366,7 +1366,7 @@ final class LangPredefinedFunctions {
 			
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			
-			Number count = countObject.getNumber();
+			Number count = countObject.toNumber();
 			if(count == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be a number", DATA_ID);
 			if(count.intValue() < 0)
@@ -1409,7 +1409,7 @@ final class LangPredefinedFunctions {
 			if(maxSplitCountObject == null) {
 				arrTmp = textObject.getText().split(regexObject.getText());
 			}else {
-				Number maxSplitCount = maxSplitCountObject.getNumber();
+				Number maxSplitCount = maxSplitCountObject.toNumber();
 				if(maxSplitCount == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1487,7 +1487,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1506,7 +1506,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1586,7 +1586,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1605,7 +1605,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1685,7 +1685,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1704,7 +1704,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1738,7 +1738,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -1757,7 +1757,7 @@ final class LangPredefinedFunctions {
 			
 			while(argumentList.size() > 0) {
 				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				Number number = numberObject.getNumber();
+				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 				
@@ -2041,7 +2041,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			}
 			
-			Number lenghtNumber = lengthObject.getNumber();
+			Number lenghtNumber = lengthObject.toNumber();
 			if(lenghtNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, DATA_ID);
 			int length = lenghtNumber.intValue();
@@ -2087,7 +2087,7 @@ final class LangPredefinedFunctions {
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
-			Number indexNumber = indexObject.getNumber();
+			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int index = indexNumber.intValue();
@@ -2148,7 +2148,7 @@ final class LangPredefinedFunctions {
 			if(arr == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
-			Number indexNumber = indexObject.getNumber();
+			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int index = indexNumber.intValue();

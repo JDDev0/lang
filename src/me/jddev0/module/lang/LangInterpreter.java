@@ -633,7 +633,7 @@ public final class LangInterpreter {
 					DataObject var = varPointer.getType() == DataType.NULL?null:varPointer.getVarPointer().getVar();
 					
 					DataObject numberObject = interpretNode(repeatNode.getRepeatCountNode(), DATA_ID);
-					Number number = numberObject == null?null:numberObject.getNumber();
+					Number number = numberObject == null?null:numberObject.toNumber();
 					if(number == null) {
 						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat needs a repeat count value", DATA_ID);
 						return false;
@@ -743,7 +743,7 @@ public final class LangInterpreter {
 			excutionState.breakContinueCount = 1;
 		}else {
 			DataObject numberObject = interpretNode(numberNode, DATA_ID);
-			Number number = numberObject == null?null:numberObject.getNumber();
+			Number number = numberObject == null?null:numberObject.toNumber();
 			if(number == null) {
 				setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con." + (node.isContinueNode()?"continue":"break") + " needs either non value or a level number", DATA_ID);
 				return;
@@ -879,7 +879,7 @@ public final class LangInterpreter {
 			
 			//Flags
 			case "lang.allowTermRedirect":
-				Number number = value.getNumber();
+				Number number = value.toNumber();
 				if(number == null) {
 					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.allowTermRedirect flag!", DATA_ID);
 					
@@ -888,7 +888,7 @@ public final class LangInterpreter {
 				executionFlags.allowTermRedirect = number.intValue() != 0;
 				break;
 			case "lang.errorOutput":
-				number = value.getNumber();
+				number = value.toNumber();
 				if(number == null) {
 					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.errorOutput flag!", DATA_ID);
 					
@@ -897,7 +897,7 @@ public final class LangInterpreter {
 				executionFlags.errorOutput = number.intValue() != 0;
 				break;
 			case "lang.langTest":
-				number = value.getNumber();
+				number = value.toNumber();
 				if(number == null) {
 					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.langTest flag!", DATA_ID);
 					
@@ -2154,10 +2154,6 @@ public final class LangInterpreter {
 			return new DataObject().setNull();
 		}
 		
-		public Number getNumber() {
-			return toNumber();
-		}
-		
 		private String convertArrayToText() {
 			StringBuilder builder = new StringBuilder("[");
 			if(arr.length > 0) {
@@ -2519,7 +2515,7 @@ public final class LangInterpreter {
 			if(other == null)
 				return false;
 			
-			Number number = other.getNumber();
+			Number number = other.toNumber();
 			switch(type) {
 				case TEXT:
 					if(other.type == DataType.TEXT)
@@ -2615,7 +2611,7 @@ public final class LangInterpreter {
 					if(other.type == DataType.TEXT)
 						return txt.compareTo(other.txt) < 0;
 					
-					Number thisNumber = getNumber();
+					Number thisNumber = toNumber();
 					if(thisNumber == null)
 						return false;
 					
@@ -2828,7 +2824,7 @@ public final class LangInterpreter {
 					if(other.type == DataType.TEXT)
 						return txt.compareTo(other.txt) > 0;
 					
-					Number thisNumber = getNumber();
+					Number thisNumber = toNumber();
 					if(thisNumber == null)
 						return false;
 					
