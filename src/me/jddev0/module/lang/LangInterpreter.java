@@ -861,6 +861,12 @@ public final class LangInterpreter {
 			case BITWISE_NOT:
 				output = leftSideOperand.opNot();
 				break;
+			case INC:
+				output = leftSideOperand.opInc();
+				break;
+			case DEC:
+				output = leftSideOperand.opDec();
+				break;
 			
 			//Binary
 			case POW:
@@ -3128,6 +3134,9 @@ public final class LangInterpreter {
 		}
 		
 		//Operation functions
+		/**
+		 * For "▲"
+		 */
 		public DataObject opInc() {
 			switch(type) {
 				case INT:
@@ -3154,6 +3163,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "▼"
+		 */
 		public DataObject opDec() {
 			switch(type) {
 				case INT:

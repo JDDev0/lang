@@ -1163,13 +1163,19 @@ public final class LangParser {
 					operator = null;
 					continue;
 				}
-			}else if(mathExpr.startsWith("~")) {
-				//Ignore BITWISE_NOT operator if something was before (=> "Escaped" BITWISE_NOT) -> Add "~" to builder (below outer if)
+			}else if(mathExpr.startsWith("~") || mathExpr.startsWith("▲") || mathExpr.startsWith("▼")) {
+				//Ignore unary operator if something was before (=> "Escaped" unary operator) -> Add unary operator to builder (below outer if)
 				if(builder.length() == 0 && leftNodes.size() == 0) {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					operator = AbstractSyntaxTree.MathNode.Operator.BITWISE_NOT;
+					if(mathExpr.startsWith("~")) {
+						operator = AbstractSyntaxTree.MathNode.Operator.BITWISE_NOT;
+					}else if(mathExpr.startsWith("▲")) {
+						operator = AbstractSyntaxTree.MathNode.Operator.INC;
+					}else if(mathExpr.startsWith("▼")) {
+						operator = AbstractSyntaxTree.MathNode.Operator.DEC;
+					}
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
 					AbstractSyntaxTree.MathNode node = parseMathExpr(mathExpr.substring(1), innerTokensLeft, operator.getPrecedence());
