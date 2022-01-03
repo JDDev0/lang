@@ -3086,6 +3086,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		public DataObject opPos() {
+			return new DataObject(this);
+		}
 		public DataObject opInv() {
 			switch(type) {
 				case INT:
@@ -3533,18 +3536,133 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		public DataObject opPow(DataObject dataObject) {
+			switch(type) {
+				case INT:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setDouble(Math.pow(intValue, dataObject.intValue));
+						case LONG:
+							return new DataObject().setDouble(Math.pow(intValue, dataObject.longValue));
+						case FLOAT:
+							return new DataObject().setDouble(Math.pow(intValue, dataObject.floatValue));
+						case DOUBLE:
+							return new DataObject().setDouble(Math.pow(intValue, dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				case LONG:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setDouble(Math.pow(longValue, dataObject.intValue));
+						case LONG:
+							return new DataObject().setDouble(Math.pow(longValue, dataObject.longValue));
+						case FLOAT:
+							return new DataObject().setDouble(Math.pow(longValue, dataObject.floatValue));
+						case DOUBLE:
+							return new DataObject().setDouble(Math.pow(longValue, dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				case FLOAT:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setDouble(Math.pow(floatValue, dataObject.intValue));
+						case LONG:
+							return new DataObject().setDouble(Math.pow(floatValue, dataObject.longValue));
+						case FLOAT:
+							return new DataObject().setDouble(Math.pow(floatValue, dataObject.floatValue));
+						case DOUBLE:
+							return new DataObject().setDouble(Math.pow(floatValue, dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				case DOUBLE:
+					switch(dataObject.type) {
+						case INT:
+							return new DataObject().setDouble(Math.pow(doubleValue, dataObject.intValue));
+						case LONG:
+							return new DataObject().setDouble(Math.pow(doubleValue, dataObject.longValue));
+						case FLOAT:
+							return new DataObject().setDouble(Math.pow(doubleValue, dataObject.floatValue));
+						case DOUBLE:
+							return new DataObject().setDouble(Math.pow(doubleValue, dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
 		public DataObject opDiv(DataObject dataObject) {
 			switch(type) {
 				case INT:
 					switch(dataObject.type) {
 						case INT:
 							if(dataObject.intValue == 0)
-								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+								return new DataObject().setFloat(intValue / 0.f);
+							
+							if(intValue % dataObject.intValue != 0)
+								return new DataObject().setFloat(intValue / (float)dataObject.intValue);
 							
 							return new DataObject().setInt(intValue / dataObject.intValue);
 						case LONG:
 							if(dataObject.longValue == 0)
-								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+								return new DataObject().setFloat(intValue / 0.f);
+							
+							if(intValue % dataObject.longValue != 0)
+								return new DataObject().setFloat(intValue / (float)dataObject.longValue);
 							
 							return new DataObject().setLong(intValue / dataObject.longValue);
 						case FLOAT:
@@ -3568,12 +3686,18 @@ public final class LangInterpreter {
 					switch(dataObject.type) {
 						case INT:
 							if(dataObject.intValue == 0)
-								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+								return new DataObject().setFloat(longValue / 0.f);
+							
+							if(longValue % dataObject.intValue != 0)
+								return new DataObject().setFloat(longValue / (float)dataObject.intValue);
 							
 							return new DataObject().setLong(longValue / dataObject.intValue);
 						case LONG:
 							if(dataObject.longValue == 0)
-								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+								return new DataObject().setFloat(longValue / 0.f);
+							
+							if(longValue % dataObject.longValue != 0)
+								return new DataObject().setFloat(longValue / (float)dataObject.longValue);
 							
 							return new DataObject().setLong(longValue / dataObject.longValue);
 						case FLOAT:
@@ -3626,6 +3750,164 @@ public final class LangInterpreter {
 							return new DataObject().setDouble(doubleValue / dataObject.floatValue);
 						case DOUBLE:
 							return new DataObject().setDouble(doubleValue / dataObject.doubleValue);
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				
+				case TEXT:
+				case CHAR:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject opIntDiv(DataObject dataObject) {
+			switch(type) {
+				case INT:
+					switch(dataObject.type) {
+						case INT:
+							if(dataObject.intValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setInt(intValue / dataObject.intValue);
+						case LONG:
+							if(dataObject.longValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setLong(intValue / dataObject.longValue);
+						case FLOAT:
+							if(dataObject.floatValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setFloat((float)Math.floor(intValue / dataObject.floatValue));
+						case DOUBLE:
+							if(dataObject.doubleValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(intValue / dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				case LONG:
+					switch(dataObject.type) {
+						case INT:
+							if(dataObject.intValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setLong(longValue / dataObject.intValue);
+						case LONG:
+							if(dataObject.longValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setLong(longValue / dataObject.longValue);
+						case FLOAT:
+							if(dataObject.floatValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setFloat((float)Math.floor(longValue / dataObject.floatValue));
+						case DOUBLE:
+							if(dataObject.doubleValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(longValue / dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					return null;
+				case FLOAT:
+					switch(dataObject.type) {
+						case INT:
+							if(dataObject.intValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setFloat((float)Math.floor(floatValue / dataObject.intValue));
+						case LONG:
+							if(dataObject.longValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setFloat((float)Math.floor(floatValue / dataObject.longValue));
+						case FLOAT:
+							if(dataObject.floatValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setFloat((float)Math.floor(floatValue / dataObject.floatValue));
+						case DOUBLE:
+							if(dataObject.doubleValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(floatValue / dataObject.doubleValue));
+						
+						case TEXT:
+						case CHAR:
+						case ARRAY:
+						case ERROR:
+						case VAR_POINTER:
+						case FUNCTION_POINTER:
+						case NULL:
+						case VOID:
+						case ARGUMENT_SEPARATOR:
+							return null;
+					}
+					
+					return null;
+				case DOUBLE:
+					switch(dataObject.type) {
+						case INT:
+							if(dataObject.intValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(doubleValue / dataObject.intValue));
+						case LONG:
+							if(dataObject.longValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(floatValue / dataObject.longValue));
+						case FLOAT:
+							if(dataObject.floatValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(floatValue / dataObject.floatValue));
+						case DOUBLE:
+							if(dataObject.doubleValue == 0)
+								return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							
+							return new DataObject().setDouble(Math.floor(floatValue / dataObject.doubleValue));
 						
 						case TEXT:
 						case CHAR:
