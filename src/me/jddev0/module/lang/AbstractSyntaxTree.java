@@ -712,7 +712,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		 */
 		public ConditionNode(Node operand, Operator operator) {
 			if(!operator.isUnary())
-				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" must have two operands");
+				throw new IllegalStateException("Binary operator \"" + operator.getSymbol() + "\" must have two operands");
 			
 			nodes = new ArrayList<>(1);
 			nodes.add(operand);
