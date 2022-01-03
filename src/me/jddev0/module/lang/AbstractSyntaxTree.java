@@ -693,9 +693,12 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		private final List<Node> nodes;
 		private final Operator operator;
 		
+		/**
+		 * For binary operators
+		 */
 		public ConditionNode(Node leftSideOperand, Node rightSideOperand, Operator operator) {
 			if(operator.isUnary())
-				throw new IllegalStateException("NOT and NON operators have only node");
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" can only have one operand");
 			
 			nodes = new ArrayList<>(2);
 			nodes.add(leftSideOperand);
@@ -705,11 +708,11 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		/**
-		 * For NOT and NON (true or false values) operator
+		 * For unary operators
 		 */
 		public ConditionNode(Node operand, Operator operator) {
 			if(!operator.isUnary())
-				throw new IllegalStateException("Only NOT and NON operators are unary");
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" must have two operands");
 			
 			nodes = new ArrayList<>(1);
 			nodes.add(operand);
@@ -733,7 +736,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public Node getRightSideOperand() {
 			if(nodes.size() < 2)
-				throw new IllegalStateException("NOT and NON operators aren't binary");
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" has only one operand");
 			
 			return nodes.get(1);
 		}
