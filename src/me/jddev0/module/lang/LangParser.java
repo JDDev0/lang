@@ -152,7 +152,7 @@ public final class LangParser {
 		
 		StringBuilder builder = new StringBuilder();
 		while(condition.length() > 0) {
-			//Ignore whitespaces
+			//Ignore whitespaces between operators
 			if(LangPatterns.matches(condition, LangPatterns.PARSING_LEADING_WHITSPACE)) {
 				if(condition.length() == 1)
 					break;
@@ -203,6 +203,21 @@ public final class LangParser {
 					
 					leftNodes.add(parseCondition(condition.substring(1, endIndex), null, 0));
 					condition = condition.substring(endIndex + 1);
+					
+					continue;
+				}else {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+					
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+						builder.delete(0, builder.length());
+					}
+					
+					leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(condition.charAt(0)));
+					condition = condition.substring(1);
 					
 					continue;
 				}
