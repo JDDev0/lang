@@ -1198,41 +1198,24 @@ public final class LangInterpreter {
 			case 't':
 				return new DataObject().setChar('\t');
 			case '$':
-				return new DataObject().setChar('$');
 			case '&':
-				return new DataObject().setChar('&');
 			case '#':
-				return new DataObject().setChar('#');
 			case ',':
-				return new DataObject().setChar(',');
 			case '(':
-				return new DataObject().setChar('(');
 			case ')':
-				return new DataObject().setChar(')');
 			case '{':
-				return new DataObject().setChar('{');
 			case '}':
-				return new DataObject().setChar('}');
 			case '=':
-				return new DataObject().setChar('=');
 			case '<':
-				return new DataObject().setChar('<');
 			case '>':
-				return new DataObject().setChar('>');
 			case '+':
-				return new DataObject().setChar('+');
 			case '-':
-				return new DataObject().setChar('-');
 			case '/':
-				return new DataObject().setChar('/');
 			case '*':
-				return new DataObject().setChar('*');
 			case '%':
-				return new DataObject().setChar('%');
 			case '|':
-				return new DataObject().setChar('|');
 			case '~':
-				return new DataObject().setChar('~');
+				return new DataObject().setChar(node.getEscapeSequenceChar());
 			case '!':
 				return null;
 			case '\\':
