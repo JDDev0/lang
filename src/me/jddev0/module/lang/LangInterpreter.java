@@ -2029,8 +2029,7 @@ public final class LangInterpreter {
 		}
 		
 		public boolean getBoolean() {
-			Boolean ret = toBoolean();
-			return ret != null && ret;
+			return toBoolean();
 		}
 		
 		public DataObject setLong(long longValue) {
@@ -2421,7 +2420,7 @@ public final class LangInterpreter {
 			
 			return null;
 		}
-		public Boolean toBoolean() {
+		public boolean toBoolean() {
 			switch(type) {
 				case TEXT:
 					return !txt.isEmpty();
@@ -2450,7 +2449,7 @@ public final class LangInterpreter {
 					return false;
 			}
 			
-			return null;
+			return false;
 		}
 		public Number toNumber() {
 			switch(type) {
