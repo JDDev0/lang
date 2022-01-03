@@ -785,18 +785,20 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		public static enum Operator {
-			NON("", true), NOT("!", true), AND("&&"), OR("||"), EQUALS("=="), NOT_EQUALS("!="), STRICT_EQUALS("==="), STRICT_NOT_EQUALS("!=="), LESS_THAN("<"), GREATER_THAN(">"),
-			LESS_THAN_OR_EQUALS("<="), GREATER_THAN_OR_EQUALS(">=");
+			NON("", true, -1), NOT("!", true, 1), AND("&&", 3), OR("||", 4), EQUALS("==", 2), NOT_EQUALS("!=", 2), STRICT_EQUALS("===", 2), STRICT_NOT_EQUALS("!==", 2),
+			LESS_THAN("<", 2), GREATER_THAN(">", 2), LESS_THAN_OR_EQUALS("<=", 2), GREATER_THAN_OR_EQUALS(">=", 2);
 			
 			private final String symbol;
 			private final boolean unary;
+			private final int precedence;
 			
-			private Operator(String symbol, boolean onlyOneNode) {
+			private Operator(String symbol, boolean onlyOneNode, int precedence) {
 				this.symbol = symbol;
 				this.unary = onlyOneNode;
+				this.precedence = precedence;
 			}
-			private Operator(String symbol) {
-				this(symbol, false);
+			private Operator(String symbol, int precedence) {
+				this(symbol, false, precedence);
 			}
 			
 			public String getSymbol() {
@@ -805,6 +807,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			public boolean isUnary() {
 				return unary;
+			}
+			
+			public int getPrecedence() {
+				return precedence;
 			}
 		}
 	}
@@ -1635,18 +1641,20 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		public static enum Operator {
-			NON("", true), POW("**"), POS("+", true), INV("-", true), BITWISE_NOT("~", true), MUL("*"), DIV("/"), INT_DIV("//"), MOD("%"), ADD("+"), SUB("-"), LSHIFT("<<"),
-			RSHIFT(">>"), RZSHIFT(">>>"), BITWISE_AND("&"), BITWISE_XOR("^"), BITWISE_OR("|");
+			NON("", true, -1), POW("**", 1), POS("+", true, 2), INV("-", true, 2), BITWISE_NOT("~", true, 2), MUL("*", 3), DIV("/", 3), INT_DIV("//", 3), MOD("%", 3),
+			ADD("+", 4), SUB("-", 4), LSHIFT("<<", 5), RSHIFT(">>", 5), RZSHIFT(">>>", 5), BITWISE_AND("&", 6), BITWISE_XOR("^", 7), BITWISE_OR("|", 8);
 			
 			private final String symbol;
 			private final boolean unary;
+			private final int precedence;
 			
-			private Operator(String symbol, boolean onlyOneNode) {
+			private Operator(String symbol, boolean onlyOneNode, int precedence) {
 				this.symbol = symbol;
 				this.unary = onlyOneNode;
+				this.precedence = precedence;
 			}
-			private Operator(String symbol) {
-				this(symbol, false);
+			private Operator(String symbol, int precedence) {
+				this(symbol, false, precedence);
 			}
 			
 			public String getSymbol() {
@@ -1655,6 +1663,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			public boolean isUnary() {
 				return unary;
+			}
+			
+			public int getPrecedence() {
+				return precedence;
 			}
 		}
 	}
