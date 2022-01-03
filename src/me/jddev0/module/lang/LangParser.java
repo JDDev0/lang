@@ -229,24 +229,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+					break;
 				}
 				int operatorLength = 2;
 				if(condition.startsWith("!==")) {
@@ -331,24 +314,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+					break;
 				}
 				operator = AbstractSyntaxTree.ConditionNode.Operator.AND;
 				
@@ -412,24 +378,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.ConditionNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.ConditionNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.ConditionNode(leftNode, rightNode, operator);
+					break;
 				}
 				operator = AbstractSyntaxTree.ConditionNode.Operator.OR;
 				
@@ -731,24 +680,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.MathNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.MathNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+					break;
 				}
 				
 				int operatorLength = 1;
@@ -825,24 +757,7 @@ public final class LangParser {
 						if(whitespaces.length() > 0)
 							whitespaces.delete(0, whitespaces.length());
 						
-						//Parse value
-						if(builder.length() > 0) {
-							leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-						}
-						
-						if(operator == null)
-							operator = AbstractSyntaxTree.MathNode.Operator.NON;
-						
-						AbstractSyntaxTree.Node leftNode;
-						if(leftNodes.size() == 1)
-							leftNode = leftNodes.get(0);
-						else
-							leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-						
-						if(operator.isUnary())
-							return new AbstractSyntaxTree.MathNode(leftNode, operator);
-						
-						return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+						break;
 					}
 					
 					if(mathExpr.startsWith("+")) {
@@ -942,24 +857,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.MathNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.MathNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+					break;
 				}
 				
 				int operatorLength = 2;
@@ -1034,24 +932,7 @@ public final class LangParser {
 						if(whitespaces.length() > 0)
 							whitespaces.delete(0, whitespaces.length());
 						
-						//Parse value
-						if(builder.length() > 0) {
-							leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-						}
-						
-						if(operator == null)
-							operator = AbstractSyntaxTree.MathNode.Operator.NON;
-						
-						AbstractSyntaxTree.Node leftNode;
-						if(leftNodes.size() == 1)
-							leftNode = leftNodes.get(0);
-						else
-							leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-						
-						if(operator.isUnary())
-							return new AbstractSyntaxTree.MathNode(leftNode, operator);
-						
-						return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+						break;
 					}
 					
 					operator = AbstractSyntaxTree.MathNode.Operator.BITWISE_AND;
@@ -1122,24 +1003,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.MathNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.MathNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+					break;
 				}
 				
 				operator = AbstractSyntaxTree.MathNode.Operator.BITWISE_XOR;
@@ -1204,24 +1068,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					//Parse value
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					}
-					
-					if(operator == null)
-						operator = AbstractSyntaxTree.MathNode.Operator.NON;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					if(operator.isUnary())
-						return new AbstractSyntaxTree.MathNode(leftNode, operator);
-					
-					return new AbstractSyntaxTree.MathNode(leftNode, rightNode, operator);
+					break;
 				}
 				
 				operator = AbstractSyntaxTree.MathNode.Operator.BITWISE_OR;
