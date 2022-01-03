@@ -142,9 +142,13 @@ public final class LangParser {
 		if(condition == null)
 			return null;
 		
+		condition = condition.trim();
+		
 		AbstractSyntaxTree.ConditionNode.Operator operator = null;
 		List<AbstractSyntaxTree.Node> leftNodes = new ArrayList<>();
 		AbstractSyntaxTree.Node rightNode = null;
+		
+		StringBuilder whitespaces = new StringBuilder();
 		
 		StringBuilder builder = new StringBuilder();
 		while(condition.length() > 0) {
@@ -153,6 +157,7 @@ public final class LangParser {
 				if(condition.length() == 1)
 					break;
 				
+				whitespaces.append(condition.charAt(0));
 				condition = condition.substring(1);
 				
 				continue;
@@ -160,6 +165,11 @@ public final class LangParser {
 			
 			//Unescaping
 			if(condition.startsWith("\\")) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
 					builder.delete(0, builder.length());
@@ -188,6 +198,9 @@ public final class LangParser {
 				
 				//Ignore "()" if something was before (=> "Escaped" "()") -> Add "(" to builder (below outer if)
 				if(builder.length() == 0) {
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
+					
 					leftNodes.add(parseCondition(condition.substring(1, endIndex), null, 0));
 					condition = condition.substring(endIndex + 1);
 					
@@ -196,7 +209,10 @@ public final class LangParser {
 			}else if(condition.startsWith("!==") || condition.startsWith("!=") || condition.startsWith("===") || condition.startsWith("==") || condition.startsWith("<=") ||
 			condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">")) {
 				if(tokensLeft != null && currentOperatorPrecedence <= 2) {
-					tokensLeft.append(condition);
+					tokensLeft.append(condition.trim());
+					
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
 					
 					//Parse value
 					if(builder.length() > 0) {
@@ -242,11 +258,19 @@ public final class LangParser {
 				
 				//Add as value if nothing is behind "operator"
 				if(condition.length() == operatorLength) {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+					
 					operator = null;
 					builder.append(condition);
 					
 					break;
 				}
+				
+				if(whitespaces.length() > 0)
+					whitespaces.delete(0, whitespaces.length());
 				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
@@ -287,7 +311,10 @@ public final class LangParser {
 				}
 			}else if(condition.startsWith("&&")) {
 				if(tokensLeft != null && currentOperatorPrecedence <= 3) {
-					tokensLeft.append(condition);
+					tokensLeft.append(condition.trim());
+					
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
 					
 					//Parse value
 					if(builder.length() > 0) {
@@ -312,11 +339,19 @@ public final class LangParser {
 				
 				//Add as value if nothing is behind "operator"
 				if(condition.length() == 2) {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+					
 					operator = null;
 					builder.append(condition);
 					
 					break;
 				}
+				
+				if(whitespaces.length() > 0)
+					whitespaces.delete(0, whitespaces.length());
 				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
@@ -357,7 +392,10 @@ public final class LangParser {
 				}
 			}else if(condition.startsWith("||")) {
 				if(tokensLeft != null && currentOperatorPrecedence <= 4) {
-					tokensLeft.append(condition);
+					tokensLeft.append(condition.trim());
+					
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
 					
 					//Parse value
 					if(builder.length() > 0) {
@@ -382,11 +420,19 @@ public final class LangParser {
 				
 				//Add as value if nothing is behind "operator"
 				if(condition.length() == 2) {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+					
 					operator = null;
 					builder.append(condition);
 					
 					break;
 				}
+				
+				if(whitespaces.length() > 0)
+					whitespaces.delete(0, whitespaces.length());
 				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
@@ -428,6 +474,9 @@ public final class LangParser {
 			}else if(condition.startsWith("!")) {
 				//Ignore NOT operator if something was before (=> "Escaped" NOT) -> Add "!" to builder (below outer if)
 				if(builder.length() == 0 && leftNodes.size() == 0) {
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
+					
 					operator = AbstractSyntaxTree.ConditionNode.Operator.NOT;
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
@@ -450,11 +499,21 @@ public final class LangParser {
 					}else {
 						continue;
 					}
+				}else {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
 				}
 			}
 			
 			//Function calls
 			if(LangPatterns.matches(condition, LangPatterns.PARSING_FUNCTION_CALL)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
 					builder.delete(0, builder.length());
@@ -478,12 +537,22 @@ public final class LangParser {
 				continue;
 			}
 			
+			if(whitespaces.length() > 0) {
+				builder.append(whitespaces.toString());
+				whitespaces.delete(0, whitespaces.length());
+			}
+			
 			char c = condition.charAt(0);
 			builder.append(c);
 			if(condition.length() == 1)
 				break;
 			
 			condition = condition.substring(1);
+		}
+		
+		if(whitespaces.length() > 0) {
+			builder.append(whitespaces.toString());
+			whitespaces.delete(0, whitespaces.length());
 		}
 		
 		//Parse value
