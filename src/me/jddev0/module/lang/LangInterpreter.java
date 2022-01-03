@@ -237,6 +237,9 @@ public final class LangInterpreter {
 				
 				case CONDITION:
 					return interpretConditionNode((ConditionNode)node, DATA_ID);
+					
+				case MATH:
+					return interpretMathNode((MathNode)node, DATA_ID);
 				
 				case RETURN:
 					interpretReturnNode((ReturnNode)node, DATA_ID);
@@ -837,6 +840,73 @@ public final class LangInterpreter {
 		return new DataObject().setBoolean(conditionOuput);
 	}
 	
+	private DataObject interpretMathNode(MathNode node, final int DATA_ID) {
+		DataObject output = null;
+		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
+		DataObject rightSideOperand = node.getOperator().isUnary()?null:interpretNode(node.getRightSideOperand(), DATA_ID);
+		if(leftSideOperand == null || (!node.getOperator().isUnary() && rightSideOperand == null))
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+		
+		switch(node.getOperator()) {
+			//Unary
+			case NON:
+				output = leftSideOperand;
+				break;
+			case POS:
+				output = leftSideOperand.opPos();
+				break;
+			case INV:
+				output = leftSideOperand.opInv();
+				break;
+			case BITWISE_NOT:
+				output = leftSideOperand.opNot();
+				break;
+			
+			//Binary
+			case POW:
+				output = leftSideOperand.opPow(rightSideOperand);
+				break;
+			case MUL:
+				output = leftSideOperand.opMul(rightSideOperand);
+				break;
+			case DIV:
+				output = leftSideOperand.opDiv(rightSideOperand);
+				break;
+			case INT_DIV:
+				output = leftSideOperand.opIntDiv(rightSideOperand);
+				break;
+			case MOD:
+				output = leftSideOperand.opMod(rightSideOperand);
+				break;
+			case ADD:
+				output = leftSideOperand.opAdd(rightSideOperand);
+				break;
+			case SUB:
+				output = leftSideOperand.opSub(rightSideOperand);
+				break;
+			case LSHIFT:
+				output = leftSideOperand.opLshift(rightSideOperand);
+				break;
+			case RSHIFT:
+				output = leftSideOperand.opRshift(rightSideOperand);
+				break;
+			case RZSHIFT:
+				output = leftSideOperand.opRzshift(rightSideOperand);
+				break;
+			case BITWISE_AND:
+				output = leftSideOperand.opAnd(rightSideOperand);
+				break;
+			case BITWISE_XOR:
+				output = leftSideOperand.opXor(rightSideOperand);
+				break;
+			case BITWISE_OR:
+				output = leftSideOperand.opOr(rightSideOperand);
+				break;
+		}
+		
+		return output;
+	}
+	
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
 		Node returnValueNode = node.getReturnValue();
 		
@@ -985,6 +1055,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_LOOP:
 				case LOOP_STATEMENT_PART_ELSE:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
+				case MATH:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:
@@ -2507,6 +2578,9 @@ public final class LangInterpreter {
 		}
 		
 		//Comparison functions
+		/**
+		 * For "=="
+		 */
 		public boolean isEquals(DataObject other) {
 			if(this == other)
 				return true;
@@ -2584,6 +2658,9 @@ public final class LangInterpreter {
 			
 			return false;
 		}
+		/**
+		 * For "==="
+		 */
 		public boolean isStrictEquals(DataObject other) {
 			if(this == other)
 				return true;
@@ -2600,6 +2677,9 @@ public final class LangInterpreter {
 				return false;
 			}
 		}
+		/**
+		 * For "&lt;"
+		 */
 		public boolean isLessThan(DataObject other) {
 			if(this == other || other == null)
 				return false;
@@ -2813,6 +2893,9 @@ public final class LangInterpreter {
 			
 			return false;
 		}
+		/**
+		 * For "&gt;"
+		 */
 		public boolean isGreaterThan(DataObject other) {
 			if(this == other || other == null)
 				return false;
@@ -3026,9 +3109,15 @@ public final class LangInterpreter {
 			
 			return false;
 		}
+		/**
+		 * For "&lt;="
+		 */
 		public boolean isLessThanOrEquals(DataObject other) {
 			return isLessThan(other) || isEquals(other);
 		}
+		/**
+		 * For "&gt;="
+		 */
 		public boolean isGreaterThanOrEquals(DataObject other) {
 			return isGreaterThan(other) || isEquals(other);
 		}
@@ -3086,9 +3175,15 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "+"
+		 */
 		public DataObject opPos() {
 			return new DataObject(this);
 		}
+		/**
+		 * For "-"
+		 */
 		public DataObject opInv() {
 			switch(type) {
 				case INT:
@@ -3121,6 +3216,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "+"
+		 */
 		public DataObject opAdd(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3264,6 +3362,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "-"
+		 */
 		public DataObject opSub(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3400,6 +3501,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "*"
+		 */
 		public DataObject opMul(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3536,6 +3640,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "**"
+		 */
 		public DataObject opPow(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3645,6 +3752,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "/"
+		 */
 		public DataObject opDiv(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3778,6 +3888,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "//"
+		 */
 		public DataObject opIntDiv(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -3936,6 +4049,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "%"
+		 */
 		public DataObject opMod(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4009,6 +4125,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "&"
+		 */
 		public DataObject opAnd(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4070,6 +4189,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "|"
+		 */
 		public DataObject opOr(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4131,6 +4253,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "^"
+		 */
 		public DataObject opXor(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4192,6 +4317,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "~"
+		 */
 		public DataObject opNot() {
 			switch(type) {
 				case INT:
@@ -4214,6 +4342,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "&lt;&lt;"
+		 */
 		public DataObject opLshift(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4275,6 +4406,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "&gt;&gt;"
+		 */
 		public DataObject opRshift(DataObject dataObject) {
 			switch(type) {
 				case INT:
@@ -4336,6 +4470,9 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "&gt;&gt;&gt;"
+		 */
 		public DataObject opRzshift(DataObject dataObject) {
 			switch(type) {
 				case INT:

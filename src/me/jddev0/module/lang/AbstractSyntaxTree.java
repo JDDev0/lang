@@ -1538,6 +1538,127 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+
+	public static final class MathNode implements Node {
+		private final List<Node> nodes;
+		private final Operator operator;
+		
+		/**
+		 * For binary operator
+		 */
+		public MathNode(Node leftSideOperand, Node rightSideOperand, Operator operator) {
+			if(operator.isUnary())
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" can only have one operand");
+			
+			nodes = new ArrayList<>(2);
+			nodes.add(leftSideOperand);
+			nodes.add(rightSideOperand);
+			
+			this.operator = operator;
+		}
+		
+		/**
+		 * For unary operator
+		 */
+		public MathNode(Node operand, Operator operator) {
+			if(!operator.isUnary())
+				throw new IllegalStateException("Binary operator \"" + operator.getSymbol() + "\" must have two operands");
+			
+			nodes = new ArrayList<>(1);
+			nodes.add(operand);
+			
+			this.operator = operator;
+		}
+		
+		@Override
+		public List<Node> getChildren() {
+			return nodes;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.MATH;
+		}
+		
+		public Node getLeftSideOperand() {
+			return nodes.get(0);
+		}
+		
+		public Node getRightSideOperand() {
+			if(nodes.size() < 2)
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" has only one operand");
+			
+			return nodes.get(1);
+		}
+		
+		public Operator getOperator() {
+			return operator;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("MathNode: Operator: \"");
+			builder.append(operator);
+			builder.append("\", Operands: {\n");
+			nodes.forEach(node -> {
+				String[] tokens = node.toString().split("\\n");
+				for(String token:tokens) {
+					builder.append("\t");
+					builder.append(token);
+					builder.append("\n");
+				}
+			});
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof MathNode))
+				return false;
+			
+			MathNode that = (MathNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.operator.equals(that.operator) && this.nodes.equals(that.nodes);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.operator, this.nodes);
+		}
+		
+		public static enum Operator {
+			NON("", true), POW("**"), POS("+", true), INV("-", true), BITWISE_NOT("~", true), MUL("*"), DIV("/"), INT_DIV("//"), MOD("%"), ADD("+"), SUB("-"), LSHIFT("<<"),
+			RSHIFT(">>"), RZSHIFT(">>>"), BITWISE_AND("&"), BITWISE_XOR("^"), BITWISE_OR("|");
+			
+			private final String symbol;
+			private final boolean unary;
+			
+			private Operator(String symbol, boolean onlyOneNode) {
+				this.symbol = symbol;
+				this.unary = onlyOneNode;
+			}
+			private Operator(String symbol) {
+				this(symbol, false);
+			}
+			
+			public String getSymbol() {
+				return symbol;
+			}
+			
+			public boolean isUnary() {
+				return unary;
+			}
+		}
+	}
+	
 	public static final class ReturnNode implements Node {
 		private final List<Node> nodes;
 		
@@ -2050,7 +2171,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
 		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
-		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
+		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, MATH, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
 		TEXT_VALUE, NULL_VALUE, VOID_VALUE;
 	}
 }
