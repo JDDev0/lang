@@ -1931,73 +1931,8 @@ public final class LangInterpreter {
 			return this;
 		}
 		
-		private String getArrayText() {
-			StringBuilder builder = new StringBuilder("[");
-			if(arr.length > 0) {
-				for(DataObject ele:arr) {
-					if(ele.getType() == DataType.ARRAY) {
-						builder.append("<Array: len: " + ele.getArray().length + ">");
-					}else if(ele.getType() == DataType.VAR_POINTER) {
-						builder.append("VP -> {");
-						DataObject data = ele.getVarPointer().getVar();
-						if(data != null && data.getType() == DataType.ARRAY) {
-							builder.append("<Array: len: " + data.getArray().length + ">");
-						}else if(data != null && data.getType() == DataType.VAR_POINTER) {
-							builder.append("VP -> {...}");
-						}else {
-							builder.append(data);
-						}
-						builder.append("}");
-					}else {
-						builder.append(ele.getText());
-					}
-					builder.append(", ");
-				}
-				builder.delete(builder.length() - 2, builder.length());
-			}
-			builder.append(']');
-			return builder.toString();
-		}
 		public String getText() {
-			try {
-				switch(type) {
-					case TEXT:
-					case ARGUMENT_SEPARATOR:
-						return txt;
-					case ARRAY:
-						return getArrayText();
-					case VAR_POINTER:
-						if(variableName != null)
-							return variableName;
-						
-						return vp.toString();
-					case FUNCTION_POINTER:
-						if(variableName != null)
-							return variableName;
-						
-						return fp.toString();
-					case VOID:
-						return "";
-					case NULL:
-						return "null";
-					case INT:
-						return intValue + "";
-					case LONG:
-						return longValue + "";
-					case FLOAT:
-						return floatValue + "";
-					case DOUBLE:
-						return doubleValue + "";
-					case CHAR:
-						return charValue + "";
-					case ERROR:
-						return error.toString();
-				}
-			}catch(StackOverflowError e) {
-				return "Error";
-			}
-			
-			return null;
+			return toText();
 		}
 		
 		public DataObject setArray(DataObject[] arr) {
@@ -2094,35 +2029,8 @@ public final class LangInterpreter {
 		}
 		
 		public boolean getBoolean() {
-			switch(type) {
-				case TEXT:
-					return !txt.isEmpty();
-				case CHAR:
-					return charValue != 0;
-				case INT:
-					return intValue != 0;
-				case LONG:
-					return longValue != 0;
-				case FLOAT:
-					return floatValue != 0;
-				case DOUBLE:
-					return doubleValue != 0;
-				case ARRAY:
-					return arr.length > 0;
-				case ERROR:
-					return error.getErrno() != 0;
-					
-				case VAR_POINTER:
-				case FUNCTION_POINTER:
-					return true;
-				
-				case NULL:
-				case VOID:
-				case ARGUMENT_SEPARATOR:
-					return false;
-			}
-			
-			return false;
+			Boolean ret = toBoolean();
+			return ret != null && ret;
 		}
 		
 		public DataObject setLong(long longValue) {
@@ -2227,58 +2135,328 @@ public final class LangInterpreter {
 		}
 		
 		public DataObject convertToNumberAndCreateNewDataObject() {
+			Number number = toNumber();
+			if(number == null)
+				return new DataObject().setNull();
+			
+			if(number instanceof Integer)
+				return new DataObject().setInt(number.intValue());
+			
+			if(number instanceof Long)
+				return new DataObject().setLong(number.longValue());
+			
+			if(number instanceof Float)
+				return new DataObject().setFloat(number.floatValue());
+			
+			if(number instanceof Double)
+				return new DataObject().setDouble(number.doubleValue());
+			
+			return new DataObject().setNull();
+		}
+		
+		public Number getNumber() {
+			return toNumber();
+		}
+		
+		private String convertArrayToText() {
+			StringBuilder builder = new StringBuilder("[");
+			if(arr.length > 0) {
+				for(DataObject ele:arr) {
+					if(ele.getType() == DataType.ARRAY) {
+						builder.append("<Array: len: " + ele.getArray().length + ">");
+					}else if(ele.getType() == DataType.VAR_POINTER) {
+						builder.append("VP -> {");
+						DataObject data = ele.getVarPointer().getVar();
+						if(data != null && data.getType() == DataType.ARRAY) {
+							builder.append("<Array: len: " + data.getArray().length + ">");
+						}else if(data != null && data.getType() == DataType.VAR_POINTER) {
+							builder.append("VP -> {...}");
+						}else {
+							builder.append(data);
+						}
+						builder.append("}");
+					}else {
+						builder.append(ele.getText());
+					}
+					builder.append(", ");
+				}
+				builder.delete(builder.length() - 2, builder.length());
+			}
+			builder.append(']');
+			return builder.toString();
+		}
+		
+		//Conversion functions
+		public String toText() {
+			try {
+				switch(type) {
+					case TEXT:
+					case ARGUMENT_SEPARATOR:
+						return txt;
+					case ARRAY:
+						return convertArrayToText();
+					case VAR_POINTER:
+						if(variableName != null)
+							return variableName;
+						
+						return vp.toString();
+					case FUNCTION_POINTER:
+						if(variableName != null)
+							return variableName;
+						
+						return fp.toString();
+					case VOID:
+						return "";
+					case NULL:
+						return "null";
+					case INT:
+						return intValue + "";
+					case LONG:
+						return longValue + "";
+					case FLOAT:
+						return floatValue + "";
+					case DOUBLE:
+						return doubleValue + "";
+					case CHAR:
+						return charValue + "";
+					case ERROR:
+						return error.toString();
+				}
+			}catch(StackOverflowError e) {
+				return "Error";
+			}
+			
+			return null;
+		}
+		public Character toChar() {
+			try {
+				switch(type) {
+					case TEXT:
+					case ARGUMENT_SEPARATOR:
+						return null;
+					case ARRAY:
+						return null;
+					case VAR_POINTER:
+						return null;
+					case FUNCTION_POINTER:
+						return null;
+					case VOID:
+						return null;
+					case NULL:
+						return null;
+					case INT:
+						return (char)intValue;
+					case LONG:
+						return (char)longValue;
+					case FLOAT:
+						return (char)floatValue;
+					case DOUBLE:
+						return (char)doubleValue;
+					case CHAR:
+						return charValue;
+					case ERROR:
+						return null;
+				}
+			}catch(StackOverflowError e) {
+				return null;
+			}
+			
+			return null;
+		}
+		public Integer toInt() {
 			switch(type) {
 				case TEXT:
 					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
-						//INT
 						try {
-							return new DataObject().setInt(Integer.parseInt(txt));
-						}catch(NumberFormatException ignore) {}
-						
-						//LONG
-						try {
-							return new DataObject().setLong(Long.parseLong(txt));
-						}catch(NumberFormatException ignore) {}
-					
-						//FLOAT
-						try {
-							float floatNumber = Float.parseFloat(txt);
-							if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-								return new DataObject().setFloat(floatNumber);
-							}
-						}catch(NumberFormatException ignore) {}
-						
-						//DOUBLE
-						try {
-							return new DataObject().setDouble(Double.parseDouble(txt));
+							return Integer.parseInt(txt);
 						}catch(NumberFormatException ignore) {}
 					}
 					
-					return new DataObject().setNull();
+					return null;
 				case CHAR:
-					return new DataObject().setInt(charValue);
+					return (int)charValue;
 				case INT:
+					return intValue;
 				case LONG:
+					return (int)longValue;
 				case FLOAT:
+					return (int)floatValue;
 				case DOUBLE:
-					return new DataObject(this);
+					return (int)doubleValue;
 				case ERROR:
-					return new DataObject().setInt(error.getErrno());
+					return error.getErrno();
 				case ARRAY:
-					return new DataObject().setInt(arr.length);
+					return arr.length;
 				
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
 				case NULL:
 				case VOID:
 				case ARGUMENT_SEPARATOR:
-					return new DataObject().setNull();
+					return null;
 			}
 			
-			return new DataObject().setNull();
+			return null;
 		}
-		
-		public Number getNumber() {
+		public Long toLong() {
+			switch(type) {
+				case TEXT:
+					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+						try {
+							return Long.parseLong(txt);
+						}catch(NumberFormatException ignore) {}
+					}
+					
+					return null;
+				case CHAR:
+					return (long)charValue;
+				case INT:
+					return (long)intValue;
+				case LONG:
+					return longValue;
+				case FLOAT:
+					return (long)floatValue;
+				case DOUBLE:
+					return (long)doubleValue;
+				case ERROR:
+					return (long)error.getErrno();
+				case ARRAY:
+					return (long)arr.length;
+				
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public Float toFloat() {
+			switch(type) {
+				case TEXT:
+					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+						try {
+							return Float.parseFloat(txt);
+						}catch(NumberFormatException ignore) {}
+					}
+					
+					return null;
+				case CHAR:
+					return (float)charValue;
+				case INT:
+					return (float)intValue;
+				case LONG:
+					return (float)longValue;
+				case FLOAT:
+					return floatValue;
+				case DOUBLE:
+					return (float)doubleValue;
+				case ERROR:
+					return (float)error.getErrno();
+				case ARRAY:
+					return (float)arr.length;
+				
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public Double toDouble() {
+			switch(type) {
+				case TEXT:
+					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+						try {
+							return Double.parseDouble(txt);
+						}catch(NumberFormatException ignore) {}
+					}
+					
+					return null;
+				case CHAR:
+					return (double)charValue;
+				case INT:
+					return (double)intValue;
+				case LONG:
+					return (double)longValue;
+				case FLOAT:
+					return (double)floatValue;
+				case DOUBLE:
+					return doubleValue;
+				case ERROR:
+					return (double)error.getErrno();
+				case ARRAY:
+					return (double)arr.length;
+				
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public DataObject[] toArray() {
+			switch(type) {
+				case ARRAY:
+					return arr;
+				
+				case TEXT:
+				case CHAR:
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		public Boolean toBoolean() {
+			switch(type) {
+				case TEXT:
+					return !txt.isEmpty();
+				case CHAR:
+					return charValue != 0;
+				case INT:
+					return intValue != 0;
+				case LONG:
+					return longValue != 0;
+				case FLOAT:
+					return floatValue != 0;
+				case DOUBLE:
+					return doubleValue != 0;
+				case ARRAY:
+					return arr.length > 0;
+				case ERROR:
+					return error.getErrno() != 0;
+					
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+					return true;
+				
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return false;
+			}
+			
+			return null;
+		}
+		public Number toNumber() {
 			switch(type) {
 				case TEXT:
 					if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
