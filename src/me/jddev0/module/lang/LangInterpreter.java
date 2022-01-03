@@ -904,6 +904,14 @@ public final class LangInterpreter {
 				break;
 		}
 		
+		if(node.getOperator() != AbstractSyntaxTree.MathNode.Operator.NON) {
+			if(output == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			if(output.getType() == DataType.ERROR)
+				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+		}
+		
 		return output;
 	}
 	
