@@ -878,8 +878,8 @@ public final class LangInterpreter {
 			case DIV:
 				output = leftSideOperand.opDiv(rightSideOperand);
 				break;
-			case INT_DIV:
-				output = leftSideOperand.opIntDiv(rightSideOperand);
+			case FLOOR_DIV:
+				output = leftSideOperand.opFloorDiv(rightSideOperand);
 				break;
 			case MOD:
 				output = leftSideOperand.opMod(rightSideOperand);
@@ -3928,7 +3928,7 @@ public final class LangInterpreter {
 		/**
 		 * For "//"
 		 */
-		public DataObject opIntDiv(DataObject dataObject) {
+		public DataObject opFloorDiv(DataObject dataObject) {
 			switch(type) {
 				case INT:
 					switch(dataObject.type) {

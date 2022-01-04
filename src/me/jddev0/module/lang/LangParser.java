@@ -732,7 +732,7 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.MathNode.Operator.MUL;
 				}else if(mathExpr.startsWith("//")) {
 					operatorLength = 2;
-					operator = AbstractSyntaxTree.MathNode.Operator.INT_DIV;
+					operator = AbstractSyntaxTree.MathNode.Operator.FLOOR_DIV;
 				}else if(mathExpr.startsWith("/")) {
 					operator = AbstractSyntaxTree.MathNode.Operator.DIV;
 				}else if(mathExpr.startsWith("%")) {

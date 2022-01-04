@@ -1546,7 +1546,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-
 	public static final class MathNode implements Node {
 		private final List<Node> nodes;
 		private final Operator operator;
@@ -1644,7 +1643,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public static enum Operator {
 			NON("", true, -1), POW("**", 1), POS("+", true, 2), INV("-", true, 2), BITWISE_NOT("~", true, 2), INC("▲", true, 2), DEC("▼", true, 2), MUL("*", 3), DIV("/", 3),
-			INT_DIV("//", 3), MOD("%", 3), ADD("+", 4), SUB("-", 4), LSHIFT("<<", 5), RSHIFT(">>", 5), RZSHIFT(">>>", 5), BITWISE_AND("&", 6), BITWISE_XOR("^", 7), BITWISE_OR("|", 8);
+			FLOOR_DIV("//", 3), MOD("%", 3), ADD("+", 4), SUB("-", 4), LSHIFT("<<", 5), RSHIFT(">>", 5), RZSHIFT(">>>", 5), BITWISE_AND("&", 6), BITWISE_XOR("^", 7), BITWISE_OR("|", 8);
 			
 			private final String symbol;
 			private final boolean unary;
