@@ -4654,12 +4654,24 @@ public final class LangInterpreter {
 					}
 					
 					return null;
+				case CHAR:
+					if(dataObject.type == DataType.INT) {
+						int index = dataObject.intValue;
+						if(index < 0)
+							index = 1 + index;
+						
+						if(index != 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						
+						return new DataObject().setChar(charValue);
+					}
+					
+					return null;
 				
 				case INT:
 				case LONG:
 				case FLOAT:
 				case DOUBLE:
-				case CHAR:
 				case ERROR:
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
