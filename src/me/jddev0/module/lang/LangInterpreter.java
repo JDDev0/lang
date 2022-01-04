@@ -4571,6 +4571,50 @@ public final class LangInterpreter {
 			
 			return null;
 		}
+		/**
+		 * For "[...]"
+		 */
+		public DataObject opGetItem(DataObject dataObject) {
+			switch(type) {
+				case ARRAY:
+					if(dataObject.type == DataType.INT) {
+						int len = arr.length;
+						int index = dataObject.intValue;
+						if(index < 0 || index >= len)
+							return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						
+						return arr[index];
+					}
+					
+					return null;
+				case TEXT:
+					if(dataObject.type == DataType.INT) {
+						int len = txt.length();
+						int index = dataObject.intValue;
+						if(index < 0 || index >= len)
+							return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						
+						return new DataObject().setChar(txt.charAt(index));
+					}
+					
+					return null;
+				
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+				case CHAR:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
 		
 		@Override
 		public String toString() {
