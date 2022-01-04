@@ -127,9 +127,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\$\\**|&|fp\\.)\\w+ = .*");
 	/**
-	 * RegEx: ((\$\**|&|fp\.)\w+||(\$\**\[+\w+\]+)||(\w|\.||\$||\\||%||-)+) = .{@literal *}
+	 * RegEx: ((\$\**|&|fp\.)\w+|(\$\**\[+\w+\]+)|(\w|\.|\$|\\|%|-)+) = .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile("((\\$\\**|&|fp\\.)\\w+||(\\$\\**\\[+\\w+\\]+)||(\\w|\\.||\\$||\\\\||%||-)+) = .*");
+	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile("((\\$\\**|&|fp\\.)\\w+|(\\$\\**\\[+\\w+\\]+)|(\\w|\\.|\\$|\\\\|%|-)+) = .*");
 	
 	public static boolean matches(String str, Pattern pattern) {
 		return pattern.matcher(str).matches();
