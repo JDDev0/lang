@@ -3,7 +3,10 @@ package me.jddev0.module.graphics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -12,6 +15,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +30,8 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -56,9 +63,11 @@ import me.jddev0.module.lang.LangUtils;
 public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
 	
-	private JTextPane shell;
+	private final JTextPane shell;
+	private final KeyListener shellKeyListener;
+	private final TerminalIO term;
 	
-	private TerminalIO term;
+	private SpecialCharInputWindow specialCharInputWindow = null;
 	
 	private List<String> history = new LinkedList<String>();
 	private int historyPos = 0;
@@ -86,13 +95,13 @@ public class LangShellWindow extends JDialog {
 	private final List<String> controlFlowStatements = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
 	private final List<String> mathStatements = Arrays.asList("math(");
 	
-	public LangShellWindow(JFrame owner, TerminalIO term) {
+	public LangShellWindow(Frame owner, TerminalIO term) {
 		this(owner, term, 12);
 	}
-	public LangShellWindow(JFrame owner, TerminalIO term, int fontSize) {
+	public LangShellWindow(Frame owner, TerminalIO term, int fontSize) {
 		this(owner, term, fontSize, null);
 	}
-	public LangShellWindow(JFrame owner, TerminalIO term, int fontSize, String[] langArgs) {
+	public LangShellWindow(Frame owner, TerminalIO term, int fontSize, String[] langArgs) {
 		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
 		
 		this.term = term;
@@ -101,6 +110,13 @@ public class LangShellWindow extends JDialog {
 		setTitle("LangShell");
 		setSize((int)(750*fontSize / 12.), (int)(500*fontSize / 12.));
 		setLocationRelativeTo(null);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			 public void windowClosing(WindowEvent e) {
+				if(specialCharInputWindow != null)
+					specialCharInputWindow.dispatchEvent(new WindowEvent(specialCharInputWindow, WindowEvent.WINDOW_CLOSING));
+			}
+		});
 		
 		JPanel contentPane = new JPanel();
 		setContentPane(contentPane);
@@ -121,7 +137,7 @@ public class LangShellWindow extends JDialog {
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 		shell.setMargin(new Insets(3, 5, 0, 5));
 		shell.setFocusTraversalKeysEnabled(false);
-		shell.addKeyListener(new KeyAdapter() {
+		shellKeyListener = new KeyAdapter() {
 			private StringBuilder lineTmp = new StringBuilder();
 			private String lastHistoryEntryUsed = "";
 			
@@ -222,6 +238,11 @@ public class LangShellWindow extends JDialog {
 					}catch(HeadlessException|IOException e1) {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
+				}else if(e.getKeyCode() == KeyEvent.VK_S && e.isControlDown() && e.isShiftDown()) {
+					if(specialCharInputWindow == null) {
+						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "▲", "▼"});
+						specialCharInputWindow.setVisible(true);
+					}
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
 					if(flagRunning) {
 						lii.stop();
@@ -297,7 +318,8 @@ public class LangShellWindow extends JDialog {
 					}
 				}
 			}
-		});
+		};
+		shell.addKeyListener(shellKeyListener);
 		scrollPane.setViewportView(shell);
 		
 		initShell(langArgs);
@@ -419,6 +441,7 @@ public class LangShellWindow extends JDialog {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
 		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
+		"• Press CTRL + SHIFT + S for opening the special char input window\n" +
 		"• Press UP and DOWN for scrolling through the history\n" +
 		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
 		"    ◦ Press ENTER for accepting the auto complete text\n" +
@@ -972,5 +995,44 @@ public class LangShellWindow extends JDialog {
 		
 		//Reset the printStream output
 		System.setOut(oldOut);
+	}
+	
+	private final class SpecialCharInputWindow extends JDialog {
+		private static final long serialVersionUID = -5520154945750708443L;
+		
+		public SpecialCharInputWindow(Dialog owner, String[] specialCharInputs) {
+			super(owner, false); //Make this window to an modal window (Focus won't be given back to owner window)
+			
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			setTitle("Special Char Input Window");
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					specialCharInputWindow = null;
+				}
+			});
+			
+			JPanel contentPane = new JPanel();
+			setContentPane(contentPane);
+			contentPane.setLayout(new GridLayout(1, 3, 10, 10));
+			contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+			
+			for(String specialCharInput:specialCharInputs) {
+				JButton button = new JButton("   " + specialCharInput + "   ");
+				button.addActionListener(e -> {
+					for(char c:specialCharInput.toCharArray())
+						shellKeyListener.keyTyped(new KeyEvent(this, 0, 0, 0, 0, c, KeyEvent.KEY_LOCATION_UNKNOWN));
+					
+					LangShellWindow.this.requestFocus();
+					shell.requestFocus();
+				});
+				button.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 24));
+				contentPane.add(button);
+			}
+			
+			pack();
+			setMinimumSize(getSize());
+			setLocationRelativeTo(LangShellWindow.this);
+		}
 	}
 }
