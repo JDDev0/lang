@@ -1004,7 +1004,7 @@ public class LangShellWindow extends JDialog {
 			super(owner, false); //Make this window to an modal window (Focus won't be given back to owner window)
 			
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			setTitle("Special Char Input Window");
+			setTitle("Special Char Input");
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
