@@ -632,7 +632,7 @@ public final class LangParser {
 					mathExpr = mathExpr.substring(openingBracketCount);
 					
 					int closingBracketCount = 0;
-					while(mathExpr.charAt(0) == ']' && closingBracketCount < openingBracketCount) {
+					while(mathExpr.length() > 0 && mathExpr.charAt(0) == ']' && closingBracketCount < openingBracketCount) {
 						builder.append(']');
 						mathExpr = mathExpr.substring(1);
 						
