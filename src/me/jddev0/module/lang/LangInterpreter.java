@@ -2607,9 +2607,15 @@ public final class LangInterpreter {
 					if(other.type == DataType.TEXT)
 						return txt.equals(other.txt);
 					
+					if(txt.length() == 1 && other.type == DataType.CHAR)
+						return txt.charAt(0) == other.charValue;
+					
 					return number != null && other.isEquals(this);
 				
 				case CHAR:
+					if(other.type == DataType.TEXT && other.txt.length() == 1)
+						return charValue == other.txt.charAt(0);
+					
 					return number != null && charValue == number.intValue();
 				
 				case INT:
@@ -2703,6 +2709,9 @@ public final class LangInterpreter {
 					if(other.type == DataType.TEXT)
 						return txt.compareTo(other.txt) < 0;
 					
+					if(txt.length() == 1 && other.type == DataType.CHAR)
+						return txt.charAt(0) < other.charValue;
+					
 					Number thisNumber = toNumber();
 					if(thisNumber == null)
 						return false;
@@ -2732,6 +2741,9 @@ public final class LangInterpreter {
 					return false;
 				
 				case CHAR:
+					if(other.type == DataType.TEXT && other.txt.length() == 1)
+						return charValue < other.txt.charAt(0);
+					
 					switch(number.type) {
 						case INT:
 							return charValue < number.getInt();
@@ -2919,6 +2931,9 @@ public final class LangInterpreter {
 					if(other.type == DataType.TEXT)
 						return txt.compareTo(other.txt) > 0;
 					
+					if(txt.length() == 1 && other.type == DataType.CHAR)
+						return txt.charAt(0)>  other.charValue;
+					
 					Number thisNumber = toNumber();
 					if(thisNumber == null)
 						return false;
@@ -2948,6 +2963,9 @@ public final class LangInterpreter {
 					return false;
 				
 				case CHAR:
+					if(other.type == DataType.TEXT && other.txt.length() == 1)
+						return charValue > other.txt.charAt(0);
+					
 					switch(number.type) {
 						case INT:
 							return charValue > number.getInt();
