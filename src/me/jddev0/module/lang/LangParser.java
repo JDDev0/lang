@@ -605,6 +605,44 @@ public final class LangParser {
 				continue;
 			}
 			
+			//Var pointer referencing and dereferencing
+			if(LangPatterns.matches(mathExpr, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
+				builder.append('$');
+				mathExpr = mathExpr.substring(1);
+				
+				while(mathExpr.charAt(0) == '*') {
+					builder.append('*');
+					mathExpr = mathExpr.substring(1);
+				}
+				
+				int openingBracketCount = 0;
+				while(mathExpr.charAt(0) == '[') {
+					builder.append('[');
+					mathExpr = mathExpr.substring(1);
+					
+					openingBracketCount++;
+				}
+				if(openingBracketCount > 0) {
+					builder.append(mathExpr.substring(0, openingBracketCount));
+					mathExpr = mathExpr.substring(openingBracketCount);
+					
+					int closingBracketCount = 0;
+					while(mathExpr.charAt(0) == ']' && closingBracketCount < openingBracketCount) {
+						builder.append(']');
+						mathExpr = mathExpr.substring(1);
+						
+						closingBracketCount++;
+					}
+				}
+				
+				continue;
+			}
+			
 			if(mathExpr.startsWith("(")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(mathExpr, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {

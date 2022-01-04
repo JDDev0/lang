@@ -109,6 +109,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("\\$\\**\\[+\\w+\\]+.*");
 	/**
+	 * RegEx: \$(\*+\w+|\[+\w+\]+|\*+\[+\w+\]+).{@literal *}
+	 */
+	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE = Pattern.compile("\\$(\\*+\\w+|\\[+\\w+\\]+|\\*+\\[+\\w+\\]+).*");
+	/**
 	 * RegEx: \W.{@literal *}
 	 */
 	public static final Pattern PARSING_STARTS_WITH_NON_WORD_CHAR = Pattern.compile("\\W.*");
