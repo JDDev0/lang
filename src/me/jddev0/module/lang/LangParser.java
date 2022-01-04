@@ -725,6 +725,26 @@ public final class LangParser {
 						operator = null;
 						continue;
 					}
+				}else {
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
+					
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+						builder.delete(0, builder.length());
+					}
+					
+					//Array creation
+					leftNodes.add(new AbstractSyntaxTree.ArrayNode(parseFunctionParameterList(mathExpr.substring(1, endIndex), false).getChildren()));
+					mathExpr = mathExpr.substring(endIndex + 1);
+					
+					if(mathExpr.isEmpty()) {
+						operator = null;
+						
+						break;
+					}
+					
+					continue;
 				}
 			}else if(mathExpr.startsWith("**")) {
 				operator = AbstractSyntaxTree.MathNode.Operator.POW;

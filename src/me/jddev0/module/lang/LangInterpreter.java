@@ -267,6 +267,9 @@ public final class LangInterpreter {
 				case FUNCTION_DEFINITION:
 					return interpretFunctionDefinitionNode((FunctionDefinitionNode)node, DATA_ID);
 				
+				case ARRAY:
+					return interpretArrayNode((ArrayNode)node, DATA_ID);
+				
 				case GENERAL:
 					setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
 			}
@@ -1083,6 +1086,7 @@ public final class LangInterpreter {
 				case TEXT_VALUE:
 				case VARIABLE_NAME:
 				case VOID_VALUE:
+				case ARRAY:
 					DataObject translationKeyDataObject = interpretNode(lvalueNode, DATA_ID);
 					if(translationKeyDataObject == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid translationKey", DATA_ID);
@@ -1608,6 +1612,22 @@ public final class LangInterpreter {
 		}
 		
 		return new DataObject().setFunctionPointer(new FunctionPointerObject(parameterList, node.getFunctionBody()));
+	}
+	
+	private DataObject interpretArrayNode(ArrayNode node, final int DATA_ID) {
+		List<DataObject> interpretedNodes = new LinkedList<>();
+		List<DataObject> elements = new LinkedList<>();
+		
+		for(Node element:node.getChildren()) {
+			DataObject argumentValue = interpretNode(element, DATA_ID);
+			if(argumentValue == null)
+				continue;
+			interpretedNodes.add(argumentValue);
+		}
+		while(!interpretedNodes.isEmpty())
+			elements.add(new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(interpretedNodes, true)));
+		
+		return new DataObject().setArray(elements.toArray(new DataObject[0]));
 	}
 	
 	void createDataMap(final int DATA_ID) {
