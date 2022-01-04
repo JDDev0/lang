@@ -4595,6 +4595,33 @@ public final class LangInterpreter {
 			return null;
 		}
 		/**
+		 * For "func.len()"
+		 */
+		public DataObject opLen() {
+			switch(type) {
+				case ARRAY:
+					return new DataObject().setInt(arr.length);
+				case TEXT:
+					return new DataObject().setInt(txt.length());
+				case CHAR:
+					return new DataObject().setInt(1);
+				
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return null;
+			}
+			
+			return null;
+		}
+		/**
 		 * For "[...]"
 		 */
 		public DataObject opGetItem(DataObject dataObject) {

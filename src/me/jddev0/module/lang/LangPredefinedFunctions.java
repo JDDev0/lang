@@ -699,25 +699,6 @@ final class LangPredefinedFunctions {
 			return interpreter.getAndResetReturnValue(DATA_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, DATA_ID) -> new DataObject().setBoolean(interpreter.term != null));
-		funcs.put("len", (argumentList, DATA_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
-			
-			switch(dataObject.getType()) {
-				case TEXT:
-					return new DataObject().setInt(dataObject.getText().length());
-				case CHAR:
-					return new DataObject().setInt(1);
-				case ARRAY:
-					return new DataObject().setInt(dataObject.getArray().length);
-				
-				default:
-					break;
-			}
-			
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Data type " + dataObject.getType().name() + " does not support \"func.len()\"!", DATA_ID);
-		});
 		funcs.put("min", (argumentList, DATA_ID) -> {
 			if(argumentList.size() == 0) //Not at least 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
@@ -1467,6 +1448,7 @@ final class LangPredefinedFunctions {
 		funcs.put("lshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opLshift, DATA_ID), DATA_ID));
 		funcs.put("rshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRshift, DATA_ID), DATA_ID));
 		funcs.put("rzshift", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRzshift, DATA_ID), DATA_ID));
+		funcs.put("len", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opLen, DATA_ID), DATA_ID));
 		funcs.put("getItem", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opGetItem, DATA_ID), DATA_ID));
 	}
 	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
