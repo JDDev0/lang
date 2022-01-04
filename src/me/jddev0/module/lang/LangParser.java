@@ -514,6 +514,31 @@ public final class LangParser {
 				continue;
 			}
 			
+			//math.math
+			if(LangPatterns.matches(condition, LangPatterns.PARSING_MATH_MATH)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				int conditionStartIndex = condition.indexOf('(');
+				int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(condition, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(conditionEndIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
+					break;
+				}
+				String mathExpr = condition.substring(conditionStartIndex + 1, conditionEndIndex);
+				condition = condition.substring(conditionEndIndex + 1);
+				
+				leftNodes.add(parseMathExpr(mathExpr));
+				continue;
+			}
+			
 			if(whitespaces.length() > 0) {
 				builder.append(whitespaces.toString());
 				whitespaces.delete(0, whitespaces.length());
@@ -1348,6 +1373,31 @@ public final class LangParser {
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
 				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+				continue;
+			}
+			
+			//con.condition
+			if(LangPatterns.matches(mathExpr, LangPatterns.PARSING_CON_CONDITION)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				int conditionStartIndex = mathExpr.indexOf('(');
+				int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(mathExpr, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(conditionEndIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
+					break;
+				}
+				String condition = mathExpr.substring(conditionStartIndex + 1, conditionEndIndex);
+				mathExpr = mathExpr.substring(conditionEndIndex + 1);
+				
+				leftNodes.add(parseCondition(condition));
 				continue;
 			}
 			
