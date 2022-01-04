@@ -1012,9 +1012,13 @@ public class LangShellWindow extends JDialog {
 				}
 			});
 			
+			int buttonCount = specialCharInputs.length;
+			int gridXCount = (int)Math.ceil(Math.sqrt(buttonCount));
+			int gridYCount = buttonCount / gridXCount + (buttonCount % gridXCount > 0?1:0);
+			
 			JPanel contentPane = new JPanel();
 			setContentPane(contentPane);
-			contentPane.setLayout(new GridLayout(1, 3, 10, 10));
+			contentPane.setLayout(new GridLayout(gridYCount, gridXCount, 10, 10));
 			contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 			
 			for(String specialCharInput:specialCharInputs) {
