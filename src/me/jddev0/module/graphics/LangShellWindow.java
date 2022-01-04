@@ -109,7 +109,7 @@ public class LangShellWindow extends JDialog {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("LangShell");
 		setSize((int)(750*fontSize / 12.), (int)(500*fontSize / 12.));
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(owner);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			 public void windowClosing(WindowEvent e) {
@@ -1036,7 +1036,7 @@ public class LangShellWindow extends JDialog {
 			
 			pack();
 			setMinimumSize(getSize());
-			setLocationRelativeTo(LangShellWindow.this);
+			setLocationRelativeTo(owner);
 		}
 	}
 }
