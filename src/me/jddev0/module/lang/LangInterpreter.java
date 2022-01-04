@@ -2932,7 +2932,7 @@ public final class LangInterpreter {
 						return txt.compareTo(other.txt) > 0;
 					
 					if(txt.length() == 1 && other.type == DataType.CHAR)
-						return txt.charAt(0)>  other.charValue;
+						return txt.charAt(0) > other.charValue;
 					
 					Number thisNumber = toNumber();
 					if(thisNumber == null)
