@@ -681,11 +681,19 @@ public final class LangParser {
 				
 				//Add as value if nothing is behind "operator"
 				if(mathExpr.length() == 2) {
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+					
 					operator = null;
 					builder.append(mathExpr);
 					
 					break;
 				}
+				
+				if(whitespaces.length() > 0)
+					whitespaces.delete(0, whitespaces.length());
 				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
