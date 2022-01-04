@@ -908,6 +908,9 @@ public final class LangInterpreter {
 			case BITWISE_OR:
 				output = leftSideOperand.opOr(rightSideOperand);
 				break;
+			case GET_ITEM:
+				output = leftSideOperand.opGetItem(rightSideOperand);
+				break;
 		}
 		
 		if(node.getOperator() != AbstractSyntaxTree.MathNode.Operator.NON) {

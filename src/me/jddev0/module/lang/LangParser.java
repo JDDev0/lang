@@ -676,6 +676,56 @@ public final class LangParser {
 					
 					continue;
 				}
+			}else if(mathExpr.startsWith("[")) {
+				int endIndex = LangUtils.getIndexOfMatchingBracket(mathExpr, 0, Integer.MAX_VALUE, '[', ']');
+				if(endIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in math expression is missing"));
+					
+					break;
+				}
+				//Binary operator if something was before else unary operator
+				if(builder.length() > 0 || leftNodes.size() > 0) {
+					operator = AbstractSyntaxTree.MathNode.Operator.GET_ITEM;
+					
+					if(whitespaces.length() > 0)
+						whitespaces.delete(0, whitespaces.length());
+					
+					if(builder.length() > 0) {
+						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+						builder.delete(0, builder.length());
+					}
+					
+					AbstractSyntaxTree.MathNode node = parseMathExpr(mathExpr.substring(1, endIndex), null, 0);
+					mathExpr = mathExpr.substring(endIndex + 1);
+					if(mathExpr.isEmpty()) {
+						//Add node directly if node has NON operator
+						if(node.getOperator() == AbstractSyntaxTree.MathNode.Operator.NON)
+							rightNode = node.getLeftSideOperand();
+						else
+							rightNode = node;
+						
+						break;
+					}else {
+						AbstractSyntaxTree.Node innerRightNode;
+						
+						//Add node directly if node has NON operator
+						if(node.getOperator() == AbstractSyntaxTree.MathNode.Operator.NON)
+							innerRightNode = node.getLeftSideOperand();
+						else
+							innerRightNode = node;
+						
+						AbstractSyntaxTree.Node leftNode;
+						if(leftNodes.size() == 1)
+							leftNode = leftNodes.get(0);
+						else
+							leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+						
+						leftNodes.clear();
+						leftNodes.add(new AbstractSyntaxTree.MathNode(leftNode, innerRightNode, operator));
+						operator = null;
+						continue;
+					}
+				}
 			}else if(mathExpr.startsWith("**")) {
 				operator = AbstractSyntaxTree.MathNode.Operator.POW;
 				
