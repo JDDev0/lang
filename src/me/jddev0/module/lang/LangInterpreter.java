@@ -4603,6 +4603,9 @@ public final class LangInterpreter {
 					if(dataObject.type == DataType.INT) {
 						int len = arr.length;
 						int index = dataObject.intValue;
+						if(index < 0)
+							index = len + index;
+						
 						if(index < 0 || index >= len)
 							return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 						
@@ -4614,6 +4617,9 @@ public final class LangInterpreter {
 					if(dataObject.type == DataType.INT) {
 						int len = txt.length();
 						int index = dataObject.intValue;
+						if(index < 0)
+							index = len + index;
+						
 						if(index < 0 || index >= len)
 							return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 						
