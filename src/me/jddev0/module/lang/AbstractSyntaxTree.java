@@ -211,6 +211,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			StringBuilder builder = new StringBuilder();
 			builder.append("ParsingErrorNode: Error: \"");
 			builder.append(error);
+			builder.append("\", Message: \"");
+			builder.append(message);
 			builder.append("\"\n");
 			
 			return builder.toString();
