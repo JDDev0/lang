@@ -351,6 +351,7 @@ final class LangPredefinedFunctions {
 		addPredefinedNumberFunctions(funcs);
 		addPredefinedCharacterFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
+		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
 		addPredefinedMathFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
@@ -1427,6 +1428,78 @@ final class LangPredefinedFunctions {
 				interpreter.data.get(DATA_ID).var.put(arrPtr, arrPointerObject);
 				return arrPointerObject;
 			}
+		});
+	}
+	private void addPredefinedConversionFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("text", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			String value = dataObject.toText();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject(value), DATA_ID);
+		});
+		funcs.put("char", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			Character value = dataObject.toChar();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setChar(value), DATA_ID);
+		});
+		funcs.put("int", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			Integer value = dataObject.toInt();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setInt(value), DATA_ID);
+		});
+		funcs.put("long", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			Long value = dataObject.toLong();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setLong(value), DATA_ID);
+		});
+		funcs.put("float", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			Float value = dataObject.toFloat();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setFloat(value), DATA_ID);
+		});
+		funcs.put("double", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			Double value = dataObject.toDouble();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setDouble(value), DATA_ID);
+		});
+		funcs.put("array", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			DataObject[] value = dataObject.toArray();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setArray(value), DATA_ID);
+		});
+		funcs.put("bool", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			return new DataObject().setBoolean(dataObject.toBoolean());
+		});
+		funcs.put("number", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			return throwErrorOnNullOrErrorTypeHelper(dataObject.convertToNumberAndCreateNewDataObject(), DATA_ID);
 		});
 	}
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
