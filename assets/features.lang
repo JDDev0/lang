@@ -986,4 +986,25 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.println(func.matches(tt, t.+)) # 1
 		func.println(func.matches(t, t.+)) # 0
 	}
+	
+	func.println()
+	
+	# New array functions
+	{
+		# func.arrayIndexOf(ARRAY, ANY) # Returns the first index where the data object was found or -1
+		# func.arrayLastIndexOf(ARRAY, ANY) # Returns the last index where the data object was found or -1
+		
+		# Uses STRICT equals internally
+		
+		&arr = func.arrayOf(1, 2, test, func.toLong(2), abc, a, {{{a}}}, a)
+		func.println(func.arrayIndexOf(&arr, a)) # 5
+		func.println(func.arrayLastIndexOf(&arr, a)) # 7
+		func.println(func.arrayIndexOf(&arr, {{{a}}})) # 6
+		func.println(func.arrayIndexOf(&arr, 2)) # 1
+		func.println(func.arrayIndexOf(&arr, func.toLong(2))) # 3
+		func.println(func.arrayIndexOf(&arr, 1)) # 0
+		func.println(func.arrayIndexOf(&arr, func.toLong(1))) # -1
+		func.println(func.arrayIndexOf(&arr, 42)) # -1
+	}
+		
 }
