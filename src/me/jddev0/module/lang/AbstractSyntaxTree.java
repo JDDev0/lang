@@ -787,8 +787,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		public static enum Operator {
-			NON("", true, -1), NOT("!", true, 1), AND("&&", 3), OR("||", 4), EQUALS("==", 2), NOT_EQUALS("!=", 2), STRICT_EQUALS("===", 2), STRICT_NOT_EQUALS("!==", 2),
-			LESS_THAN("<", 2), GREATER_THAN(">", 2), LESS_THAN_OR_EQUALS("<=", 2), GREATER_THAN_OR_EQUALS(">=", 2);
+			NON("", true, -1), NOT("!", true, 2), AND("&&", 10), OR("||", 11), EQUALS("==", 9), NOT_EQUALS("!=", 9), STRICT_EQUALS("===", 9), STRICT_NOT_EQUALS("!==", 9),
+			LESS_THAN("<", 9), GREATER_THAN(">", 9), LESS_THAN_OR_EQUALS("<=", 9), GREATER_THAN_OR_EQUALS(">=", 9);
 			
 			private final String symbol;
 			private final boolean unary;
