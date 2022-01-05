@@ -313,7 +313,10 @@ final class LangPredefinedFunctions {
 		while(i < format.length()) {
 			char c = format.charAt(i);
 			if(c == '%') {
-				c = format.charAt(++i);
+				if(++i == format.length())
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FORMAT, DATA_ID);
+				
+				c = format.charAt(i);
 				if(c == '%') {
 					builder.append(c);
 					
