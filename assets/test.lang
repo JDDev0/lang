@@ -662,6 +662,8 @@ lang.errorOutput = 1 # Reenable error ouput
 		# "func" will be parsed as TextNode and ".printTerminal" will be parsed as text node too
 	}
 	
+	func.println()
+	
 	# Standard input/output/error functions
 	{
 		$var = Test Value
@@ -686,6 +688,8 @@ lang.errorOutput = 1 # Reenable error ouput
 			func.printTerminal(1, $test)
 		con.endif
 	}
+	
+	func.println()
 	
 	# Multiple assignments in one line
 	{
@@ -721,6 +725,8 @@ lang.errorOutput = 1 # Reenable error ouput
 		fp.test1(abc)
 		fp.test2(abc)
 	}
+	
+	func.println()
 	
 	lang.errorOutput = 0 # Disable error ouput
 	
@@ -761,6 +767,8 @@ lang.errorOutput = 1 # Reenable error ouput
 	
 	lang.errorOutput = 1 # Reenable error ouput
 	
+	func.println()
+	
 	# Pointer dereferencing
 	{
 		$a = 42
@@ -800,6 +808,8 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.clearVar($[pointer]) # Undefine $pointer
 		func.printTerminal(3, $pointer) # Will print "$*pointer", because "$pointer" is not defined
 	}
+	
+	func.println()
 	
 	# Loop statements
 	{
@@ -845,6 +855,8 @@ lang.errorOutput = 1 # Reenable error ouput
 			func.println(ELSE-Block)
 		con.endloop
 	}
+	
+	func.println()
 	
 	# Format functions
 	{
