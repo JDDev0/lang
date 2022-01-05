@@ -924,4 +924,66 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.println(func.divd(-2, 0))
 		func.println(func.divd(-2, -0.))
 	}
+	
+	func.println()
+	
+	# New text functions
+	{
+		# func.contains(TEXT, TEXT)
+		func.println(func.contains(test, t)) # 1
+		func.println(func.contains(test, a)) # 0
+		func.println(func.contains(test, test)) # 1
+		func.println(func.contains(test, \e)) # 1
+		
+		func.println()
+		
+		# func.repeatText(INT, VARARGS)
+		func.println(func.repeatText(0, test, abc)) # Empty text
+		func.println(func.repeatText(1, test, abc))
+		func.println(func.repeatText(2, test, abc))
+		func.println(func.repeatText(3, test, abc))
+		func.println(func.repeatText(4, test, abc))
+		func.println(func.repeatText(0, test)) # Empty text
+		func.println(func.repeatText(1, test))
+		func.println(func.repeatText(2, test))
+		func.println(func.repeatText(3, test))
+		func.println(func.repeatText(4, test))
+		
+		func.println()
+		
+		# func.startsWith(TEXT, TEXT)
+		# func.endsWith(TEXT, TEXT)
+		func.println(func.startsWith(abc, a)) # 1
+		func.println(func.startsWith(abc, c)) # 0
+		func.println(func.startsWith(abc, ab)) # 1
+		func.println(func.startsWith(abc, bc)) # 0
+		func.println(func.startsWith(abc, abc)) # 1
+		func.println(func.startsWith(abc, \e)) # 1
+		func.println(func.endsWith(abc, a)) # 0
+		func.println(func.endsWith(abc, c)) # 1
+		func.println(func.endsWith(abc, ab)) # 0
+		func.println(func.endsWith(abc, bc)) # 1
+		func.println(func.endsWith(abc, abc)) # 1
+		func.println(func.endsWith(abc, \e)) # 1
+		
+		func.println()
+		
+		# func.charsOf(VARARGS) # Returns an array with all chars of the TEXT
+		func.println(func.charsOf())
+		func.println(func.charsOf(42))
+		func.println(func.charsOf(test))
+		func.println(func.charsOf(test, abc))
+		
+		func.println()
+		
+		# func.matches(TEXT, TEXT) # RegEx matching "{{{}}}" should be used because of RegEx backlashes
+		func.println(func.matches(test, test)) # 1
+		func.println(func.matches(test, t.?st)) # 1
+		func.println(func.matches(tst, t.?st)) # 1
+		func.println(func.matches(tt, t.?st)) # 0
+		func.println(func.matches(tt, t.*)) # 1
+		func.println(func.matches(t, t.*)) # 1
+		func.println(func.matches(tt, t.+)) # 1
+		func.println(func.matches(t, t.+)) # 0
+	}
 }
