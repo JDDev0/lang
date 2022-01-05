@@ -222,7 +222,7 @@ public final class LangParser {
 					continue;
 				}
 			}else if(condition.startsWith("!==") || condition.startsWith("!=") || condition.startsWith("===") || condition.startsWith("==") || condition.startsWith("<=") ||
-			condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">")) {
+			condition.startsWith(">=") || condition.startsWith("<") || condition.startsWith(">") || condition.startsWith("&&") || condition.startsWith("||")) {
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
 				
 				int operatorLength = 2;
@@ -246,6 +246,10 @@ public final class LangParser {
 				}else if(condition.startsWith(">")) {
 					operatorLength = 1;
 					operator = AbstractSyntaxTree.OperationNode.Operator.GREATER_THAN;
+				}else if(condition.startsWith("&&")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.AND;
+				}else if(condition.startsWith("||")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.OR;
 				}
 				
 				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
@@ -282,142 +286,6 @@ public final class LangParser {
 				
 				StringBuilder innerTokensLeft = new StringBuilder();
 				AbstractSyntaxTree.OperationNode node = parseCondition(condition.substring(operatorLength), innerTokensLeft, operator.getPrecedence());
-				condition = innerTokensLeft.toString();
-				
-				if(condition.isEmpty()) {
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						rightNode = node.getLeftSideOperand();
-					else
-						rightNode = node;
-					
-					break;
-				}else {
-					AbstractSyntaxTree.Node innerRightNode;
-					
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						innerRightNode = node.getLeftSideOperand();
-					else
-						innerRightNode = node;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					leftNodes.clear();
-					leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerRightNode, operator, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION));
-					operator = null;
-					continue;
-				}
-			}else if(condition.startsWith("&&")) {
-				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
-				
-				operator = AbstractSyntaxTree.OperationNode.Operator.AND;
-				
-				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
-					tokensLeft.append(condition.trim());
-					
-					if(whitespaces.length() > 0)
-						whitespaces.delete(0, whitespaces.length());
-					
-					operator = oldOperator;
-					break;
-				}
-				
-				//Add as value if nothing is behind "operator"
-				if(condition.length() == 2) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					operator = null;
-					builder.append(condition);
-					
-					break;
-				}
-				
-				if(whitespaces.length() > 0)
-					whitespaces.delete(0, whitespaces.length());
-				
-				if(builder.length() > 0) {
-					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					builder.delete(0, builder.length());
-				}
-				
-				StringBuilder innerTokensLeft = new StringBuilder();
-				AbstractSyntaxTree.OperationNode node = parseCondition(condition.substring(2), innerTokensLeft, operator.getPrecedence());
-				condition = innerTokensLeft.toString();
-				
-				if(condition.isEmpty()) {
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						rightNode = node.getLeftSideOperand();
-					else
-						rightNode = node;
-					
-					break;
-				}else {
-					AbstractSyntaxTree.Node innerRightNode;
-					
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						innerRightNode = node.getLeftSideOperand();
-					else
-						innerRightNode = node;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					leftNodes.clear();
-					leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerRightNode, operator, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION));
-					operator = null;
-					continue;
-				}
-			}else if(condition.startsWith("||")) {
-				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
-				
-				operator = AbstractSyntaxTree.OperationNode.Operator.OR;
-				
-				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
-					tokensLeft.append(condition.trim());
-					
-					if(whitespaces.length() > 0)
-						whitespaces.delete(0, whitespaces.length());
-					
-					operator = oldOperator;
-					break;
-				}
-				
-				//Add as value if nothing is behind "operator"
-				if(condition.length() == 2) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					operator = null;
-					builder.append(condition);
-					
-					break;
-				}
-				
-				if(whitespaces.length() > 0)
-					whitespaces.delete(0, whitespaces.length());
-				
-				if(builder.length() > 0) {
-					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					builder.delete(0, builder.length());
-				}
-				
-				StringBuilder innerTokensLeft = new StringBuilder();
-				AbstractSyntaxTree.OperationNode node = parseCondition(condition.substring(2), innerTokensLeft, operator.getPrecedence());
 				condition = innerTokensLeft.toString();
 				
 				if(condition.isEmpty()) {
@@ -827,85 +695,6 @@ public final class LangParser {
 					operator = null;
 					continue;
 				}
-			}else if(mathExpr.startsWith("*") || mathExpr.startsWith("//") || mathExpr.startsWith("/") || mathExpr.startsWith("%")) {
-				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
-				
-				int operatorLength = 1;
-				if(mathExpr.startsWith("*")) {
-					operator = AbstractSyntaxTree.OperationNode.Operator.MUL;
-				}else if(mathExpr.startsWith("//")) {
-					operatorLength = 2;
-					operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;
-				}else if(mathExpr.startsWith("/")) {
-					operator = AbstractSyntaxTree.OperationNode.Operator.DIV;
-				}else if(mathExpr.startsWith("%")) {
-					operator = AbstractSyntaxTree.OperationNode.Operator.MOD;
-				}
-				
-				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
-					tokensLeft.append(mathExpr.trim());
-					
-					if(whitespaces.length() > 0)
-						whitespaces.delete(0, whitespaces.length());
-					
-					operator = oldOperator;
-					
-					break;
-				}
-				
-				//Add as value if nothing is behind "operator"
-				if(mathExpr.length() == operatorLength) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					operator = null;
-					builder.append(mathExpr);
-					
-					break;
-				}
-				
-				if(whitespaces.length() > 0)
-					whitespaces.delete(0, whitespaces.length());
-				
-				if(builder.length() > 0) {
-					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					builder.delete(0, builder.length());
-				}
-				
-				StringBuilder innerTokensLeft = new StringBuilder();
-				AbstractSyntaxTree.OperationNode node = parseMathExpr(mathExpr.substring(operatorLength), innerTokensLeft, operator.getPrecedence());
-				mathExpr = innerTokensLeft.toString();
-				
-				if(mathExpr.isEmpty()) {
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						rightNode = node.getLeftSideOperand();
-					else
-						rightNode = node;
-					
-					break;
-				}else {
-					AbstractSyntaxTree.Node innerRightNode;
-					
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						innerRightNode = node.getLeftSideOperand();
-					else
-						innerRightNode = node;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					leftNodes.clear();
-					leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerRightNode, operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH));
-					operator = null;
-					continue;
-				}
 			}else if(mathExpr.startsWith("+") || mathExpr.startsWith("-")) {
 				//Binary operator if something was before else unary operator
 				if(builder.length() > 0 || leftNodes.size() > 0) {
@@ -1012,16 +801,32 @@ public final class LangParser {
 						continue;
 					}
 				}
-			}else if(mathExpr.startsWith("<<") || mathExpr.startsWith(">>>") || mathExpr.startsWith(">>")) {
+			}else if(mathExpr.startsWith("*") || mathExpr.startsWith("//") || mathExpr.startsWith("/") || mathExpr.startsWith("%") || mathExpr.startsWith("^") ||
+			mathExpr.startsWith("|") || mathExpr.startsWith("<<") || mathExpr.startsWith(">>>") || mathExpr.startsWith(">>")) {
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
 				
-				int operatorLength = 2;
-				if(mathExpr.startsWith("<<")) {
+				int operatorLength = 1;
+				if(mathExpr.startsWith("*")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.MUL;
+				}else if(mathExpr.startsWith("//")) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;
+				}else if(mathExpr.startsWith("/")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.DIV;
+				}else if(mathExpr.startsWith("%")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.MOD;
+				}else if(mathExpr.startsWith("^")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_XOR;
+				}else if(mathExpr.startsWith("|")) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
+				}else if(mathExpr.startsWith("<<")) {
+					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.LSHIFT;
 				}else if(mathExpr.startsWith(">>>")) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.OperationNode.Operator.RZSHIFT;
 				}else if(mathExpr.startsWith(">>")) {
+					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.RSHIFT;
 				}
 				
@@ -1165,144 +970,6 @@ public final class LangParser {
 						builder.append(whitespaces.toString());
 						whitespaces.delete(0, whitespaces.length());
 					}
-				}
-			}else if(mathExpr.startsWith("^")) {
-				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
-				
-				operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_XOR;
-				
-				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
-					tokensLeft.append(mathExpr.trim());
-					
-					if(whitespaces.length() > 0)
-						whitespaces.delete(0, whitespaces.length());
-					
-					operator = oldOperator;
-					
-					break;
-				}
-				
-				//Add as value if nothing is behind "operator"
-				if(mathExpr.length() == 1) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					operator = null;
-					builder.append(mathExpr);
-					
-					break;
-				}
-				
-				if(whitespaces.length() > 0)
-					whitespaces.delete(0, whitespaces.length());
-				
-				if(builder.length() > 0) {
-					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					builder.delete(0, builder.length());
-				}
-				
-				StringBuilder innerTokensLeft = new StringBuilder();
-				AbstractSyntaxTree.OperationNode node = parseMathExpr(mathExpr.substring(1), innerTokensLeft, operator.getPrecedence());
-				mathExpr = innerTokensLeft.toString();
-				
-				if(mathExpr.isEmpty()) {
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						rightNode = node.getLeftSideOperand();
-					else
-						rightNode = node;
-					
-					break;
-				}else {
-					AbstractSyntaxTree.Node innerRightNode;
-					
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						innerRightNode = node.getLeftSideOperand();
-					else
-						innerRightNode = node;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					leftNodes.clear();
-					leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerRightNode, operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH));
-					operator = null;
-					continue;
-				}
-			}else if(mathExpr.startsWith("|")) {
-				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
-				
-				operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
-				
-				if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
-					tokensLeft.append(mathExpr.trim());
-					
-					if(whitespaces.length() > 0)
-						whitespaces.delete(0, whitespaces.length());
-					
-					operator = oldOperator;
-					
-					break;
-				}
-				
-				//Add as value if nothing is behind "operator"
-				if(mathExpr.length() == 1) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					operator = null;
-					builder.append(mathExpr);
-					
-					break;
-				}
-				
-				if(whitespaces.length() > 0)
-					whitespaces.delete(0, whitespaces.length());
-				
-				if(builder.length() > 0) {
-					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-					builder.delete(0, builder.length());
-				}
-				
-				StringBuilder innerTokensLeft = new StringBuilder();
-				AbstractSyntaxTree.OperationNode node = parseMathExpr(mathExpr.substring(1), innerTokensLeft, operator.getPrecedence());
-				mathExpr = innerTokensLeft.toString();
-				
-				if(mathExpr.isEmpty()) {
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						rightNode = node.getLeftSideOperand();
-					else
-						rightNode = node;
-					
-					break;
-				}else {
-					AbstractSyntaxTree.Node innerRightNode;
-					
-					//Add node directly if node has NON operator
-					if(node.getOperator() == AbstractSyntaxTree.OperationNode.Operator.NON)
-						innerRightNode = node.getLeftSideOperand();
-					else
-						innerRightNode = node;
-					
-					AbstractSyntaxTree.Node leftNode;
-					if(leftNodes.size() == 1)
-						leftNode = leftNodes.get(0);
-					else
-						leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
-					
-					leftNodes.clear();
-					leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerRightNode, operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH));
-					operator = null;
-					continue;
 				}
 			}else if(mathExpr.startsWith("~") || mathExpr.startsWith("▲") || mathExpr.startsWith("▼")) {
 				//Ignore unary operator if something was before (=> "Escaped" unary operator) -> Add unary operator to builder (below outer if)
