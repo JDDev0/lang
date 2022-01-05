@@ -837,6 +837,13 @@ lang.errorOutput = 1 # Reenable error ouput
 		con.repeat(null, 5)
 			func.printTerminal(2, $i)
 		con.endloop
+		
+		# Else block (Will be executed if the loop body was not executed at all)
+		con.repeat(null, 0)
+			func.printTerminal(2, $i)
+		con.else
+			func.println(ELSE-Block)
+		con.endloop
 	}
 	
 	# Format functions
