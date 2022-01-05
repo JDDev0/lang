@@ -691,132 +691,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-	public static final class ConditionNode implements Node {
-		private final List<Node> nodes;
-		private final Operator operator;
-		
-		/**
-		 * For binary operators
-		 */
-		public ConditionNode(Node leftSideOperand, Node rightSideOperand, Operator operator) {
-			if(operator.isUnary())
-				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" can only have one operand");
-			
-			nodes = new ArrayList<>(2);
-			nodes.add(leftSideOperand);
-			nodes.add(rightSideOperand);
-			
-			this.operator = operator;
-		}
-		
-		/**
-		 * For unary operators
-		 */
-		public ConditionNode(Node operand, Operator operator) {
-			if(!operator.isUnary())
-				throw new IllegalStateException("Binary operator \"" + operator.getSymbol() + "\" must have two operands");
-			
-			nodes = new ArrayList<>(1);
-			nodes.add(operand);
-			
-			this.operator = operator;
-		}
-		
-		@Override
-		public List<Node> getChildren() {
-			return nodes;
-		}
-		
-		@Override
-		public NodeType getNodeType() {
-			return NodeType.CONDITION;
-		}
-		
-		public Node getLeftSideOperand() {
-			return nodes.get(0);
-		}
-		
-		public Node getRightSideOperand() {
-			if(nodes.size() < 2)
-				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" has only one operand");
-			
-			return nodes.get(1);
-		}
-		
-		public Operator getOperator() {
-			return operator;
-		}
-		
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			builder.append("ConditionNode: Operator: \"");
-			builder.append(operator);
-			builder.append("\", Operands: {\n");
-			nodes.forEach(node -> {
-				String[] tokens = node.toString().split("\\n");
-				for(String token:tokens) {
-					builder.append("\t");
-					builder.append(token);
-					builder.append("\n");
-				}
-			});
-			builder.append("}\n");
-			
-			return builder.toString();
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if(this == obj)
-				return true;
-			
-			if(obj == null)
-				return false;
-			
-			if(!(obj instanceof ConditionNode))
-				return false;
-			
-			ConditionNode that = (ConditionNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.operator.equals(that.operator) && this.nodes.equals(that.nodes);
-		}
-		
-		@Override
-		public int hashCode() {
-			return Objects.hash(this.getNodeType(), this.operator, this.nodes);
-		}
-		
-		public static enum Operator {
-			NON("", true, -1), NOT("!", true, 2), AND("&&", 10), OR("||", 11), EQUALS("==", 9), NOT_EQUALS("!=", 9), STRICT_EQUALS("===", 9), STRICT_NOT_EQUALS("!==", 9),
-			LESS_THAN("<", 9), GREATER_THAN(">", 9), LESS_THAN_OR_EQUALS("<=", 9), GREATER_THAN_OR_EQUALS(">=", 9);
-			
-			private final String symbol;
-			private final boolean unary;
-			private final int precedence;
-			
-			private Operator(String symbol, boolean onlyOneNode, int precedence) {
-				this.symbol = symbol;
-				this.unary = onlyOneNode;
-				this.precedence = precedence;
-			}
-			private Operator(String symbol, int precedence) {
-				this(symbol, false, precedence);
-			}
-			
-			public String getSymbol() {
-				return symbol;
-			}
-			
-			public boolean isUnary() {
-				return unary;
-			}
-			
-			public int getPrecedence() {
-				return precedence;
-			}
-		}
-	}
-	
 	//Is only super class for other nodes
 	public static class IfStatementPartNode extends ChildlessNode {
 		private final AbstractSyntaxTree ifBody;
@@ -856,10 +730,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	public static final class IfStatementPartIfNode extends IfStatementPartNode {
-		private final ConditionNode condition;
+		private final OperationNode condition;
 		
-		public IfStatementPartIfNode(AbstractSyntaxTree ifBody, ConditionNode condition) {
+		public IfStatementPartIfNode(AbstractSyntaxTree ifBody, OperationNode condition) {
 			super(ifBody);
+			
+			if(condition.getNodeType() != NodeType.CONDITION)
+				throw new IllegalStateException("Node type is not compatible with this node");
 			
 			this.condition = condition;
 		}
@@ -869,7 +746,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return NodeType.IF_STATEMENT_PART_IF;
 		}
 		
-		public ConditionNode getCondition() {
+		public OperationNode getCondition() {
 			return condition;
 		}
 		
@@ -1106,10 +983,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	public static final class LoopStatementPartWhileNode extends LoopStatementPartNode {
-		private final ConditionNode condition;
+		private final OperationNode condition;
 		
-		public LoopStatementPartWhileNode(AbstractSyntaxTree loopBody, ConditionNode condition) {
+		public LoopStatementPartWhileNode(AbstractSyntaxTree loopBody, OperationNode condition) {
 			super(loopBody);
+			
+			if(condition.getNodeType() != NodeType.CONDITION)
+				throw new IllegalStateException("Node type is not compatible with this node");
 			
 			this.condition = condition;
 		}
@@ -1119,7 +999,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return NodeType.LOOP_STATEMENT_PART_WHILE;
 		}
 		
-		public ConditionNode getCondition() {
+		public OperationNode getCondition() {
 			return condition;
 		}
 		
@@ -1167,10 +1047,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	public static final class LoopStatementPartUntilNode extends LoopStatementPartNode {
-		private final ConditionNode condition;
+		private final OperationNode condition;
 		
-		public LoopStatementPartUntilNode(AbstractSyntaxTree loopBody, ConditionNode condition) {
+		public LoopStatementPartUntilNode(AbstractSyntaxTree loopBody, OperationNode condition) {
 			super(loopBody);
+			
+			if(condition.getNodeType() != NodeType.CONDITION)
+				throw new IllegalStateException("Node type is not compatible with this node");
 			
 			this.condition = condition;
 		}
@@ -1180,7 +1063,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return NodeType.LOOP_STATEMENT_PART_UNTIL;
 		}
 		
-		public ConditionNode getCondition() {
+		public OperationNode getCondition() {
 			return condition;
 		}
 		
@@ -1546,35 +1429,48 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-	public static final class MathNode implements Node {
+	public static final class OperationNode implements Node {
 		private final List<Node> nodes;
 		private final Operator operator;
+		private final OperatorType nodeType;
 		
 		/**
 		 * For binary operator
 		 */
-		public MathNode(Node leftSideOperand, Node rightSideOperand, Operator operator) {
+		public OperationNode(Node leftSideOperand, Node rightSideOperand, Operator operator, OperatorType nodeType) {
 			if(operator.isUnary())
 				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" can only have one operand");
+			
+			if(nodeType == null)
+				nodeType = OperatorType.GENERAL;
+			else if(nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
+				throw new IllegalStateException("Node type is not compatible with the operator");
 			
 			nodes = new ArrayList<>(2);
 			nodes.add(leftSideOperand);
 			nodes.add(rightSideOperand);
 			
 			this.operator = operator;
+			this.nodeType = nodeType;
 		}
 		
 		/**
 		 * For unary operator
 		 */
-		public MathNode(Node operand, Operator operator) {
+		public OperationNode(Node operand, Operator operator, OperatorType nodeType) {
 			if(!operator.isUnary())
 				throw new IllegalStateException("Binary operator \"" + operator.getSymbol() + "\" must have two operands");
+			
+			if(nodeType == null)
+				nodeType = OperatorType.GENERAL;
+			else if(operator.getOperatorType() != OperatorType.GENERAL && nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
+				throw new IllegalStateException("Node type is not compatible with the operator");
 			
 			nodes = new ArrayList<>(1);
 			nodes.add(operand);
 			
 			this.operator = operator;
+			this.nodeType = nodeType;
 		}
 		
 		@Override
@@ -1584,7 +1480,16 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		@Override
 		public NodeType getNodeType() {
-			return NodeType.MATH;
+			switch(nodeType) {
+				case GENERAL:
+					return NodeType.OPERATION;
+				case MATH:
+					return NodeType.MATH;
+				case CONDITION:
+					return NodeType.CONDITION;
+			}
+			
+			return NodeType.GENERAL;
 		}
 		
 		public Node getLeftSideOperand() {
@@ -1602,11 +1507,19 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return operator;
 		}
 		
+		public OperatorType getOperatorType() {
+			return operator.getOperatorType();
+		}
+		
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("MathNode: Operator: \"");
+			builder.append("OperationNode: NodeType: \"");
+			builder.append(nodeType);
+			builder.append("\", Operator: \"");
 			builder.append(operator);
+			builder.append("\", OperatorType: \"");
+			builder.append(operator.getOperatorType());
 			builder.append("\", Operands: {\n");
 			nodes.forEach(node -> {
 				String[] tokens = node.toString().split("\\n");
@@ -1629,10 +1542,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			if(obj == null)
 				return false;
 			
-			if(!(obj instanceof MathNode))
+			if(!(obj instanceof OperationNode))
 				return false;
 			
-			MathNode that = (MathNode)obj;
+			OperationNode that = (OperationNode)obj;
 			return this.getNodeType().equals(that.getNodeType()) && this.operator.equals(that.operator) && this.nodes.equals(that.nodes);
 		}
 		
@@ -1642,21 +1555,56 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		public static enum Operator {
-			NON("", true, -1), POW("**", 1), POS("+", true, 2), INV("-", true, 2), BITWISE_NOT("~", true, 2), INC("▲", true, 2), DEC("▼", true, 2), MUL("*", 3), DIV("/", 3),
-			FLOOR_DIV("//", 3), MOD("%", 3), ADD("+", 4), SUB("-", 4), LSHIFT("<<", 5), RSHIFT(">>", 5), RZSHIFT(">>>", 5), BITWISE_AND("&", 6), BITWISE_XOR("^", 7), BITWISE_OR("|", 8),
-			GET_ITEM("[...]", 0);
+			//General
+			NON                   ("",      true, -1, OperatorType.GENERAL),
+			
+			//Math
+			GET_ITEM              ("[...]",        0, OperatorType.MATH),
+			POW                   ("**",           1, OperatorType.MATH),
+			POS                   ("+",     true,  2, OperatorType.MATH),
+			INV                   ("-",     true,  2, OperatorType.MATH),
+			BITWISE_NOT           ("~",     true,  2, OperatorType.MATH),
+			INC                   ("▲",     true,  2, OperatorType.MATH),
+			DEC                   ("▼",     true,  2, OperatorType.MATH),
+			MUL                   ("*",            3, OperatorType.MATH),
+			DIV                   ("/",            3, OperatorType.MATH),
+			FLOOR_DIV             ("//",           3, OperatorType.MATH),
+			MOD                   ("%",            3, OperatorType.MATH),
+			ADD                   ("+",            4, OperatorType.MATH),
+			SUB                   ("-",            4, OperatorType.MATH),
+			LSHIFT                ("<<",           5, OperatorType.MATH),
+			RSHIFT                (">>",           5, OperatorType.MATH),
+			RZSHIFT               (">>>",          5, OperatorType.MATH),
+			BITWISE_AND           ("&",            6, OperatorType.MATH),
+			BITWISE_XOR           ("^",            7, OperatorType.MATH),
+			BITWISE_OR            ("|",            8, OperatorType.MATH),
+			
+			//Condition
+			NOT                   ("!",     true,  2, OperatorType.CONDITION),
+			EQUALS                ("==",           9, OperatorType.CONDITION),
+			NOT_EQUALS            ("!=",           9, OperatorType.CONDITION),
+			STRICT_EQUALS         ("===",          9, OperatorType.CONDITION),
+			STRICT_NOT_EQUALS     ("!==",          9, OperatorType.CONDITION),
+			LESS_THAN             ("<",            9, OperatorType.CONDITION),
+			GREATER_THAN          (">",            9, OperatorType.CONDITION),
+			LESS_THAN_OR_EQUALS   ("<=",           9, OperatorType.CONDITION),
+			GREATER_THAN_OR_EQUALS(">=",           9, OperatorType.CONDITION),
+			AND                   ("&&",          10, OperatorType.CONDITION),
+			OR                    ("||",          11, OperatorType.CONDITION);
 			
 			private final String symbol;
 			private final boolean unary;
 			private final int precedence;
+			private final OperatorType operatorType;
 			
-			private Operator(String symbol, boolean onlyOneNode, int precedence) {
+			private Operator(String symbol, boolean unaryOperator, int precedence, OperatorType operatorType) {
 				this.symbol = symbol;
-				this.unary = onlyOneNode;
+				this.unary = unaryOperator;
 				this.precedence = precedence;
+				this.operatorType = operatorType;
 			}
-			private Operator(String symbol, int precedence) {
-				this(symbol, false, precedence);
+			private Operator(String symbol, int precedence, OperatorType operatorType) {
+				this(symbol, false, precedence, operatorType);
 			}
 			
 			public String getSymbol() {
@@ -1670,6 +1618,14 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			public int getPrecedence() {
 				return precedence;
 			}
+			
+			public OperatorType getOperatorType() {
+				return operatorType;
+			}
+		}
+		
+		public static enum OperatorType {
+			GENERAL, MATH, CONDITION;
 		}
 	}
 	
@@ -2240,7 +2196,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
 		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
-		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, MATH, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
+		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
 		TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY;
 	}
 }

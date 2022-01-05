@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.AbstractSyntaxTree.*;
-import me.jddev0.module.lang.AbstractSyntaxTree.ConditionNode.Operator;
+import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.Operator;
+import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.OperatorType;
 
 /**
  * Lang-Module<br>
@@ -152,8 +153,8 @@ public final class LangInterpreter {
 		return builder.toString();
 	}
 	
-	boolean interpretCondition(ConditionNode node, final int DATA_ID) throws StoppedException {
-		return interpretConditionNode(node, DATA_ID).getBoolean();
+	boolean interpretCondition(OperationNode node, final int DATA_ID) throws StoppedException {
+		return interpretOperationNode(node, DATA_ID).getBoolean();
 	}
 	
 	void interpretLines(BufferedReader lines, final int DATA_ID) throws IOException, StoppedException {
@@ -235,11 +236,10 @@ public final class LangInterpreter {
 					interpretLoopStatementContinueBreak((LoopStatementContinueBreakStatement)node, DATA_ID);
 					return null;
 				
-				case CONDITION:
-					return interpretConditionNode((ConditionNode)node, DATA_ID);
-					
+				case OPERATION:
 				case MATH:
-					return interpretMathNode((MathNode)node, DATA_ID);
+				case CONDITION:
+					return interpretOperationNode((OperationNode)node, DATA_ID);
 				
 				case RETURN:
 					interpretReturnNode((ReturnNode)node, DATA_ID);
@@ -520,7 +520,7 @@ public final class LangInterpreter {
 		try {
 			switch(node.getNodeType()) {
 				case IF_STATEMENT_PART_IF:
-					if(!interpretConditionNode(((IfStatementPartIfNode)node).getCondition(), DATA_ID).getBoolean())
+					if(!interpretOperationNode(((IfStatementPartIfNode)node).getCondition(), DATA_ID).getBoolean())
 						return false;
 				case IF_STATEMENT_PART_ELSE:
 					interpretAST(node.getIfBody(), DATA_ID);
@@ -600,7 +600,7 @@ public final class LangInterpreter {
 						}
 					}
 				case LOOP_STATEMENT_PART_WHILE:
-					while(interpretConditionNode(((LoopStatementPartWhileNode)node).getCondition(), DATA_ID).getBoolean()) {
+					while(interpretOperationNode(((LoopStatementPartWhileNode)node).getCondition(), DATA_ID).getBoolean()) {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
@@ -615,7 +615,7 @@ public final class LangInterpreter {
 					
 					break;
 				case LOOP_STATEMENT_PART_UNTIL:
-					while(!interpretConditionNode(((LoopStatementPartUntilNode)node).getCondition(), DATA_ID).getBoolean()) {
+					while(!interpretOperationNode(((LoopStatementPartUntilNode)node).getCondition(), DATA_ID).getBoolean()) {
 						flag = true;
 						
 						interpretAST(node.getLoopBody(), DATA_ID);
@@ -768,163 +768,178 @@ public final class LangInterpreter {
 		excutionState.stopParsingFlag = true;
 	}
 	
-	private DataObject interpretConditionNode(ConditionNode node, final int DATA_ID) {
-		boolean conditionOuput = false;
+	private DataObject interpretOperationNode(OperationNode node, final int DATA_ID) {
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
+		//Interpret rightNode for AND and OR only if the first argument is TRUE (for AND) or FALSE (for OR)
 		DataObject rightSideOperand = node.getOperator().isUnary() || node.getOperator() == Operator.AND ||
 				node.getOperator() == Operator.OR?null:interpretNode(node.getRightSideOperand(), DATA_ID);
 		if(leftSideOperand == null || (!node.getOperator().isUnary() && node.getOperator() != Operator.AND &&
 				node.getOperator() != Operator.OR && rightSideOperand == null))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
-		switch(node.getOperator()) {
-			//Unary (Logical operators)
-			case NON:
-			case NOT:
-				conditionOuput = leftSideOperand.getBoolean();
+		if(node.getNodeType() == NodeType.OPERATION && node.getOperatorType() == OperatorType.GENERAL) {
+			switch(node.getOperator()) {
+				//Unary
+				case NON:
+					return leftSideOperand;
 				
-				if(node.getOperator() == ConditionNode.Operator.NOT)
-					conditionOuput = !conditionOuput;
-				break;
+				default:
+					break;
+			}
 			
-			//Binary (Logical operators)
-			case AND:
-				boolean leftSideOperandBoolean = leftSideOperand.getBoolean();
-				if(leftSideOperandBoolean) {
-					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
-					if(rightSideOperand == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
-					conditionOuput = rightSideOperand.getBoolean();
-				}else {
-					conditionOuput = false;
-				}
-				break;
-			case OR:
-				leftSideOperandBoolean = leftSideOperand.getBoolean();
-				if(leftSideOperandBoolean) {
-					conditionOuput = true;
-				}else {
-					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
-					if(rightSideOperand == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
-					conditionOuput = rightSideOperand.getBoolean();
-				}
-				break;
+			return null;
+		}else if(node.getNodeType() == NodeType.MATH) {
+			DataObject output = null;
 			
-			//Binary (Comparison operators)
-			case EQUALS:
-			case NOT_EQUALS:
-				conditionOuput = leftSideOperand.isEquals(rightSideOperand);
+			switch(node.getOperator()) {
+				//Unary
+				case NON:
+					output = leftSideOperand;
+					break;
+				case POS:
+					output = leftSideOperand.opPos();
+					break;
+				case INV:
+					output = leftSideOperand.opInv();
+					break;
+				case BITWISE_NOT:
+					output = leftSideOperand.opNot();
+					break;
+				case INC:
+					output = leftSideOperand.opInc();
+					break;
+				case DEC:
+					output = leftSideOperand.opDec();
+					break;
 				
-				if(node.getOperator() == ConditionNode.Operator.NOT_EQUALS)
-					conditionOuput = !conditionOuput;
-				break;
-			case STRICT_EQUALS:
-			case STRICT_NOT_EQUALS:
-				conditionOuput = leftSideOperand.isStrictEquals(rightSideOperand);
+				//Binary
+				case POW:
+					output = leftSideOperand.opPow(rightSideOperand);
+					break;
+				case MUL:
+					output = leftSideOperand.opMul(rightSideOperand);
+					break;
+				case DIV:
+					output = leftSideOperand.opDiv(rightSideOperand);
+					break;
+				case FLOOR_DIV:
+					output = leftSideOperand.opFloorDiv(rightSideOperand);
+					break;
+				case MOD:
+					output = leftSideOperand.opMod(rightSideOperand);
+					break;
+				case ADD:
+					output = leftSideOperand.opAdd(rightSideOperand);
+					break;
+				case SUB:
+					output = leftSideOperand.opSub(rightSideOperand);
+					break;
+				case LSHIFT:
+					output = leftSideOperand.opLshift(rightSideOperand);
+					break;
+				case RSHIFT:
+					output = leftSideOperand.opRshift(rightSideOperand);
+					break;
+				case RZSHIFT:
+					output = leftSideOperand.opRzshift(rightSideOperand);
+					break;
+				case BITWISE_AND:
+					output = leftSideOperand.opAnd(rightSideOperand);
+					break;
+				case BITWISE_XOR:
+					output = leftSideOperand.opXor(rightSideOperand);
+					break;
+				case BITWISE_OR:
+					output = leftSideOperand.opOr(rightSideOperand);
+					break;
+				case GET_ITEM:
+					output = leftSideOperand.opGetItem(rightSideOperand);
+					break;
 				
-				if(node.getOperator() == ConditionNode.Operator.STRICT_NOT_EQUALS)
-					conditionOuput = !conditionOuput;
-				break;
-			case LESS_THAN:
-				conditionOuput = leftSideOperand.isLessThan(rightSideOperand);
-				break;
-			case GREATER_THAN:
-				conditionOuput = leftSideOperand.isGreaterThan(rightSideOperand);
-				break;
-			case LESS_THAN_OR_EQUALS:
-				conditionOuput = leftSideOperand.isLessThanOrEquals(rightSideOperand);
-				break;
-			case GREATER_THAN_OR_EQUALS:
-				conditionOuput = leftSideOperand.isGreaterThanOrEquals(rightSideOperand);
-				break;
-		}
-		
-		return new DataObject().setBoolean(conditionOuput);
-	}
-	
-	private DataObject interpretMathNode(MathNode node, final int DATA_ID) {
-		DataObject output = null;
-		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
-		DataObject rightSideOperand = node.getOperator().isUnary()?null:interpretNode(node.getRightSideOperand(), DATA_ID);
-		if(leftSideOperand == null || (!node.getOperator().isUnary() && rightSideOperand == null))
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
-		
-		switch(node.getOperator()) {
-			//Unary
-			case NON:
-				output = leftSideOperand;
-				break;
-			case POS:
-				output = leftSideOperand.opPos();
-				break;
-			case INV:
-				output = leftSideOperand.opInv();
-				break;
-			case BITWISE_NOT:
-				output = leftSideOperand.opNot();
-				break;
-			case INC:
-				output = leftSideOperand.opInc();
-				break;
-			case DEC:
-				output = leftSideOperand.opDec();
-				break;
+				default:
+					break;
+			}
 			
-			//Binary
-			case POW:
-				output = leftSideOperand.opPow(rightSideOperand);
-				break;
-			case MUL:
-				output = leftSideOperand.opMul(rightSideOperand);
-				break;
-			case DIV:
-				output = leftSideOperand.opDiv(rightSideOperand);
-				break;
-			case FLOOR_DIV:
-				output = leftSideOperand.opFloorDiv(rightSideOperand);
-				break;
-			case MOD:
-				output = leftSideOperand.opMod(rightSideOperand);
-				break;
-			case ADD:
-				output = leftSideOperand.opAdd(rightSideOperand);
-				break;
-			case SUB:
-				output = leftSideOperand.opSub(rightSideOperand);
-				break;
-			case LSHIFT:
-				output = leftSideOperand.opLshift(rightSideOperand);
-				break;
-			case RSHIFT:
-				output = leftSideOperand.opRshift(rightSideOperand);
-				break;
-			case RZSHIFT:
-				output = leftSideOperand.opRzshift(rightSideOperand);
-				break;
-			case BITWISE_AND:
-				output = leftSideOperand.opAnd(rightSideOperand);
-				break;
-			case BITWISE_XOR:
-				output = leftSideOperand.opXor(rightSideOperand);
-				break;
-			case BITWISE_OR:
-				output = leftSideOperand.opOr(rightSideOperand);
-				break;
-			case GET_ITEM:
-				output = leftSideOperand.opGetItem(rightSideOperand);
-				break;
-		}
-		
-		if(node.getOperator() != AbstractSyntaxTree.MathNode.Operator.NON) {
 			if(output == null)
 				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
 				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+			
+			return output;
+		}else if(node.getNodeType() == NodeType.CONDITION) {
+			boolean conditionOuput = false;
+			
+			switch(node.getOperator()) {
+				//Unary (Logical operators)
+				case NON:
+				case NOT:
+					conditionOuput = leftSideOperand.getBoolean();
+					
+					if(node.getOperator() == Operator.NOT)
+						conditionOuput = !conditionOuput;
+					break;
+				
+				//Binary (Logical operators)
+				case AND:
+					boolean leftSideOperandBoolean = leftSideOperand.getBoolean();
+					if(leftSideOperandBoolean) {
+						rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+						if(rightSideOperand == null)
+							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+						conditionOuput = rightSideOperand.getBoolean();
+					}else {
+						conditionOuput = false;
+					}
+					break;
+				case OR:
+					leftSideOperandBoolean = leftSideOperand.getBoolean();
+					if(leftSideOperandBoolean) {
+						conditionOuput = true;
+					}else {
+						rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+						if(rightSideOperand == null)
+							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+						conditionOuput = rightSideOperand.getBoolean();
+					}
+					break;
+				
+				//Binary (Comparison operators)
+				case EQUALS:
+				case NOT_EQUALS:
+					conditionOuput = leftSideOperand.isEquals(rightSideOperand);
+					
+					if(node.getOperator() == Operator.NOT_EQUALS)
+						conditionOuput = !conditionOuput;
+					break;
+				case STRICT_EQUALS:
+				case STRICT_NOT_EQUALS:
+					conditionOuput = leftSideOperand.isStrictEquals(rightSideOperand);
+					
+					if(node.getOperator() == Operator.STRICT_NOT_EQUALS)
+						conditionOuput = !conditionOuput;
+					break;
+				case LESS_THAN:
+					conditionOuput = leftSideOperand.isLessThan(rightSideOperand);
+					break;
+				case GREATER_THAN:
+					conditionOuput = leftSideOperand.isGreaterThan(rightSideOperand);
+					break;
+				case LESS_THAN_OR_EQUALS:
+					conditionOuput = leftSideOperand.isLessThanOrEquals(rightSideOperand);
+					break;
+				case GREATER_THAN_OR_EQUALS:
+					conditionOuput = leftSideOperand.isGreaterThanOrEquals(rightSideOperand);
+					break;
+				
+				default:
+					break;
+			}
+			
+			return new DataObject().setBoolean(conditionOuput);
 		}
 		
-		return output;
+		return null;
 	}
 	
 	private void interpretReturnNode(ReturnNode node, final int DATA_ID) {
@@ -1076,6 +1091,7 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_ELSE:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case MATH:
+				case OPERATION:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:
