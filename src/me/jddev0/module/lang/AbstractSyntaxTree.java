@@ -1463,7 +1463,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			if(nodeType == null)
 				nodeType = OperatorType.GENERAL;
-			else if(operator.getOperatorType() != OperatorType.GENERAL && nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
+			else if(nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
 				throw new IllegalStateException("Node type is not compatible with the operator");
 			
 			nodes = new ArrayList<>(1);
@@ -1559,6 +1559,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			NON                   ("",      true, -1, OperatorType.GENERAL),
 			
 			//Math
+			MATH_NON              ("",      true, -1, OperatorType.MATH),
 			GET_ITEM              ("[...]",        0, OperatorType.MATH),
 			POW                   ("**",           1, OperatorType.MATH),
 			POS                   ("+",     true,  2, OperatorType.MATH),
@@ -1580,6 +1581,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			BITWISE_OR            ("|",            8, OperatorType.MATH),
 			
 			//Condition
+			CONDITIONAL_NON       ("",      true, -1, OperatorType.CONDITION),
 			NOT                   ("!",     true,  2, OperatorType.CONDITION),
 			EQUALS                ("==",           9, OperatorType.CONDITION),
 			NOT_EQUALS            ("!=",           9, OperatorType.CONDITION),

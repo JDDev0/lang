@@ -777,7 +777,7 @@ public final class LangInterpreter {
 				node.getOperator() != Operator.OR && rightSideOperand == null))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
-		if(node.getNodeType() == NodeType.OPERATION && node.getOperatorType() == OperatorType.GENERAL) {
+		if(node.getOperatorType() == OperatorType.GENERAL) {
 			switch(node.getOperator()) {
 				//Unary
 				case NON:
@@ -788,12 +788,12 @@ public final class LangInterpreter {
 			}
 			
 			return null;
-		}else if(node.getNodeType() == NodeType.MATH) {
+		}else if(node.getOperatorType() == OperatorType.MATH) {
 			DataObject output = null;
 			
 			switch(node.getOperator()) {
 				//Unary
-				case NON:
+				case MATH_NON:
 					output = leftSideOperand;
 					break;
 				case POS:
@@ -867,12 +867,12 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
 			
 			return output;
-		}else if(node.getNodeType() == NodeType.CONDITION) {
+		}else if(node.getOperatorType() == OperatorType.CONDITION) {
 			boolean conditionOuput = false;
 			
 			switch(node.getOperator()) {
 				//Unary (Logical operators)
-				case NON:
+				case CONDITIONAL_NON:
 				case NOT:
 					conditionOuput = leftSideOperand.getBoolean();
 					
