@@ -7,7 +7,7 @@ fp.benchmark = ($runs, fp.func) -> {
 		$start = func.currentTimeMillis()
 		fp.func()
 		$end = func.currentTimeMillis()
-		$time = func.addl($time, func.subl($end, $start))
+		$time += $end - $start
 	con.endloop
 	
 	return func.divd($time, $runs)

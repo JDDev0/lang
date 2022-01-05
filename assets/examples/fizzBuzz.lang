@@ -7,11 +7,11 @@ $i = 0
 con.until($i > $MAX)
 	$3or5flag = 0
 	
-	con.if(func.modi($i, 3) == 0)
+	con.if(!func.modi($i, 3))
 		func.print(Fizz)
 		$3or5flag = 1
 	con.endif
-	con.if(func.modi($i, 5) == 0)
+	con.if(!func.modi($i, 5))
 		func.print(Buzz)
 		$3or5flag = 1
 	con.endif
@@ -20,5 +20,5 @@ con.until($i > $MAX)
 	con.endif
 	func.println()
 	
-	$i = func.addi($i, 1)
+	$i += 1
 con.endloop

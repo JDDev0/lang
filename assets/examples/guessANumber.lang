@@ -9,7 +9,7 @@ con.until($end)
 	$guesses = 0
 	
 	# Generate random number between $low and $high
-	$num = func.addi(func.modi(func.rand(), func.inci(func.subi($high, $low))), $low)
+	$num = math.math(func.rand() % ▲($high - $low) + $low)
 	con.until($win)
 		func.println(Guesss a number between $low and $high!)
 		$in = func.input()
@@ -24,7 +24,7 @@ con.until($end)
 			con.continue
 		con.endif
 		
-		$guesses = func.inci($guesses)
+		$guesses += 1
 	con.endloop
 	
 	func.println(You have won the game after $guesses guesses!\nType YES, if you'd like to play again!)
