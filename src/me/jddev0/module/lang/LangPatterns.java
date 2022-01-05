@@ -123,18 +123,18 @@ final class LangPatterns {
 	
 	//LangParser assignment specific
 	/**
-	 * RegEx: "  [^= ]{0,3}= "
+	 * RegEx: "  [^\\= ]{0,3}= "
 	 */
-	public static final Pattern PARSING_ASSIGNMENT_OPERATOR = Pattern.compile(" [^= ]{0,3}= ");
+	public static final Pattern PARSING_ASSIGNMENT_OPERATOR = Pattern.compile(" [^\\\\= ]{0,3}= ");
 	/**
-	 * RegEx: (\$\**|&|fp\.)\w+ [^= ]{0,3}= .{@literal *}
+	 * RegEx: (\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\$\\**|&|fp\\.)\\w+ [^= ]{0,3}= .*");
+	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
 	/**
-	 * RegEx: ((\$\**|&|fp\.)\w+ [^= ]{0,3}= .*|(\$\**\[+\w+\]+) [^= ]{0,3}= .*|(\w|\.|\$|\\|%|-)+ = .*)
+	 * RegEx: ((\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .*|(\$\**\[+\w+\]+) [^\\= ]{0,3}= .*|(\w|\.|\$|\\|%|-)+ = .*)
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile(
-		"((\\$\\**|&|fp\\.)\\w+ [^= ]{0,3}= .*|(\\$\\**\\[+\\w+\\]+) [^= ]{0,3}= .*|(\\w|\\.|\\$|\\\\|%|-)+ = .*)");
+		"((\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*|(\\$\\**\\[+\\w+\\]+) [^\\\\= ]{0,3}= .*|(\\w|\\.|\\$|\\\\|%|-)+ = .*)");
 	
 	public static boolean matches(String str, Pattern pattern) {
 		return pattern.matcher(str).matches();
