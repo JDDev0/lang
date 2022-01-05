@@ -883,4 +883,33 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.printf(Floating point numbers: %0*.2f $\n, 10, 20.2567)
 		func.printf(Floating point numbers: %010.2f $\n, 20.2367)
 	}
+	
+	func.println()
+	
+	# Division by 0 in "func.div", "func.divf", and "func.divd"
+	{
+		# x/0: INFITIY
+		# -x/0: -INFITIY
+		# x/-0: -INFITIY
+		# -x/-0: INFITIY
+		
+		func.println(func.div(2, 0))
+		func.println(func.div(2, -0.))
+		func.println(func.div(-2, 0))
+		func.println(func.div(-2, -0.))
+		
+		func.println()
+		
+		func.println(func.divf(2, 0))
+		func.println(func.divf(2, -0.))
+		func.println(func.divf(-2, 0))
+		func.println(func.divf(-2, -0.))
+		
+		func.println()
+		
+		func.println(func.divd(2, 0))
+		func.println(func.divd(2, -0.))
+		func.println(func.divd(-2, 0))
+		func.println(func.divd(-2, -0.))
+	}
 }
