@@ -643,6 +643,16 @@ lang.errorOutput = 1 # Reenable error ouput
 		# \=: =
 		# \<: <
 		# \>: >
+		# \+: +
+		# \-: -
+		# \/: /
+		# \*: *
+		# \%: %
+		# \|: |
+		# \~: ~
+		# \^: ^	
+		# \▲: ▲
+		# \▼: ▼
 		# \\: \
 		
 		# \!: Force node split
