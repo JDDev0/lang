@@ -1006,5 +1006,181 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.println(func.arrayIndexOf(&arr, func.toLong(1))) # -1
 		func.println(func.arrayIndexOf(&arr, 42)) # -1
 	}
+	
+	func.println()
+	
+	# Operation functions
+	{
+		# func.inc(val1) # Increment
+		# func.dec(val1) # Decrement
+		# func.pos(val1) # Positive
+		# func.inv(val1) # Negative
+		# func.add(val1, val2) # Add
+		# func.sub(val1, val2) # Subtract
+		# func.mul(val1, val2) # Multiply
+		# func.pow(val1, val2) # Power
+		# func.div(val1, val2) # Division
+		# func.floorDiv(val1, val2) # Floor division
+		# func.mod(val1, val2) # Modulo
+		# func.and(val1, val2) # Bitwise and
+		# func.or(val1, val2) # Bitwise or
+		# func.xor(val1, val2) # Bitwise xor
+		# func.not(val1) # Bitwise not
+		# func.lshift(val1, val2) # Left shift
+		# func.rshift(val1, val2) # Right shift
+		# func.rzshift(val1, val2) # Right zero shift
+		# func.len(val1) # Length
+		# func.getItem(val1, val2) # Get item (e.g. element of array, char of text)
 		
+		func.println(func.inc(2)) # 3
+		func.println(func.inc(2.5)) # 3.5
+		
+		func.println()
+		
+		func.println(func.dec(2)) # 1
+		func.println(func.dec(2.5)) # 1.5
+		
+		func.println()
+		
+		func.println(func.pos(42)) # 42
+		func.println(func.pos(2.5)) # 2.5
+		func.println(func.pos(0)) # 0
+		func.println(func.pos(0.)) # 0.0
+		
+		func.println()
+		
+		func.println(func.inv(42)) # -42
+		func.println(func.inv(2.5)) # -2.5
+		func.println(func.inv(0)) # 0
+		func.println(func.inv(0.)) # -0.0
+		func.println(func.inv(func.arrayOf(abc, test, 42))) # [42, test, abc]
+		
+		func.println()
+		
+		func.println(func.add(42, 2)) # 44
+		func.println(func.add(42.2, 2.3)) # 44.5
+		func.println(func.add(42.2, .5)) # 42.7
+		func.println(func.add(42, .0)) # 42.0
+		func.println(func.add(test, -abc)) # test-abc
+		func.println(func.add(func.arrayOf(abc, test, 42), element)) # [abc, test, 42, element]
+		
+		func.println()
+		
+		func.println(func.sub(42, 2)) # 40
+		func.println(func.sub(42.2, 2.3)) # 39.9
+		func.println(func.sub(42.2, .5)) # 41.7
+		func.println(func.sub(42, .0)) # 42.0
+		
+		func.println()
+		
+		func.println(func.mul(42, 2)) # 48
+		func.println(func.mul(42.2, 2.3)) # 97.06
+		func.println(func.mul(42.2, .5)) # 21.1
+		func.println(func.mul(42.2, .0)) # 0.0
+		func.println(func.mul(test, 2)) # testtest
+		
+		func.println()
+		
+		func.println(func.pow(42, 2)) # 1764.0
+		func.println(func.pow(42.2, 2.3)) # 5472.9134199161135
+		func.println(func.pow(42.2, .5)) # 6.496152766287093
+		func.println(func.pow(42.2, .0)) # 1.0
+		
+		func.println()
+		
+		func.println(func.div(4, 2)) # 2
+		func.println(func.div(4, 3)) # 1.3333334
+		func.println(func.div(5, 2.5)) # 2.0
+		func.println(func.div(6, 2.5)) # 2.4
+		
+		func.println()
+		
+		func.println(func.floorDiv(4, 2)) # 2
+		func.println(func.floorDiv(4, 3)) # 1
+		func.println(func.floorDiv(5, 2.5)) # 2.0
+		func.println(func.floorDiv(6, 2.5)) # 2.0
+		
+		func.println()
+		
+		func.println(func.mod(4, 2)) # 0
+		func.println(func.mod(4, 3)) # 1
+		func.println(func.mod(4, -2)) # 0
+		func.println(func.mod(4, -3)) # 1
+		func.println(func.mod(-4, 2)) # 0
+		func.println(func.mod(-4, 3)) # -1
+		func.println(func.mod(-4, -2)) # 0
+		func.println(func.mod(-4, -3)) # -1
+		
+		func.println()
+		
+		func.println(func.and(4, 2)) # 0
+		func.println(func.and(4, 3)) # 0
+		func.println(func.and(5, 3)) # 1
+		func.println(func.and(10, 9)) # 8
+		func.println(func.and(5, -1)) # 5
+		func.println(func.and(5, 0)) # 0
+		func.println(func.and(func.toLong(-1), -1)) # -1
+		
+		func.println()
+		
+		func.println(func.or(4, 2)) # 6
+		func.println(func.or(4, 3)) # 7
+		func.println(func.or(5, 3)) # 7
+		func.println(func.or(10, 9)) # 11
+		func.println(func.or(5, -1)) # -1
+		func.println(func.or(5, 0)) # 5
+		func.println(func.or(func.toLong(-1), -1)) # -1
+		
+		func.println()
+		
+		func.println(func.xor(4, 2)) # 6
+		func.println(func.xor(4, 3)) # 7
+		func.println(func.xor(5, 3)) # 6
+		func.println(func.xor(10, 9)) # 3
+		func.println(func.xor(5, -1)) # -6
+		func.println(func.xor(5, 0)) # 5
+		func.println(func.xor(func.toLong(-1), -1)) # 0
+		
+		func.println()
+		
+		func.println(func.not(2)) # -3
+		func.println(func.not(3)) # -4
+		func.println(func.not(-1)) # 0
+		func.println(func.not(0)) # -1
+		
+		func.println()
+		
+		func.println(func.lshift(4, 2)) # 16
+		func.println(func.lshift(4, 3)) # 32
+		func.println(func.lshift(5, -1)) # -2147483648
+		func.println(func.lshift(5, 0)) # 5
+		
+		func.println()
+		
+		func.println(func.rshift(4, 2)) # 1
+		func.println(func.rshift(4, 3)) # 0
+		func.println(func.rshift(5, -1)) # 0
+		func.println(func.rshift(5, 0)) # 5
+		func.println(func.rshift(-42, 2)) # -11
+		
+		func.println()
+		
+		func.println(func.rzshift(4, 2)) # 1
+		func.println(func.rzshift(4, 3)) # 0
+		func.println(func.rzshift(5, -1)) # 0
+		func.println(func.rzshift(5, 0)) # 5
+		func.println(func.rzshift(-42, 2)) # 1073741813
+		
+		func.println()
+		
+		func.println(func.len(abctest)) # 7
+		func.println(func.len(func.arrayOf(1, 42, 3, abc, test))) # 5
+		
+		func.println()
+		
+		func.println(func.getItem(abctest, 2)) # c
+		func.println(func.getItem(abctest, 4)) # e
+		func.println(func.getItem(func.arrayOf(1, 42, 3, abc, test), 2)) # 3
+		func.println(func.getItem(func.arrayOf(1, 42, 3, abc, test), 3)) # abc
+	}
 }
