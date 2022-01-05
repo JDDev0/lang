@@ -488,6 +488,10 @@ public final class LangInterpreter {
 			case INVALID_CON_PART:
 				error = InterpretingError.INVALID_CON_PART;
 				break;
+			
+			case INVALID_ASSIGNMENT:
+				error = InterpretingError.INVALID_ASSIGNMENT;
+				break;
 		}
 		
 		if(error == null)
@@ -4842,6 +4846,7 @@ public final class LangInterpreter {
 		LANG_VER_ERROR        (34, "Lang file's version is not compatible with this version"),
 		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
 		INVALID_FORMAT        (36, "Invalid format sequence"),
+		INVALID_ASSIGNMENT    (37, "Invalid assignment operation"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),

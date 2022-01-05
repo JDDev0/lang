@@ -1004,7 +1004,7 @@ public final class LangParser {
 				}
 				
 				if(operator == null)
-					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART);
+					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT);
 				else
 					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseMathExpr(tokens[1]), operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH);
 			}
@@ -1749,10 +1749,11 @@ public final class LangParser {
 	}
 	
 	public static enum ParsingError {
-		BRACKET_MISMATCH (-1, "Bracket mismatch"),
-		CONDITION_MISSING(-2, "If statement condition missing"),
-		EOF              (-3, "End of file was reached early"),
-		INVALID_CON_PART (-4, "Invalid statement part for conditional statement");
+		BRACKET_MISMATCH  (-1, "Bracket mismatch"),
+		CONDITION_MISSING (-2, "If statement condition missing"),
+		EOF               (-3, "End of file was reached early"),
+		INVALID_CON_PART  (-4, "Invalid statement part for conditional statement"),
+		INVALID_ASSIGNMENT(-5, "Invalid assignment operation");
 		
 		private final int errorCode;
 		private final String errorText;
