@@ -946,11 +946,70 @@ public final class LangParser {
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
 		if(isInnerAssignment?LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME):LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
-			String[] tokens = line.split(" = ", 2);
+			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
+			String assignmentOperator = line.substring(tokens[0].length() + 1, line.indexOf('=', tokens[0].length()));
+
+			AbstractSyntaxTree.Node lvalueNode = parseLRvalue(tokens[0], null, false).convertToNode();
+			AbstractSyntaxTree.Node rvalueNode;
 			
-			AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
-			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(tokens[0], null, false).convertToNode(),
-			returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode());
+			if(assignmentOperator.isEmpty()) {
+				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
+				rvalueNode = returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode();
+			}else {
+				AbstractSyntaxTree.OperationNode.Operator operator;
+				
+				switch(assignmentOperator) {
+					case "**":
+						operator = AbstractSyntaxTree.OperationNode.Operator.POW;
+						break;
+					case "*":
+						operator = AbstractSyntaxTree.OperationNode.Operator.MUL;
+						break;
+					case "/":
+						operator = AbstractSyntaxTree.OperationNode.Operator.DIV;
+						break;
+					case "//":
+						operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;
+						break;
+					case "%":
+						operator = AbstractSyntaxTree.OperationNode.Operator.MOD;
+						break;
+					case "+":
+						operator = AbstractSyntaxTree.OperationNode.Operator.ADD;
+						break;
+					case "-":
+						operator = AbstractSyntaxTree.OperationNode.Operator.SUB;
+						break;
+					case "<<":
+						operator = AbstractSyntaxTree.OperationNode.Operator.LSHIFT;
+						break;
+					case ">>":
+						operator = AbstractSyntaxTree.OperationNode.Operator.RSHIFT;
+						break;
+					case ">>>":
+						operator = AbstractSyntaxTree.OperationNode.Operator.RZSHIFT;
+						break;
+					case "&":
+						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_AND;
+						break;
+					case "^":
+						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_XOR;
+						break;
+					case "|":
+						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
+						break;
+					
+					default:
+						operator = null;
+				}
+				
+				if(operator == null)
+					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART);
+				else
+					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseMathExpr(tokens[1]), operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH);
+			}
+			
+			return new AbstractSyntaxTree.AssignmentNode(lvalueNode, rvalueNode);
 		}
 		if(isInnerAssignment)
 			return null;
