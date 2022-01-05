@@ -838,4 +838,42 @@ lang.errorOutput = 1 # Reenable error ouput
 			func.printTerminal(2, $i)
 		con.endloop
 	}
+	
+	# Format functions
+	{
+		# func.format(FORMAT, VARARGS) # Returns TEXT
+		# func.printf(FORMAT, VARARGS) # No newline
+		# func.errorf(FORMAT, VARARGS) # No newline
+		
+		# FORMAT:
+		# - Format sequences:
+		#   - %% # % sign
+		#   - %d # Integer number
+		#   - %f # Floating point number
+		#   - %s # TEXT value
+		#   - %t # Translation value of a translation key
+		# - Format arguments:
+		#   - %<num>  # For: d, f, s, t # Size [Padding with spaces]
+		#   - %-<num> # For: d, f, s, t # Size [left-justify]
+		#   - %0<num> # For: d, f       # Size [Padding with 0s]
+		#   - %+      # For: d, f       # Force sign
+		#   - %*      # For: d, f, s, t # Size from varargs
+		#   - %.<num> # For:    f       # Decimal places (Rounded)
+		#   - %.*     # For:    f       # Decimal places from varargs (Rounded)
+		# - Format arguments incompabilities:
+		#   - "-" or "0" without size
+		#   - "-" and "0" together
+		
+		# EXAMPLES:
+		func.println(func.format(Simple "%%" sign!))
+		func.printf(A simple text: "%s"\n, TEST - ABC)
+		func.printf(A simple translation value: "%t"\n, lang.value)
+		func.printf(Lang name "%15t"\, lang file version "%-15t"\n, lang.name, lang.version)
+		func.printf(Numbers: %04d %04d %04d\n, 42, 43, 44)
+		func.printf(Numbers: %0*d %0*d %0*d\n, 2, 42, 3, 43, 4, 44)
+		func.printf(Floating point numbers: %-*.*f $\n, 10, 2, 20.2567)
+		func.printf(Floating point numbers: %-10.*f $\n, 2, 20.2367)
+		func.printf(Floating point numbers: %0*.2f $\n, 10, 20.2567)
+		func.printf(Floating point numbers: %010.2f $\n, 20.2367)
+	}
 }
