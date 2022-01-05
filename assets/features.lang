@@ -891,9 +891,9 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.printf(Numbers: %04d %04d %04d\n, 42, 43, 44)
 		func.printf(Numbers: %0*d %0*d %0*d\n, 2, 42, 3, 43, 4, 44)
 		func.printf(Floating point numbers: %-*.*f $\n, 10, 2, 20.2567)
-		func.printf(Floating point numbers: %-10.*f $\n, 2, 20.2367)
+		func.printf(Floating point numbers: %-+10.*f $\n, 2, 20.2367) # "+" must be behind "-"
 		func.printf(Floating point numbers: %0*.2f $\n, 10, 20.2567)
-		func.printf(Floating point numbers: %010.2f $\n, 20.2367)
+		func.printf(Floating point numbers: %+010.2f $\n, 20.2367)
 	}
 	
 	func.println()
