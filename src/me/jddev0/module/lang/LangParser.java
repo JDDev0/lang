@@ -945,11 +945,12 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
-		if(isInnerAssignment?LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME):LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
+		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
+		if(isInnerAssignment?isVariableAssignment:LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
 			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
 			String assignmentOperator = line.substring(tokens[0].length() + 1, line.indexOf('=', tokens[0].length()));
-
-			AbstractSyntaxTree.Node lvalueNode = parseLRvalue(tokens[0], null, false).convertToNode();
+			
+			AbstractSyntaxTree.Node lvalueNode = ((isVariableAssignment || !assignmentOperator.isEmpty())?parseLRvalue(tokens[0], null, false):parseTranslationKey(tokens[0])).convertToNode();
 			AbstractSyntaxTree.Node rvalueNode;
 			
 			if(assignmentOperator.isEmpty()) {
@@ -1015,11 +1016,12 @@ public final class LangParser {
 			return null;
 		
 		//Only for non multi assignments
-		if(line.endsWith(" =") || LangPatterns.matches(line, LangPatterns.VAR_NAME_FULL) || LangPatterns.matches(line, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE)) {
-			//Empty translation/assignment ("<var/lang> =" or "$varName")
+		isVariableAssignment = LangPatterns.matches(line, LangPatterns.VAR_NAME_FULL) || LangPatterns.matches(line, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE);
+		if(line.endsWith(" =") || isVariableAssignment) {
+			//Empty translation/assignment ("<var/translation key> =" or "$varName")
 			if(line.endsWith(" ="))
 				line = line.substring(0, line.length() - 2);
-			return new AbstractSyntaxTree.AssignmentNode(parseLRvalue(line, null, false).convertToNode(), new AbstractSyntaxTree.NullValueNode());
+			return new AbstractSyntaxTree.AssignmentNode((isVariableAssignment?parseLRvalue(line, null, false):parseTranslationKey(line)).convertToNode(), new AbstractSyntaxTree.NullValueNode());
 		}
 		
 		return null;
@@ -1237,7 +1239,72 @@ public final class LangParser {
 		
 		return ast;
 	}
-	
+
+	private AbstractSyntaxTree parseTranslationKey(String translationKey) throws IOException {
+		AbstractSyntaxTree ast = new AbstractSyntaxTree();
+		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
+		
+		if(translationKey.startsWith("%$")) {
+			//Prepare "%$" for translation key
+			translationKey = translationKey.substring(1) + "\\e";
+		}
+		
+		StringBuilder builder = new StringBuilder();
+		while(translationKey.length() > 0) {
+			//Unescaping
+			if(translationKey.startsWith("\\")) {
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+				
+				if(translationKey.length() == 1)
+					break;
+				
+				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(translationKey.charAt(1)));
+				
+				if(translationKey.length() < 3)
+					break;
+				
+				translationKey = translationKey.substring(2);
+				continue;
+			}
+			
+			//Force node split
+			if(translationKey.startsWith("$")) {
+				//Variable split for variable concatenation
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+			}
+			if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_NORMAL) && LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
+				//Variable split after invalid character (Not [A-Za-z0-9_]
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+			}
+			
+			builder.append(translationKey.charAt(0));
+			if(translationKey.length() > 1) {
+				translationKey = translationKey.substring(1);
+			}else {
+				translationKey = "";
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+			}
+		}
+		
+		return ast;
+	}
+	private void clearAndParseStringBuilderTranslationKey(StringBuilder builder, List<AbstractSyntaxTree.Node> nodes) {
+		if(builder.length() == 0)
+			return;
+		
+		String token = builder.toString();
+		builder.delete(0, builder.length());
+		
+		//Vars
+		if(LangPatterns.matches(token, LangPatterns.VAR_NAME_NORMAL)) {
+			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(token));
+			
+			return;
+		}
+		
+		//TEXT
+		nodes.add(new AbstractSyntaxTree.TextValueNode(token));
+	}
 	private AbstractSyntaxTree parseLRvalue(String lrvalue, BufferedReader lines, boolean isRvalue) throws IOException {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
@@ -1274,9 +1341,6 @@ public final class LangParser {
 					return ast;
 				}
 			}
-		}else if(lrvalue.startsWith("%$")) {
-			//Prepare "%$" for translation key (lvalue only)
-			lrvalue = lrvalue.substring(1) + "\\e";
 		}
 		
 		nodes.addAll(parseToken(lrvalue, lines).getChildren());
