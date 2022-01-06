@@ -131,10 +131,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
 	/**
-	 * RegEx: ((\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .*|(\$\**\[+\w+\]+) [^\\= ]{0,3}= .*|(\w|\.|\$|\\|%|-)+ = .*)
+	 * RegEx: ((\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .*|(\$\**\[+\w+\]+) [^\\= ]{0,3}= .*|(\w|\.|\$|\\|%|-|\(|\)| )+ = .*)
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile(
-		"((\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*|(\\$\\**\\[+\\w+\\]+) [^\\\\= ]{0,3}= .*|(\\w|\\.|\\$|\\\\|%|-)+ = .*)");
+		"((\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*|(\\$\\**\\[+\\w+\\]+) [^\\\\= ]{0,3}= .*|(\\w|\\.|\\$|\\\\|%|-|\\(|\\)| )+ = .*)");
 	
 	public static boolean matches(String str, Pattern pattern) {
 		return pattern.matcher(str).matches();
