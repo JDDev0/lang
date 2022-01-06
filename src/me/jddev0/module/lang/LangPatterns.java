@@ -93,6 +93,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_FUNCTION_CALL = Pattern.compile("(func|fp|linker)\\.\\w+\\(.*\\).*");
 	/**
+	 * RegEx: parser\.\w+\(.*\).{@literal *}
+	 */
+	public static final Pattern PARSING_PARSER_FUNCTION_CALL = Pattern.compile("parser\\.\\w+\\(.*\\).*");
+	/**
 	 * RegEx: \(.*\).{@literal *}
 	 */
 	public static final Pattern PARSING_FUNCTION_CALL_PREVIOUS_VALUE = Pattern.compile("\\(.*\\).*");

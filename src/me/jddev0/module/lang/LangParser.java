@@ -644,6 +644,42 @@ public final class LangParser {
 				continue;
 			}
 			
+			//Parser function calls
+			if(LangPatterns.matches(token, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				int parameterStartIndex = token.indexOf('(');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(parameterEndIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					break;
+				}
+				
+				String functionCall = token.substring(0, parameterEndIndex + 1);
+				
+				String functionName = functionCall.substring(token.indexOf('.') + 1, parameterStartIndex);
+				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+				
+				AbstractSyntaxTree.Node ret = parseParserFunction(functionName, functionParameterList);
+				if(ret != null) {
+					token = token.substring(parameterEndIndex + 1);
+					
+					leftNodes.add(ret);
+					
+					continue;
+				}
+				
+				//Invalid parser function
+			}
+			
 			if(type == AbstractSyntaxTree.OperationNode.OperatorType.MATH) {
 				//con.condition
 				if(LangPatterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
@@ -1196,6 +1232,34 @@ public final class LangParser {
 				}
 			}
 			
+			//Parser function calls
+			if(LangPatterns.matches(token, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+				clearAndParseStringBuilder(builder, nodes);
+				
+				int parameterStartIndex = token.indexOf('(');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(parameterEndIndex == -1) {
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					return ast;
+				}
+				
+				String functionCall = token.substring(0, parameterEndIndex + 1);
+				
+				String functionName = functionCall.substring(token.indexOf('.') + 1, parameterStartIndex);
+				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+				
+				AbstractSyntaxTree.Node ret = parseParserFunction(functionName, functionParameterList);
+				if(ret != null) {
+					token = token.substring(parameterEndIndex + 1);
+					
+					nodes.add(ret);
+					
+					continue;
+				}
+				
+				//Invalid parser function
+			}
+			
 			//con.condition
 			if(LangPatterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
 				clearAndParseStringBuilder(builder, nodes);
@@ -1407,6 +1471,35 @@ public final class LangParser {
 					}
 				}
 				
+				//Parser function calls
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+					clearAndParseStringBuilder(builder, nodes);
+					
+					int parameterStartIndex = parameterList.indexOf('(');
+					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+					if(parameterEndIndex == -1) {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+						return ast;
+					}
+					
+					String functionCall = parameterList.substring(0, parameterEndIndex + 1);
+					
+					String functionName = functionCall.substring(parameterList.indexOf('.') + 1, parameterStartIndex);
+					String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+					
+					AbstractSyntaxTree.Node ret = parseParserFunction(functionName, functionParameterList);
+					if(ret != null) {
+						parameterList = parameterList.substring(parameterEndIndex + 1);
+						
+						nodes.add(ret);
+						
+						hasNodesFlag = true;
+						continue;
+					}
+					
+					//Invalid parser function
+				}
+				
 				//con.condition
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_CON_CONDITION)) {
 					clearAndParseStringBuilder(builder, nodes);
@@ -1538,6 +1631,19 @@ public final class LangParser {
 		
 		return ast;
 	}
+	private AbstractSyntaxTree.Node parseParserFunction(String name, String parameterList) throws IOException {
+		switch(name) {
+			case "condition":
+				return parseCondition(parameterList);
+			case "math":
+				return parseMathExpr(parameterList);
+			case "op":
+				return parseOperationExpr(parameterList);
+		}
+		
+		return null;
+	}
+	
 	
 	private String prepareLine(String line) {
 		if(line == null)

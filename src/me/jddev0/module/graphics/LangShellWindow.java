@@ -94,6 +94,7 @@ public class LangShellWindow extends JDialog {
 	private final List<String> langDataAndCompilerFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
 	private final List<String> controlFlowStatements = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
 	private final List<String> mathStatements = Arrays.asList("math(");
+	private final List<String> parserFunctions = Arrays.asList("condition(", "math(", "op(");
 	
 	public LangShellWindow(Frame owner, TerminalIO term) {
 		this(owner, term, 12);
@@ -568,7 +569,8 @@ public class LangShellWindow extends JDialog {
 				
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
-					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker.") || checkTmp.startsWith("con.")|| checkTmp.startsWith("math.");
+					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") ||
+					checkTmp.startsWith("parser.");
 				}
 				
 				if(!returnFlag)
@@ -643,7 +645,7 @@ public class LangShellWindow extends JDialog {
 			else
 				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
-			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.|math\\.)");
+			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.|math\\.|parser\\.)");
 			if(tokens.length == 0)
 				return;
 			
@@ -707,6 +709,19 @@ public class LangShellWindow extends JDialog {
 					autoCompleteText = "";
 				else
 					autoCompleteText = autoCompletes.get(autoCompletePos).substring(mathNameStart.length());
+			}else if(lastToken.matches("parser\\..*")) {
+				int indexConNameStart = lastToken.indexOf('.') + 1;
+				String functionNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
+				List<String> autoCompletes = parserFunctions.stream().
+				filter(functionName -> functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
+				collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
+					autoCompleteText = "";
+				else
+					autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
 			}else {
 				return;
 			}
