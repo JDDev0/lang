@@ -825,6 +825,9 @@ public final class LangParser {
 					case "|":
 						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
 						break;
+					case "$":
+						operator = AbstractSyntaxTree.OperationNode.Operator.NON;
+						break;
 					
 					default:
 						operator = null;
@@ -832,8 +835,10 @@ public final class LangParser {
 				
 				if(operator == null)
 					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT);
+				else if(operator == AbstractSyntaxTree.OperationNode.Operator.NON)
+					rvalueNode = parseOperationExpr(tokens[1], operator.getOperatorType());
 				else
-					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseMathExpr(tokens[1]), operator, AbstractSyntaxTree.OperationNode.OperatorType.MATH);
+					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseOperationExpr(tokens[1], operator.getOperatorType()), operator, operator.getOperatorType());
 			}
 			
 			return new AbstractSyntaxTree.AssignmentNode(lvalueNode, rvalueNode);
