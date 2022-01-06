@@ -286,7 +286,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.printTerminal(2, \s\nArray:)
 		$i = 0
 		fp.printElement = ($ele) -> {
-			func.printTerminal(2, Array[$i] = $ele)
+			func.printTerminal(2, Array[$i] \= $ele)
 			
 			# Set Index
 			$i = func.addi($i, 1)
