@@ -117,10 +117,12 @@ public final class LangParser {
 				}
 				
 				//Assignments
-				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(line, lines, false);
-				if(returnedNode != null) {
-					ast.addChild(returnedNode);
-					continue;
+				if(!line.startsWith("return ") && !line.startsWith("throw ")) {
+					AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(line, lines, false);
+					if(returnedNode != null) {
+						ast.addChild(returnedNode);
+						continue;
+					}
 				}
 				
 				//Non assignments
