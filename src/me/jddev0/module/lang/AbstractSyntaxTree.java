@@ -1443,7 +1443,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			if(nodeType == null)
 				nodeType = OperatorType.GENERAL;
-			else if(nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
+			else if(!operator.getOperatorType().isCompatibleWith(nodeType))
 				throw new IllegalStateException("Node type is not compatible with the operator");
 			
 			nodes = new ArrayList<>(2);
@@ -1463,7 +1463,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			if(nodeType == null)
 				nodeType = OperatorType.GENERAL;
-			else if(nodeType != OperatorType.GENERAL && nodeType != operator.getOperatorType())
+			else if(!operator.getOperatorType().isCompatibleWith(nodeType))
 				throw new IllegalStateException("Node type is not compatible with the operator");
 			
 			nodes = new ArrayList<>(1);
@@ -1628,6 +1628,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public static enum OperatorType {
 			GENERAL, MATH, CONDITION;
+			
+			public boolean isCompatibleWith(OperatorType type) {
+				return type == GENERAL || type == this;
+			}
 		}
 	}
 	
