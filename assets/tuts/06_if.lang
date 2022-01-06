@@ -296,7 +296,7 @@ func.println(-----------------)
 	func.println(-----------------)
 	
 	# Check the exact error of $LANG_ERRNO
-	func.divd(1, 0) # Set error to "div by zero"
+	func.divl(1, 0) # Set error to "div by zero"
 	
 	func.println(Check with normal equals with \$LANG_ERRNO_...)
 	func.println(con.condition($LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO))
@@ -331,7 +331,7 @@ func.println(-----------------)
 	func.println(-----------------)
 	
 	# Check the exact error of a returned error object
-	$err = func.divd(1, 0) # Will return "div by zero" error object
+	$err = func.divl(1, 0) # Will return "div by zero" error object
 	
 	func.println(Check with normal equals with \$LANG_ERRNO_...)
 	func.println(con.condition($err == $LANG_ERRNO_DIV_BY_ZERO))
