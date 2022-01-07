@@ -657,7 +657,7 @@ final class LangPredefinedFunctions {
 			
 			@Override
 			public String getDeprecatedReplacementFunction() {
-				return "con.condition";
+				return "parser.con";
 			}
 		});
 		funcs.put("exec", (argumentList, DATA_ID) -> {

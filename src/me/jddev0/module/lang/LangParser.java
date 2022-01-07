@@ -680,58 +680,6 @@ public final class LangParser {
 				//Invalid parser function
 			}
 			
-			if(type == AbstractSyntaxTree.OperationNode.OperatorType.MATH) {
-				//con.condition
-				if(LangPatterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-						builder.delete(0, builder.length());
-					}
-					
-					int conditionStartIndex = token.indexOf('(');
-					int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(token, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
-					if(conditionEndIndex == -1) {
-						leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-						break;
-					}
-					String condition = token.substring(conditionStartIndex + 1, conditionEndIndex);
-					token = token.substring(conditionEndIndex + 1);
-					
-					leftNodes.add(parseCondition(condition));
-					continue;
-				}
-			}else if(type == AbstractSyntaxTree.OperationNode.OperatorType.CONDITION) {
-				//math.math
-				if(LangPatterns.matches(token, LangPatterns.PARSING_MATH_MATH)) {
-					if(whitespaces.length() > 0) {
-						builder.append(whitespaces.toString());
-						whitespaces.delete(0, whitespaces.length());
-					}
-					
-					if(builder.length() > 0) {
-						leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
-						builder.delete(0, builder.length());
-					}
-					
-					int conditionStartIndex = token.indexOf('(');
-					int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(token, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
-					if(conditionEndIndex == -1) {
-						leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-						break;
-					}
-					String mathExpr = token.substring(conditionStartIndex + 1, conditionEndIndex);
-					token = token.substring(conditionEndIndex + 1);
-					
-					leftNodes.add(parseMathExpr(mathExpr));
-					continue;
-				}
-			}
-			
 			if(whitespaces.length() > 0) {
 				builder.append(whitespaces.toString());
 				whitespaces.delete(0, whitespaces.length());
@@ -863,7 +811,7 @@ public final class LangParser {
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
 		
 		//If statement
-		if(token.startsWith("con.") && !token.startsWith("con.condition")) {
+		if(token.startsWith("con.")) {
 			if(token.startsWith("con.continue") || token.startsWith("con.break")) {
 				List<AbstractSyntaxTree.Node> argumentNodes;
 				if(!token.contains("(") && !token.contains(")")) {
@@ -1265,40 +1213,6 @@ public final class LangParser {
 				//Invalid parser function
 			}
 			
-			//con.condition
-			if(LangPatterns.matches(token, LangPatterns.PARSING_CON_CONDITION)) {
-				clearAndParseStringBuilder(builder, nodes);
-				
-				int conditionStartIndex = token.indexOf('(');
-				int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(token, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
-				if(conditionEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-					return ast;
-				}
-				String condition = token.substring(conditionStartIndex + 1, conditionEndIndex);
-				token = token.substring(conditionEndIndex + 1);
-				
-				nodes.add(parseCondition(condition));
-				continue;
-			}
-			
-			//math.math
-			if(LangPatterns.matches(token, LangPatterns.PARSING_MATH_MATH)) {
-				clearAndParseStringBuilder(builder, nodes);
-				
-				int mathExprStartIndex = token.indexOf('(');
-				int mathExprEndIndex = LangUtils.getIndexOfMatchingBracket(token, mathExprStartIndex, Integer.MAX_VALUE, '(', ')');
-				if(mathExprEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-					return ast;
-				}
-				String mathExpr = token.substring(mathExprStartIndex + 1, mathExprEndIndex);
-				token = token.substring(mathExprEndIndex + 1);
-				
-				nodes.add(parseMathExpr(mathExpr));
-				continue;
-			}
-			
 			//VarPtr
 			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
 				clearAndParseStringBuilder(builder, nodes);
@@ -1503,44 +1417,6 @@ public final class LangParser {
 					}
 					
 					//Invalid parser function
-				}
-				
-				//con.condition
-				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_CON_CONDITION)) {
-					clearAndParseStringBuilder(builder, nodes);
-					
-					int conditionStartIndex = parameterList.indexOf('(');
-					int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
-					if(conditionEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-						return ast;
-					}
-					String condition = parameterList.substring(conditionStartIndex + 1, conditionEndIndex);
-					parameterList = parameterList.substring(conditionEndIndex + 1);
-					
-					nodes.add(parseCondition(condition));
-					
-					hasNodesFlag = true;
-					continue;
-				}
-				
-				//math.math
-				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_MATH_MATH)) {
-					clearAndParseStringBuilder(builder, nodes);
-					
-					int mathExprStartIndex = parameterList.indexOf('(');
-					int mathExprEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, mathExprStartIndex, Integer.MAX_VALUE, '(', ')');
-					if(mathExprEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in con.condition"));
-						return ast;
-					}
-					String mathExpr = parameterList.substring(mathExprStartIndex + 1, mathExprEndIndex);
-					parameterList = parameterList.substring(mathExprEndIndex + 1);
-					
-					nodes.add(parseMathExpr(mathExpr));
-					
-					hasNodesFlag = true;
-					continue;
 				}
 				
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_ARGUMENT_SEPARATOR_LEADING_WHITESPACE)) {

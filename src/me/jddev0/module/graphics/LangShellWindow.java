@@ -92,8 +92,7 @@ public class LangShellWindow extends JDialog {
 	
 	//Lists for auto complete
 	private final List<String> langDataAndCompilerFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
-	private final List<String> controlFlowStatements = Arrays.asList("break", "condition(", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
-	private final List<String> mathStatements = Arrays.asList("math(");
+	private final List<String> controlFlowStatements = Arrays.asList("break", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
 	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "op(");
 	
 	public LangShellWindow(Frame owner, TerminalIO term) {
@@ -696,19 +695,6 @@ public class LangShellWindow extends JDialog {
 					autoCompleteText = "";
 				else
 					autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
-			}else if(lastToken.matches("math\\..*")) {
-				int indexConNameStart = lastToken.indexOf('.') + 1;
-				String mathNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
-				List<String> autoCompletes = mathStatements.stream().
-				filter(mathName -> mathName.startsWith(mathNameStart) && !mathName.equals(mathNameStart)).
-				collect(Collectors.toList());
-				if(autoCompletes.isEmpty())
-					return;
-				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
-				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
-					autoCompleteText = "";
-				else
-					autoCompleteText = autoCompletes.get(autoCompletePos).substring(mathNameStart.length());
 			}else if(lastToken.matches("parser\\..*")) {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String functionNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
@@ -824,7 +810,7 @@ public class LangShellWindow extends JDialog {
 			if(!flagMultilineText)
 				flagLineContinuation = line.endsWith("\\");
 			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop") &&
-					!line.trim().startsWith("con.condition") && !line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")) ||
+					!line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")) ||
 			flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
@@ -861,7 +847,7 @@ public class LangShellWindow extends JDialog {
 			
 			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.loop") && !line.trim().startsWith("con.while") &&
 					!line.trim().startsWith("con.until") && !line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.foreach") && !line.trim().startsWith("con.if") &&
-					!line.trim().startsWith("con.condition") && !line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")))) {
+					!line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")))) {
 				indent--;
 				
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop"))

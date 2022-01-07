@@ -101,14 +101,6 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_FUNCTION_CALL_PREVIOUS_VALUE = Pattern.compile("\\(.*\\).*");
 	/**
-	 * RegEx: con\.condition\(.*\).{@literal *}
-	 */
-	public static final Pattern PARSING_CON_CONDITION = Pattern.compile("con\\.condition\\(.*\\).*");
-	/**
-	 * RegEx: math\.math\(.*\).{@literal *}
-	 */
-	public static final Pattern PARSING_MATH_MATH = Pattern.compile("math\\.math\\(.*\\).*");
-	/**
 	 * RegEx: \s*,.{@literal *}
 	 */
 	public static final Pattern PARSING_ARGUMENT_SEPARATOR_LEADING_WHITESPACE = Pattern.compile("\\s*,.*");
