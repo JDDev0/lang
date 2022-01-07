@@ -1638,7 +1638,7 @@ public final class LangParser {
 	}
 	private AbstractSyntaxTree.Node parseParserFunction(String name, String parameterList) throws IOException {
 		switch(name) {
-			case "condition":
+			case "con":
 				return parseCondition(parameterList);
 			case "math":
 				return parseMathExpr(parameterList);
