@@ -47,15 +47,15 @@ con.endif
 
 # Best practice: Use different lang files for different compiler version dependent functions: # Example: Contains different version of function "fp.test"
 con.if($ver == v0.1.8)
-	linker.bindLibrary(14_utilsLibrary018.lang)
+	linker.bindLibrary(15_utilsLibrary018.lang)
 con.elif($ver == v0.1.9)
-	linker.bindLibrary(14_utilsLibrary019.lang)
+	linker.bindLibrary(15_utilsLibrary019.lang)
 con.elif($ver == v0.2.0)
-	linker.bindLibrary(14_utilsLibrary020.lang)
+	linker.bindLibrary(15_utilsLibrary020.lang)
 con.elif($ver == v0.2.1)
-	linker.bindLibrary(14_utilsLibrary021.lang)
+	linker.bindLibrary(15_utilsLibrary021.lang)
 con.elif($ver == v1.0.0)
-	linker.bindLibrary(14_utilsLibrary100.lang)
+	linker.bindLibrary(15_utilsLibrary100.lang)
 con.else
 	func.printTerminal(5, The Compiler version $ver is not supported!)
 con.endif

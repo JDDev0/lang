@@ -1,0 +1,170 @@
+lang.name = Operators
+lang.version = v1.0.0
+
+# Assignment operators
+$a = 42 # Normal assignment
+func.println($a)
+
+# Set assignment
+$a $= 42 - 20 * 2 # Rvalue will be parsed as operation expression "parser.op()"
+func.println($a)
+
+# Math assignments (Rvalue will be parsed as math expression "parser.math()")
+$a += (40 - 23) // 2 # Addition assignment
+func.println($a)
+
+$a -= 2 # Subtract assignment
+func.println($a)
+
+$a *= 3 + 1 # Multiplication assignment
+func.println($a)
+
+$a /= 3 # Division assignment
+func.println($a)
+
+$a //= 3 # Floor division assignment
+func.println($a)
+
+$a **= 8 # Power assignment
+func.println($a)
+
+$a = func.int($a) # Convert $a to integer
+
+$a %= 250 # Modulo assignment
+func.println($a)
+
+$a >>= 2 # Right shift assignment
+func.println($a)
+
+$a >>>= 1 # Right zero shift assignment
+func.println($a)
+
+$a <<= 1 # Left shift assignment
+func.println($a)
+
+$a &= 250 # Bitwise and assignment
+func.println($a)
+
+$a |= 15 # Bitwise or assignment
+func.println($a)
+
+$a ^= 43 # Bitwise xor assignment
+func.println($a)
+
+# Operators
+# Math
+# (...)       - Bracket
+# ... ** ...  - Power
+# +...        - Positive
+# -...        - Inverse
+# ~...        - Bitwise not
+# ▲...        - Increment (Will NOT change value of ...)
+# ▼...        - Decrement (Will NOT change value of ...)
+# ... * ...   - Multiplication
+# ... / ...   - Division
+# ... // ...  - Floor division
+# ... % ...   - Modulo
+# ... + ...   - Addition
+# ... - ...   - Subtract
+# ... << ...  - Left shift
+# ... >> ...  - Right shift
+# ... >>> ... - Right zero shift
+# ... & ...   - Bitwise and
+# ... ^ ...   - Bitwise xor
+# ... | ...   - Bitwise or
+
+# Condition
+# (...)       - Bracket
+# !...        - Not
+# ... && ...  - And
+# ... || ...  - Or
+# ... == ...  - Equals
+# ... != ...  - Not equals
+# ... === ... - Strict equals
+# ... !== ... - Strict not equals
+# ... < ...   - Less than
+# ... > ...   - Greater than
+# ... <= ...  - Less than or equals
+# ... >= ...  - Greater than or equals
+
+# Operator precedence/associativity
+# Precedence | Operator    | Associativity | Operator name
+# ===========|=============|===============|=======================
+#  0         | (...)       | -             | Brackets
+# -----------|-------------|---------------|------------------------
+#  0.5       | ...(...)    | -             | Function calls
+# -----------|-------------|---------------|------------------------
+#  1         | ... ** ...  | right-to-left | Power
+# -----------|-------------|---------------|------------------------
+#  2         | +...        | right-to-left | Positive
+#            | -...        |               | Inverse
+#            | ~...        |               | Bitwise not
+#            | ▲...        |               | Increment
+#            | ▼...        |               | Decrement
+#            | !...        |               | Not
+# -----------|-------------|---------------|------------------------
+#  3         | ... * ...   | left-to-right | Multiplication
+#            | ... / ...   |               | Division
+#            | ... // ...  |               | Floor division
+#            | ... % ...   |               | Modulo
+# -----------|-------------|---------------|------------------------
+#  4         | ... + ...   | left-to-right | Addition
+#            | ... - ...   |               | Subtraction
+# -----------|-------------|---------------|------------------------
+#  5         | ... << ...  | left-to-right | Left shift
+#            | ... >> ...  |               | Right shift
+#            | ... >>> ... |               | Right zero shift
+# -----------|-------------|---------------|------------------------
+#  6         | ... & ...   | left-to-right | Bitwise and
+# -----------|-------------|---------------|------------------------
+#  7         | ... ^ ...   | left-to-right | Bitwsie xor
+# -----------|-------------|---------------|------------------------
+#  8         | ... | ...   | left-to-right | Bitwise or
+# -----------|-------------|---------------|------------------------
+#  9         | ... == ...  | left-to-right | Equals
+#            | ... != ...  |               | Not eqauls
+#            | ... === ... |               | Strict equals
+#            | ... !== ... |               | Strict not equals
+#            | ... < ...   |               | Less than
+#            | ... > ...   |               | Greater than
+#            | ... <= ...  |               | Less than or equals
+#            | ... >= ...  |               | Greater than or equals
+# -----------|-------------|---------------|------------------------
+# 10         | ... && ...  | left-to-right | And
+# -----------|-------------|---------------|------------------------
+# 11         | ... || ...  | left-to-right | Or
+# -----------|-------------|---------------|------------------------
+# 12         | ... ?= ...  | right-to-left | Assignments
+
+# Parser functions
+# parser.con(...) # Condition
+# parser.math(...) # Math expression
+# parser.op(...) # Operator expression (Math expression & Condition)
+
+func.println()
+func.println(2 && 3)
+func.println(parser.con(2 && 3))
+func.println(parser.math(2 && 3)) # Will crash, because it will be parses as: 2 BITWISE_AND (& 3)
+func.println(parser.op(2 && 3))
+
+func.println()
+func.println(2 & 3)
+func.println(parser.con(2 & 3)) # Will return 1 because "2 & 3" is parsed as text value
+func.println(parser.math(2 & 3))
+func.println(parser.op(2 & 3))
+
+func.println()
+func.println(0 & 3)
+func.println(parser.con(0 & 3)) # Will return 1 because "2 & 3" is parsed as text value
+func.println(parser.math(0 & 3))
+func.println(parser.op(0 & 3))
+
+# Parser functions can be used inside parser functions
+func.println()
+func.println(parser.math(4 + parser.con(abc && parser.op(1 + 3 === 4))))
+# Wil be parsed as:
+# 4 ADD (abc AND ((1 ADD 3) STRICT_EQUALS 4))
+# 4 ADD (abc AND (4 STRICT_EQUALS 4))
+# 4 ADD (abc AND 1)
+# 4 ADD 1
+# 5
