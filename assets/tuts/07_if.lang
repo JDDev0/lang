@@ -132,11 +132,11 @@ con.endif
 func.println(-----------------)
 
 # Condition function
-# con.condition("condition") # Will return 1 if true else 0
-func.println(con.condition(0))
-func.println(con.condition(-1))
-func.println(con.condition(42))
-func.println(con.condition(1))
+# parser.con("condition") # Will return 1 if true else 0
+func.println(parser.con(0))
+func.println(parser.con(-1))
+func.println(parser.con(42))
+func.println(parser.con(1))
 
 func.println(-----------------)
 
@@ -156,108 +156,108 @@ func.println(-----------------)
 #         "||": Or
 #         "()": Execute as an unit
 func.println(a compared to a)
-func.println(con.condition(a == a))
-func.println(con.condition(a != a))
+func.println(parser.con(a == a))
+func.println(parser.con(a != a))
 
 func.println(-----------------)
 
 func.println(a compared to d)
-func.println(con.condition(a == d))
-func.println(con.condition(a != d))
+func.println(parser.con(a == d))
+func.println(parser.con(a != d))
 
 func.println(-----------------)
 
 func.println(abc compared to abc)
-func.println(con.condition(abc == abc))
-func.println(con.condition(abc != abc))
+func.println(parser.con(abc == abc))
+func.println(parser.con(abc != abc))
 
 func.println(-----------------)
 
 func.println(abc compared to def)
-func.println(con.condition(abc == def))
-func.println(con.condition(abc != def))
+func.println(parser.con(abc == def))
+func.println(parser.con(abc != def))
 
 func.println(-----------------)
 
 func.println(equals vs strict equals (Strict equals will checks if the data types are equals and the value are equals))
-func.println(con.condition(1 == 1.))
-func.println(con.condition(1 != 1.))
-func.println(con.condition(1 === 1.))
-func.println(con.condition(1 !== 1.))
+func.println(parser.con(1 == 1.))
+func.println(parser.con(1 != 1.))
+func.println(parser.con(1 === 1.))
+func.println(parser.con(1 !== 1.))
 
 func.println(-----------------)
 
 func.println(0 compared to 5)
-func.println(con.condition(0 == 5))
-func.println(con.condition(0 != 5))
-func.println(con.condition(0 < 5))
-func.println(con.condition(0 > 5))
-func.println(con.condition(0 <= 5))
-func.println(con.condition(0 >= 5))
+func.println(parser.con(0 == 5))
+func.println(parser.con(0 != 5))
+func.println(parser.con(0 < 5))
+func.println(parser.con(0 > 5))
+func.println(parser.con(0 <= 5))
+func.println(parser.con(0 >= 5))
 
 func.println(-----------------)
 
 func.println(5 compared to 5)
-func.println(con.condition(5 == 5))
-func.println(con.condition(5 != 5))
-func.println(con.condition(5 < 5))
-func.println(con.condition(5 > 5))
-func.println(con.condition(5 <= 5))
-func.println(con.condition(5 >= 5))
+func.println(parser.con(5 == 5))
+func.println(parser.con(5 != 5))
+func.println(parser.con(5 < 5))
+func.println(parser.con(5 > 5))
+func.println(parser.con(5 <= 5))
+func.println(parser.con(5 >= 5))
 
 func.println(-----------------)
 
-func.println(5 == 5 == 5:    con.condition(5 == 5 == 5))
-func.println(5 == 5 == 1:    con.condition(5 == 5 == 1))
-func.println(1 == 5 == 5:    con.condition(1 == 5 == 5))
-func.println((5 == 5) == 5:  con.condition((5 == 5) == 5))
-func.println((5 == 5) == 1:  con.condition((5 == 5) == 1))
-func.println(5 == (5 == 5):  con.condition(5 == (5 == 5)))
-func.println(5 == (5 == 1):  con.condition(5 == (5 == 1)))
-func.println(5 == (5 == 5):  con.condition(5 == (5 == 5)))
-func.println(1 == (5 == 5):  con.condition(1 == (5 == 5)))
+func.println(5 == 5 == 5:    parser.con(5 == 5 == 5))
+func.println(5 == 5 == 1:    parser.con(5 == 5 == 1))
+func.println(1 == 5 == 5:    parser.con(1 == 5 == 5))
+func.println((5 == 5) == 5:  parser.con((5 == 5) == 5))
+func.println((5 == 5) == 1:  parser.con((5 == 5) == 1))
+func.println(5 == (5 == 5):  parser.con(5 == (5 == 5)))
+func.println(5 == (5 == 1):  parser.con(5 == (5 == 1)))
+func.println(5 == (5 == 5):  parser.con(5 == (5 == 5)))
+func.println(1 == (5 == 5):  parser.con(1 == (5 == 5)))
 
 func.println(-----------------)
 
-func.println(con.condition(1 || (1 && 0))) #1
-func.println(con.condition(1 || 1 && 0)) #1
-func.println(con.condition((1 || 1) && 0)) #0
+func.println(parser.con(1 || (1 && 0))) #1
+func.println(parser.con(1 || 1 && 0)) #1
+func.println(parser.con((1 || 1) && 0)) #0
 
 func.println(-----------------)
 
-func.println(con.condition(1 && (0 || 1))) #1
-func.println(con.condition(1 && 0 || 1)) #1
-func.println(con.condition((1 && 0) || 1)) #1
+func.println(parser.con(1 && (0 || 1))) #1
+func.println(parser.con(1 && 0 || 1)) #1
+func.println(parser.con((1 && 0) || 1)) #1
 
 func.println(-----------------)
 
-func.println(con.condition(0 && (1 || 0))) #0
-func.println(con.condition(0 && 1 || 0)) #0
-func.println(con.condition((0 && 1) || 0)) #0
+func.println(parser.con(0 && (1 || 0))) #0
+func.println(parser.con(0 && 1 || 0)) #0
+func.println(parser.con((0 && 1) || 0)) #0
 
 func.println(-----------------)
 
-func.println(con.condition(0 && (0 || 1))) #0
-func.println(con.condition(0 && 0 || 1)) #1
-func.println(con.condition((0 && 0) || 1)) #1
+func.println(parser.con(0 && (0 || 1))) #0
+func.println(parser.con(0 && 0 || 1)) #1
+func.println(parser.con((0 && 0) || 1)) #1
 
 func.println(-----------------)
 
-func.println(con.condition(!(0 && (0 || 1)))) #1
-func.println(con.condition(!(0 && 0 || 1))) #0
-func.println(con.condition(!((0 && 0) || 1))) #0
+func.println(parser.con(!(0 && (0 || 1)))) #1
+func.println(parser.con(!(0 && 0 || 1))) #0
+func.println(parser.con(!((0 && 0) || 1))) #0
 
 func.println(-----------------)
 
-func.println(con.condition(!0 && (0 || 1))) #1
-func.println(con.condition(!0 && 0 || 1)) #1
-func.println(con.condition(!(0 && 0) || 1)) #1
+func.println(parser.con(!0 && (0 || 1))) #1
+func.println(parser.con(!0 && 0 || 1)) #1
+func.println(parser.con(!(0 && 0) || 1)) #1
 
 func.println(-----------------)
 
-func.println(con.condition((!0) && (0 || 1))) #1
-func.println(con.condition((!0 && 0) || 1)) #1
-func.println(con.condition((!(0 && 0)) || 1)) #1
+func.println(parser.con((!0) && (0 || 1))) #1
+func.println(parser.con((!0 && 0) || 1)) #1
+func.println(parser.con((!(0 && 0)) || 1)) #1
 
 func.println(-----------------)
 
@@ -267,10 +267,10 @@ $var2 = null
 $var3 = nul\!l
 $var4
 
-func.println($var  -> con.condition($var === null)) #0
-func.println($var2 -> con.condition($var2 === null)) #1
-func.println($var3 -> con.condition($var3 === null)) #0
-func.println($var4 -> con.condition($var4 === null)) #1
+func.println($var  -> parser.con($var === null)) #0
+func.println($var2 -> parser.con($var2 === null)) #1
+func.println($var3 -> parser.con($var3 === null)) #0
+func.println($var4 -> parser.con($var4 === null)) #1
 
 func.println(-----------------)
 
@@ -280,18 +280,18 @@ func.println(-----------------)
 	&arr = func.arrayMake(3)
 	
 	func.println(Check with normal equals)
-	func.println(con.condition(&arr == 3))
-	func.println(con.condition(3 == &arr))
-	func.println(con.condition(&arr == 2))
-	func.println(con.condition(2 == &arr))
+	func.println(parser.con(&arr == 3))
+	func.println(parser.con(3 == &arr))
+	func.println(parser.con(&arr == 2))
+	func.println(parser.con(2 == &arr))
 	
 	func.println(-----------------)
 	
 	func.println(Check with strict equals)
-	func.println(con.condition(&arr === 3))
-	func.println(con.condition(3 === &arr))
-	func.println(con.condition(&arr === 2))
-	func.println(con.condition(2 === &arr))
+	func.println(parser.con(&arr === 3))
+	func.println(parser.con(3 === &arr))
+	func.println(parser.con(&arr === 2))
+	func.println(parser.con(2 === &arr))
 	
 	func.println(-----------------)
 	
@@ -299,34 +299,34 @@ func.println(-----------------)
 	func.divl(1, 0) # Set error to "div by zero"
 	
 	func.println(Check with normal equals with \$LANG_ERRNO_...)
-	func.println(con.condition($LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO == $LANG_ERRNO))
-	func.println(con.condition($LANG_ERRNO == $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO == $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERRNO_DIV_BY_ZERO == $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO == $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERRNO_INVALID_ARGUMENTS == $LANG_ERRNO))
 	
 	func.println(-----------------)
 	
 	func.println(Check with normal equals with \$LANG_ERROR_...)
-	func.println(con.condition($LANG_ERRNO == $LANG_ERROR_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO == $LANG_ERRNO))
-	func.println(con.condition($LANG_ERRNO == $LANG_ERROR_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS == $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO == $LANG_ERROR_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERROR_DIV_BY_ZERO == $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO == $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERROR_INVALID_ARGUMENTS == $LANG_ERRNO))
 	
 	func.println(-----------------)
 	
 	func.println(Check with strict equals with \$LANG_ERRNO_...)
-	func.println(con.condition($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO === $LANG_ERRNO))
-	func.println(con.condition($LANG_ERRNO === $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERRNO_DIV_BY_ZERO === $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO === $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERRNO_INVALID_ARGUMENTS === $LANG_ERRNO))
 	
 	func.println(-----------------)
 	
 	func.println(Check with strict equals with \$LANG_ERROR_...)
-	func.println(con.condition($LANG_ERRNO === $LANG_ERROR_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO === $LANG_ERRNO))
-	func.println(con.condition($LANG_ERRNO === $LANG_ERROR_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS === $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO === $LANG_ERROR_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERROR_DIV_BY_ZERO === $LANG_ERRNO))
+	func.println(parser.con($LANG_ERRNO === $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERROR_INVALID_ARGUMENTS === $LANG_ERRNO))
 	
 	func.println(-----------------)
 	
@@ -334,32 +334,32 @@ func.println(-----------------)
 	$err = func.divl(1, 0) # Will return "div by zero" error object
 	
 	func.println(Check with normal equals with \$LANG_ERRNO_...)
-	func.println(con.condition($err == $LANG_ERRNO_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO == $err))
-	func.println(con.condition($err == $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS == $err))
+	func.println(parser.con($err == $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERRNO_DIV_BY_ZERO == $err))
+	func.println(parser.con($err == $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERRNO_INVALID_ARGUMENTS == $err))
 	
 	func.println(-----------------)
 	
 	func.println(Check with normal equals with \$LANG_ERROR_...)
-	func.println(con.condition($err == $LANG_ERROR_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO == $err))
-	func.println(con.condition($err == $LANG_ERROR_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS == $err))
+	func.println(parser.con($err == $LANG_ERROR_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERROR_DIV_BY_ZERO == $err))
+	func.println(parser.con($err == $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERROR_INVALID_ARGUMENTS == $err))
 	
 	func.println(-----------------)
 	
 	func.println(Check with strict equals with \$LANG_ERRNO_...)
-	func.println(con.condition($err === $LANG_ERRNO_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERRNO_DIV_BY_ZERO === $err))
-	func.println(con.condition($err === $LANG_ERRNO_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERRNO_INVALID_ARGUMENTS === $err))
+	func.println(parser.con($err === $LANG_ERRNO_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERRNO_DIV_BY_ZERO === $err))
+	func.println(parser.con($err === $LANG_ERRNO_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERRNO_INVALID_ARGUMENTS === $err))
 	
 	func.println(-----------------)
 	
 	func.println(Check with strict equals with \$LANG_ERROR_...)
-	func.println(con.condition($err === $LANG_ERROR_DIV_BY_ZERO))
-	func.println(con.condition($LANG_ERROR_DIV_BY_ZERO === $err))
-	func.println(con.condition($err === $LANG_ERROR_INVALID_ARGUMENTS))
-	func.println(con.condition($LANG_ERROR_INVALID_ARGUMENTS === $err))
+	func.println(parser.con($err === $LANG_ERROR_DIV_BY_ZERO))
+	func.println(parser.con($LANG_ERROR_DIV_BY_ZERO === $err))
+	func.println(parser.con($err === $LANG_ERROR_INVALID_ARGUMENTS))
+	func.println(parser.con($LANG_ERROR_INVALID_ARGUMENTS === $err))
 }

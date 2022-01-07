@@ -86,17 +86,17 @@ func.printTerminal(-1, \n\n\n)
 {
 	# XOR: (CONDITION) != (CONDITION)
 	func.printTerminal(2, XOR:)
-	func.printTerminal(1, (1 > 42) != (1 > 42) = con.condition((1 > 42) != (1 > 42))) # 0
-	func.printTerminal(1, (1 > 42) != (1 < 42) = con.condition((1 > 42) != (1 < 42))) # 1
-	func.printTerminal(1, (1 < 42) != (1 > 42) = con.condition((1 < 42) != (1 > 42))) # 1
-	func.printTerminal(1, (1 < 42) != (1 < 42) = con.condition((1 < 42) != (1 < 42))) # 0
+	func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) != (1 > 42))) # 0
+	func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) != (1 < 42))) # 1
+	func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) != (1 > 42))) # 1
+	func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) != (1 < 42))) # 0
 	
 	# NXOR: (CONDITION) == (CONDITION)
 	func.printTerminal(2, \nNXOR:)
-	func.printTerminal(1, (1 > 42) != (1 > 42) = con.condition((1 > 42) == (1 > 42))) # 1
-	func.printTerminal(1, (1 > 42) != (1 < 42) = con.condition((1 > 42) == (1 < 42))) # 0
-	func.printTerminal(1, (1 < 42) != (1 > 42) = con.condition((1 < 42) == (1 > 42))) # 0
-	func.printTerminal(1, (1 < 42) != (1 < 42) = con.condition((1 < 42) == (1 < 42))) # 1
+	func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) == (1 > 42))) # 1
+	func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) == (1 < 42))) # 0
+	func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) == (1 > 42))) # 0
+	func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) == (1 < 42))) # 1
 }
 
 func.printTerminal(-1, \n\n\n)

@@ -292,15 +292,15 @@ func.println(-----------------)
 	}
 	
 	# Call of returned function pointer is not possible inside CONDITIONs in:
-	# con.if(...), con.elif(...), con.condition(...) [See: 06_if.lang]
+	# con.if(...), con.elif(...), parser.con(...) [See: 06_if.lang]
 	
-	$bool = con.condition(fp.retFP()()) # Would not call returned function pointer
+	$bool = parser.con(fp.retFP()()) # Would not call returned function pointer
 	func.println($bool)
 	
 	func.println(-----------------)
 	
 	$ret = fp.retFP()() # Returned function pointer must be called outside of a CONDITION
-	func.println(con.condition($ret))
+	func.println(parser.con($ret))
 	
 	func.println(-----------------)
 }

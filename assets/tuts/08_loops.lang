@@ -225,7 +225,7 @@ lang.version = v1.0.0
 		$num = func.deci($num)
 		func.copyAfterFP($[num], $[num])
 	}
-	fp.test = () -> return con.condition($num > 41)
+	fp.test = () -> return parser.con($num > 41)
 	func.repeatWhile(fp.printFunc, fp.test)
 
 	# Until loop
