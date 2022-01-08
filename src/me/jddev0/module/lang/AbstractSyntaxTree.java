@@ -1556,62 +1556,70 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public static enum Operator {
 			//General
-			NON                   ("",      true, -1, OperatorType.GENERAL),
-			ELVIS                 ("?:",          12, OperatorType.GENERAL),
-			NULL_COALESCING       ("??",          12, OperatorType.GENERAL),
+			NON                   ("",      true, -1,       OperatorType.GENERAL),
+			ELVIS                 ("?:",          12, true, OperatorType.GENERAL),
+			NULL_COALESCING       ("??",          12, true, OperatorType.GENERAL),
 			
 			//Math
-			MATH_NON              ("",      true, -1, OperatorType.MATH),
-			GET_ITEM              ("[...]",        0, OperatorType.MATH),
-			POW                   ("**",           1, OperatorType.MATH),
-			POS                   ("+",     true,  2, OperatorType.MATH),
-			INV                   ("-",     true,  2, OperatorType.MATH),
-			BITWISE_NOT           ("~",     true,  2, OperatorType.MATH),
-			INC                   ("▲",     true,  2, OperatorType.MATH),
-			DEC                   ("▼",     true,  2, OperatorType.MATH),
-			MUL                   ("*",            3, OperatorType.MATH),
-			DIV                   ("/",            3, OperatorType.MATH),
-			FLOOR_DIV             ("//",           3, OperatorType.MATH),
-			MOD                   ("%",            3, OperatorType.MATH),
-			ADD                   ("+",            4, OperatorType.MATH),
-			SUB                   ("-",            4, OperatorType.MATH),
-			LSHIFT                ("<<",           5, OperatorType.MATH),
-			RSHIFT                (">>",           5, OperatorType.MATH),
-			RZSHIFT               (">>>",          5, OperatorType.MATH),
-			BITWISE_AND           ("&",            6, OperatorType.MATH),
-			BITWISE_XOR           ("^",            7, OperatorType.MATH),
-			BITWISE_OR            ("|",            8, OperatorType.MATH),
-			SPACESHIP             ("<=>",          9, OperatorType.MATH),
+			MATH_NON              ("",      true, -1,       OperatorType.MATH),
+			GET_ITEM              ("[...]",        0,       OperatorType.MATH),
+			POW                   ("**",           1,       OperatorType.MATH),
+			POS                   ("+",     true,  2,       OperatorType.MATH),
+			INV                   ("-",     true,  2,       OperatorType.MATH),
+			BITWISE_NOT           ("~",     true,  2,       OperatorType.MATH),
+			INC                   ("▲",     true,  2,       OperatorType.MATH),
+			DEC                   ("▼",     true,  2,       OperatorType.MATH),
+			MUL                   ("*",            3,       OperatorType.MATH),
+			DIV                   ("/",            3,       OperatorType.MATH),
+			FLOOR_DIV             ("//",           3,       OperatorType.MATH),
+			MOD                   ("%",            3,       OperatorType.MATH),
+			ADD                   ("+",            4,       OperatorType.MATH),
+			SUB                   ("-",            4,       OperatorType.MATH),
+			LSHIFT                ("<<",           5,       OperatorType.MATH),
+			RSHIFT                (">>",           5,       OperatorType.MATH),
+			RZSHIFT               (">>>",          5,       OperatorType.MATH),
+			BITWISE_AND           ("&",            6,       OperatorType.MATH),
+			BITWISE_XOR           ("^",            7,       OperatorType.MATH),
+			BITWISE_OR            ("|",            8,       OperatorType.MATH),
+			SPACESHIP             ("<=>",          9,       OperatorType.MATH),
 			
 			//Condition
-			CONDITIONAL_NON       ("",      true, -1, OperatorType.CONDITION),
-			NOT                   ("!",     true,  2, OperatorType.CONDITION),
-			EQUALS                ("==",           9, OperatorType.CONDITION),
-			NOT_EQUALS            ("!=",           9, OperatorType.CONDITION),
-			MATCHES               ("=~",           9, OperatorType.CONDITION),
-			NOT_MATCHES           ("!=~",          9, OperatorType.CONDITION),
-			STRICT_EQUALS         ("===",          9, OperatorType.CONDITION),
-			STRICT_NOT_EQUALS     ("!==",          9, OperatorType.CONDITION),
-			LESS_THAN             ("<",            9, OperatorType.CONDITION),
-			GREATER_THAN          (">",            9, OperatorType.CONDITION),
-			LESS_THAN_OR_EQUALS   ("<=",           9, OperatorType.CONDITION),
-			GREATER_THAN_OR_EQUALS(">=",           9, OperatorType.CONDITION),
-			AND                   ("&&",          10, OperatorType.CONDITION),
-			OR                    ("||",          11, OperatorType.CONDITION);
+			CONDITIONAL_NON       ("",      true, -1,       OperatorType.CONDITION),
+			NOT                   ("!",     true,  2,       OperatorType.CONDITION),
+			EQUALS                ("==",           9,       OperatorType.CONDITION),
+			NOT_EQUALS            ("!=",           9,       OperatorType.CONDITION),
+			MATCHES               ("=~",           9,       OperatorType.CONDITION),
+			NOT_MATCHES           ("!=~",          9,       OperatorType.CONDITION),
+			STRICT_EQUALS         ("===",          9,       OperatorType.CONDITION),
+			STRICT_NOT_EQUALS     ("!==",          9,       OperatorType.CONDITION),
+			LESS_THAN             ("<",            9,       OperatorType.CONDITION),
+			GREATER_THAN          (">",            9,       OperatorType.CONDITION),
+			LESS_THAN_OR_EQUALS   ("<=",           9,       OperatorType.CONDITION),
+			GREATER_THAN_OR_EQUALS(">=",           9,       OperatorType.CONDITION),
+			AND                   ("&&",          10, true, OperatorType.CONDITION),
+			OR                    ("||",          11, true, OperatorType.CONDITION);
 			
 			private final String symbol;
 			private final boolean unary;
 			private final int precedence;
+			private final boolean lazyEvaluation;
 			private final OperatorType operatorType;
 			
-			private Operator(String symbol, boolean unaryOperator, int precedence, OperatorType operatorType) {
+			private Operator(String symbol, boolean unary, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
 				this.symbol = symbol;
-				this.unary = unaryOperator;
+				this.unary = unary;
 				this.precedence = precedence;
+				this.lazyEvaluation = lazyEvaluation;
 				this.operatorType = operatorType;
 			}
+			private Operator(String symbol, boolean unary, int precedence, OperatorType operatorType) {
+				this(symbol, unary, precedence, false, operatorType);
+			}
 			private Operator(String symbol, int precedence, OperatorType operatorType) {
-				this(symbol, false, precedence, operatorType);
+				this(symbol, false, precedence, false, operatorType);
+			}
+			private Operator(String symbol, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
+				this(symbol, false, precedence, lazyEvaluation, operatorType);
 			}
 			
 			public String getSymbol() {
@@ -1624,6 +1632,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			public int getPrecedence() {
 				return precedence;
+			}
+			
+			public boolean isLazyEvaluation() {
+				return lazyEvaluation;
 			}
 			
 			public OperatorType getOperatorType() {

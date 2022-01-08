@@ -775,11 +775,8 @@ public final class LangInterpreter {
 	
 	private DataObject interpretOperationNode(OperationNode node, final int DATA_ID) {
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
-		//Interpret rightNode for AND and OR only if the first argument is TRUE (for AND) or FALSE (for OR)
-		DataObject rightSideOperand = node.getOperator().isUnary() || node.getOperator() == Operator.AND ||
-				node.getOperator() == Operator.OR?null:interpretNode(node.getRightSideOperand(), DATA_ID);
-		if(leftSideOperand == null || (!node.getOperator().isUnary() && node.getOperator() != Operator.AND &&
-				node.getOperator() != Operator.OR && rightSideOperand == null))
+		DataObject rightSideOperand = (node.getOperator().isUnary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getRightSideOperand(), DATA_ID);
+		if(leftSideOperand == null || (!node.getOperator().isUnary() && !node.getOperator().isLazyEvaluation() && rightSideOperand == null))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
 		if(node.getOperatorType() == OperatorType.GENERAL) {
@@ -790,9 +787,21 @@ public final class LangInterpreter {
 				
 				//Binary
 				case ELVIS:
-					return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
+					if(leftSideOperand.getBoolean())
+						return leftSideOperand;
+					
+					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+					if(rightSideOperand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+					return rightSideOperand;
 				case NULL_COALESCING:
-					return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
+					if(leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)
+						return leftSideOperand;
+					
+					rightSideOperand = interpretNode(node.getRightSideOperand(), DATA_ID);
+					if(rightSideOperand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+					return rightSideOperand;
 				
 				default:
 					break;
