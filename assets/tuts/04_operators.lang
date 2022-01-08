@@ -1,56 +1,6 @@
 lang.name = Operators
 lang.version = v1.0.0
 
-# Assignment operators
-$a = 42 # Normal assignment
-func.println($a)
-
-# Set assignment
-$a $= 42 - 20 * 2 # Rvalue will be parsed as operation expression "parser.op()"
-func.println($a)
-
-# Math assignments (Rvalue will be parsed as math expression "parser.math()")
-$a += (40 - 23) // 2 # Addition assignment
-func.println($a)
-
-$a -= 2 # Subtract assignment
-func.println($a)
-
-$a *= 3 + 1 # Multiplication assignment
-func.println($a)
-
-$a /= 3 # Division assignment
-func.println($a)
-
-$a //= 3 # Floor division assignment
-func.println($a)
-
-$a **= 8 # Power assignment
-func.println($a)
-
-$a = func.int($a) # Convert $a to integer
-
-$a %= 250 # Modulo assignment
-func.println($a)
-
-$a >>= 2 # Right shift assignment
-func.println($a)
-
-$a >>>= 1 # Right zero shift assignment
-func.println($a)
-
-$a <<= 1 # Left shift assignment
-func.println($a)
-
-$a &= 250 # Bitwise and assignment
-func.println($a)
-
-$a |= 15 # Bitwise or assignment
-func.println($a)
-
-$a ^= 43 # Bitwise xor assignment
-func.println($a)
-
 # Operators
 # General
 # (...)       - Brackets
@@ -170,7 +120,6 @@ func.println($a)
 # parser.math(...) # Math expression
 # parser.op(...) # Operator expression (Math expression & Condition)
 
-func.println()
 func.println(2 && 3)
 func.println(parser.con(2 && 3))
 func.println(parser.math(2 && 3)) # Will crash, because it will be parses as: 2 BITWISE_AND (& 3)
@@ -239,3 +188,55 @@ func.println(parser.op(func.arrayOf() ?? 42)) # []
 func.println(parser.op(func.arrayOf(1, abc) ?? 42)) # [1, abc]
 func.println(parser.op(null ?? 42)) # 42
 func.println(parser.op(func.print(\e) ?? 42)) # 42 func.print(\e) will return a void value
+
+func.println()
+
+# Assignment operators
+$a = 42 # Normal assignment
+func.println($a)
+
+# Set assignment
+$a $= 42 - 20 * 2 # Rvalue will be parsed as operation expression "parser.op()"
+func.println($a)
+
+# Math assignments (Rvalue will be parsed as math expression "parser.math()")
+$a += (40 - 23) // 2 # Addition assignment
+func.println($a)
+
+$a -= 2 # Subtract assignment
+func.println($a)
+
+$a *= 3 + 1 # Multiplication assignment
+func.println($a)
+
+$a /= 3 # Division assignment
+func.println($a)
+
+$a //= 3 # Floor division assignment
+func.println($a)
+
+$a **= 8 # Power assignment
+func.println($a)
+
+$a = func.int($a) # Convert $a to integer
+
+$a %= 250 # Modulo assignment
+func.println($a)
+
+$a >>= 2 # Right shift assignment
+func.println($a)
+
+$a >>>= 1 # Right zero shift assignment
+func.println($a)
+
+$a <<= 1 # Left shift assignment
+func.println($a)
+
+$a &= 250 # Bitwise and assignment
+func.println($a)
+
+$a |= 15 # Bitwise or assignment
+func.println($a)
+
+$a ^= 43 # Bitwise xor assignment
+func.println($a)
