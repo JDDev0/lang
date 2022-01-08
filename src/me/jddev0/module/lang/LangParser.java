@@ -463,6 +463,9 @@ public final class LangParser {
 				}else if(token.startsWith(">>") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.RSHIFT;
+				}else if(token.startsWith("<=>") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.OperationNode.Operator.SPACESHIP;
 				}else if(token.startsWith("<=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.LESS_THAN_OR_EQUALS;

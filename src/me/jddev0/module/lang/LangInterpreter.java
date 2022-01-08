@@ -859,6 +859,9 @@ public final class LangInterpreter {
 				case GET_ITEM:
 					output = leftSideOperand.opGetItem(rightSideOperand);
 					break;
+				case SPACESHIP:
+					output = leftSideOperand.opSpaceship(rightSideOperand);
+					break;
 				
 				default:
 					break;
@@ -3199,6 +3202,19 @@ public final class LangInterpreter {
 		}
 		
 		//Operation functions
+		/**
+		 * For "&lt;=&gt;"
+		 */
+		public DataObject opSpaceship(DataObject other) {
+			if(isLessThan(other))
+				return new DataObject().setInt(-1);
+			if(isEquals(other))
+				return new DataObject().setInt(0);
+			if(isGreaterThan(other))
+				return new DataObject().setInt(1);
+			
+			return new DataObject().setNull();
+		}
 		/**
 		 * For "▲"
 		 */
