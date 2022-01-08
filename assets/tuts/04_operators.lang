@@ -81,8 +81,8 @@ func.println($a)
 # ... || ...  - Or
 # ... == ...  - Equals
 # ... != ...  - Not equals
-# ... ~= ...  - Matches
-# ... !~= ... - Not matches
+# ... =~ ...  - Matches
+# ... !=~ ... - Not matches
 # ... === ... - Strict equals
 # ... !== ... - Strict not equals
 # ... < ...   - Less than
@@ -127,8 +127,8 @@ func.println($a)
 #  9         | ... <=> ... | left-to-right | Spaceship
 #            | ... == ...  |               | Equals
 #            | ... != ...  |               | Not equals
-#            | ... ~= ...  |               | Matches
-#            | ... !~= ... |               | Not matches
+#            | ... =~ ...  |               | Matches
+#            | ... !=~ ... |               | Not matches
 #            | ... === ... |               | Strict equals
 #            | ... !== ... |               | Strict not equals
 #            | ... < ...   |               | Less than

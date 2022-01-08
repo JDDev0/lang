@@ -434,7 +434,7 @@ public final class LangParser {
 						whitespaces.delete(0, whitespaces.length());
 					}
 				}
-			}else if(token.startsWith("!==") || token.startsWith("!=") || token.startsWith("~=") || token.startsWith("!~=") || token.startsWith("===") || token.startsWith("==") ||
+			}else if(token.startsWith("!==") || token.startsWith("!=~") || token.startsWith("!=") || token.startsWith("===") || token.startsWith("=~") || token.startsWith("==") ||
 			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
 			token.startsWith("&") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") || token.startsWith("/") ||
 			token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") ||
@@ -446,18 +446,18 @@ public final class LangParser {
 				if(token.startsWith("!==") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.OperationNode.Operator.STRICT_NOT_EQUALS;
+				}else if(token.startsWith("!=~") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.OperationNode.Operator.NOT_MATCHES;
 				}else if(token.startsWith("!=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.NOT_EQUALS;
-				}else if(token.startsWith("~=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
-					operatorLength = 2;
-					operator = AbstractSyntaxTree.OperationNode.Operator.MATCHES;
-				}else if(token.startsWith("!~=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
-					operatorLength = 3;
-					operator = AbstractSyntaxTree.OperationNode.Operator.NOT_MATCHES;
 				}else if(token.startsWith("===") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.OperationNode.Operator.STRICT_EQUALS;
+				}else if(token.startsWith("=~") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.MATCHES;
 				}else if(token.startsWith("==") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.EQUALS;
