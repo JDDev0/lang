@@ -1586,6 +1586,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			NOT                   ("!",     true,  2, OperatorType.CONDITION),
 			EQUALS                ("==",           9, OperatorType.CONDITION),
 			NOT_EQUALS            ("!=",           9, OperatorType.CONDITION),
+			MATCHES               ("~=",           9, OperatorType.CONDITION),
+			NOT_MATCHES           ("!~=",          9, OperatorType.CONDITION),
 			STRICT_EQUALS         ("===",          9, OperatorType.CONDITION),
 			STRICT_NOT_EQUALS     ("!==",          9, OperatorType.CONDITION),
 			LESS_THAN             ("<",            9, OperatorType.CONDITION),

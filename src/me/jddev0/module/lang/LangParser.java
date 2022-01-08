@@ -434,10 +434,11 @@ public final class LangParser {
 						whitespaces.delete(0, whitespaces.length());
 					}
 				}
-			}else if(token.startsWith("!==") || token.startsWith("!=") || token.startsWith("===") || token.startsWith("==") || token.startsWith("<=") || token.startsWith(">=") ||
-			token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") || token.startsWith("&") || token.startsWith("~") ||
-			token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") ||
-			token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") || token.startsWith("-")) {
+			}else if(token.startsWith("!==") || token.startsWith("!=") || token.startsWith("~=") || token.startsWith("!~=") || token.startsWith("===") || token.startsWith("==") ||
+			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
+			token.startsWith("&") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") || token.startsWith("/") ||
+			token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") ||
+			token.startsWith("-")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -448,6 +449,12 @@ public final class LangParser {
 				}else if(token.startsWith("!=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.NOT_EQUALS;
+				}else if(token.startsWith("~=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.MATCHES;
+				}else if(token.startsWith("!~=") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.OperationNode.Operator.NOT_MATCHES;
 				}else if(token.startsWith("===") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 3;
 					operator = AbstractSyntaxTree.OperationNode.Operator.STRICT_EQUALS;

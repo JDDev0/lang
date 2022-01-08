@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import me.jddev0.module.io.TerminalIO;
@@ -917,6 +918,17 @@ public final class LangInterpreter {
 					conditionOuput = leftSideOperand.isEquals(rightSideOperand);
 					
 					if(node.getOperator() == Operator.NOT_EQUALS)
+						conditionOuput = !conditionOuput;
+					break;
+				case MATCHES:
+				case NOT_MATCHES:
+					try {
+						conditionOuput = leftSideOperand.getText().matches(rightSideOperand.getText());
+					}catch(PatternSyntaxException e) {
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), DATA_ID);
+					}
+					
+					if(node.getOperator() == Operator.NOT_MATCHES)
 						conditionOuput = !conditionOuput;
 					break;
 				case STRICT_EQUALS:
