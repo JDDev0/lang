@@ -173,10 +173,10 @@ func.println(parser.math(4 + parser.con(abc && parser.op(1 + 3 === 4))))
 
 # Spaceship operator
 # $a <=> $b:
-#   a < b:  -1
-#   a == b:  0
-#   a > b:   1
-#   a not comparable to b (= every previous check returned false): null
+#   if $a < $b:  -1
+#   if $a == $b:  0
+#   if $a > $b:   1
+#   if $a not comparable to $b (= every previous check returned false): null
 func.println()
 func.println(parser.math(1 <=> 1)) # 0
 func.println(parser.math(1 <=> 2)) # -1
