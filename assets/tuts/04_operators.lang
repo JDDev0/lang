@@ -213,7 +213,7 @@ func.println(parser.math(null <=> null)) # 0
 func.println(parser.math(1 <=> null)) # null
 
 # Elvis operator
-# Will be evaulate to the first expression if it evaluates to true else it will be evalute the second expression
+# Will be evaulate to the first operand if it evaluates to true else it will be evalute the second operand
 func.println()
 func.println(parser.op(1 ?: 42)) # 1
 func.println(parser.op(0 ?: 42)) # 42
@@ -227,7 +227,7 @@ func.println(parser.op(null ?: 42)) # 42
 func.println(parser.op(func.print(\e) ?: 42)) # 42 (func.print(\e) will return a void value)
 
 # Null coalescing operator
-# Will be evaulate to the first expression if it is not null and not void else it will be evalute the second expression
+# Will be evaulate to the first operand if it is not null and not void else it will be evalute the second operand
 func.println()
 func.println(parser.op(1 ?? 42)) # 1
 func.println(parser.op(0 ?? 42)) # 0
