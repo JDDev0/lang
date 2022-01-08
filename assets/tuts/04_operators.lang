@@ -221,6 +221,8 @@ func.println(parser.op(\0 ?: 42)) # 42
 func.println(parser.op(\? ?: 42)) # ?
 func.println(parser.op(abc ?: 42)) # abc
 func.println(parser.op(\e ?: 42)) # 42
+func.println(parser.op(func.arrayOf() ?: 42)) # 42
+func.println(parser.op(func.arrayOf(1, abc) ?: 42)) # [1, abc]
 func.println(parser.op(null ?: 42)) # 42
 func.println(parser.op(func.print(\e) ?: 42)) # 42 (func.print(\e) will return a void value)
 
@@ -233,5 +235,7 @@ func.println(parser.op(\0 ?? 42)) # \0
 func.println(parser.op(\? ?? 42)) # ?
 func.println(parser.op(abc ?? 42)) # abc
 func.println(parser.op(\e ?? 42)) # \e
+func.println(parser.op(func.arrayOf() ?? 42)) # []
+func.println(parser.op(func.arrayOf(1, abc) ?? 42)) # [1, abc]
 func.println(parser.op(null ?? 42)) # 42
 func.println(parser.op(func.print(\e) ?? 42)) # 42 func.print(\e) will return a void value
