@@ -91,56 +91,71 @@ func.println($a)
 # ... >= ...  - Greater than or equals
 
 # Operator precedence/associativity
-# Precedence | Operator    | Associativity | Operator name
-# ===========|=============|===============|=======================
-#  0         | (...)       | -             | Brackets
-# -----------|-------------|---------------|------------------------
-#  0.5       | ...(...)    | -             | Function calls
-# -----------|-------------|---------------|------------------------
-#  1         | ... ** ...  | right-to-left | Power
-# -----------|-------------|---------------|------------------------
-#  2         | +...        | right-to-left | Positive
-#            | -...        |               | Inverse
-#            | ~...        |               | Bitwise not
-#            | ▲...        |               | Increment
-#            | ▼...        |               | Decrement
-#            | !...        |               | Not
-# -----------|-------------|---------------|------------------------
-#  3         | ... * ...   | left-to-right | Multiplication
-#            | ... / ...   |               | Division
-#            | ... // ...  |               | Floor division
-#            | ... % ...   |               | Modulo
-# -----------|-------------|---------------|------------------------
-#  4         | ... + ...   | left-to-right | Addition
-#            | ... - ...   |               | Subtraction
-# -----------|-------------|---------------|------------------------
-#  5         | ... << ...  | left-to-right | Left shift
-#            | ... >> ...  |               | Right shift
-#            | ... >>> ... |               | Right zero shift
-# -----------|-------------|---------------|------------------------
-#  6         | ... & ...   | left-to-right | Bitwise and
-# -----------|-------------|---------------|------------------------
-#  7         | ... ^ ...   | left-to-right | Bitwsie xor
-# -----------|-------------|---------------|------------------------
-#  8         | ... | ...   | left-to-right | Bitwise or
-# -----------|-------------|---------------|------------------------
-#  9         | ... <=> ... | left-to-right | Spaceship
-#            | ... == ...  |               | Equals
-#            | ... != ...  |               | Not equals
-#            | ... =~ ...  |               | Matches
-#            | ... !=~ ... |               | Not matches
-#            | ... === ... |               | Strict equals
-#            | ... !== ... |               | Strict not equals
-#            | ... < ...   |               | Less than
-#            | ... > ...   |               | Greater than
-#            | ... <= ...  |               | Less than or equals
-#            | ... >= ...  |               | Greater than or equals
-# -----------|-------------|---------------|------------------------
-# 10         | ... && ...  | left-to-right | And
-# -----------|-------------|---------------|------------------------
-# 11         | ... || ...  | left-to-right | Or
-# -----------|-------------|---------------|------------------------
-# 12         | ... ?= ...  | right-to-left | Assignments
+# Precedence | Operator     | Associativity | Operator name
+# ===========|==============|===============|=============================
+#  0         | (...)        | -             | Brackets
+# -----------|--------------|---------------|-----------------------------
+#  0.5       | ...(...)     | -             | Function calls
+# -----------|--------------|---------------|-----------------------------
+#  1         | ... ** ...   | right-to-left | Power
+# -----------|--------------|---------------|-----------------------------
+#  2         | +...         | right-to-left | Positive
+#            | -...         |               | Inverse
+#            | ~...         |               | Bitwise not
+#            | ▲...         |               | Increment
+#            | ▼...         |               | Decrement
+#            | !...         |               | Not
+# -----------|--------------|---------------|-----------------------------
+#  3         | ... * ...    | left-to-right | Multiplication
+#            | ... / ...    |               | Division
+#            | ... // ...   |               | Floor division
+#            | ... % ...    |               | Modulo
+# -----------|--------------|---------------|-----------------------------
+#  4         | ... + ...    | left-to-right | Addition
+#            | ... - ...    |               | Subtraction
+# -----------|--------------|---------------|-----------------------------
+#  5         | ... << ...   | left-to-right | Left shift
+#            | ... >> ...   |               | Right shift
+#            | ... >>> ...  |               | Right zero shift
+# -----------|--------------|---------------|-----------------------------
+#  6         | ... & ...    | left-to-right | Bitwise and
+# -----------|--------------|---------------|-----------------------------
+#  7         | ... ^ ...    | left-to-right | Bitwsie xor
+# -----------|--------------|---------------|-----------------------------
+#  8         | ... | ...    | left-to-right | Bitwise or
+# -----------|--------------|---------------|-----------------------------
+#  9         | ... <=> ...  | left-to-right | Spaceship
+#            | ... == ...   |               | Equals
+#            | ... != ...   |               | Not equals
+#            | ... =~ ...   |               | Matches
+#            | ... !=~ ...  |               | Not matches
+#            | ... === ...  |               | Strict equals
+#            | ... !== ...  |               | Strict not equals
+#            | ... < ...    |               | Less than
+#            | ... > ...    |               | Greater than
+#            | ... <= ...   |               | Less than or equals
+#            | ... >= ...   |               | Greater than or equals
+# -----------|--------------|---------------|-----------------------------
+# 10         | ... && ...   | left-to-right | And
+# -----------|--------------|---------------|-----------------------------
+# 11         | ... || ...   | left-to-right | Or
+# -----------|--------------|---------------|-----------------------------
+# 12         | ... = ...    | right-to-left | Normal assignment
+#            | ... = ...    |               | Translation
+#            | ... $= ...   |               | Set assignment
+#            | ... += ...   |               | Addition assignment
+#            | ... -= ...   |               | Subtraction assignment
+#            | ... *= ...   |               | Multiplication assignment
+#            | ... /= ...   |               | Division assignment
+#            | ... //= ...  |               | Floor division assignment
+#            | ... **= ...  |               | Power assignment
+#            | ... %= ...   |               | Modulo assignment
+#            | ... >>= ...  |               | Right shift assignment
+#            | ... >>>= ... |               | Right zero shift assignment
+#            | ... <<= ...  |               | Left shift assignment
+#            | ... &= ...   |               | Bitwise and assignment
+#            | ... |= ...   |               | Bitwise or assignment
+#            | ... ^= ...   |               | Bitwise xor assignment
 
 # Parser functions
 # parser.con(...) # Condition
