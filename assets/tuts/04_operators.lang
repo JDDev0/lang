@@ -72,6 +72,7 @@ func.println($a)
 # ... & ...   - Bitwise and
 # ... ^ ...   - Bitwise xor
 # ... | ...   - Bitwise or
+# ... <=> ... - Spaceship
 
 # Condition
 # (...)       - Bracket
@@ -121,7 +122,8 @@ func.println($a)
 # -----------|-------------|---------------|------------------------
 #  8         | ... | ...   | left-to-right | Bitwise or
 # -----------|-------------|---------------|------------------------
-#  9         | ... == ...  | left-to-right | Equals
+#  9         | ... <=> ... | left-to-right | Spaceship
+#            | ... == ...  |               | Equals
 #            | ... != ...  |               | Not eqauls
 #            | ... === ... |               | Strict equals
 #            | ... !== ... |               | Strict not equals
@@ -168,3 +170,17 @@ func.println(parser.math(4 + parser.con(abc && parser.op(1 + 3 === 4))))
 # 4 ADD (abc AND 1)
 # 4 ADD 1
 # 5
+
+# Spaceship operator
+# $a <=> $b:
+#   a < b:  -1
+#   a == b:  0
+#   a > b:   1
+#   a not comparable to b (= every previous check returned false): null
+func.println()
+func.println(parser.math(1 <=> 1)) # 0
+func.println(parser.math(1 <=> 2)) # -1
+func.println(parser.math(2 <=> 1)) # 1
+func.println(parser.math(null <=> 1)) # null
+func.println(parser.math(null <=> null)) # 0
+func.println(parser.math(1 <=> null)) # null
