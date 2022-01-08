@@ -788,6 +788,12 @@ public final class LangInterpreter {
 				case NON:
 					return leftSideOperand;
 				
+				//Binary
+				case ELVIS:
+					return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
+				case NULL_COALESCING:
+					return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
+				
 				default:
 					break;
 			}
