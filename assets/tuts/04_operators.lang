@@ -52,8 +52,13 @@ $a ^= 43 # Bitwise xor assignment
 func.println($a)
 
 # Operators
+# General
+# (...)       - Brackets
+# ... ?: ...  - Elvis
+# ... ?? ...  - Null coalescing
+
 # Math
-# (...)       - Bracket
+# (...)       - Brackets
 # ... ** ...  - Power
 # +...        - Positive
 # -...        - Inverse
@@ -75,7 +80,7 @@ func.println($a)
 # ... <=> ... - Spaceship
 
 # Condition
-# (...)       - Bracket
+# (...)       - Brackets
 # !...        - Not
 # ... && ...  - And
 # ... || ...  - Or
@@ -140,7 +145,10 @@ func.println($a)
 # -----------|--------------|---------------|-----------------------------
 # 11         | ... || ...   | left-to-right | Or
 # -----------|--------------|---------------|-----------------------------
-# 12         | ... = ...    | right-to-left | Normal assignment
+# 12         | ... ?: ...   | left-to-right | Elvis
+#            | ... ?? ...   |               | Null coalescing
+# -----------|--------------|---------------|-----------------------------
+# 13         | ... = ...    | right-to-left | Normal assignment
 #            | ... = ...    |               | Translation
 #            | ... $= ...   |               | Set assignment
 #            | ... += ...   |               | Addition assignment
@@ -203,3 +211,27 @@ func.println(parser.math(2 <=> 1)) # 1
 func.println(parser.math(null <=> 1)) # null
 func.println(parser.math(null <=> null)) # 0
 func.println(parser.math(1 <=> null)) # null
+
+# Elvis operator
+# Will be evaulate to the first expression if it evaluates to true else it will be evalute the second expression
+func.println()
+func.println(parser.op(1 ?: 42)) # 1
+func.println(parser.op(0 ?: 42)) # 42
+func.println(parser.op(\0 ?: 42)) # 42
+func.println(parser.op(\? ?: 42)) # ?
+func.println(parser.op(abc ?: 42)) # abc
+func.println(parser.op(\e ?: 42)) # 42
+func.println(parser.op(null ?: 42)) # 42
+func.println(parser.op(func.print(\e) ?: 42)) # 42 (func.print(\e) will return a void value)
+
+# Null coalescing operator
+# Will be evaulate to the first expression if it is not null and not void else it will be evalute the second expression
+func.println()
+func.println(parser.op(1 ?? 42)) # 1
+func.println(parser.op(0 ?? 42)) # 0
+func.println(parser.op(\0 ?? 42)) # \0
+func.println(parser.op(\? ?? 42)) # ?
+func.println(parser.op(abc ?? 42)) # abc
+func.println(parser.op(\e ?? 42)) # \e
+func.println(parser.op(null ?? 42)) # 42
+func.println(parser.op(func.print(\e) ?? 42)) # 42 func.print(\e) will return a void value
