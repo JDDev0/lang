@@ -1615,11 +1615,11 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			private Operator(String symbol, boolean unary, int precedence, OperatorType operatorType) {
 				this(symbol, unary, precedence, false, operatorType);
 			}
-			private Operator(String symbol, int precedence, OperatorType operatorType) {
-				this(symbol, false, precedence, false, operatorType);
-			}
 			private Operator(String symbol, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
 				this(symbol, false, precedence, lazyEvaluation, operatorType);
+			}
+			private Operator(String symbol, int precedence, OperatorType operatorType) {
+				this(symbol, false, precedence, false, operatorType);
 			}
 			
 			public String getSymbol() {
