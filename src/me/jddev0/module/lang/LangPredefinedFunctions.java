@@ -1506,6 +1506,7 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		//General operator functions
 		funcs.put("len", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opLen, DATA_ID), DATA_ID));
 		funcs.put("spaceship", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSpaceship, DATA_ID), DATA_ID));
 		funcs.put("elvis", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {
@@ -1514,6 +1515,8 @@ final class LangPredefinedFunctions {
 		funcs.put("nullCoalescing", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {
 			return (dataObject1.getType() != DataType.NULL && dataObject1.getType() != DataType.VOID)?dataObject1:dataObject2;
 		}, DATA_ID), DATA_ID));
+		
+		//Math operator functions
 		funcs.put("inc", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInc, DATA_ID), DATA_ID));
 		funcs.put("dec", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDec, DATA_ID), DATA_ID));
 		funcs.put("pos", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opPos, DATA_ID), DATA_ID));
