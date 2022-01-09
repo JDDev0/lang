@@ -4,6 +4,7 @@ lang.version = v1.0.0
 # Operators
 # General
 # (opr)               - Brackets
+# opr1 <=> opr2       - Spaceship
 # opr1 ?: oprr2       - Elvis
 # opr1 ?? opr2        - Null coalescing
 # opr1 ? opr2 : opr3  - Inline if
@@ -28,7 +29,6 @@ lang.version = v1.0.0
 # opr1 & opr2         - Bitwise and
 # opr1 ^ opr2         - Bitwise xor
 # opr1 | opr2         - Bitwise or
-# opr1 <=> opr2       - Spaceship
 
 # Condition
 # (opr)               - Brackets
@@ -173,12 +173,12 @@ func.println(parser.math(4 + parser.con(abc && parser.op(1 + 3 === 4))))
 #   if $a > $b:   1
 #   if $a not comparable to $b (= every previous check returned false): null
 func.println()
-func.println(parser.math(1 <=> 1)) # 0
-func.println(parser.math(1 <=> 2)) # -1
-func.println(parser.math(2 <=> 1)) # 1
-func.println(parser.math(null <=> 1)) # null
-func.println(parser.math(null <=> null)) # 0
-func.println(parser.math(1 <=> null)) # null
+func.println(parser.op(1 <=> 1)) # 0
+func.println(parser.op(1 <=> 2)) # -1
+func.println(parser.op(2 <=> 1)) # 1
+func.println(parser.op(null <=> 1)) # null
+func.println(parser.op(null <=> null)) # 0
+func.println(parser.op(1 <=> null)) # null
 
 # Elvis operator
 # Will be evaulate to the first operand if it evaluates to true else it will be evalute the second operand
