@@ -601,8 +601,6 @@ public class LangShellWindow extends JDialog {
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
-				else if(nullFlag)
-					col = Color.YELLOW;
 				else if(dereferencingAndReferencingOperatorFlag)
 					col = Color.GRAY;
 				else if(bracketsFlag)
@@ -614,6 +612,8 @@ public class LangShellWindow extends JDialog {
 				else if(returnFlag || throwFlag)
 					col = Color.LIGHT_GRAY;
 				else if(Character.isDigit(c))
+					col = Color.YELLOW;
+				else if(nullFlag)
 					col = Color.YELLOW;
 				
 				GraphicsHelper.addText(shell, c + "", col);
