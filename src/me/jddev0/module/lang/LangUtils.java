@@ -112,8 +112,8 @@ public final class LangUtils {
 		replace(",", "\\,").replace(".", "\\.").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
 		replace("}", "\\}").replace("=", "\\=").replace("<", "\\<").replace(">", "\\>").replace("+", "\\+").
 		replace("-", "\\-").replace("/", "\\/").replace("*", "\\*").replace("%", "\\%").replace("|", "\\|").
-		replace("~", "\\~").replace("^", "\\^").replace("?", "\\?").replace(":", "\\:").replace("▲", "\\▲").
-		replace("▼", "\\▼").
+		replace("~", "\\~").replace("^", "\\^").replace("?", "\\?").replace(":", "\\:").replace("@", "\\@").
+		replace("▲", "\\▲").replace("▼", "\\▼").
 		
 		replace("!", "\\!!").replace("null", "nul\\!l").replace("return", "retur\\!n").
 		replace("throw", "thro\\!w") + "\\e";
