@@ -1585,6 +1585,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		public static enum Operator {
 			//General
 			NON                   ("",      1, -1,       OperatorType.GENERAL),
+			LEN                   ("@",     1,  2,       OperatorType.GENERAL),
 			SPACESHIP             ("<=>",       9,       OperatorType.GENERAL),
 			ELVIS                 ("?:",       12, true, OperatorType.GENERAL),
 			NULL_COALESCING       ("??",       12, true, OperatorType.GENERAL),

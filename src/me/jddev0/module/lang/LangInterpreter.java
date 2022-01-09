@@ -782,22 +782,19 @@ public final class LangInterpreter {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
 		if(node.getOperatorType() == OperatorType.GENERAL) {
+			DataObject output;
 			switch(node.getOperator()) {
 				//Unary
 				case NON:
 					return leftSideOperand;
+				case LEN:
+					output = leftSideOperand.opLen();
+					break;
 				
 				//Binary
 				case SPACESHIP:
-					DataObject output = leftSideOperand.opSpaceship(rightSideOperand);
-					
-					if(output == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
-					
-					if(output.getType() == DataType.ERROR)
-						return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
-					
-					return output;
+					output = leftSideOperand.opSpaceship(rightSideOperand);
+					break;
 				case ELVIS:
 					if(leftSideOperand.getBoolean())
 						return leftSideOperand;
@@ -824,10 +821,16 @@ public final class LangInterpreter {
 					return operand;
 				
 				default:
-					break;
+					return null;
 			}
 			
-			return null;
+			if(output == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			
+			if(output.getType() == DataType.ERROR)
+				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+			
+			return output;
 		}else if(node.getOperatorType() == OperatorType.MATH) {
 			DataObject output = null;
 			

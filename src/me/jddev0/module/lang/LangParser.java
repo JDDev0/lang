@@ -439,7 +439,7 @@ public final class LangParser {
 			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
 			token.startsWith("&") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") || token.startsWith("/") ||
 			token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") ||
-			token.startsWith("-") || token.startsWith("?:") || token.startsWith("??")) {
+			token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -517,6 +517,8 @@ public final class LangParser {
 					operator = somethingBeforeOperator?AbstractSyntaxTree.OperationNode.Operator.ADD:AbstractSyntaxTree.OperationNode.Operator.POS;
 				}else if(token.startsWith("-") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = somethingBeforeOperator?AbstractSyntaxTree.OperationNode.Operator.SUB:AbstractSyntaxTree.OperationNode.Operator.INV;
+				}else if(token.startsWith("@") && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type)) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.LEN;
 				}else if(token.startsWith("?:") && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.ELVIS;
