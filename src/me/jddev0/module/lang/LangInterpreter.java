@@ -788,6 +788,16 @@ public final class LangInterpreter {
 					return leftSideOperand;
 				
 				//Binary
+				case SPACESHIP:
+					DataObject output = leftSideOperand.opSpaceship(rightSideOperand);
+					
+					if(output == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+					
+					if(output.getType() == DataType.ERROR)
+						return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+					
+					return output;
 				case ELVIS:
 					if(leftSideOperand.getBoolean())
 						return leftSideOperand;
@@ -884,9 +894,6 @@ public final class LangInterpreter {
 					break;
 				case GET_ITEM:
 					output = leftSideOperand.opGetItem(rightSideOperand);
-					break;
-				case SPACESHIP:
-					output = leftSideOperand.opSpaceship(rightSideOperand);
 					break;
 				
 				default:

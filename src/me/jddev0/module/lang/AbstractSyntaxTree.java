@@ -1585,6 +1585,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		public static enum Operator {
 			//General
 			NON                   ("",      1, -1,       OperatorType.GENERAL),
+			SPACESHIP             ("<=>",       9,       OperatorType.GENERAL),
 			ELVIS                 ("?:",       12, true, OperatorType.GENERAL),
 			NULL_COALESCING       ("??",       12, true, OperatorType.GENERAL),
 			INLINE_IF             ("?...:", 3, 12, true, OperatorType.GENERAL),
@@ -1610,7 +1611,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			BITWISE_AND           ("&",         6,       OperatorType.MATH),
 			BITWISE_XOR           ("^",         7,       OperatorType.MATH),
 			BITWISE_OR            ("|",         8,       OperatorType.MATH),
-			SPACESHIP             ("<=>",       9,       OperatorType.MATH),
 			
 			//Condition
 			CONDITIONAL_NON       ("",      1, -1,       OperatorType.CONDITION),
