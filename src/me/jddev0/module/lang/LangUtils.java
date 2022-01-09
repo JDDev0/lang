@@ -107,12 +107,13 @@ public final class LangUtils {
 			str = str.replace(i + "", i + "\\e");
 		
 		//"\e": Used for escaping empty text
-		return "\\e" + str.replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r").
-		replace("\f", "\\f").replace(" ", "\\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").
-		replace("#", "\\#").replace(",", "\\,").replace(".", "\\.").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
+		return "\\e" + str.replace("\0", "\\0").replace("\n", "\\n").replace("\r", "\\r"). replace("\f", "\\f").
+		replace(" ", "\\s").replace("\t", "\\t").replace("$", "\\$").replace("&", "\\&").replace("#", "\\#").
+		replace(",", "\\,").replace(".", "\\.").replace("(", "\\(").replace(")", "\\)").replace("{", "\\{").
 		replace("}", "\\}").replace("=", "\\=").replace("<", "\\<").replace(">", "\\>").replace("+", "\\+").
 		replace("-", "\\-").replace("/", "\\/").replace("*", "\\*").replace("%", "\\%").replace("|", "\\|").
-		replace("~", "\\~").replace("^", "\\^").replace("?", "\\?").replace("▲", "\\▲").replace("▼", "\\▼").
+		replace("~", "\\~").replace("^", "\\^").replace("?", "\\?").replace(":", "\\:").replace("▲", "\\▲").
+		replace("▼", "\\▼").
 		
 		replace("!", "\\!!").replace("null", "nul\\!l").replace("return", "retur\\!n").
 		replace("throw", "thro\\!w") + "\\e";
