@@ -4,6 +4,7 @@ lang.version = v1.0.0
 # Operators
 # General
 # (opr)               - Brackets
+# @opr                - Length
 # opr1 <=> opr2       - Spaceship
 # opr1 ?: oprr2       - Elvis
 # opr1 ?? opr2        - Null coalescing
@@ -72,7 +73,8 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|-----------------------------
 #  1         | opr1 ** opr2       | right-to-left | Power
 # -----------|--------------------|---------------|-----------------------------
-#  2         | +opr               | right-to-left | Positive
+#  2         | @opr               | right-to-left | Length
+#            | +opr               |               | Positive
 #            | -opr               |               | Inverse
 #            | ~opr               |               | Bitwise not
 #            | ▲opr               |               | Increment
