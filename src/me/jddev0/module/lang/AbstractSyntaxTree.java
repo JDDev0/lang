@@ -1435,11 +1435,32 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		private final OperatorType nodeType;
 		
 		/**
+		 * For ternary operator
+		 */
+		public OperationNode(Node leftSideOperand, Node middleOperand, Node rightSideOperand, Operator operator, OperatorType nodeType) {
+			if(!operator.isTernary())
+				throw new IllegalStateException("Non ternary operator \"" + operator.getSymbol() + "\" must not have 3 operands");
+			
+			if(nodeType == null)
+				nodeType = OperatorType.GENERAL;
+			else if(!operator.getOperatorType().isCompatibleWith(nodeType))
+				throw new IllegalStateException("Node type is not compatible with the operator");
+			
+			nodes = new ArrayList<>(3);
+			nodes.add(leftSideOperand);
+			nodes.add(middleOperand);
+			nodes.add(rightSideOperand);
+			
+			this.operator = operator;
+			this.nodeType = nodeType;
+		}
+		
+		/**
 		 * For binary operator
 		 */
 		public OperationNode(Node leftSideOperand, Node rightSideOperand, Operator operator, OperatorType nodeType) {
-			if(operator.isUnary())
-				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" can only have one operand");
+			if(!operator.isBinary())
+				throw new IllegalStateException("Non binary operator \"" + operator.getSymbol() + "\" must not have 2 operand");
 			
 			if(nodeType == null)
 				nodeType = OperatorType.GENERAL;
@@ -1459,7 +1480,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		 */
 		public OperationNode(Node operand, Operator operator, OperatorType nodeType) {
 			if(!operator.isUnary())
-				throw new IllegalStateException("Binary operator \"" + operator.getSymbol() + "\" must have two operands");
+				throw new IllegalStateException("Non unary operator \"" + operator.getSymbol() + "\" must not have 1 operands");
 			
 			if(nodeType == null)
 				nodeType = OperatorType.GENERAL;
@@ -1496,11 +1517,18 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return nodes.get(0);
 		}
 		
-		public Node getRightSideOperand() {
-			if(nodes.size() < 2)
-				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" has only one operand");
+		public Node getMiddleOperand() {
+			if(nodes.size() < 3)
+				throw new IllegalStateException("Non ternary operator \"" + operator.getSymbol() + "\" has not 3 operand");
 			
 			return nodes.get(1);
+		}
+		
+		public Node getRightSideOperand() {
+			if(nodes.size() < 2)
+				throw new IllegalStateException("Unary operator \"" + operator.getSymbol() + "\" has only 1 operand");
+			
+			return nodes.get(nodes.size() - 1);
 		}
 		
 		public Operator getOperator() {
@@ -1556,70 +1584,71 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		public static enum Operator {
 			//General
-			NON                   ("",      true, -1,       OperatorType.GENERAL),
-			ELVIS                 ("?:",          12, true, OperatorType.GENERAL),
-			NULL_COALESCING       ("??",          12, true, OperatorType.GENERAL),
+			NON                   ("",      1, -1,       OperatorType.GENERAL),
+			ELVIS                 ("?:",       12, true, OperatorType.GENERAL),
+			NULL_COALESCING       ("??",       12, true, OperatorType.GENERAL),
+			INLINE_IF             ("?...:", 3, 12, true, OperatorType.GENERAL),
 			
 			//Math
-			MATH_NON              ("",      true, -1,       OperatorType.MATH),
-			GET_ITEM              ("[...]",        0,       OperatorType.MATH),
-			POW                   ("**",           1,       OperatorType.MATH),
-			POS                   ("+",     true,  2,       OperatorType.MATH),
-			INV                   ("-",     true,  2,       OperatorType.MATH),
-			BITWISE_NOT           ("~",     true,  2,       OperatorType.MATH),
-			INC                   ("▲",     true,  2,       OperatorType.MATH),
-			DEC                   ("▼",     true,  2,       OperatorType.MATH),
-			MUL                   ("*",            3,       OperatorType.MATH),
-			DIV                   ("/",            3,       OperatorType.MATH),
-			FLOOR_DIV             ("//",           3,       OperatorType.MATH),
-			MOD                   ("%",            3,       OperatorType.MATH),
-			ADD                   ("+",            4,       OperatorType.MATH),
-			SUB                   ("-",            4,       OperatorType.MATH),
-			LSHIFT                ("<<",           5,       OperatorType.MATH),
-			RSHIFT                (">>",           5,       OperatorType.MATH),
-			RZSHIFT               (">>>",          5,       OperatorType.MATH),
-			BITWISE_AND           ("&",            6,       OperatorType.MATH),
-			BITWISE_XOR           ("^",            7,       OperatorType.MATH),
-			BITWISE_OR            ("|",            8,       OperatorType.MATH),
-			SPACESHIP             ("<=>",          9,       OperatorType.MATH),
+			MATH_NON              ("",      1, -1,       OperatorType.MATH),
+			GET_ITEM              ("[...]",     0,       OperatorType.MATH),
+			POW                   ("**",        1,       OperatorType.MATH),
+			POS                   ("+",     1,  2,       OperatorType.MATH),
+			INV                   ("-",     1,  2,       OperatorType.MATH),
+			BITWISE_NOT           ("~",     1,  2,       OperatorType.MATH),
+			INC                   ("▲",     1,  2,       OperatorType.MATH),
+			DEC                   ("▼",     1,  2,       OperatorType.MATH),
+			MUL                   ("*",         3,       OperatorType.MATH),
+			DIV                   ("/",         3,       OperatorType.MATH),
+			FLOOR_DIV             ("//",        3,       OperatorType.MATH),
+			MOD                   ("%",         3,       OperatorType.MATH),
+			ADD                   ("+",         4,       OperatorType.MATH),
+			SUB                   ("-",         4,       OperatorType.MATH),
+			LSHIFT                ("<<",        5,       OperatorType.MATH),
+			RSHIFT                (">>",        5,       OperatorType.MATH),
+			RZSHIFT               (">>>",       5,       OperatorType.MATH),
+			BITWISE_AND           ("&",         6,       OperatorType.MATH),
+			BITWISE_XOR           ("^",         7,       OperatorType.MATH),
+			BITWISE_OR            ("|",         8,       OperatorType.MATH),
+			SPACESHIP             ("<=>",       9,       OperatorType.MATH),
 			
 			//Condition
-			CONDITIONAL_NON       ("",      true, -1,       OperatorType.CONDITION),
-			NOT                   ("!",     true,  2,       OperatorType.CONDITION),
-			EQUALS                ("==",           9,       OperatorType.CONDITION),
-			NOT_EQUALS            ("!=",           9,       OperatorType.CONDITION),
-			MATCHES               ("=~",           9,       OperatorType.CONDITION),
-			NOT_MATCHES           ("!=~",          9,       OperatorType.CONDITION),
-			STRICT_EQUALS         ("===",          9,       OperatorType.CONDITION),
-			STRICT_NOT_EQUALS     ("!==",          9,       OperatorType.CONDITION),
-			LESS_THAN             ("<",            9,       OperatorType.CONDITION),
-			GREATER_THAN          (">",            9,       OperatorType.CONDITION),
-			LESS_THAN_OR_EQUALS   ("<=",           9,       OperatorType.CONDITION),
-			GREATER_THAN_OR_EQUALS(">=",           9,       OperatorType.CONDITION),
-			AND                   ("&&",          10, true, OperatorType.CONDITION),
-			OR                    ("||",          11, true, OperatorType.CONDITION);
+			CONDITIONAL_NON       ("",      1, -1,       OperatorType.CONDITION),
+			NOT                   ("!",     1,  2,       OperatorType.CONDITION),
+			EQUALS                ("==",        9,       OperatorType.CONDITION),
+			NOT_EQUALS            ("!=",        9,       OperatorType.CONDITION),
+			MATCHES               ("=~",        9,       OperatorType.CONDITION),
+			NOT_MATCHES           ("!=~",       9,       OperatorType.CONDITION),
+			STRICT_EQUALS         ("===",       9,       OperatorType.CONDITION),
+			STRICT_NOT_EQUALS     ("!==",       9,       OperatorType.CONDITION),
+			LESS_THAN             ("<",         9,       OperatorType.CONDITION),
+			GREATER_THAN          (">",         9,       OperatorType.CONDITION),
+			LESS_THAN_OR_EQUALS   ("<=",        9,       OperatorType.CONDITION),
+			GREATER_THAN_OR_EQUALS(">=",        9,       OperatorType.CONDITION),
+			AND                   ("&&",       10, true, OperatorType.CONDITION),
+			OR                    ("||",       11, true, OperatorType.CONDITION);
 			
 			private final String symbol;
-			private final boolean unary;
+			private final int arity;
 			private final int precedence;
 			private final boolean lazyEvaluation;
 			private final OperatorType operatorType;
 			
-			private Operator(String symbol, boolean unary, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
+			private Operator(String symbol, int arity, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
 				this.symbol = symbol;
-				this.unary = unary;
+				this.arity = arity;
 				this.precedence = precedence;
 				this.lazyEvaluation = lazyEvaluation;
 				this.operatorType = operatorType;
 			}
-			private Operator(String symbol, boolean unary, int precedence, OperatorType operatorType) {
-				this(symbol, unary, precedence, false, operatorType);
+			private Operator(String symbol, int arity, int precedence, OperatorType operatorType) {
+				this(symbol, arity, precedence, false, operatorType);
 			}
 			private Operator(String symbol, int precedence, boolean lazyEvaluation, OperatorType operatorType) {
-				this(symbol, false, precedence, lazyEvaluation, operatorType);
+				this(symbol, 2, precedence, lazyEvaluation, operatorType);
 			}
 			private Operator(String symbol, int precedence, OperatorType operatorType) {
-				this(symbol, false, precedence, false, operatorType);
+				this(symbol, 2, precedence, false, operatorType);
 			}
 			
 			public String getSymbol() {
@@ -1627,7 +1656,15 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			}
 			
 			public boolean isUnary() {
-				return unary;
+				return arity == 1;
+			}
+			
+			public boolean isBinary() {
+				return arity == 2;
+			}
+			
+			public boolean isTernary() {
+				return arity == 3;
 			}
 			
 			public int getPrecedence() {

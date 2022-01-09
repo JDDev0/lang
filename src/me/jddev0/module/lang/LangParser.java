@@ -146,12 +146,12 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.OperationNode parseOperationExpr(String token) throws IOException {
-		return parseOperationExpr(token, null, 0, AbstractSyntaxTree.OperationNode.OperatorType.GENERAL);
+		return parseOperationExpr(token, AbstractSyntaxTree.OperationNode.OperatorType.GENERAL);
 	}
 	private AbstractSyntaxTree.OperationNode parseOperationExpr(String token, AbstractSyntaxTree.OperationNode.OperatorType type) throws IOException {
-		return parseOperationExpr(token, null, 0, type);
+		return parseOperationExpr(token, null, null, 0, type);
 	}
-	private AbstractSyntaxTree.OperationNode parseOperationExpr(String token, StringBuilder tokensLeft, int currentOperatorPrecedence,
+	private AbstractSyntaxTree.OperationNode parseOperationExpr(String token, StringBuilder tokensLeft, StringBuilder tokensLeftBehindMiddlePartEnd, int currentOperatorPrecedence,
 	AbstractSyntaxTree.OperationNode.OperatorType type) throws IOException {
 		if(token == null)
 			return null;
@@ -176,6 +176,7 @@ public final class LangParser {
 		
 		AbstractSyntaxTree.OperationNode.Operator operator = null;
 		List<AbstractSyntaxTree.Node> leftNodes = new ArrayList<>();
+		AbstractSyntaxTree.Node middleNode = null;
 		AbstractSyntaxTree.Node rightNode = null;
 		
 		StringBuilder whitespaces = new StringBuilder();
@@ -269,7 +270,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					leftNodes.add(parseOperationExpr(token.substring(1, endIndex), null, 0, type));
+					leftNodes.add(parseOperationExpr(token.substring(1, endIndex), null, null, 0, type));
 					token = token.substring(endIndex + 1);
 					
 					continue;
@@ -308,7 +309,7 @@ public final class LangParser {
 						builder.delete(0, builder.length());
 					}
 					
-					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(1, endIndex), null, 0, type);
+					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(1, endIndex), null, null, 0, type);
 					token = token.substring(endIndex + 1);
 					if(token.isEmpty()) {
 						//Add node directly if node has NON operator
@@ -394,7 +395,7 @@ public final class LangParser {
 					}
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
-					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(2), innerTokensLeft, operator.getPrecedence(), type);
+					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(2), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
 					token = innerTokensLeft.toString();
 					
 					if(token.isEmpty()) {
@@ -526,7 +527,7 @@ public final class LangParser {
 					operator = null;
 				}
 				
-				if(operator != null && !operator.isUnary() && somethingBeforeOperator) {
+				if(operator != null && operator.isBinary() && somethingBeforeOperator) {
 					//Binary
 					
 					if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
@@ -562,7 +563,7 @@ public final class LangParser {
 					}
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
-					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(operatorLength), innerTokensLeft, operator.getPrecedence(), type);
+					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(operatorLength), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
 					token = innerTokensLeft.toString();
 					
 					if(token.isEmpty()) {
@@ -600,7 +601,7 @@ public final class LangParser {
 						whitespaces.delete(0, whitespaces.length());
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
-					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(1), innerTokensLeft, operator.getPrecedence(), type);
+					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(operatorLength), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
 					token = innerTokensLeft.toString();
 					
 					AbstractSyntaxTree.Node innerRightNode;
@@ -614,11 +615,10 @@ public final class LangParser {
 					leftNodes.add(new AbstractSyntaxTree.OperationNode(innerRightNode, operator, type));
 					operator = null;
 					
-					if(token.isEmpty()) {
+					if(token.isEmpty())
 						break;
-					}else {
+					else
 						continue;
-					}
 				}else {
 					operator = oldOperator;
 					
@@ -628,6 +628,132 @@ public final class LangParser {
 						whitespaces.delete(0, whitespaces.length());
 					}
 				}
+			}else if(token.startsWith("?")) {
+				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
+				
+				operator = AbstractSyntaxTree.OperationNode.Operator.INLINE_IF;
+				
+				//Inline if -> Only parse if something is before and ":" was found -> else "?" will be parsed as text
+				
+				if(operator.getOperatorType().isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
+					if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
+						tokensLeft.append(token.trim());
+						
+						if(whitespaces.length() > 0)
+							whitespaces.delete(0, whitespaces.length());
+						
+						operator = oldOperator;
+						
+						break;
+					}
+					
+					//Parse middle part
+					StringBuilder innerTokensLeftBehindMiddlePartEnd = new StringBuilder();
+					AbstractSyntaxTree.OperationNode innerMiddleNodeRet = parseOperationExpr(token.substring(1), null, innerTokensLeftBehindMiddlePartEnd, 0, type);
+					if(innerMiddleNodeRet != null) {
+						//Only parse as operator if matching ":" was found
+						
+						String tokensAfterMiddlePartEnd = innerTokensLeftBehindMiddlePartEnd.toString();
+						
+						//Add as value if nothing is behind "operator"
+						if(tokensAfterMiddlePartEnd.isEmpty()) {
+							if(whitespaces.length() > 0) {
+								builder.append(whitespaces.toString());
+								whitespaces.delete(0, whitespaces.length());
+							}
+							
+							operator = null;
+							builder.append(token);
+							
+							break;
+						}
+						
+						token = tokensAfterMiddlePartEnd;
+						
+						if(whitespaces.length() > 0)
+							whitespaces.delete(0, whitespaces.length());
+						
+						if(builder.length() > 0) {
+							leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+							builder.delete(0, builder.length());
+						}
+						
+						StringBuilder innerTokensLeft = new StringBuilder();
+						AbstractSyntaxTree.OperationNode innerRightNodeRet = parseOperationExpr(token, innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
+						token = innerTokensLeft.toString();
+						
+						if(token.isEmpty()) {
+							//Add middle node directly if node has NON operator
+							if(innerMiddleNodeRet.getOperator() == nonOperator)
+								middleNode = innerMiddleNodeRet.getLeftSideOperand();
+							else
+								middleNode = innerMiddleNodeRet;
+							
+							//Add right node directly if node has NON operator
+							if(innerRightNodeRet.getOperator() == nonOperator)
+								rightNode = innerRightNodeRet.getLeftSideOperand();
+							else
+								rightNode = innerRightNodeRet;
+							
+							break;
+						}else {
+							AbstractSyntaxTree.Node innerMiddleNode;
+							AbstractSyntaxTree.Node innerRightNode;
+							
+							//Add middle node directly if node has NON operator
+							if(innerMiddleNodeRet.getOperator() == nonOperator)
+								innerMiddleNode = innerMiddleNodeRet.getLeftSideOperand();
+							else
+								innerMiddleNode = innerMiddleNodeRet;
+							
+							//Add node directly if node has NON operator
+							if(innerRightNodeRet.getOperator() == nonOperator)
+								innerRightNode = innerRightNodeRet.getLeftSideOperand();
+							else
+								innerRightNode = innerRightNodeRet;
+							
+							AbstractSyntaxTree.Node leftNode;
+							if(leftNodes.size() == 1)
+								leftNode = leftNodes.get(0);
+							else
+								leftNode = new AbstractSyntaxTree.ListNode(leftNodes);
+							
+							leftNodes.clear();
+							leftNodes.add(new AbstractSyntaxTree.OperationNode(leftNode, innerMiddleNode, innerRightNode, operator, type));
+							operator = null;
+							continue;
+						}
+					}else {
+						operator = oldOperator;
+						
+						//Ignore operator: nothing was before for ternary operator or operator type is not compatible with type
+						if(whitespaces.length() > 0) {
+							builder.append(whitespaces.toString());
+							whitespaces.delete(0, whitespaces.length());
+						}
+					}
+				}else {
+					operator = oldOperator;
+					
+					//Ignore operator: nothing was before for ternary operator or operator type is not compatible with type
+					if(whitespaces.length() > 0) {
+						builder.append(whitespaces.toString());
+						whitespaces.delete(0, whitespaces.length());
+					}
+				}
+			}else if(tokensLeftBehindMiddlePartEnd != null && token.startsWith(":")) {
+				//End of inline if
+				
+				if(whitespaces.length() > 0)
+					whitespaces.delete(0, whitespaces.length());
+				
+				tokensLeftBehindMiddlePartEnd.append(token.substring(1).trim());
+				
+				//Reset (Simulated end)
+				if(tokensLeft != null && tokensLeft.length() > 0)
+					tokensLeft.delete(0, tokensLeft.length());
+				
+				break;
 			}
 			
 			//Function calls
@@ -709,6 +835,9 @@ public final class LangParser {
 			token = token.substring(1);
 		}
 		
+		if(tokensLeftBehindMiddlePartEnd != null && tokensLeftBehindMiddlePartEnd.length() == 0) //end of middle part was not found for ternary operator -> ignore ternary operator
+			return null;
+		
 		if(whitespaces.length() > 0) {
 			builder.append(whitespaces.toString());
 			whitespaces.delete(0, whitespaces.length());
@@ -730,8 +859,12 @@ public final class LangParser {
 		
 		if(operator.isUnary())
 			return new AbstractSyntaxTree.OperationNode(leftNode, operator, type);
+		if(operator.isBinary())
+			return new AbstractSyntaxTree.OperationNode(leftNode, rightNode, operator, type);
+		if(operator.isTernary())
+			return new AbstractSyntaxTree.OperationNode(leftNode, middleNode, rightNode, operator, type);
 		
-		return new AbstractSyntaxTree.OperationNode(leftNode, rightNode, operator, type);
+		return null;
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {

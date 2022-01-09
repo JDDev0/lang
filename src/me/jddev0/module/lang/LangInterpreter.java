@@ -775,8 +775,10 @@ public final class LangInterpreter {
 	
 	private DataObject interpretOperationNode(OperationNode node, final int DATA_ID) {
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
+		DataObject middleOperand = (!node.getOperator().isTernary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getMiddleOperand(), DATA_ID);
 		DataObject rightSideOperand = (node.getOperator().isUnary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getRightSideOperand(), DATA_ID);
-		if(leftSideOperand == null || (!node.getOperator().isUnary() && !node.getOperator().isLazyEvaluation() && rightSideOperand == null))
+		if(leftSideOperand == null || (!node.getOperator().isLazyEvaluation() && ((!node.getOperator().isUnary() && rightSideOperand == null) ||
+		(node.getOperator().isTernary() && middleOperand == null))))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 		
 		if(node.getOperatorType() == OperatorType.GENERAL) {
@@ -802,6 +804,14 @@ public final class LangInterpreter {
 					if(rightSideOperand == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
 					return rightSideOperand;
+				
+				//Ternary
+				case INLINE_IF:
+					DataObject operand = leftSideOperand.getBoolean()?interpretNode(node.getMiddleOperand(), DATA_ID):interpretNode(node.getRightSideOperand(), DATA_ID);
+					
+					if(operand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", DATA_ID);
+					return operand;
 				
 				default:
 					break;
