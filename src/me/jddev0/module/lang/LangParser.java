@@ -933,9 +933,9 @@ public final class LangParser {
 				if(operator == null)
 					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT);
 				else if(operator == AbstractSyntaxTree.OperationNode.Operator.NON)
-					rvalueNode = parseOperationExpr(tokens[1], operator.getOperatorType());
+					rvalueNode = parseOperationExpr(tokens[1]);
 				else
-					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseOperationExpr(tokens[1], operator.getOperatorType()), operator, operator.getOperatorType());
+					rvalueNode = new AbstractSyntaxTree.OperationNode(lvalueNode, parseOperationExpr(tokens[1]), operator, operator.getOperatorType());
 			}
 			
 			return new AbstractSyntaxTree.AssignmentNode(lvalueNode, rvalueNode);
