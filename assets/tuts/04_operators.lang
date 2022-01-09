@@ -3,124 +3,124 @@ lang.version = v1.0.0
 
 # Operators
 # General
-# (...)            - Brackets
-# ... ?: ...       - Elvis
-# ... ?? ...       - Null coalescing
-# ... ? ... : ...  - Inline if
+# (opr)               - Brackets
+# opr1 ?: oprr2       - Elvis
+# opr1 ?? opr2        - Null coalescing
+# opr1 ? opr2 : opr3  - Inline if
 
 # Math
-# (...)            - Brackets
-# ... ** ...       - Power
-# +...             - Positive
-# -...             - Inverse
-# ~...             - Bitwise not
-# ▲...             - Increment (Will NOT change value of ...)
-# ▼...             - Decrement (Will NOT change value of ...)
-# ... * ...        - Multiplication
-# ... / ...        - Division
-# ... // ...       - Floor division
-# ... % ...        - Modulo
-# ... + ...        - Addition
-# ... - ...        - Subtract
-# ... << ...       - Left shift
-# ... >> ...       - Right shift
-# ... >>> ...      - Right zero shift
-# ... & ...        - Bitwise and
-# ... ^ ...        - Bitwise xor
-# ... | ...        - Bitwise or
-# ... <=> ...      - Spaceship
+# (opr)               - Brackets
+# opr1 ** opr2        - Power
+# +opr                - Positive
+# -opr                - Inverse
+# ~opr                - Bitwise not
+# ▲opr                - Increment (Will NOT change value of opr)
+# ▼opr                - Decrement (Will NOT change value of opr)
+# opr1 * opr2         - Multiplication
+# opr1 / opr2         - Division
+# opr1 // opr2        - Floor division
+# opr1 % opr2         - Modulo
+# opr1 + opr2         - Addition
+# opr1 - opr2         - Subtract
+# opr1 << opr2        - Left shift
+# opr1 >> opr2        - Right shift
+# opr1 >>> opr2       - Right zero shift
+# opr1 & opr2         - Bitwise and
+# opr1 ^ opr2         - Bitwise xor
+# opr1 | opr2         - Bitwise or
+# opr1 <=> opr2       - Spaceship
 
 # Condition
-# (...)            - Brackets
-# !...             - Not
-# ... && ...       - And
-# ... || ...       - Or
-# ... == ...       - Equals
-# ... != ...       - Not equals
-# ... =~ ...       - Matches
-# ... !=~ ...      - Not matches
-# ... === ...      - Strict equals
-# ... !== ...      - Strict not equals
-# ... < ...        - Less than
-# ... > ...        - Greater than
-# ... <= ...       - Less than or equals
-# ... >= ...       - Greater than or equals
+# (opr)               - Brackets
+# !opr                - Not
+# opr1 && opr2        - And
+# opr1 || opr2        - Or
+# opr1 == opr2        - Equals
+# opr1 != opr2        - Not equals
+# opr1 =~ opr2        - Matches
+# opr1 !=~ opr2       - Not matches
+# opr1 === opr2       - Strict equals
+# opr1 !== opr2       - Strict not equals
+# opr1 < opr2         - Less than
+# opr1 > opr2         - Greater than
+# opr1 <= opr2        - Less than or equals
+# opr1 >= opr2        - Greater than or equals
 
 # Operator precedence/associativity
-# Precedence | Operator        | Associativity | Operator name
-# ===========|=================|===============|=============================
-#  0         | (...)           | -             | Brackets
-# -----------|-----------------|---------------|-----------------------------
-#  0.5       | ...(...)        | -             | Function calls
-# -----------|-----------------|---------------|-----------------------------
-#  1         | ... ** ...      | right-to-left | Power
-# -----------|-----------------|---------------|-----------------------------
-#  2         | +...            | right-to-left | Positive
-#            | -...            |               | Inverse
-#            | ~...            |               | Bitwise not
-#            | ▲...            |               | Increment
-#            | ▼...            |               | Decrement
-#            | !...            |               | Not
-# -----------|-----------------|---------------|-----------------------------
-#  3         | ... * ...       | left-to-right | Multiplication
-#            | ... / ...       |               | Division
-#            | ... // ...      |               | Floor division
-#            | ... % ...       |               | Modulo
-# -----------|-----------------|---------------|-----------------------------
-#  4         | ... + ...       | left-to-right | Addition
-#            | ... - ...       |               | Subtraction
-# -----------|-----------------|---------------|-----------------------------
-#  5         | ... << ...      | left-to-right | Left shift
-#            | ... >> ...      |               | Right shift
-#            | ... >>> ...     |               | Right zero shift
-# -----------|-----------------|---------------|-----------------------------
-#  6         | ... & ...       | left-to-right | Bitwise and
-# -----------|-----------------|---------------|-----------------------------
-#  7         | ... ^ ...       | left-to-right | Bitwsie xor
-# -----------|-----------------|---------------|-----------------------------
-#  8         | ... | ...       | left-to-right | Bitwise or
-# -----------|-----------------|---------------|-----------------------------
-#  9         | ... <=> ...     | left-to-right | Spaceship
-#            | ... == ...      |               | Equals
-#            | ... != ...      |               | Not equals
-#            | ... =~ ...      |               | Matches
-#            | ... !=~ ...     |               | Not matches
-#            | ... === ...     |               | Strict equals
-#            | ... !== ...     |               | Strict not equals
-#            | ... < ...       |               | Less than
-#            | ... > ...       |               | Greater than
-#            | ... <= ...      |               | Less than or equals
-#            | ... >= ...      |               | Greater than or equals
-# -----------|-----------------|---------------|-----------------------------
-# 10         | ... && ...      | left-to-right | And
-# -----------|-----------------|---------------|-----------------------------
-# 11         | ... || ...      | left-to-right | Or
-# -----------|-----------------|---------------|-----------------------------
-# 12         | ... ?: ...      | left-to-right | Elvis
-#            | ... ?? ...      |               | Null coalescing
-#            | ... ? ... : ... |               | Inline if
-# -----------|-----------------|---------------|-----------------------------
-# 13         | ... = ...       | right-to-left | Normal assignment
-#            | ... = ...       |               | Translation
-#            | ... $= ...      |               | Set assignment
-#            | ... += ...      |               | Addition assignment
-#            | ... -= ...      |               | Subtraction assignment
-#            | ... *= ...      |               | Multiplication assignment
-#            | ... /= ...      |               | Division assignment
-#            | ... //= ...     |               | Floor division assignment
-#            | ... **= ...     |               | Power assignment
-#            | ... %= ...      |               | Modulo assignment
-#            | ... >>= ...     |               | Right shift assignment
-#            | ... >>>= ...    |               | Right zero shift assignment
-#            | ... <<= ...     |               | Left shift assignment
-#            | ... &= ...      |               | Bitwise and assignment
-#            | ... |= ...      |               | Bitwise or assignment
-#            | ... ^= ...      |               | Bitwise xor assignment
+# Precedence | Operator           | Associativity | Operator name
+# ===========|====================|===============|=============================
+#  0         | (opr)              | -             | Brackets
+# -----------|--------------------|---------------|-----------------------------
+#  0.5       | opr1(opr2)         | -             | Function calls
+# -----------|--------------------|---------------|-----------------------------
+#  1         | opr1 ** opr2       | right-to-left | Power
+# -----------|--------------------|---------------|-----------------------------
+#  2         | +opr               | right-to-left | Positive
+#            | -opr               |               | Inverse
+#            | ~opr               |               | Bitwise not
+#            | ▲opr               |               | Increment
+#            | ▼opr               |               | Decrement
+#            | !opr               |               | Not
+# -----------|--------------------|---------------|-----------------------------
+#  3         | opr1 * opr2        | left-to-right | Multiplication
+#            | opr1 / opr2        |               | Division
+#            | opr1 // opr2       |               | Floor division
+#            | opr1 % opr2        |               | Modulo
+# -----------|--------------------|---------------|-----------------------------
+#  4         | opr1 + opr2        | left-to-right | Addition
+#            | opr1 - opr2        |               | Subtraction
+# -----------|--------------------|---------------|-----------------------------
+#  5         | opr1 << opr2       | left-to-right | Left shift
+#            | opr1 >> opr2       |               | Right shift
+#            | opr1 >>> opr2      |               | Right zero shift
+# -----------|--------------------|---------------|-----------------------------
+#  6         | opr1 & opr2        | left-to-right | Bitwise and
+# -----------|--------------------|---------------|-----------------------------
+#  7         | opr1 ^ opr2        | left-to-right | Bitwsie xor
+# -----------|--------------------|---------------|-----------------------------
+#  8         | opr1 | opr2        | left-to-right | Bitwise or
+# -----------|--------------------|---------------|-----------------------------
+#  9         | opr1 <=> opr2      | left-to-right | Spaceship
+#            | opr1 == opr2       |               | Equals
+#            | opr1 != opr2       |               | Not equals
+#            | opr1 =~ opr2       |               | Matches
+#            | opr1 !=~ opr2      |               | Not matches
+#            | opr1 === opr2      |               | Strict equals
+#            | opr1 !== opr2      |               | Strict not equals
+#            | opr1 < opr2        |               | Less than
+#            | opr1 > opr2        |               | Greater than
+#            | opr1 <= opr2       |               | Less than or equals
+#            | opr1 >= opr2       |               | Greater than or equals
+# -----------|--------------------|---------------|-----------------------------
+# 10         | opr1 && opr2       | left-to-right | And
+# -----------|--------------------|---------------|-----------------------------
+# 11         | opr1 || opr2       | left-to-right | Or
+# -----------|--------------------|---------------|-----------------------------
+# 12         | opr1 ?: opr2       | left-to-right | Elvis
+#            | opr1 ?? opr2       |               | Null coalescing
+#            | opr1 ? opr2 : opr3 |               | Inline if
+# -----------|--------------------|---------------|-----------------------------
+# 13         | opr1 = opr2        | right-to-left | Normal assignment
+#            | opr1 = opr2        |               | Translation
+#            | opr1 $= opr2       |               | Set assignment
+#            | opr1 += opr2       |               | Addition assignment
+#            | opr1 -= opr2       |               | Subtraction assignment
+#            | opr1 *= opr2       |               | Multiplication assignment
+#            | opr1 /= opr2       |               | Division assignment
+#            | opr1 //= opr2      |               | Floor division assignment
+#            | opr1 **= opr2      |               | Power assignment
+#            | opr1 %= opr2       |               | Modulo assignment
+#            | opr1 >>= opr2      |               | Right shift assignment
+#            | opr1 >>>= opr2     |               | Right zero shift assignment
+#            | opr1 <<= opr2      |               | Left shift assignment
+#            | opr1 &= opr2       |               | Bitwise and assignment
+#            | opr1 |= opr2       |               | Bitwise or assignment
+#            | opr1 ^= opr2       |               | Bitwise xor assignment
 
 # Parser functions
-# parser.con(...) # Condition
-# parser.math(...) # Math expression
-# parser.op(...) # Operator expression (Math expression & Condition)
+# parser.con(opr) # Condition
+# parser.math(opr) # Math expression
+# parser.op(opr) # Operator expression (Math expression & Condition)
 
 func.println(2 && 3)
 func.println(parser.con(2 && 3))
