@@ -373,6 +373,17 @@ public final class LangParser {
 				
 				//If something is before operator and operator type is compatible with type
 				if(operator.getOperatorType().isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() >= 0)) {
+					if(tokensLeft != null && currentOperatorPrecedence < operator.getPrecedence()) { //No "<=" because it should be parsed right-to-left
+						tokensLeft.append(token.trim());
+						
+						if(whitespaces.length() > 0)
+							whitespaces.delete(0, whitespaces.length());
+						
+						operator = oldOperator;
+						
+						break;
+					}
+					
 					//Add as value if nothing is behind opeator
 					if(token.length() == 2) {
 						if(whitespaces.length() > 0) {
