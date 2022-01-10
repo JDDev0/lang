@@ -5,6 +5,7 @@ lang.version = v1.0.0
 # General
 # (opr)               - Brackets
 # @opr                - Length
+# ^opr                - Deep copy
 # opr1 <=> opr2       - Spaceship
 # opr1 ?: oprr2       - Elvis
 # opr1 ?? opr2        - Null coalescing
@@ -72,6 +73,7 @@ lang.version = v1.0.0
 #  0.5       | opr1(opr2)         | -             | Function calls
 # -----------|--------------------|---------------|-----------------------------
 #  1         | @opr               | right-to-left | Length
+#            | ^opr               |               | Deep copy
 # -----------|--------------------|---------------|-----------------------------
 #  2         | opr1 ** opr2       | right-to-left | Power [1]
 # -----------|--------------------|---------------|-----------------------------
