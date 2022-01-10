@@ -3253,7 +3253,7 @@ public final class LangInterpreter {
 		
 		//General operation functions
 		/**
-		 * For "func.len()"
+		 * For "@"
 		 */
 		public DataObject opLen() {
 			switch(type) {
