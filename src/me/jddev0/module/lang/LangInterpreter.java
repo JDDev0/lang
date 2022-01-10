@@ -790,6 +790,9 @@ public final class LangInterpreter {
 				case LEN:
 					output = leftSideOperand.opLen();
 					break;
+				case DEEP_COPY:
+					output = leftSideOperand.opDeepCopy();
+					break;
 				
 				//Binary
 				case SPACESHIP:
@@ -3275,6 +3278,38 @@ public final class LangInterpreter {
 				case VOID:
 				case ARGUMENT_SEPARATOR:
 					return null;
+			}
+			
+			return null;
+		}
+		/**
+		 * For "^"
+		 */
+		public DataObject opDeepCopy() {
+			switch(type) {
+				case ARRAY:
+					DataObject[] arrCopy = new DataObject[arr.length];
+					for(int i = 0;i < arr.length;i++) {
+						arrCopy[i] = arr[i].opDeepCopy();
+						if(arrCopy[i] == null)
+							return null;
+					}
+					
+					return new DataObject().setArray(arrCopy);
+				
+				case TEXT:
+				case CHAR:
+				case INT:
+				case LONG:
+				case FLOAT:
+				case DOUBLE:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+					return new DataObject(this);
 			}
 			
 			return null;

@@ -1508,6 +1508,7 @@ final class LangPredefinedFunctions {
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//General operator functions
 		funcs.put("len", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opLen, DATA_ID), DATA_ID));
+		funcs.put("deepCopy", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDeepCopy, DATA_ID), DATA_ID));
 		funcs.put("spaceship", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSpaceship, DATA_ID), DATA_ID));
 		funcs.put("elvis", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {
 			return dataObject1.getBoolean()?dataObject1:dataObject2;

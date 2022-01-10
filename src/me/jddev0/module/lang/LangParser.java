@@ -520,8 +520,11 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.DIV;
 				}else if(token.startsWith("%") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.MOD;
-				}else if(token.startsWith("^") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
-					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_XOR;
+				}else if(token.startsWith("^")) {
+					if(somethingBeforeOperator && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type))
+						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_XOR;
+					else if(!somethingBeforeOperator && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type))
+						operator = AbstractSyntaxTree.OperationNode.Operator.DEEP_COPY;
 				}else if(token.startsWith("|") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
 				}else if(token.startsWith("+") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
