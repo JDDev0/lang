@@ -257,10 +257,11 @@ public final class LangParser {
 				continue;
 			}
 			
+			//Grouping
 			if(token.startsWith("(")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in math expression is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
 					
 					break;
 				}
@@ -293,7 +294,7 @@ public final class LangParser {
 			}else if(token.startsWith("[")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in math expression is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
 					
 					break;
 				}
