@@ -71,7 +71,7 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|-----------------------------
 #  0.5       | opr1(opr2)         | -             | Function calls
 # -----------|--------------------|---------------|-----------------------------
-#  1         | opr1 ** opr2       | right-to-left | Power
+#  1         | opr1 ** opr2       | right-to-left | Power [1]
 # -----------|--------------------|---------------|-----------------------------
 #  2         | @opr               | right-to-left | Length
 #            | +opr               |               | Positive
@@ -135,6 +135,9 @@ lang.version = v1.0.0
 #            | opr1 &= opr2       |               | Bitwise and assignment
 #            | opr1 |= opr2       |               | Bitwise or assignment
 #            | opr1 ^= opr2       |               | Bitwise xor assignment
+#
+# Footnotes:
+# 1) The unary operators (@, +, -, ~, ▲, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
 
 # Parser functions
 # parser.con(opr) # Condition
