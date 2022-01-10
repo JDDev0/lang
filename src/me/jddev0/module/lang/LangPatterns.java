@@ -2,7 +2,6 @@ package me.jddev0.module.lang;
 
 import java.util.regex.Pattern;
 
-
 /**
  * Lang-Module<br>
  * RegEx patterns for other lang classes
