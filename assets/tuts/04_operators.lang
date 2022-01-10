@@ -71,35 +71,36 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|-----------------------------
 #  0.5       | opr1(opr2)         | -             | Function calls
 # -----------|--------------------|---------------|-----------------------------
-#  1         | opr1 ** opr2       | right-to-left | Power [1]
+#  1         | @opr               | right-to-left | Length
 # -----------|--------------------|---------------|-----------------------------
-#  2         | @opr               | right-to-left | Length
-#            | +opr               |               | Positive
+#  2         | opr1 ** opr2       | right-to-left | Power [1]
+# -----------|--------------------|---------------|-----------------------------
+#  3         | +opr               | right-to-left | Positive
 #            | -opr               |               | Inverse
 #            | ~opr               |               | Bitwise not
 #            | ▲opr               |               | Increment
 #            | ▼opr               |               | Decrement
 #            | !opr               |               | Not
 # -----------|--------------------|---------------|-----------------------------
-#  3         | opr1 * opr2        | left-to-right | Multiplication
+#  4         | opr1 * opr2        | left-to-right | Multiplication
 #            | opr1 / opr2        |               | Division
 #            | opr1 // opr2       |               | Floor division
 #            | opr1 % opr2        |               | Modulo
 # -----------|--------------------|---------------|-----------------------------
-#  4         | opr1 + opr2        | left-to-right | Addition
+#  5         | opr1 + opr2        | left-to-right | Addition
 #            | opr1 - opr2        |               | Subtraction
 # -----------|--------------------|---------------|-----------------------------
-#  5         | opr1 << opr2       | left-to-right | Left shift
+#  6         | opr1 << opr2       | left-to-right | Left shift
 #            | opr1 >> opr2       |               | Right shift
 #            | opr1 >>> opr2      |               | Right zero shift
 # -----------|--------------------|---------------|-----------------------------
-#  6         | opr1 & opr2        | left-to-right | Bitwise and
+#  7         | opr1 & opr2        | left-to-right | Bitwise and
 # -----------|--------------------|---------------|-----------------------------
-#  7         | opr1 ^ opr2        | left-to-right | Bitwsie xor
+#  8         | opr1 ^ opr2        | left-to-right | Bitwsie xor
 # -----------|--------------------|---------------|-----------------------------
-#  8         | opr1 | opr2        | left-to-right | Bitwise or
+#  9         | opr1 | opr2        | left-to-right | Bitwise or
 # -----------|--------------------|---------------|-----------------------------
-#  9         | opr1 <=> opr2      | left-to-right | Spaceship
+# 10         | opr1 <=> opr2      | left-to-right | Spaceship
 #            | opr1 == opr2       |               | Equals
 #            | opr1 != opr2       |               | Not equals
 #            | opr1 =~ opr2       |               | Matches
@@ -111,15 +112,15 @@ lang.version = v1.0.0
 #            | opr1 <= opr2       |               | Less than or equals
 #            | opr1 >= opr2       |               | Greater than or equals
 # -----------|--------------------|---------------|-----------------------------
-# 10         | opr1 && opr2       | left-to-right | And
+# 11         | opr1 && opr2       | left-to-right | And
 # -----------|--------------------|---------------|-----------------------------
-# 11         | opr1 || opr2       | left-to-right | Or
+# 12         | opr1 || opr2       | left-to-right | Or
 # -----------|--------------------|---------------|-----------------------------
-# 12         | opr1 ?: opr2       | left-to-right | Elvis
+# 13         | opr1 ?: opr2       | left-to-right | Elvis
 #            | opr1 ?? opr2       |               | Null coalescing
 #            | opr1 ? opr2 : opr3 |               | Inline if
 # -----------|--------------------|---------------|-----------------------------
-# 13         | opr1 = opr2        | right-to-left | Normal assignment
+# 14         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
 #            | opr1 $= opr2       |               | Set assignment
 #            | opr1 += opr2       |               | Addition assignment
@@ -137,7 +138,7 @@ lang.version = v1.0.0
 #            | opr1 ^= opr2       |               | Bitwise xor assignment
 #
 # Footnotes:
-# 1) The unary operators (@, +, -, ~, ▲, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
+# 1) The unary operators (+, -, ~, ▲, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
 
 # Parser functions
 # parser.con(opr) # Condition
