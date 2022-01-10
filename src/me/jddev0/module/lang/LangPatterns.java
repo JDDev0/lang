@@ -94,7 +94,7 @@ final class LangPatterns {
 	/**
 	 * RegEx: \\w+\\(.*\\).{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_FUNC_FUNCTION_CALL_WITHOUT_PREFIX = Pattern.compile("\\w+\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL_WITHOUT_PREFIX = Pattern.compile("\\w+\\(.*\\).*");
 	/**
 	 * RegEx: parser\.\w+\(.*\).{@literal *}
 	 */
