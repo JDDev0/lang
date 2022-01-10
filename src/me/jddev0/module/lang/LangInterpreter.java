@@ -5149,7 +5149,7 @@ public final class LangInterpreter {
 		public DataObject inerpretNode(final int DATA_ID, Node node) throws StoppedException {
 			return interpreter.interpretNode(node, DATA_ID);
 		}
-		public DataObject interpretFunctionCallNode(final int DATA_ID, FunctionCallNode node, String funcArgs) throws StoppedException {
+		public DataObject interpretFunctionCallNode(final int DATA_ID, FunctionCallNode node) throws StoppedException {
 			return interpreter.interpretFunctionCallNode(node, DATA_ID);
 		}
 		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int DATA_ID) throws StoppedException {
