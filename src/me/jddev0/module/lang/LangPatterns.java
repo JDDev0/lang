@@ -90,15 +90,19 @@ final class LangPatterns {
 	/**
 	 * RegEx: (func|fp|linker)\.\w+\(.*\).{@literal *}
 	 */
-	public static final Pattern PARSING_FUNCTION_CALL = Pattern.compile("(func|fp|linker)\\.\\w+\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL = Pattern.compile("(func|fp|linker)\\.\\w+\\(.*\\).*");
+	/**
+	 * RegEx: \\w+\\(.*\\).{@literal *}
+	 */
+	public static final Pattern PARSING_STARTS_WITH_FUNC_FUNCTION_CALL_WITHOUT_PREFIX = Pattern.compile("\\w+\\(.*\\).*");
 	/**
 	 * RegEx: parser\.\w+\(.*\).{@literal *}
 	 */
-	public static final Pattern PARSING_PARSER_FUNCTION_CALL = Pattern.compile("parser\\.\\w+\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_PARSER_FUNCTION_CALL = Pattern.compile("parser\\.\\w+\\(.*\\).*");
 	/**
 	 * RegEx: \(.*\).{@literal *}
 	 */
-	public static final Pattern PARSING_FUNCTION_CALL_PREVIOUS_VALUE = Pattern.compile("\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE = Pattern.compile("\\(.*\\).*");
 	/**
 	 * RegEx: \s*,.{@literal *}
 	 */

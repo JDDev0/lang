@@ -773,7 +773,7 @@ public final class LangParser {
 			}
 			
 			//Function calls
-			if(LangPatterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL)) {
 				if(whitespaces.length() > 0) {
 					builder.append(whitespaces.toString());
 					whitespaces.delete(0, whitespaces.length());
@@ -802,8 +802,38 @@ public final class LangParser {
 				continue;
 			}
 			
+			//Normal function calls without prefix
+			if(AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNC_FUNCTION_CALL_WITHOUT_PREFIX)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
+				}
+				
+				if(builder.length() > 0) {
+					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
+					builder.delete(0, builder.length());
+				}
+				
+				int parameterStartIndex = token.indexOf('(');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(parameterEndIndex == -1) {
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
+					
+					break;
+				}
+				
+				String functionCall = token.substring(0, parameterEndIndex + 1);
+				token = token.substring(parameterEndIndex + 1);
+				
+				String functionName = "func." + functionCall.substring(0, parameterStartIndex);
+				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+				
+				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+				continue;
+			}
+			
 			//Parser function calls
-			if(LangPatterns.matches(token, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_PARSER_FUNCTION_CALL)) {
 				if(whitespaces.length() > 0) {
 					builder.append(whitespaces.toString());
 					whitespaces.delete(0, whitespaces.length());
@@ -1315,7 +1345,7 @@ public final class LangParser {
 			}
 			
 			//Function calls
-			if(LangPatterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterStartIndex = token.indexOf('(');
@@ -1335,7 +1365,7 @@ public final class LangParser {
 				continue;
 			}
 			//Function call of previous value
-			if(LangPatterns.matches(token, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
@@ -1351,7 +1381,7 @@ public final class LangParser {
 			}
 			
 			//Parser function calls
-			if(LangPatterns.matches(token, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_PARSER_FUNCTION_CALL)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
 				int parameterStartIndex = token.indexOf('(');
@@ -1516,7 +1546,7 @@ public final class LangParser {
 				}
 				
 				//Function calls
-				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterStartIndex = parameterList.indexOf('(');
@@ -1538,7 +1568,7 @@ public final class LangParser {
 					continue;
 				}
 				//Function call of previous value
-				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_FUNCTION_CALL_PREVIOUS_VALUE)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
@@ -1556,7 +1586,7 @@ public final class LangParser {
 				}
 				
 				//Parser function calls
-				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_PARSER_FUNCTION_CALL)) {
+				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_PARSER_FUNCTION_CALL)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
 					int parameterStartIndex = parameterList.indexOf('(');
