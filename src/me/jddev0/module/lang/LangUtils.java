@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import me.jddev0.module.lang.LangInterpreter.DataObject;
-import me.jddev0.module.lang.LangInterpreter.DataType;
+import me.jddev0.module.lang.DataObject.DataType;
 
 /**
  * Lang-Module<br>

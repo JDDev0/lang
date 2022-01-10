@@ -20,9 +20,8 @@ import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 
 import me.jddev0.module.io.TerminalIO.Level;
-import me.jddev0.module.lang.LangInterpreter.DataObject;
-import me.jddev0.module.lang.LangInterpreter.DataType;
-import me.jddev0.module.lang.LangInterpreter.FunctionPointerObject;
+import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 

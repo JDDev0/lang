@@ -43,9 +43,9 @@ import javax.swing.text.Document;
 
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
-import me.jddev0.module.lang.LangInterpreter.DataObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
@@ -432,7 +432,7 @@ public class LangShellWindow extends JDialog {
 		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
 		lii.addPredefinedFunction("input", (argumentList, DATA_ID) -> {
 			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", DATA_ID);
-			return new DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
+			return new DataObject().setError(new DataObject.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
 		});
 		
 		printWelcomeText();
@@ -449,7 +449,7 @@ public class LangShellWindow extends JDialog {
 		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
 	
-	private String getDebugString(LangInterpreter.DataObject dataObject, int maxRecursionDepth) {
+	private String getDebugString(DataObject dataObject, int maxRecursionDepth) {
 		if(dataObject == null)
 			return "<NULL>";
 		
@@ -982,7 +982,7 @@ public class LangShellWindow extends JDialog {
 		});
 		
 		boolean isThrowValue = lii.isReturnedValueThrowValue();
-		LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+		DataObject retValue = lii.getAndResetReturnValue();
 		if(isThrowValue) {
 			GraphicsHelper.addText(shell, "Throw Value:\n", Color.WHITE);
 			term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", LangShellWindow.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());

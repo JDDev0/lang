@@ -2,8 +2,6 @@ package me.jddev0.module.lang;
 
 import java.util.List;
 
-import me.jddev0.module.lang.LangInterpreter.DataObject;
-
 /**
  * Lang-Module<br>
  * Helper class for external lang functions

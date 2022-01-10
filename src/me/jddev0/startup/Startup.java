@@ -14,8 +14,8 @@ import me.jddev0.module.graphics.TerminalWindow;
 import me.jddev0.module.io.ReaderActionObject;
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
+import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
-import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
 import me.jddev0.module.lang.LangParser;
 import me.jddev0.module.lang.LangPlatformAPI;
@@ -95,7 +95,7 @@ public class Startup {
 					term.logln(Level.DEBUG, key + " = " + value, Startup.class);
 				});
 				boolean isThrowValue = lii.isReturnedValueThrowValue();
-				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+				DataObject retValue = lii.getAndResetReturnValue();
 				if(isThrowValue) {
 					term.logln(Level.DEBUG, "------------- Throwed value --------------", Startup.class);
 					term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", Startup.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());
@@ -239,7 +239,7 @@ public class Startup {
 			}
 			if(printReturnedValue) {
 				boolean isThrowValue = lii.isReturnedValueThrowValue();
-				LangInterpreter.DataObject retValue = lii.getAndResetReturnValue();
+				DataObject retValue = lii.getAndResetReturnValue();
 				if(isThrowValue) {
 					System.out.println("------------- Throwed value --------------");
 					System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrmsg());

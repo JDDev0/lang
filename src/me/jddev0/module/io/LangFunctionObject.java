@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.List;
 
+import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
-import me.jddev0.module.lang.LangInterpreter.DataObject;
 
 /**
  * IO-Module<br>

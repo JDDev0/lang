@@ -887,7 +887,7 @@ public final class Lang {
 				argumentList.add(new ParsingErrorNode(ParsingError.EOF));
 			}
 			
-			LangInterpreter.FunctionPointerObject fp;
+			me.jddev0.module.lang.DataObject.FunctionPointerObject fp;
 			if(funcName.startsWith("func.") || funcName.startsWith("linker.")) {
 				boolean isLinkerFunction = funcName.startsWith("l");
 				
@@ -898,9 +898,9 @@ public final class Lang {
 				}).filter(entry -> {
 					return entry.getKey().equals(funcNameCopy);
 				}).map(Map.Entry<String, LangPredefinedFunctionObject>::getValue).findFirst();
-				fp = new LangInterpreter.FunctionPointerObject(predefinedFunction.orElse(null));
+				fp = new me.jddev0.module.lang.DataObject.FunctionPointerObject(predefinedFunction.orElse(null));
 			}else {
-				LangInterpreter.DataObject dataObject = lii.getData(DATA_ID).var.get(funcName);
+				me.jddev0.module.lang.DataObject dataObject = lii.getData(DATA_ID).var.get(funcName);
 				fp = dataObject == null?null:dataObject.getFunctionPointer();
 			}
 			
@@ -1462,12 +1462,12 @@ public final class Lang {
 				return type;
 			}
 			
-			public LangInterpreter.DataObject convert(LangInterpreter.LangInterpreterInterface lii) {
-				LangInterpreter.DataObject convertedDataObject = new LangInterpreter.DataObject();
+			public me.jddev0.module.lang.DataObject convert(LangInterpreter.LangInterpreterInterface lii) {
+				me.jddev0.module.lang.DataObject convertedDataObject = new me.jddev0.module.lang.DataObject();
 				switch(type) {
 					case ARRAY:
 						DataObject[] arr = getArray();
-						LangInterpreter.DataObject[] convertedArr = new LangInterpreter.DataObject[arr.length];
+						me.jddev0.module.lang.DataObject[] convertedArr = new me.jddev0.module.lang.DataObject[arr.length];
 						for(int i = 0;i < arr.length;i++)
 							convertedArr[i] = arr[i] == null?null:arr[i].convert(lii);
 						convertedDataObject.setArray(convertedArr);
@@ -1480,7 +1480,7 @@ public final class Lang {
 						break;
 					case ERROR:
 						ErrorObject err = getError();
-						LangInterpreter.ErrorObject convertedErr = new LangInterpreter.ErrorObject(InterpretingError.getErrorFromErrorCode(err.getErrno()));
+						me.jddev0.module.lang.DataObject.ErrorObject convertedErr = new me.jddev0.module.lang.DataObject.ErrorObject(InterpretingError.getErrorFromErrorCode(err.getErrno()));
 						convertedDataObject.setError(convertedErr);
 						break;
 					case FLOAT:
@@ -1488,10 +1488,10 @@ public final class Lang {
 						break;
 					case FUNCTION_POINTER:
 						FunctionPointerObject fp = getFunctionPointer();
-						LangInterpreter.FunctionPointerObject convertedFP = null;
+						me.jddev0.module.lang.DataObject.FunctionPointerObject convertedFP = null;
 						switch(fp.getFunctionPointerType()) {
 							case FunctionPointerObject.NORMAL:
-								convertedFP = new LangInterpreter.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, DATA_ID) -> {
+								convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, DATA_ID) -> {
 									String function = "fp.abc = (" + fp.getHead() + ") -> {\n" + fp.getBody() + "}";
 									try(BufferedReader reader = new BufferedReader(new StringReader(function))) {
 										AbstractSyntaxTree ast = lii.parseLines(reader);
@@ -1511,9 +1511,9 @@ public final class Lang {
 											parameterList.add(parameter);
 										}
 										
-										return lii.callFunctionPointer(new LangInterpreter.FunctionPointerObject(parameterList, functionBody), null, argumentList, DATA_ID);
+										return lii.callFunctionPointer(new me.jddev0.module.lang.DataObject.FunctionPointerObject(parameterList, functionBody), null, argumentList, DATA_ID);
 									}catch(ClassCastException|IOException e) {
-										return new LangInterpreter.DataObject().setError(new LangInterpreter.ErrorObject(InterpretingError.INVALID_AST_NODE));
+										return new me.jddev0.module.lang.DataObject().setError(new me.jddev0.module.lang.DataObject.ErrorObject(InterpretingError.INVALID_AST_NODE));
 									}
 								});
 								break;
@@ -1530,16 +1530,16 @@ public final class Lang {
 									}).filter(entry -> {
 										return entry.getKey().equals(funcNameCopy);
 									}).map(Map.Entry<String, LangPredefinedFunctionObject>::getValue).findFirst();
-									convertedFP = new LangInterpreter.FunctionPointerObject(predefinedFunction.orElse(null));
+									convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject(predefinedFunction.orElse(null));
 								}
 								break;
 							case FunctionPointerObject.EXTERNAL:
 								LangExternalFunctionObject convertedExternalFunction = (argumentList, DATA_ID) -> {
 									String args = LangUtils.combineDataObjects(argumentList).getText();
-									return new LangInterpreter.DataObject(fp.getExternalFunction().apply(args, DATA_ID));
+									return new me.jddev0.module.lang.DataObject(fp.getExternalFunction().apply(args, DATA_ID));
 								};
 								
-								convertedFP = new LangInterpreter.FunctionPointerObject(convertedExternalFunction);
+								convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject(convertedExternalFunction);
 								break;
 						}
 						convertedDataObject.setFunctionPointer(convertedFP);
@@ -1559,7 +1559,7 @@ public final class Lang {
 						break;
 					case VAR_POINTER:
 						DataObject var = getVarPointer().getVar();
-						LangInterpreter.VarPointerObject convertedVarPtr = new LangInterpreter.VarPointerObject(var == null?null:var.convert(lii).setVariableName(getVarPointer().getVarName()));
+						me.jddev0.module.lang.DataObject.VarPointerObject convertedVarPtr = new me.jddev0.module.lang.DataObject.VarPointerObject(var == null?null:var.convert(lii).setVariableName(getVarPointer().getVarName()));
 						convertedDataObject.setVarPointer(convertedVarPtr);
 						break;
 					case VOID:
@@ -1570,7 +1570,7 @@ public final class Lang {
 				return convertedDataObject.setFinalData(isFinalData());
 			}
 			
-			public static DataObject convert(LangInterpreter.DataObject dataObject, LangInterpreter.LangInterpreterInterface lii) {
+			public static DataObject convert(me.jddev0.module.lang.DataObject dataObject, LangInterpreter.LangInterpreterInterface lii) {
 				if(dataObject == null)
 					return null;
 				
@@ -1578,7 +1578,7 @@ public final class Lang {
 				
 				switch(dataObject.getType()) {
 					case ARRAY:
-						LangInterpreter.DataObject[] arr = dataObject.getArray();
+						me.jddev0.module.lang.DataObject[] arr = dataObject.getArray();
 						DataObject[] convertedArr = new DataObject[arr.length];
 						for(int i = 0;i < arr.length;i++)
 							convertedArr[i] = convert(arr[i], lii);
@@ -1591,7 +1591,7 @@ public final class Lang {
 						convertedDataObject.setDouble(dataObject.getDouble());
 						break;
 					case ERROR:
-						LangInterpreter.ErrorObject err = dataObject.getError();
+						me.jddev0.module.lang.DataObject.ErrorObject err = dataObject.getError();
 						ErrorObject convertedErr = new ErrorObject(err.getErrno());
 						convertedDataObject.setError(convertedErr);
 						break;
@@ -1599,14 +1599,14 @@ public final class Lang {
 						convertedDataObject.setFloat(dataObject.getFloat());
 						break;
 					case FUNCTION_POINTER:
-						LangInterpreter.FunctionPointerObject fp = dataObject.getFunctionPointer();
+						me.jddev0.module.lang.DataObject.FunctionPointerObject fp = dataObject.getFunctionPointer();
 						FunctionPointerObject convertedFP = null;
 						switch(fp.getFunctionPointerType()) {
-							case LangInterpreter.FunctionPointerObject.NORMAL:
-							case LangInterpreter.FunctionPointerObject.PREDEFINED:
+							case me.jddev0.module.lang.DataObject.FunctionPointerObject.NORMAL:
+							case me.jddev0.module.lang.DataObject.FunctionPointerObject.PREDEFINED:
 								convertedFP = new FunctionPointerObject(dataObject.getVariableName());
 								break;
-							case LangInterpreter.FunctionPointerObject.EXTERNAL:
+							case me.jddev0.module.lang.DataObject.FunctionPointerObject.EXTERNAL:
 								BiFunction<String, Integer, String> convertedExternalFunction = (args, DATA_ID) -> {
 									List<Node> argumentList = new LinkedList<>();
 									String code = "func.abc(" + args + ")";
@@ -1617,7 +1617,7 @@ public final class Lang {
 										argumentList.add(new ParsingErrorNode(ParsingError.EOF));
 									}
 									
-									LangInterpreter.DataObject ret = lii.interpretFunctionPointer(fp, dataObject.getVariableName(), argumentList, DATA_ID);
+									me.jddev0.module.lang.DataObject ret = lii.interpretFunctionPointer(fp, dataObject.getVariableName(), argumentList, DATA_ID);
 									return ret == null?"":ret.getText();
 								};
 								
@@ -1640,7 +1640,7 @@ public final class Lang {
 						convertedDataObject.setText(dataObject.getText());
 						break;
 					case VAR_POINTER:
-						LangInterpreter.DataObject var = dataObject.getVarPointer().getVar();
+						me.jddev0.module.lang.DataObject var = dataObject.getVarPointer().getVar();
 						VarPointerObject convertedVarPtr = new VarPointerObject(var == null?null:var.getVariableName(), var == null?null:convert(var, lii));
 						convertedDataObject.setVarPointer(convertedVarPtr);
 						break;

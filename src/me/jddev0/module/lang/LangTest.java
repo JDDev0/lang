@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
-import me.jddev0.module.lang.LangInterpreter.DataObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
