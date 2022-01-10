@@ -1590,7 +1590,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			SPACESHIP             ("<=>",      10,       OperatorType.GENERAL),
 			ELVIS                 ("?:",       13, true, OperatorType.GENERAL),
 			NULL_COALESCING       ("??",       13, true, OperatorType.GENERAL),
-			INLINE_IF             ("?...:", 3, 13, true, OperatorType.GENERAL),
+			INLINE_IF             ("?...:", 3, 14, true, OperatorType.GENERAL),
 			
 			//Math
 			MATH_NON              ("",      1, -1,       OperatorType.MATH),

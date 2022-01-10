@@ -653,7 +653,7 @@ public final class LangParser {
 				//Inline if -> Only parse if something is before and ":" was found -> else "?" will be parsed as text
 				
 				if(operator.getOperatorType().isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
-					if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
+					if(tokensLeft != null && currentOperatorPrecedence < operator.getPrecedence()) { //No "<=" because it should be parsed right-to-left
 						tokensLeft.append(token.trim());
 						
 						if(whitespaces.length() > 0)

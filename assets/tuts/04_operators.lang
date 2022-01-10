@@ -120,9 +120,10 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|-----------------------------
 # 13         | opr1 ?: opr2       | left-to-right | Elvis
 #            | opr1 ?? opr2       |               | Null coalescing
-#            | opr1 ? opr2 : opr3 |               | Inline if
 # -----------|--------------------|---------------|-----------------------------
-# 14         | opr1 = opr2        | right-to-left | Normal assignment
+# 14         | opr1 ? opr2 : opr3 | right-to-left | Inline if
+# -----------|--------------------|---------------|-----------------------------
+# 15         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
 #            | opr1 $= opr2       |               | Set assignment
 #            | opr1 += opr2       |               | Addition assignment
