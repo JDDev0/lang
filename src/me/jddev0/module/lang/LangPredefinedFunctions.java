@@ -120,7 +120,7 @@ final class LangPredefinedFunctions {
 	 * Will return -3 for not found translation keys
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int DATA_ID) {
-		char[] posibleFormats = {'d', 'f', 's', 't'};
+		char[] posibleFormats = {'c', 'd', 'f', 's', 't'};
 		int[] indices = new int[posibleFormats.length];
 		for(int i = 0;i < posibleFormats.length;i++)
 			indices[i] = format.indexOf(posibleFormats[i]);
@@ -195,7 +195,8 @@ final class LangPredefinedFunctions {
 			
 			case 'f':
 				break;
-			
+				
+			case 'c':
 			case 's':
 			case 't':
 				if(forceSign || leadingZeros || decimalPlaces)
@@ -257,6 +258,11 @@ final class LangPredefinedFunctions {
 					if(forceSign && output.charAt(0) != '-')
 						output = "+" + output;
 				}
+				
+				break;
+				
+			case 'c':
+				output = "" + (char)dataObject.toNumber().intValue();
 				
 				break;
 				
