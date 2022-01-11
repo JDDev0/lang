@@ -1114,6 +1114,16 @@ public final class LangInterpreter {
 								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
 							}
 							
+							if(variableName.startsWith("fp.")) {
+								final String functionNameCopy = variableName.substring(3);
+								Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
+									return functionNameCopy.equals(entry.getKey());
+								}).findFirst();
+								
+								if(ret.isPresent())
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "\"" + variableName + "\" shadows a predfined, linker, or external function", DATA_ID);
+							}
+							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
@@ -1642,11 +1652,41 @@ public final class LangInterpreter {
 		}else if(LangPatterns.matches(functionName, LangPatterns.VAR_NAME_FUNC_PTR)) {
 			DataObject ret = data.get(DATA_ID).var.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer was not found", DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer was not found or is invalid", DATA_ID);
 			
 			fp = ret.getFunctionPointer();
 		}else {
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid function type", DATA_ID);
+			//Function call without prefix
+			
+			//Function pointer
+			DataObject ret = data.get(DATA_ID).var.get("fp." + functionName);
+			if(ret != null) {
+				if(ret.getType() != DataType.FUNCTION_POINTER)
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer is invalid", DATA_ID);
+					
+				fp = ret.getFunctionPointer();
+			}else {
+				//Predefined/External function
+				
+				final String functionNameCopy = functionName;
+				Optional<Map.Entry<String, LangPredefinedFunctionObject>> retPredefinedFunction = funcs.entrySet().stream().filter(entry -> {
+					return !entry.getValue().isLinkerFunction() && functionNameCopy.equals(entry.getKey());
+				}).findFirst();
+				
+				if(retPredefinedFunction.isPresent()) {
+					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());;
+				}else {
+					//Predefined linker function
+					retPredefinedFunction = funcs.entrySet().stream().filter(entry -> {
+						return entry.getValue().isLinkerFunction() && functionNameCopy.equals(entry.getKey());
+					}).findFirst();
+					
+					if(!retPredefinedFunction.isPresent())
+						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "Normal, predfined, linker, or external function was not found", DATA_ID);
+					
+					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());
+				}
+			}
 		}
 		
 		return interpretFunctionPointer(fp, functionName, node.getChildren(), DATA_ID);
@@ -1942,7 +1982,8 @@ public final class LangInterpreter {
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
 		NO_TERMINAL_WARNING   (-2, "No terminal available"),
 		LANG_VER_WARNING      (-3, "Lang file's version is not compatible with this version"),
-		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid");
+		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid"),
+		VAR_SHADOWING_WARNING (-5, "Variable name shadows an other value");
 		
 		private final int errorCode;
 		private final String errorText;

@@ -803,7 +803,7 @@ public final class LangParser {
 				continue;
 			}
 			
-			//Normal function calls without prefix
+			//Function calls without prefix
 			if(AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_WITHOUT_PREFIX)) {
 				if(whitespaces.length() > 0) {
 					builder.append(whitespaces.toString());
@@ -826,7 +826,7 @@ public final class LangParser {
 				String functionCall = token.substring(0, parameterEndIndex + 1);
 				token = token.substring(parameterEndIndex + 1);
 				
-				String functionName = "fp." + functionCall.substring(0, parameterStartIndex);
+				String functionName = functionCall.substring(0, parameterStartIndex);
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
 				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
