@@ -219,8 +219,10 @@ public class LangShellWindow extends JDialog {
 								}
 							}
 							
-							if(lines.length > 1)
+							if(lines.length > 1) {
 								addLine(lines[lines.length - 1], true, false);
+								lineTmp.delete(0, lineTmp.length());
+							}
 							
 							if(flagRunning) {
 								if(!flagExecutingQueue) {
