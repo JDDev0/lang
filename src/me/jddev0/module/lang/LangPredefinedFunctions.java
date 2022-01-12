@@ -2014,6 +2014,45 @@ final class LangPredefinedFunctions {
 				return new DataObject().setLong((long)Math.floor(number.doubleValue()));
 			}, DATA_ID);
 		});
+		funcs.put("isNaN", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isNaN(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isNaN(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(false);
+			}, DATA_ID);
+		});
+		funcs.put("isInfinite", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isInfinite(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isInfinite(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(false);
+			}, DATA_ID);
+		});
+		funcs.put("isFinite", (argumentList, DATA_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isFinite(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isFinite(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(true);
+			}, DATA_ID);
+		});
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("copyAfterFP", (argumentList, DATA_ID) -> {
