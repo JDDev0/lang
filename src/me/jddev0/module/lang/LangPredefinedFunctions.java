@@ -262,7 +262,11 @@ final class LangPredefinedFunctions {
 				break;
 				
 			case 'c':
-				output = "" + (char)dataObject.toNumber().intValue();
+				number = dataObject.toNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				output = "" + (char)number.intValue();
 				
 				break;
 				
