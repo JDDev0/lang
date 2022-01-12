@@ -120,7 +120,7 @@ final class LangPredefinedFunctions {
 	 * Will return -3 for not found translation keys
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int DATA_ID) {
-		char[] posibleFormats = {'c', 'd', 'f', 's', 't'};
+		char[] posibleFormats = {'c', 'd', 'f', 'n', 's', 't'};
 		int[] indices = new int[posibleFormats.length];
 		for(int i = 0;i < posibleFormats.length;i++)
 			indices[i] = format.indexOf(posibleFormats[i]);
@@ -195,7 +195,12 @@ final class LangPredefinedFunctions {
 			
 			case 'f':
 				break;
+			
+			case 'n':
+				if(sizeInArgument || size != null)
+					return -1; //Invalid format sequence
 				
+				//Fall-trough
 			case 'c':
 			case 's':
 			case 't':
@@ -280,6 +285,11 @@ final class LangPredefinedFunctions {
 				output = interpreter.getData().get(DATA_ID).lang.get(translationKey);
 				if(output == null)
 					return -3; //Translation key not found
+				
+				break;
+				
+			case 'n':
+				output = System.getProperty("line.separator");
 				
 				break;
 		}
