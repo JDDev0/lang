@@ -239,6 +239,14 @@ public class TerminalWindow extends JFrame {
 			public void flush() throws IOException {
 				String output = byteOut.toString();
 				byteOut.reset();
+				if(!output.startsWith("[") && printingTmp.length() == 0) {
+					type = 0;
+					
+					GraphicsHelper.addText(term, output, colors[type]);
+					
+					return;
+				}
+				
 				while(output.contains("\n")) {
 					int newLineIndex = output.indexOf('\n');
 					printingTmp.append(output.substring(0, newLineIndex + 1));
