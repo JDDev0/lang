@@ -1337,6 +1337,8 @@ public final class LangInterpreter {
 			
 			//If no escape sequence: Remove "\" anyway
 			default:
+				setErrno(InterpretingError.UNDEF_ESCAPE_SEQUENCE, "\"\\" + node.getEscapeSequenceChar() + "\" was used", DATA_ID);
+				
 				return new DataObject().setChar(node.getEscapeSequenceChar());
 		}
 	}
@@ -1983,7 +1985,8 @@ public final class LangInterpreter {
 		NO_TERMINAL_WARNING   (-2, "No terminal available"),
 		LANG_VER_WARNING      (-3, "Lang file's version is not compatible with this version"),
 		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid"),
-		VAR_SHADOWING_WARNING (-5, "Variable name shadows an other value");
+		VAR_SHADOWING_WARNING (-5, "Variable name shadows an other value"),
+		UNDEF_ESCAPE_SEQUENCE (-6, "An undefined escape sequence was used");
 		
 		private final int errorCode;
 		private final String errorText;
