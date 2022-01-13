@@ -1840,9 +1840,9 @@ public final class LangInterpreter {
 			String langFile = currentStackElement.getLangFile();
 			String langFunctionName = currentStackElement.getLangFunctionName();
 			
-			String output = String.format("An %s occured in \"%s/%s\" (FUNCTION: \"%s\", DATA_ID: \"%d\")!\nError: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"warning":"error", langPath,
-					langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName, DATA_ID, error.getErrorText(), error.getErrorCode(),
-					message.isEmpty()?"":"\nMessage: " + message, printStackTrace());
+			String output = String.format("A%s %s occured in \"%s/%s\" (FUNCTION: \"%s\", DATA_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
+					newErrno < 0?"warning":"error", langPath, langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName, DATA_ID, newErrno < 0?"Warning":"Error",
+					error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message, printStackTrace());
 			if(term == null)
 				System.err.println(output);
 			else
