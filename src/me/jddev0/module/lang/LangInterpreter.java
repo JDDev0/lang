@@ -1079,7 +1079,7 @@ public final class LangInterpreter {
 				executionFlags.langTest = langTestNewValue;
 				break;
 			default:
-				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither execution data nor a lang flag", DATA_ID);
+				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither lang data nor an execution flag", DATA_ID);
 		}
 	}
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int DATA_ID) {
