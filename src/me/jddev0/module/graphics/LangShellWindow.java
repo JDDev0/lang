@@ -91,7 +91,7 @@ public class LangShellWindow extends JDialog {
 	private PrintStream oldOut;
 	
 	//Lists for auto complete
-	private final List<String> langDataAndCompilerFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
+	private final List<String> langDataAndExecutionFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
 	private final List<String> controlFlowStatements = Arrays.asList("break", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
 	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "op(");
 	
@@ -644,7 +644,7 @@ public class LangShellWindow extends JDialog {
 		if(line.startsWith("lang.") && !line.contains(" ")) {
 			int indexConNameStart = line.indexOf('.') + 1;
 			String conNameStart = indexConNameStart == line.length()?"":line.substring(indexConNameStart);
-			List<String> autoCompletes = langDataAndCompilerFlags.stream().
+			List<String> autoCompletes = langDataAndExecutionFlags.stream().
 			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
 			collect(Collectors.toList());
 			if(autoCompletes.isEmpty())

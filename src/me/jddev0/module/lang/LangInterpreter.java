@@ -1022,11 +1022,11 @@ public final class LangInterpreter {
 		excutionState.stopParsingFlag = true;
 	}
 	
-	private void interpretLangDataAndCompilerFlags(String langDataCompilerFlag, DataObject value, final int DATA_ID) {
+	private void interpretLangDataAndExecutionFlags(String langDataExecutionFlag, DataObject value, final int DATA_ID) {
 		if(value == null)
 			value = new DataObject().setNull();
 		
-		switch(langDataCompilerFlag) {
+		switch(langDataExecutionFlag) {
 			//Data
 			case "lang.version":
 				String langVer = value.getText();
@@ -1079,7 +1079,7 @@ public final class LangInterpreter {
 				executionFlags.langTest = langTestNewValue;
 				break;
 			default:
-				setErrno(InterpretingError.INVALID_COMP_FLAG_DATA, "\"" + langDataCompilerFlag + "\" is neither compiler data nor a lang flag", DATA_ID);
+				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither execution data nor a lang flag", DATA_ID);
 		}
 	}
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int DATA_ID) {
@@ -1179,7 +1179,7 @@ public final class LangInterpreter {
 					
 					String translationKey = translationKeyDataObject.getText();
 					if(translationKey.startsWith("lang."))
-						interpretLangDataAndCompilerFlags(translationKey, rvalue, DATA_ID);
+						interpretLangDataAndExecutionFlags(translationKey, rvalue, DATA_ID);
 					
 					data.get(DATA_ID).lang.put(translationKey, rvalue.getText());
 					break;
@@ -1984,7 +1984,7 @@ public final class LangInterpreter {
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
 		NO_TERMINAL_WARNING   (-2, "No terminal available"),
 		LANG_VER_WARNING      (-3, "Lang file's version is not compatible with this version"),
-		INVALID_COMP_FLAG_DATA(-4, "Compiler flag or lang data is invalid"),
+		INVALID_EXEC_FLAG_DATA(-4, "Executionflag or lang data is invalid"),
 		VAR_SHADOWING_WARNING (-5, "Variable name shadows an other value"),
 		UNDEF_ESCAPE_SEQUENCE (-6, "An undefined escape sequence was used");
 		
@@ -2119,7 +2119,7 @@ public final class LangInterpreter {
 		}
 		
 		/**
-		 * Creates an function which is accessible globally in the Compiler (= in all DATA_IDs)<br>
+		 * Creates an function which is accessible globally in the Interpreter (= in all DATA_IDs)<br>
 		 * If function already exists, it will be overridden<br>
 		 * Function can be accessed with "func.[funcName]" or with "liner.[funcName]" and can't be removed nor changed by the lang file
 		 */
