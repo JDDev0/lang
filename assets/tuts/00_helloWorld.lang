@@ -3,7 +3,7 @@
 # Setup
 # Name of the lang file
 lang.name = Hello World
-# Compiler Version the lang file is written for
+# The version the lang file is written for
 lang.version = v1.0.0
 
 # Code

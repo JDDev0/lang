@@ -102,9 +102,9 @@ func.printTerminal(-1, Function Pointer!)
 func.println(-----------------)
 
 # Function pointer argument duplication
-# If not enough arguments are provided, the compiler will copy the
-#   last argument given. If no argument was given, all variables will be empty
-# If too many arguments are given, the compiler will ignore them
+# If not enough arguments are provided, the last given argument will be copy
+# If no argument was given, all variables will be empty
+# If too many arguments are given, the arguments after the last parameter will be ignored
 fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g) -> {
 	func.println(|$a  $b  $c  $d  $e  $f  $g|)
 }

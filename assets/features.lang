@@ -7,8 +7,8 @@ lang.version = v1.0.0
 ui.button.ok = Ok
 ui.button.canel = Cancel
 
-{ # "Block" start (Is ignored by compiler (only for readability)
-# Trailing and leading Whitespaces are ignored by compiler (use \s for trailing Space)
+{ # "Block" start (Will be ignored (only for readability))
+# Trailing and leading Whitespaces will be ignored (use \s for trailing Space)
 	# Variable assignment (" = ", Spaces are important)
 	$a = Hello\s
 	$b =  World
@@ -169,9 +169,9 @@ ui.button.canel = Cancel
 	}
 	
 	# FunctionPointer argument duplication
-	# If not enough arguments are provided, the compiler will copy the
-	#   last argument given. If no argument was given, all variables will be empty
-	# If too many arguments are given, the compiler will ignore them
+	# If not enough arguments are provided, the last given arguments will be copy.
+	# If no argument was given, all variables will be empty
+	# If too many arguments are given, the arguments which are after the last parameter will be ignore
 	fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g, $h) -> {
 		func.printTerminal(-1, $a)
 		func.printTerminal(0, $b)
@@ -257,7 +257,7 @@ lang.errorOutput = 0 # Disable error ouput
 	
 	func.printTerminal(5, \s\n\n\n\n\n-----------------)
 	
-	# User input (Implementation by compiler is optional!
+	# User input (Implementation of this function is optional)
 	# If it isn't implemented, an error will occur (function will return ("Error")!)
 	$in = func.readTerminal(INPUT please:)
 	
