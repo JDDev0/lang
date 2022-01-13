@@ -367,7 +367,7 @@ final class LangPredefinedFunctions {
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		addPredefinedResetFunctions(funcs);
 		addPredefinedErrorFunctions(funcs);
-		addPredefinedCompilerFunctions(funcs);
+		addPredefinedLangFunctions(funcs);
 		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
 		addPredefinedNumberFunctions(funcs);
@@ -499,12 +499,56 @@ final class LangPredefinedFunctions {
 			return new DataObject().setInt(errorObject.getError().getErrno());
 		});
 	}
-	private void addPredefinedCompilerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("isCompilerVersionNewer", (argumentList, DATA_ID) -> {
+	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("isCompilerVersionNewer", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
+				return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) > 0);
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.1.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.isLangVersionNewer";
+			}
+		});
+		funcs.put("isCompilerVersionOlder", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
+				String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
+				return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) < 0);
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.1.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.isLangVersionOlder";
+			}
+		});
+		funcs.put("isLangVersionNewer", (argumentList, DATA_ID) -> {
 			String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) > 0);
 		});
-		funcs.put("isCompilerVersionOlder", (argumentList, DATA_ID) -> {
+		funcs.put("isLangVersionOlder", (argumentList, DATA_ID) -> {
 			String langVer = interpreter.data.get(DATA_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) < 0);
 		});
