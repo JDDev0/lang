@@ -6,11 +6,11 @@ lang.version = v1.0.0
 # func.name(arg1, $arg2, &arg3, fp.arg4) # Call function with arguments
 
 # Compiler functions
-# func.isLangVersionNewer(void) # Returns 1 if the lang version is newer else 0
+# func.isLangVersionNewer(void) # Returns 1 if the lang version is newer than the lang file version else 0
 $isLVN = func.isLangVersionNewer()
 func.println($isLVN)
 
-# func.isLangVersionOlder(void) # Returns 1 if the lang version is older else 0
+# func.isLangVersionOlder(void) # Returns 1 if the lang version is older than the lang file version else 0
 $isLVO = func.isLangVersionOlder()
 func.println($isLVO)
 
