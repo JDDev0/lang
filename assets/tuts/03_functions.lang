@@ -5,7 +5,7 @@ lang.version = v1.0.0
 # func.name() # Call function
 # func.name(arg1, $arg2, &arg3, fp.arg4) # Call function with arguments
 
-# Compiler functions
+# Lang functions
 # func.isLangVersionNewer(void) # Returns 1 if the lang version is newer than the lang file version else 0
 $isLVN = func.isLangVersionNewer()
 func.println($isLVN)
