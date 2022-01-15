@@ -1775,7 +1775,7 @@ public final class LangInterpreter {
 		StackElement currentStackElement = getCurrentCallStackElement();
 		
 		//Final vars
-		data.get(DATA_ID).var.put("$LANG_COMPILER_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_COMPILER_VERSION"));
+		data.get(DATA_ID).var.put("$LANG_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_VERSION"));
 		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setVariableName("$LANG_PATH"));
 		data.get(DATA_ID).var.put("$LANG_FILE", new DataObject(currentStackElement.getLangFile(), true).setVariableName("$LANG_FILE"));
 		data.get(DATA_ID).var.put("$LANG_CURRENT_FUNCTION", new DataObject(currentStackElement.getLangFunctionName(), true).setVariableName("$LANG_CURRENT_FUNCTION"));
