@@ -8,11 +8,11 @@ $ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0
 # }}}
 
 con.if($ver == v0.1.8)
-	func.printTerminal(2, This is Code for the compiler version v0.1.8!)
+	func.printTerminal(2, This is Code for the lang version v0.1.8!)
 	
-	func.printTerminal(2, Are you crazy? This version of the lang compiler isn't even public!)
+	func.printTerminal(2, Are you crazy? This version of lang isn't even public!)
 con.elif($ver == v0.1.9)
-	func.printTerminal(2, This is Code for the compiler version v0.1.9!)
+	func.printTerminal(2, This is Code for the lang version v0.1.9!)
 	
 	$a = A non final variable
 	func.printTerminal(2, $a)
@@ -20,7 +20,7 @@ con.elif($ver == v0.1.9)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v0.2.0)
-	func.printTerminal(2, This is Code for the compiler version v0.2.0!)
+	func.printTerminal(2, This is Code for the lang version v0.2.0!)
 	
 	$a = A final variable
 	func.makeFinal($[a])
@@ -29,7 +29,7 @@ con.elif($ver == v0.2.0)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v0.2.1)
-	func.printTerminal(2, This is Code for the compiler version v0.2.1!)
+	func.printTerminal(2, This is Code for the lang version v0.2.1!)
 	
 	$a = A final variable
 	func.makeFinal($[a])
@@ -38,7 +38,7 @@ con.elif($ver == v0.2.1)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v1.0.0)
-	func.println(This is Code for the compiler version v1.0.0!)
+	func.println(This is Code for the lang version v1.0.0!)
 	
 	$a = A final variable
 	func.makeFinal($[a])
@@ -47,10 +47,10 @@ con.elif($ver == v1.0.0)
 	func.println($a)
 	func.printError()
 con.else
-	func.printTerminal(5, The Compiler version $ver is not supported!)
+	func.printTerminal(5, The lang version $ver is not supported!)
 con.endif
 
-# Best practice: Use different lang files for different compiler version dependent functions: # Example: Contains different version of function "fp.test"
+# Best practice: Use different lang files for different lang version dependent functions: # Example: Contains different version of function "fp.test"
 con.if($ver == v0.1.8)
 	linker.bindLibrary(15_utilsLibrary018.lang)
 con.elif($ver == v0.1.9)
@@ -62,7 +62,7 @@ con.elif($ver == v0.2.1)
 con.elif($ver == v1.0.0)
 	linker.bindLibrary(15_utilsLibrary100.lang)
 con.else
-	func.printTerminal(5, The Compiler version $ver is not supported!)
+	func.printTerminal(5, The lang version $ver is not supported!)
 con.endif
 
 fp.test(A test text)
