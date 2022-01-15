@@ -1984,7 +1984,7 @@ public final class LangInterpreter {
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
 		NO_TERMINAL_WARNING   (-2, "No terminal available"),
 		LANG_VER_WARNING      (-3, "Lang file's version is not compatible with this version"),
-		INVALID_EXEC_FLAG_DATA(-4, "Executionflag or lang data is invalid"),
+		INVALID_EXEC_FLAG_DATA(-4, "Execution flag or lang data is invalid"),
 		VAR_SHADOWING_WARNING (-5, "Variable name shadows an other value"),
 		UNDEF_ESCAPE_SEQUENCE (-6, "An undefined escape sequence was used");
 		
