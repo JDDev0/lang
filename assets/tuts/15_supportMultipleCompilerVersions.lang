@@ -1,7 +1,12 @@
 lang.name = Support Multiple Compiler Versions
 lang.version = v0.1.8 # Set to the lowest supported version
 
-$ver = $LANG_COMPILER_VERSION # Get lang compiler version
+# Get lang version
+$ver = $LANG_VERSION
+# {{{
+$ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0
+# }}}
+
 con.if($ver == v0.1.8)
 	func.printTerminal(2, This is Code for the compiler version v0.1.8!)
 	
