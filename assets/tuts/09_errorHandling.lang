@@ -52,7 +52,7 @@ func.println(Error code: $LANG_ERRNO)
 #        21: INVALID_ARGUMENTS
 #        22: FUNCTION_NOT_FOUND
 #        23: EOF
-#    Compiler errors:
+#    System errors:
 #        24: SYSTEM_ERROR
 #    Loop function errors:
 #        25: NEGATIVE_REPEAT_COUNT
@@ -62,28 +62,34 @@ func.println(Error code: $LANG_ERRNO)
 #        28: BRACKET_MISMATCH
 #    If statement errors:
 #        29: IF_CONDITION_MISSING
-#    Interpreter/Compiler errors:
+#    Parsing errors:
 #        30: INVALID_AST_NODE
 #    Function errors:
 #        31: INVALID_PTR
 #    Variable errors:
 #        32: INCOMPATIBLE_DATA_TYPE
 #        33: LANG_ARRAYS_COPY
-#    Compiler errors:
+#    Lang errors:
 #        34: LANG_VER_ERROR
 #    Conditionals errors:
 #        35: INVALID_CON_PART
 #    Format errors:
 #        36: INVALID_FORMAT
+#    Variable errors:
+#        37: INVALID_ASSIGNMENT
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
 #        -1: DEPRECATED_FUNC_CALL
 #    System warnings:
 #        -2: NO_TERMINAL_WARNING
-#    Compiler warnings:
+#    Lang warnings:
 #        -3: LANG_VER_WARNING
 #        -4: INVALID_COMP_FLAG_DATA
+#    Variable warnings:
+#        -5: VAR_SHADOWING_WARNING
+#    Value warnings:
+#        -6: UNDEF_ESCAPE_SEQUENCE
 
 # Error Handling example
 $value = func.divi(42, 0)
