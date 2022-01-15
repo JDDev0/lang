@@ -27,4 +27,6 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
   - linker function will no longer return 0 or -1 for successful or unsuccessful execution
   - Change of condition operator precedence and associativity
   - "$LANG\_COMPILER\_VERSION" was removed and replaced with "$LANG\_VERSION"
+  - "func.isCompilerVersionNewer()" was removed and replaced with "func.isLangVersionNewer()"
+  - "func.isCompilerVersionOlder()" was removed and replaced with "func.isLangVersionOlder()"
 
