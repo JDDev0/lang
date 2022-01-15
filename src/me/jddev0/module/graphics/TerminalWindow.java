@@ -251,11 +251,10 @@ public class TerminalWindow extends JFrame {
 				
 				if(charsLeftInLogOutput > 0) {
 					if(output.length() > charsLeftInLogOutput) {
-						charsLeftInLogOutput = 0;
-						
 						GraphicsHelper.addText(term, output.substring(0, charsLeftInLogOutput), colors[type]);
 						
 						String outputLeft = output.substring(charsLeftInLogOutput);
+						charsLeftInLogOutput = 0;
 						updateOutput(outputLeft);
 					}else {
 						charsLeftInLogOutput -= output.length();
