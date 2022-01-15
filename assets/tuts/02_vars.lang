@@ -157,7 +157,7 @@ func.println(-----------------)
 
 # $LANG vars
 func.println(\$LANG vars)
-func.println(• "$LANG_COMPILER_VERSION") # Will print the compiler version
+func.println(• "$LANG_VERSION") # Will print the lang version
 func.println(• "$LANG_PATH") # Will print the path to the lang file
 func.println(• "$LANG_FILE") # Will print the file name of the lang file (Can be NULL)
 func.println(• "$LANG_CURRENT_FUNCTION") # Will print the current function (Can be NULL)
@@ -185,8 +185,8 @@ func.println(• "$LANG_ERROR_DIV_BY_ZERO") # Will print the error object of the
 
 func.println(-----------------)
 
-$LANG_COMPILER_VERSION = TEST # $LANG vars can't be changed by the lang file
-func.println($LANG_COMPILER_VERSION)
+$LANG_VERSION = TEST # $LANG vars can't be changed by the lang file
+func.println($LANG_VERSION)
 
 $LANG_TEST = TEST # $LANG vars can't be created either
 func.println($LANG_TEST)
