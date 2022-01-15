@@ -1648,13 +1648,13 @@ public final class LangInterpreter {
 			}).findFirst();
 			
 			if(!ret.isPresent())
-				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "Predfined, linker, or external function was not found", DATA_ID);
+				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Predfined, linker, or external function was not found", DATA_ID);
 			
 			fp = new FunctionPointerObject(ret.get().getValue());
 		}else if(LangPatterns.matches(functionName, LangPatterns.VAR_NAME_FUNC_PTR)) {
 			DataObject ret = data.get(DATA_ID).var.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer was not found or is invalid", DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer was not found or is invalid", DATA_ID);
 			
 			fp = ret.getFunctionPointer();
 		}else {
@@ -1664,7 +1664,7 @@ public final class LangInterpreter {
 			DataObject ret = data.get(DATA_ID).var.get("fp." + functionName);
 			if(ret != null) {
 				if(ret.getType() != DataType.FUNCTION_POINTER)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function pointer is invalid", DATA_ID);
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer is invalid", DATA_ID);
 					
 				fp = ret.getFunctionPointer();
 			}else {
@@ -1684,7 +1684,7 @@ public final class LangInterpreter {
 					}).findFirst();
 					
 					if(!retPredefinedFunction.isPresent())
-						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "Normal, predfined, linker, or external function was not found", DATA_ID);
+						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", DATA_ID);
 					
 					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());
 				}
