@@ -1,4 +1,4 @@
-lang.name = Support Multiple Compiler Versions
+lang.name = Support Multiple Lang Versions
 lang.version = v0.1.8 # Set to the lowest supported version
 
 # Get lang version
