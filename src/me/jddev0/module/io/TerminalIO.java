@@ -144,9 +144,10 @@ public class TerminalIO {
 		String log = "";
 		log += "[" + lvl.getLevelName() + "]";
 		log += "[" + form.format(new Date()) + "]";
+		log += "[Msg len: " + ((txt == null?4:txt.length()) + (newLine?1:0)) + "]";
 		log += "[From: " + caller.getName() + "]: ";
 		log += txt;
-		log += newLine?"\n":"";//Adds a new line if newLine is true
+		log += newLine?"\n":""; //Adds a new line if newLine is true
 		
 		//Prints the log on the standard output
 		System.out.print(log);

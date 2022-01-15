@@ -343,8 +343,7 @@ public class LangShellWindow extends JDialog {
 			//Tmp for multibyte char
 			private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 			
-			//Tmp for the printing
-			private StringBuilder printingTmp = new StringBuilder();
+			private int charsLeftInLogOutput;
 			private int type = 0;
 			//Colors for the levels
 			private Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
@@ -360,58 +359,103 @@ public class LangShellWindow extends JDialog {
 				String output = byteOut.toString();
 				byteOut.reset();
 				
-				if(!output.startsWith("[") && printingTmp.length() == 0) {
-					type = 0;
-					
-					GraphicsHelper.addText(shell, output, colors[type]);
+				updateOutput(output);
+				
+				//Auto scroll
+				shell.setCaretPosition(shell.getDocument().getLength());
+			}
+			
+			private void updateOutput(String output) {
+				if(output.length() == 0)
+					return;
+				
+				if(charsLeftInLogOutput > 0) {
+					if(output.length() > charsLeftInLogOutput) {
+						charsLeftInLogOutput = 0;
+						
+						GraphicsHelper.addText(shell, output.substring(0, charsLeftInLogOutput), colors[type]);
+						
+						String outputLeft = output.substring(charsLeftInLogOutput);
+						updateOutput(outputLeft);
+					}else {
+						charsLeftInLogOutput -= output.length();
+						
+						GraphicsHelper.addText(shell, output, colors[type]);
+					}
 					
 					return;
 				}
 				
-				while(output.contains("\n")) {
-					int newLineIndex = output.indexOf('\n');
-					printingTmp.append(output.substring(0, newLineIndex + 1));
+				int outputLength = getOutputLength(output);
+				if(outputLength == -1) {
+					type = 0;
 					
-					//Sets color of message after new line
-					String printStr = printingTmp.toString();
-					if(printStr.startsWith("[" + Level.NOTSET + "]")) {
-						type = 0;
-					}else if(printStr.startsWith("[" + Level.USER + "]")) {
-						type = 1;
-					}else if(printStr.startsWith("[" + Level.DEBUG + "]")) {
-						type = 2;
-					}else if(printStr.startsWith("[" + Level.CONFIG + "]")) {
-						type = 3;
-					}else if(printStr.startsWith("[" + Level.INFO + "]")) {
-						type = 4;
-					}else if(printStr.startsWith("[" + Level.WARNING + "]")) {
-						type = 5;
-					}else if(printStr.startsWith("[" + Level.ERROR + "]")) {
-						type = 6;
-					}else if(printStr.startsWith("[" + Level.CRITICAL + "]")) {
-						type = 7;
-					}
+					int bracketIndex = output.indexOf('[', 1); //Ignore "[" at start, because it was already tested
 					
-					//Adds message to term
-					if(printStr.contains("[From lang file]: ")) {
-						GraphicsHelper.addText(shell, printStr.split("\\[From lang file\\]: ")[1], colors[type]);
-					}else if(printStr.contains("]: ")) {
-						GraphicsHelper.addText(shell, printStr.split("\\]: ")[1], colors[type]);
+					if(bracketIndex == -1) {
+						GraphicsHelper.addText(shell, output, colors[type]);
 					}else {
-						GraphicsHelper.addText(shell, printStr, colors[type]);
+						GraphicsHelper.addText(shell, output.substring(0, bracketIndex), colors[type]);
+						
+						String outputLeft = output.substring(bracketIndex);
+						updateOutput(outputLeft);
 					}
 					
-					//Auto scroll
-					shell.setCaretPosition(shell.getDocument().getLength());
-					
-					//Clears tmp for the printing
-					printingTmp.delete(0, printingTmp.length());
-					
-					if(newLineIndex == output.length() - 1)
-						return;
-					output = output.substring(output.indexOf('\n') + 1);
+					return;
 				}
-				printingTmp.append(output);
+				
+				charsLeftInLogOutput = outputLength;
+				
+				//Sets color of message after new line
+				if(output.startsWith("[" + Level.NOTSET + "]")) {
+					type = 0;
+				}else if(output.startsWith("[" + Level.USER + "]")) {
+					type = 1;
+				}else if(output.startsWith("[" + Level.DEBUG + "]")) {
+					type = 2;
+				}else if(output.startsWith("[" + Level.CONFIG + "]")) {
+					type = 3;
+				}else if(output.startsWith("[" + Level.INFO + "]")) {
+					type = 4;
+				}else if(output.startsWith("[" + Level.WARNING + "]")) {
+					type = 5;
+				}else if(output.startsWith("[" + Level.ERROR + "]")) {
+					type = 6;
+				}else if(output.startsWith("[" + Level.CRITICAL + "]")) {
+					type = 7;
+				}
+				
+				//Extract message from debug output
+				output = output.split("]: ", 2)[1];
+				
+				if(output.startsWith("[From lang file]: ")) { //Drop "[From lang file]: " prefix
+					output = output.substring(18);
+					
+					charsLeftInLogOutput -= 18;
+				}
+				
+				updateOutput(output);
+			}
+			
+			private int getOutputLength(String output) {
+				if(!output.startsWith("[") || !output.contains("]: "))
+					return -1;
+				
+				int msgLenIndex = output.indexOf("][Msg len: ");
+				if(msgLenIndex == -1)
+					return -1;
+				
+				msgLenIndex += 11; //Index at end of "][Msg len: "
+				int endMsgLenIndex = output.indexOf(']', msgLenIndex);
+				if(endMsgLenIndex == -1)
+					return -1;
+				
+				String msgLen = output.substring(msgLenIndex, endMsgLenIndex);
+				try {
+					return Integer.parseInt(msgLen);
+				}catch(NumberFormatException e) {
+					return -1;
+				}
 			}
 		}, true));
 		
