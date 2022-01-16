@@ -1103,19 +1103,6 @@ public final class LangInterpreter {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
-							if(rvalue.getType() != DataType.NULL &&
-							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
-							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
-								//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno, but print "INCOMPATIBLE_DATA_TYPE" anyway
-								InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
-								if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode()) {
-									setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID); //Print only, $LANG_ERRNO will be overridden below
-									return setErrnoErrorObject(error, "", true, DATA_ID);
-								}
-								
-								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
-							}
-							
 							if(variableName.startsWith("fp.")) {
 								final String functionNameCopy = variableName.substring(3);
 								Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
@@ -1130,6 +1117,20 @@ public final class LangInterpreter {
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
 									return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
+								
+								variableName = lvalue.getVariableName();
+								if(variableName != null && rvalue.getType() != DataType.NULL &&
+								((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
+								(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
+									//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno, but print "INCOMPATIBLE_DATA_TYPE" anyway
+									InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
+									if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode()) {
+										setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID); //Print only, $LANG_ERRNO will be overridden below
+										return setErrnoErrorObject(error, "", true, DATA_ID);
+									}
+									
+									return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
+								}
 								
 								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
 									return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
