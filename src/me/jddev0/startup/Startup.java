@@ -98,7 +98,7 @@ public class Startup {
 				DataObject retValue = lii.getAndResetReturnValue();
 				if(isThrowValue) {
 					term.logln(Level.DEBUG, "------------- Throwed value --------------", Startup.class);
-					term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", Startup.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());
+					term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", Startup.class, retValue.getError().getErrno(), retValue.getError().getErrtxt());
 				}else {
 					term.logln(Level.DEBUG, "------------- Returned Value -------------", Startup.class);
 					if(retValue == null)
@@ -242,7 +242,7 @@ public class Startup {
 				DataObject retValue = lii.getAndResetReturnValue();
 				if(isThrowValue) {
 					System.out.println("------------- Throwed value --------------");
-					System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrmsg());
+					System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrtxt());
 				}else {
 					System.out.println("------------- Returned Value -------------");
 					if(retValue == null)

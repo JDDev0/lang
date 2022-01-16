@@ -838,7 +838,7 @@ public final class LangInterpreter {
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
-				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), DATA_ID);
 			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.MATH) {
@@ -918,7 +918,7 @@ public final class LangInterpreter {
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
-				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
+				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), DATA_ID);
 			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.CONDITION) {
@@ -1369,7 +1369,7 @@ public final class LangInterpreter {
 		DataObject retTmp = excutionState.returnedOrThrownValue;
 		excutionState.returnedOrThrownValue = null;
 		if(excutionState.isThrownValue && DATA_ID > -1)
-			setErrno(retTmp.getError().getInterprettingError(), DATA_ID);
+			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(), DATA_ID);
 		
 		if(executionFlags.langTest) {
 			if(langTestExpectedThrowValue != null) {
@@ -1845,7 +1845,7 @@ public final class LangInterpreter {
 	}
 	
 	void setErrno(InterpretingError error, final int DATA_ID) {
-		setErrno(error, "", DATA_ID);
+		setErrno(error, null, DATA_ID);
 	}
 	void setErrno(InterpretingError error, String message, final int DATA_ID) {
 		setErrno(error, message, false, DATA_ID);
@@ -1860,6 +1860,9 @@ public final class LangInterpreter {
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
 		if(!forceNoErrorOutput && executionFlags.errorOutput && newErrno != 0) {
+			if(message == null)
+				message = "";
+			
 			StackElement currentStackElement = getCurrentCallStackElement();
 			String langPath = currentStackElement.getLangPath();
 			String langFile = currentStackElement.getLangFile();
@@ -1876,7 +1879,7 @@ public final class LangInterpreter {
 	}
 	
 	DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
-		return setErrnoErrorObject(error, "", DATA_ID);
+		return setErrnoErrorObject(error, null, DATA_ID);
 	}
 	DataObject setErrnoErrorObject(InterpretingError error, String message, final int DATA_ID) {
 		return setErrnoErrorObject(error, message, false, DATA_ID);
@@ -1884,7 +1887,7 @@ public final class LangInterpreter {
 	private DataObject setErrnoErrorObject(InterpretingError error, String message, boolean forceNoErrorOutput, final int DATA_ID) {
 		setErrno(error, message, forceNoErrorOutput, DATA_ID);
 		
-		return new DataObject().setError(new ErrorObject(error));
+		return new DataObject().setError(new ErrorObject(error, message));
 	}
 	InterpretingError getAndClearErrnoErrorObject(final int DATA_ID) {
 		int errno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();

@@ -776,7 +776,7 @@ public class DataObject {
 				switch(other.type) {
 					case TEXT:
 						if(number == null)
-							return error.getErrmsg().equals(other.txt);
+							return error.getErrtxt().equals(other.txt);
 						return error.getErrno() == number.intValue();
 					
 					case CHAR:
@@ -1025,7 +1025,7 @@ public class DataObject {
 			
 			case ERROR:
 				if(other.type == DataType.TEXT && number.getType() == DataType.NULL)
-					return error.getErrmsg().compareTo(other.txt) < 0;
+					return error.getErrtxt().compareTo(other.txt) < 0;
 				switch(number.type) {
 					case INT:
 						return error.getErrno() < number.getInt();
@@ -1256,7 +1256,7 @@ public class DataObject {
 			
 			case ERROR:
 				if(other.type == DataType.TEXT && number.getType() == DataType.NULL)
-					return error.getErrmsg().compareTo(other.txt) > 0;
+					return error.getErrtxt().compareTo(other.txt) > 0;
 				switch(number.type) {
 					case INT:
 						return error.getErrno() > number.getInt();
@@ -1888,7 +1888,7 @@ public class DataObject {
 				switch(dataObject.type) {
 					case INT:
 						if(dataObject.intValue < 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS));
+							return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Integer value must be larger than or equals to 0"));
 						
 						StringBuilder builder = new StringBuilder();
 						for(int i = 0;i < dataObject.intValue;i++)
@@ -3102,12 +3102,18 @@ public class DataObject {
 	}
 	public static final class ErrorObject {
 		private final InterpretingError err;
+		private final String message;
 		
-		public ErrorObject(InterpretingError err) {
+		public ErrorObject(InterpretingError err, String message) {
 			if(err == null)
 				this.err = InterpretingError.NO_ERROR;
 			else
 				this.err = err;
+			
+			this.message = message;
+		}
+		public ErrorObject(InterpretingError err) {
+			this(err, null);
 		}
 		
 		public InterpretingError getInterprettingError() {
@@ -3118,8 +3124,12 @@ public class DataObject {
 			return err.getErrorCode();
 		}
 		
-		public String getErrmsg() {
+		public String getErrtxt() {
 			return err.getErrorText();
+		}
+		
+		public String getMessage() {
+			return message;
 		}
 		
 		@Override
@@ -3139,7 +3149,7 @@ public class DataObject {
 				return false;
 			
 			ErrorObject that = (ErrorObject)obj;
-			return this.err.equals(that.err);
+			return this.err == that.err;
 		}
 		
 		@Override

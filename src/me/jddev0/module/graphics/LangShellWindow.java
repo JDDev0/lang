@@ -584,7 +584,7 @@ public class LangShellWindow extends JDialog {
 				builder.append("\nError-Code: ");
 				builder.append(dataObject.getError().getErrno());
 				builder.append("\nError-Text: ");
-				builder.append(dataObject.getError().getErrmsg());
+				builder.append(dataObject.getError().getErrtxt());
 				break;
 			
 			default:
@@ -1039,7 +1039,7 @@ public class LangShellWindow extends JDialog {
 		DataObject retValue = lii.getAndResetReturnValue();
 		if(isThrowValue) {
 			GraphicsHelper.addText(shell, "Throw Value:\n", Color.WHITE);
-			term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", LangShellWindow.class, retValue.getError().getErrno(), retValue.getError().getErrmsg());
+			term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", LangShellWindow.class, retValue.getError().getErrno(), retValue.getError().getErrtxt());
 		}else {
 			GraphicsHelper.addText(shell, "Returned Value:\n", Color.WHITE);
 			if(retValue == null)

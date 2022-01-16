@@ -64,7 +64,7 @@ final class LangPredefinedFunctions {
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 		
 		if(dataObject.getType() == DataType.ERROR)
-			return interpreter.setErrnoErrorObject(dataObject.getError().getInterprettingError(), DATA_ID);
+			return interpreter.setErrnoErrorObject(dataObject.getError().getInterprettingError(), dataObject.getError().getMessage(), DATA_ID);
 		
 		return dataObject;
 	}
@@ -487,7 +487,7 @@ final class LangPredefinedFunctions {
 			if(errorObject.getType() != DataType.ERROR)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE, "", DataType.ERROR.name()), DATA_ID);
 			
-			return new DataObject(errorObject.getError().getErrmsg());
+			return new DataObject(errorObject.getError().getErrtxt());
 		});
 		funcs.put("errorCode", (argumentList, DATA_ID) -> {
 			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
