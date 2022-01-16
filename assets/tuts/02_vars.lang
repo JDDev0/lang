@@ -158,6 +158,7 @@ func.println(-----------------)
 # $LANG vars
 func.println(\$LANG vars)
 func.println(• "$LANG_VERSION") # Will print the lang version
+func.println(• "$LANG_NAME") # Will print the name of the implementation of lang
 func.println(• "$LANG_PATH") # Will print the path to the lang file
 func.println(• "$LANG_FILE") # Will print the file name of the lang file (Can be NULL)
 func.println(• "$LANG_CURRENT_FUNCTION") # Will print the current function (Can be NULL)
