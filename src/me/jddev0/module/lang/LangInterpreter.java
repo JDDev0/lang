@@ -1805,6 +1805,12 @@ public final class LangInterpreter {
 			data.get(DATA_ID).var.put(variableName, new DataObject().setInt(error.getErrorCode()).setFinalData(true).setVariableName(variableName));
 		}
 		
+		for(DataType type:DataType.values()) {
+			String upperCaseTypeName = type.name().toUpperCase();
+			String variableName = "$LANG_TYPE_" + upperCaseTypeName;
+			data.get(DATA_ID).var.put(variableName, new DataObject().setTypeValue(type).setFinalData(true).setVariableName(variableName));
+		}
+		
 		//Not final vars
 		setErrno(InterpretingError.NO_ERROR, DATA_ID); //Set $LANG_ERRNO
 	}
