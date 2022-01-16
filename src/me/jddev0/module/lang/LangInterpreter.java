@@ -831,7 +831,7 @@ public final class LangInterpreter {
 			}
 			
 			if(output == null)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Operation \"" + node.getOperator().getSymbol() + "\" is not defined for " + leftSideOperand.getType().name() + (
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The \"" + node.getOperator().getSymbol() + "\" operator is not defined for " + leftSideOperand.getType().name() + (
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
@@ -911,7 +911,7 @@ public final class LangInterpreter {
 			}
 			
 			if(output == null)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Operation \"" + node.getOperator().getSymbol() + "\" is not defined for " + leftSideOperand.getType().name() + (
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The \"" + node.getOperator().getSymbol() + "\" operator is not defined for " + leftSideOperand.getType().name() + (
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
