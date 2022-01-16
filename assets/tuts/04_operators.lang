@@ -35,8 +35,7 @@ lang.version = v1.0.0
 # Condition
 # (opr)               - Grouping
 # !opr                - Not
-# opr1 && opr2        - And
-# opr1 || opr2        - Or
+# opr1 ~~ opr2        - Instance of
 # opr1 == opr2        - Equals
 # opr1 != opr2        - Not equals
 # opr1 =~ opr2        - Matches
@@ -47,6 +46,8 @@ lang.version = v1.0.0
 # opr1 > opr2         - Greater than
 # opr1 <= opr2        - Less than or equals
 # opr1 >= opr2        - Greater than or equals
+# opr1 && opr2        - And
+# opr1 || opr2        - Or
 
 # Assignments
 # expr1 = expr2       - Normal assignment
@@ -103,6 +104,7 @@ lang.version = v1.0.0
 #  9         | opr1 | opr2        | left-to-right | Bitwise or
 # -----------|--------------------|---------------|-----------------------------
 # 10         | opr1 <=> opr2      | left-to-right | Spaceship
+#            | opr1 ~~ opr2       |               | Instance of
 #            | opr1 == opr2       |               | Equals
 #            | opr1 != opr2       |               | Not equals
 #            | opr1 =~ opr2       |               | Matches
