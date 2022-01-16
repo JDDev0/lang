@@ -1122,7 +1122,7 @@ public final class LangInterpreter {
 									return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
 								}
 								
-								if(variableName.startsWith("fp.")) {
+								if(variableName != null && variableName.startsWith("fp.")) {
 									final String functionNameCopy = variableName.substring(3);
 									Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
 										return functionNameCopy.equals(entry.getKey());
