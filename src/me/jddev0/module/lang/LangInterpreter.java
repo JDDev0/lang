@@ -1103,14 +1103,14 @@ public final class LangInterpreter {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
-							boolean[] success = new boolean[] {true};
-							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, success, DATA_ID);
-							if(!success[0])
+							boolean[] variableError = new boolean[] {false};
+							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, variableError, DATA_ID);
+							if(variableError[0])
 								return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
 							
 							variableName = lvalue.getVariableName();
 							if(variableName == null) {
-								return setErrnoErrorObject(InterpretingError.INVALID_PTR, "Anonymous values can not be changed", DATA_ID);
+								return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT, "Anonymous values can not be changed", DATA_ID);
 							}
 							
 							if(rvalue.getType() != DataType.NULL &&
@@ -1207,7 +1207,7 @@ public final class LangInterpreter {
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a DataObject)
 	 */
 	private DataObject getOrCreateDataObjectFromVariableName(String variableName, boolean supportsPointerReferencing,
-	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final boolean[] success, final int DATA_ID) {
+	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final boolean[] variableError, final int DATA_ID) {
 		DataObject ret = data.get(DATA_ID).var.get(variableName);
 		if(ret != null)
 			return ret;
@@ -1215,10 +1215,10 @@ public final class LangInterpreter {
 		if(supportsPointerDereferencing && variableName.contains("*")) {
 			int index = variableName.indexOf('*');
 			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
-			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, success, DATA_ID);
+			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, variableError, DATA_ID);
 			if(referencedVariable == null) {
-				if(success != null)
-					success[0] = false;
+				if(variableError != null && variableError.length == 1)
+					variableError[0] = true;
 				return setErrnoErrorObject(InterpretingError.INVALID_PTR, DATA_ID);
 			}
 			
@@ -1232,13 +1232,13 @@ public final class LangInterpreter {
 			int indexOpeningBracket = variableName.indexOf("[");
 			int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 			if(indexMatchingBracket != variableName.length() - 1) {
-				if(success != null)
-					success[0] = false;
+				if(variableError != null && variableError.length == 1)
+					variableError[0] = true;
 				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching dereferencing brackets", DATA_ID);
 			}
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
-			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, success, DATA_ID);
+			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, variableError, DATA_ID);
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
@@ -1250,8 +1250,8 @@ public final class LangInterpreter {
 		
 		//Variable creation if possible
 		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
-			if(success != null)
-				success[0] = false;
+			if(variableError != null && variableError.length == 1)
+				variableError[0] = true;
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 		}
 		
@@ -2000,7 +2000,7 @@ public final class LangInterpreter {
 		LANG_VER_ERROR        (34, "Lang file's version is not compatible with this version"),
 		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
 		INVALID_FORMAT        (36, "Invalid format sequence"),
-		INVALID_ASSIGNMENT    (37, "Invalid assignment operation"),
+		INVALID_ASSIGNMENT    (37, "Invalid assignment"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
