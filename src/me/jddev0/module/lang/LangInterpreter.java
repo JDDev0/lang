@@ -831,7 +831,8 @@ public final class LangInterpreter {
 			}
 			
 			if(output == null)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Operation \"" + node.getOperator().getSymbol() + "\" is not defined for " + leftSideOperand.getType().name() + (
+					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
 				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
@@ -910,7 +911,8 @@ public final class LangInterpreter {
 			}
 			
 			if(output == null)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Operation \"" + node.getOperator().getSymbol() + "\" is not defined for " + leftSideOperand.getType().name() + (
+					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), DATA_ID);
 			
 			if(output.getType() == DataType.ERROR)
 				return setErrnoErrorObject(output.getError().getInterprettingError(), DATA_ID);
