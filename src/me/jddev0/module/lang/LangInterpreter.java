@@ -798,6 +798,9 @@ public final class LangInterpreter {
 					break;
 				
 				//Binary
+				case INSTANCE_OF:
+					output = rightSideOperand.getType() == DataType.TYPE?new DataObject().setBoolean(leftSideOperand.getType() == rightSideOperand.getTypeValue()):null;
+					break;
 				case SPACESHIP:
 					output = leftSideOperand.opSpaceship(rightSideOperand);
 					break;
