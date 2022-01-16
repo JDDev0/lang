@@ -652,6 +652,13 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("isFinal", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			return new DataObject().setBoolean(dataObject.isFinalData());
+		});
 		funcs.put("condition", new LangPredefinedFunctionObject() {
 			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
 				DataObject condition = LangUtils.combineDataObjects(argumentList);
