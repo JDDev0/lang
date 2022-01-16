@@ -749,6 +749,24 @@ final class LangPredefinedFunctions {
 			
 			return min;
 		});
+		funcs.put("isInstanceOf", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject dataTypeObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), DATA_ID);
+			
+			if(dataTypeObject.getType() != DataType.TYPE)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Second argument must be from type TYPE", DATA_ID);
+			
+			return new DataObject().setBoolean(dataObject.getType() == dataTypeObject.getTypeValue());
+		});
+		funcs.put("typeOf", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			return new DataObject().setTypeValue(dataObject.getType());
+		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, DATA_ID) -> {
