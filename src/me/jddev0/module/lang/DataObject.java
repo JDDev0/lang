@@ -26,6 +26,7 @@ public class DataObject {
 	private double doubleValue;
 	private char charValue;
 	private ErrorObject error;
+	private DataType typeValue;
 	
 	//Meta-Data
 	/**
@@ -56,6 +57,7 @@ public class DataObject {
 	 */
 	void setData(DataObject dataObject) {
 		this.type = dataObject.type;
+		
 		this.txt = dataObject.txt;
 		this.arr = dataObject.arr; //Array: copy reference only
 		this.vp = dataObject.vp; //Var pointer: copy reference only
@@ -66,8 +68,10 @@ public class DataObject {
 		this.doubleValue = dataObject.doubleValue;
 		this.charValue = dataObject.charValue;
 		this.error = dataObject.error; //Error: copy reference only
+		this.typeValue = dataObject.typeValue;
 	}
 	
+	//Data value methods
 	/**
 	 * This method <b>ignores</b> the final state of the data object<br>
 	 * This method will not change variableName nor finalData
@@ -84,6 +88,7 @@ public class DataObject {
 		this.doubleValue = 0;
 		this.charValue = 0;
 		this.error = null;
+		this.typeValue = null;
 	}
 	
 	DataObject setArgumentSeparator(String txt) {
@@ -290,6 +295,24 @@ public class DataObject {
 		return error;
 	}
 	
+	public DataType getTypeValue() {
+		return typeValue;
+	}
+	
+	public DataObject setTypeValue(DataType typeValue) {
+		if(finalData)
+			return this;
+		if(typeValue == null)
+			return setNull();
+		
+		resetValue();
+		this.type = DataType.TYPE;
+		this.typeValue = typeValue;
+		
+		return this;
+	}
+	
+	//Meta data methods
 	public DataObject setVariableName(String variableName) {
 		this.variableName = variableName;
 		
@@ -397,6 +420,8 @@ public class DataObject {
 					return charValue + "";
 				case ERROR:
 					return error.toString();
+				case TYPE:
+					return typeValue.name();
 			}
 		}catch(StackOverflowError e) {
 			return "Error";
@@ -431,6 +456,8 @@ public class DataObject {
 				case CHAR:
 					return charValue;
 				case ERROR:
+					return null;
+				case TYPE:
 					return null;
 			}
 		}catch(StackOverflowError e) {
@@ -469,6 +496,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -504,6 +532,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -539,6 +568,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -574,6 +604,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -596,6 +627,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -622,6 +654,7 @@ public class DataObject {
 				
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case TYPE:
 				return true;
 			
 			case NULL:
@@ -681,6 +714,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -761,10 +795,14 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 				
 				return false;
+			
+			case TYPE:
+				return other.type == DataType.TYPE?typeValue == other.typeValue:typeValue == other.type;
 			
 			case NULL:
 			case VOID:
@@ -788,7 +826,7 @@ public class DataObject {
 			return this.type.equals(other.type) && Objects.equals(this.txt, other.txt) && Objects.deepEquals(this.arr, other.arr) &&
 			Objects.equals(this.vp, other.vp) && Objects.equals(this.fp, other.fp) && this.intValue == other.intValue &&
 			this.longValue == other.longValue && this.floatValue == other.floatValue && this.doubleValue == other.doubleValue &&
-			this.charValue == other.charValue && Objects.equals(this.error, other.error);
+			this.charValue == other.charValue && Objects.equals(this.error, other.error) && this.typeValue == other.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -832,6 +870,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 				
@@ -860,6 +899,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -883,6 +923,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -906,6 +947,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -929,6 +971,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -952,6 +995,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -975,6 +1019,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1000,6 +1045,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 				
@@ -1010,6 +1056,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return false;
 		}
 		
@@ -1054,6 +1101,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 				
@@ -1082,6 +1130,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1105,6 +1154,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1128,6 +1178,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1151,6 +1202,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1174,6 +1226,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1197,6 +1250,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 			
@@ -1222,6 +1276,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return false;
 				}
 				
@@ -1232,6 +1287,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return false;
 		}
 		
@@ -1273,6 +1329,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1305,6 +1362,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return new DataObject(this);
 		}
 		
@@ -1349,6 +1407,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1378,6 +1437,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1419,6 +1479,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1450,6 +1511,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1474,6 +1536,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1498,6 +1561,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1522,6 +1586,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1546,6 +1611,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1565,6 +1631,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1596,6 +1663,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1620,6 +1688,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1644,6 +1713,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1668,6 +1738,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1692,6 +1763,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1704,6 +1776,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1734,6 +1807,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1757,6 +1831,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1780,6 +1855,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1803,6 +1879,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1831,6 +1908,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1843,6 +1921,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1873,6 +1952,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1896,6 +1976,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1919,6 +2000,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1942,6 +2024,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -1955,6 +2038,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -1997,6 +2081,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2032,6 +2117,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2055,6 +2141,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2078,6 +2165,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2091,6 +2179,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2133,6 +2222,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2168,6 +2258,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2203,6 +2294,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				
@@ -2239,6 +2331,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2252,6 +2345,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2286,6 +2380,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2313,6 +2408,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2328,6 +2424,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2356,6 +2453,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2377,6 +2475,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2392,6 +2491,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2420,6 +2520,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2441,6 +2542,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2456,6 +2558,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2484,6 +2587,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2505,6 +2609,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2520,6 +2625,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2545,6 +2651,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2573,6 +2680,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2594,6 +2702,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2609,6 +2718,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2637,6 +2747,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2658,6 +2769,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2673,6 +2785,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2701,6 +2814,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2722,6 +2836,7 @@ public class DataObject {
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						return null;
 				}
 				return null;
@@ -2737,6 +2852,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2799,6 +2915,7 @@ public class DataObject {
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
+			case TYPE:
 				return null;
 		}
 		
@@ -2826,7 +2943,7 @@ public class DataObject {
 			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
 			Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
 			this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
-			this.charValue == that.charValue && Objects.equals(this.error, that.error);
+			this.charValue == that.charValue && Objects.equals(this.error, that.error) && this.typeValue == that.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -2834,11 +2951,11 @@ public class DataObject {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error);
+		return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
 	}
 	
 	public static enum DataType {
-		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR;
+		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
 	public static final class FunctionPointerObject {
 		/**

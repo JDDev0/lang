@@ -1637,6 +1637,7 @@ public final class Lang {
 						break;
 					case TEXT:
 					case ARGUMENT_SEPARATOR:
+					case TYPE:
 						convertedDataObject.setText(dataObject.getText());
 						break;
 					case VAR_POINTER:

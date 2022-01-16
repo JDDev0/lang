@@ -408,6 +408,7 @@ final class LangPredefinedFunctions {
 				case NULL:
 				case TEXT:
 				case VOID:
+				case TYPE:
 					break;
 			}
 			if(dereferencedVarPointer == null)
@@ -2094,6 +2095,7 @@ final class LangPredefinedFunctions {
 				case LONG:
 				case NULL:
 				case VOID:
+				case TYPE:
 					break;
 			}
 			if(to == null)
@@ -2129,6 +2131,7 @@ final class LangPredefinedFunctions {
 				case LONG:
 				case NULL:
 				case VOID:
+				case TYPE:
 					break;
 			}
 			if(from == null)
