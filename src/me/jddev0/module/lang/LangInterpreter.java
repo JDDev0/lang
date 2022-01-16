@@ -1103,16 +1103,6 @@ public final class LangInterpreter {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
-							if(variableName.startsWith("fp.")) {
-								final String functionNameCopy = variableName.substring(3);
-								Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
-									return functionNameCopy.equals(entry.getKey());
-								}).findFirst();
-								
-								if(ret.isPresent())
-									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "\"" + variableName + "\" shadows a predfined, linker, or external function", DATA_ID);
-							}
-							
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
 							if(lvalue != null) {
 								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
@@ -1130,6 +1120,16 @@ public final class LangInterpreter {
 									}
 									
 									return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
+								}
+								
+								if(variableName.startsWith("fp.")) {
+									final String functionNameCopy = variableName.substring(3);
+									Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
+										return functionNameCopy.equals(entry.getKey());
+									}).findFirst();
+									
+									if(ret.isPresent())
+										setErrno(InterpretingError.VAR_SHADOWING_WARNING, "\"" + variableName + "\" shadows a predfined, linker, or external function", DATA_ID);
 								}
 								
 								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
