@@ -1692,7 +1692,6 @@ public final class LangParser {
 		return null;
 	}
 	
-	
 	private String prepareLine(String line) {
 		if(line == null)
 			return null;
