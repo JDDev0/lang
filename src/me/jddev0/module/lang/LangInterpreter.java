@@ -1972,7 +1972,7 @@ public final class LangInterpreter {
 		BRACKET_MISMATCH      (28, "Bracket mismatch"),
 		IF_CONDITION_MISSING  (29, "If statement condition missing"),
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
-		INVALID_PTR           (31, "Invalid Pointer"),
+		INVALID_PTR           (31, "Invalid pointer"),
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
 		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
 		LANG_VER_ERROR        (34, "Lang file's version is not compatible with this version"),
