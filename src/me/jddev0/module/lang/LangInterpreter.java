@@ -1103,41 +1103,44 @@ public final class LangInterpreter {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
-							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, DATA_ID);
-							if(lvalue != null) {
-								if(lvalue.getVariableName() == null || (!variableName.contains("*") && !lvalue.getVariableName().equals(variableName)))
-									return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
-								
-								variableName = lvalue.getVariableName();
-								if(variableName != null && rvalue.getType() != DataType.NULL &&
-								((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
-								(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
-									//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno, but print "INCOMPATIBLE_DATA_TYPE" anyway
-									InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
-									if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode()) {
-										setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID); //Print only, $LANG_ERRNO will be overridden below
-										return setErrnoErrorObject(error, "", true, DATA_ID);
-									}
-									
-									return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
-								}
-								
-								if(variableName != null && variableName.startsWith("fp.")) {
-									final String functionNameCopy = variableName.substring(3);
-									Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
-										return functionNameCopy.equals(entry.getKey());
-									}).findFirst();
-									
-									if(ret.isPresent())
-										setErrno(InterpretingError.VAR_SHADOWING_WARNING, "\"" + variableName + "\" shadows a predfined, linker, or external function", DATA_ID);
-								}
-								
-								if(lvalue.isFinalData() || lvalue.getVariableName().startsWith("$LANG_") || lvalue.getVariableName().startsWith("&LANG_"))
-									return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
-								
-								lvalue.setData(rvalue);
-								break;
+							boolean[] success = new boolean[] {true};
+							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, success, DATA_ID);
+							if(!success[0])
+								return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
+							
+							variableName = lvalue.getVariableName();
+							if(variableName == null) {
+								return setErrnoErrorObject(InterpretingError.INVALID_PTR, "Anonymous values can not be changed", DATA_ID);
 							}
+							
+							if(rvalue.getType() != DataType.NULL &&
+							((variableName.startsWith("&") && rvalue.getType() != DataType.ARRAY) ||
+							(variableName.startsWith("fp.") && rvalue.getType() != DataType.FUNCTION_POINTER))) {
+								//Only set errno to "INCOMPATIBLE_DATA_TYPE" if rvalue has not already set errno, but print "INCOMPATIBLE_DATA_TYPE" anyway
+								InterpretingError error = getAndClearErrnoErrorObject(DATA_ID);
+								if(rvalue.getType() == DataType.ERROR && rvalue.getError().getErrno() == error.getErrorCode()) {
+									setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID); //Print only, $LANG_ERRNO will be overridden below
+									return setErrnoErrorObject(error, "", true, DATA_ID);
+								}
+								
+								return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", DATA_ID);
+							}
+							
+							if(variableName.startsWith("fp.")) {
+								final String functionNameCopy = variableName.substring(3);
+								Optional<Map.Entry<String, LangPredefinedFunctionObject>> ret = funcs.entrySet().stream().filter(entry -> {
+									return functionNameCopy.equals(entry.getKey());
+								}).findFirst();
+								
+								if(ret.isPresent())
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "\"" + variableName + "\" shadows a predfined, linker, or external function", DATA_ID);
+							}
+							
+							if((lvalue.isFinalData() || variableName.startsWith("$LANG_") || variableName.startsWith("&LANG_")))
+								return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
+							
+							lvalue.setData(rvalue);
+							break;
 						}
 					}
 					//Fall through to "Lang translation" if variableName is not valid
@@ -1204,7 +1207,7 @@ public final class LangInterpreter {
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a DataObject)
 	 */
 	private DataObject getOrCreateDataObjectFromVariableName(String variableName, boolean supportsPointerReferencing,
-	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final int DATA_ID) {
+	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final boolean[] success, final int DATA_ID) {
 		DataObject ret = data.get(DATA_ID).var.get(variableName);
 		if(ret != null)
 			return ret;
@@ -1212,9 +1215,12 @@ public final class LangInterpreter {
 		if(supportsPointerDereferencing && variableName.contains("*")) {
 			int index = variableName.indexOf('*');
 			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
-			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, DATA_ID);
-			if(referencedVariable == null)
+			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, success, DATA_ID);
+			if(referencedVariable == null) {
+				if(success != null)
+					success[0] = false;
 				return setErrnoErrorObject(InterpretingError.INVALID_PTR, DATA_ID);
+			}
 			
 			if(referencedVariable.getType() == DataType.VAR_POINTER)
 				return referencedVariable.getVarPointer().getVar();
@@ -1225,11 +1231,14 @@ public final class LangInterpreter {
 		if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check dereferenced variable name
 			int indexOpeningBracket = variableName.indexOf("[");
 			int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
-			if(indexMatchingBracket != variableName.length() - 1)
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching dereferencing prackets", DATA_ID);
+			if(indexMatchingBracket != variableName.length() - 1) {
+				if(success != null)
+					success[0] = false;
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching dereferencing brackets", DATA_ID);
+			}
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
-			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, DATA_ID);
+			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, success, DATA_ID);
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
@@ -1240,8 +1249,11 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR))
+		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
+			if(success != null)
+				success[0] = false;
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
+		}
 		
 		DataObject dataObject = new DataObject().setVariableName(variableName);
 		data.get(DATA_ID).var.put(variableName, dataObject);
@@ -1258,7 +1270,7 @@ public final class LangInterpreter {
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
 			return getOrCreateDataObjectFromVariableName(variableName, variableName.startsWith("$"), variableName.startsWith("$"),
-			true, DATA_ID);
+			true, null, DATA_ID);
 		
 		final boolean isLinkerFunction;
 		if(variableName.startsWith("func.")) {
@@ -1415,7 +1427,7 @@ public final class LangInterpreter {
 							return;
 						}
 						
-						getOrCreateDataObjectFromVariableName(to, false, false, true, DATA_ID_TO).setData(valFrom);
+						getOrCreateDataObjectFromVariableName(to, false, false, true, null, DATA_ID_TO).setData(valFrom);
 						return;
 					}
 				}
@@ -1583,7 +1595,7 @@ public final class LangInterpreter {
 				try {
 					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
 					if(variableName.startsWith("&") && variableName.endsWith("...")) {
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(variableName.substring(0, variableName.length() - 3), false, false, false, DATA_ID);
+						DataObject dataObject = getOrCreateDataObjectFromVariableName(variableName.substring(0, variableName.length() - 3), false, false, false, null, DATA_ID);
 						if(dataObject == null) {
 							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", DATA_ID));
 							
