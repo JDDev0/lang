@@ -391,14 +391,14 @@ func.println(|$rand1|$rand2|$rand3|$rand4|)
 $var = func
 func.exec($var.println(test inside exec))
 
-# Code executed by func.exec has no access to outside variables, but the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
+# Code executed by func.exec has access to outside variables and the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
 func.exec(func.println($var)\nfunc.println(\$var)) # Would print "func" and than "$var"
 
 # Use multiline text for escaping variables
-func.exec({{{func.println($var)}}}) # Will print "$var"
+func.exec({{{func.println($var)}}}) # Will print "func"
 
 # Returning values with exec
 $value = 42\.123
-$a = func.exec(return $value) # return: See [05_functionPointer.lang: return]
+$a = func.exec({{{return $value}}}) # return: See [05_functionPointer.lang: return]
 func.println($a)
 # Data types: "$value": TEXT, "$a": FLOAT
