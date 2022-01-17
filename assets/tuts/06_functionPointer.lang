@@ -239,9 +239,9 @@ func.println(-----------------)
 	fp.e(4-ABC)
 	fp.f = func.randChoice(func.println, func.errorln)
 	fp.f(5-ABC)
-	fp.g = func.exec(return func\!.printError)
+	fp.g = func.exec(ret\!urn func\!.printError)
 	fp.g(6-ABC)
-	fp.h = func.exec(return (\$text...) -> {\nfunc\!.printError(\$text)\n})
+	fp.h = func.exec(ret\!urn (\$text...) -> {\nfunc\!.printError(\$text)\n})
 	fp.h(7-ABC)
 	fp.i = func.exec({{{
 		return ($text...) -> {
