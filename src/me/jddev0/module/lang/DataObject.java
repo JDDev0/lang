@@ -3027,12 +3027,12 @@ public class DataObject {
 			if(allowed)
 				return "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
 			
-			return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)(types::contains)).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
+			return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)types::contains).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
 		}
 		
 		public String printNotAllowedTypes() {
 			if(allowed)
-				return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)(types::contains)).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
+				return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)types::contains).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
 			
 			return "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
 		}
