@@ -315,3 +315,93 @@ func.println($a)
 
 $a ^= 43 # Bitwise xor assignment
 func.println($a)
+
+func.println()
+
+# Evaluation order
+# Function pointer is only for output, Function pointers: See [05_functionPointer.lang]
+fp.printAndRet = ($name, $num) -> {
+	func.println(Evaluation: $num ($name))
+	
+	return $num
+}
+
+# Left-to-right vs right-to-left operators with 1 operator
+func.println()
+func.println(15 / 3:)
+func.println(Output: parser.op(printAndRet(l, 15) / printAndRet(r, 3)))
+func.println()
+func.println(15 ** 3:)
+func.println(Output: parser.op(printAndRet(l, 15) ** printAndRet(r, 3)))
+func.println()
+
+# Left-to-right vs right-to-left operators with 2 operators
+func.println()
+func.println(10 / 5 / 2:)
+func.println(Output: parser.op(printAndRet(l, 10) / printAndRet(m, 5) / printAndRet(r, 2)))
+func.println()
+func.println(10 / (5 / 2):)
+func.println(Output: parser.op(printAndRet(l, 10) / (printAndRet(m, 5) / printAndRet(r, 2))))
+func.println()
+func.println(10 ** 5 ** 2:)
+func.println(Output: parser.op(printAndRet(l, 10) ** printAndRet(m, 5) ** printAndRet(r, 2)))
+func.println()
+func.println((10 ** 5) ** 2:)
+func.println(Output: parser.op((printAndRet(l, 10) ** printAndRet(m, 5)) ** printAndRet(r, 2)))
+func.println()
+
+# Conditional vs bitwise AND/OR
+func.println()
+func.println(1 || 0:)
+func.println(Output: parser.op(printAndRet(l, 1) || printAndRet(r, 0)))
+func.println()
+func.println(0 || 1:)
+func.println(Output: parser.op(printAndRet(l, 0) || printAndRet(r, 1)))
+func.println()
+func.println(1 && 0:)
+func.println(Output: parser.op(printAndRet(l, 1) && printAndRet(r, 0)))
+func.println()
+func.println(0 && 1:)
+func.println(Output: parser.op(printAndRet(l, 0) && printAndRet(r, 1)))
+func.println()
+func.println(1 | 0:)
+func.println(Output: parser.op(printAndRet(l, 1) | printAndRet(r, 0)))
+func.println()
+func.println(0 | 1:)
+func.println(Output: parser.op(printAndRet(l, 0) | printAndRet(r, 1)))
+func.println()
+func.println(1 & 0:)
+func.println(Output: parser.op(printAndRet(l, 1) & printAndRet(r, 0)))
+func.println()
+func.println(0 & 1:)
+func.println(Output: parser.op(printAndRet(l, 0) & printAndRet(r, 1)))
+func.println()
+
+# Null coalescing and elvis and inline if
+func.println()
+func.println(abc ?? r:)
+func.println(Output: parser.op(printAndRet(l, abc) ?? printAndRet(r, r)))
+func.println()
+func.println(0 ?? r:)
+func.println(Output: parser.op(printAndRet(l, 0) ?? printAndRet(r, r)))
+func.println()
+func.println(null ?? r:)
+func.println(Output: parser.op(printAndRet(l, null) ?? printAndRet(r, r)))
+func.println()
+func.println(abc ?: r:)
+func.println(Output: parser.op(printAndRet(l, abc) ?: printAndRet(r, r)))
+func.println()
+func.println(0 ?: r:)
+func.println(Output: parser.op(printAndRet(l, 0) ?: printAndRet(r, r)))
+func.println()
+func.println(null ?: r:)
+func.println(Output: parser.op(printAndRet(l, null) ?: printAndRet(r, r)))
+func.println()
+func.println(abc ? m : r:)
+func.println(Output: parser.op(printAndRet(l, abc) ? printAndRet(m, m) : printAndRet(r, r)))
+func.println()
+func.println(0 ? m : r:)
+func.println(Output: parser.op(printAndRet(l, 0) ? printAndRet(m, m) : printAndRet(r, r)))
+func.println()
+func.println(null ? m : r:)
+func.println(Output: parser.op(printAndRet(l, null) ? printAndRet(m, m) : printAndRet(r, r)))
