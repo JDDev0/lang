@@ -519,6 +519,10 @@ public class LangShellWindow extends JDialog {
 		builder.append(dataObject.isFinalData());
 		builder.append("\nVariable Name: ");
 		builder.append(dataObject.getVariableName());
+		builder.append("\nAllowed types: ");
+		builder.append(dataObject.getTypeConstraint().printAllowedTypes());
+		builder.append("\nNot allowed types: ");
+		builder.append(dataObject.getTypeConstraint().printNotAllowedTypes());
 		switch(dataObject.getType()) {
 			case VAR_POINTER:
 				builder.append("\nPointing to: {\n");

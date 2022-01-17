@@ -1,8 +1,11 @@
 package me.jddev0.module.lang;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import me.jddev0.module.lang.AbstractSyntaxTree.VariableNameNode;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
@@ -15,6 +18,10 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  * @version v1.0.0
  */
 public class DataObject {
+	private final static DataTypeConstraint REQUIREMENT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
+	private final static DataTypeConstraint REQUIREMENT_ARRAY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.NULL));
+	private final static DataTypeConstraint REQUIREMENT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
+	
 	//Value
 	private String txt;
 	private DataObject[] arr;
@@ -28,6 +35,8 @@ public class DataObject {
 	private ErrorObject error;
 	private DataType typeValue;
 	
+	private DataTypeConstraint typeConstraint = REQUIREMENT_NORMAL;
+	
 	//Meta-Data
 	/**
 	 * Variable name of the DataObject (null for anonymous variable)
@@ -35,6 +44,19 @@ public class DataObject {
 	private String variableName;
 	private DataType type;
 	private boolean finalData;
+	
+	public static DataTypeConstraint getTypeConstraintFor(String variableName) {
+		if(variableName == null)
+			return REQUIREMENT_NORMAL;
+		
+		if(variableName.startsWith("&"))
+			return REQUIREMENT_ARRAY;
+		
+		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("linker."))
+			return REQUIREMENT_FUNCTION_POINTER;
+		
+		return REQUIREMENT_NORMAL;
+	}
 	
 	public DataObject(DataObject dataObject) {
 		setData(dataObject);
@@ -58,8 +80,8 @@ public class DataObject {
 	 * This method <b>ignores</b> the final state of the data object<br>
 	 * This method will not change variableName nor finalData
 	 */
-	void setData(DataObject dataObject) {
-		this.type = dataObject.type;
+	void setData(DataObject dataObject) throws DataTypeConstraintViolatedException {
+		this.type = checkAndRetType(dataObject.type);
 		
 		this.txt = dataObject.txt;
 		this.arr = dataObject.arr; //Array: copy reference only
@@ -80,7 +102,6 @@ public class DataObject {
 	 * This method will not change variableName nor finalData
 	 */
 	private void resetValue() {
-		this.type = null;
 		this.txt = null;
 		this.arr = null;
 		this.vp = null;
@@ -94,27 +115,27 @@ public class DataObject {
 		this.typeValue = null;
 	}
 	
-	DataObject setArgumentSeparator(String txt) {
+	DataObject setArgumentSeparator(String txt) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(txt == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.ARGUMENT_SEPARATOR);
 		resetValue();
-		this.type = DataType.ARGUMENT_SEPARATOR;
 		this.txt = txt;
 		
 		return this;
 	}
 	
-	public DataObject setText(String txt) {
+	public DataObject setText(String txt) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(txt == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.TEXT);
 		resetValue();
-		this.type = DataType.TEXT;
 		this.txt = txt;
 		
 		return this;
@@ -124,14 +145,14 @@ public class DataObject {
 		return toText();
 	}
 	
-	public DataObject setArray(DataObject[] arr) {
+	public DataObject setArray(DataObject[] arr) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(arr == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.ARRAY);
 		resetValue();
-		this.type = DataType.ARRAY;
 		this.arr = arr;
 		
 		return this;
@@ -141,14 +162,14 @@ public class DataObject {
 		return arr;
 	}
 	
-	public DataObject setVarPointer(VarPointerObject vp) {
+	public DataObject setVarPointer(VarPointerObject vp) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(vp == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.VAR_POINTER);
 		resetValue();
-		this.type = DataType.VAR_POINTER;
 		this.vp = vp;
 		
 		return this;
@@ -158,14 +179,14 @@ public class DataObject {
 		return vp;
 	}
 	
-	public DataObject setFunctionPointer(FunctionPointerObject fp) {
+	public DataObject setFunctionPointer(FunctionPointerObject fp) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(fp == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.FUNCTION_POINTER);
 		resetValue();
-		this.type = DataType.FUNCTION_POINTER;
 		this.fp = fp;
 		
 		return this;
@@ -175,32 +196,32 @@ public class DataObject {
 		return fp;
 	}
 	
-	public DataObject setNull() {
+	public DataObject setNull() throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.NULL);
 		resetValue();
-		this.type = DataType.NULL;
 		
 		return this;
 	}
 	
-	public DataObject setVoid() {
+	public DataObject setVoid() throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.VOID);
 		resetValue();
-		this.type = DataType.VOID;
 		
 		return this;
 	}
 	
-	public DataObject setInt(int intValue) {
+	public DataObject setInt(int intValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.INT);
 		resetValue();
-		this.type = DataType.INT;
 		this.intValue = intValue;
 		
 		return this;
@@ -213,7 +234,7 @@ public class DataObject {
 	/**
 	 * Sets data to INT = 1 if boolean value is true else INT = 0
 	 */
-	public DataObject setBoolean(boolean booleanValue) {
+	public DataObject setBoolean(boolean booleanValue) throws DataTypeConstraintViolatedException {
 		return setInt(booleanValue?1:0);
 	}
 	
@@ -221,12 +242,12 @@ public class DataObject {
 		return toBoolean();
 	}
 	
-	public DataObject setLong(long longValue) {
+	public DataObject setLong(long longValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.LONG);
 		resetValue();
-		this.type = DataType.LONG;
 		this.longValue = longValue;
 		
 		return this;
@@ -236,12 +257,12 @@ public class DataObject {
 		return longValue;
 	}
 	
-	public DataObject setFloat(float floatValue) {
+	public DataObject setFloat(float floatValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.FLOAT);
 		resetValue();
-		this.type = DataType.FLOAT;
 		this.floatValue = floatValue;
 		
 		return this;
@@ -251,12 +272,12 @@ public class DataObject {
 		return floatValue;
 	}
 	
-	public DataObject setDouble(double doubleValue) {
+	public DataObject setDouble(double doubleValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.DOUBLE);
 		resetValue();
-		this.type = DataType.DOUBLE;
 		this.doubleValue = doubleValue;
 		
 		return this;
@@ -266,12 +287,12 @@ public class DataObject {
 		return doubleValue;
 	}
 	
-	public DataObject setChar(char charValue) {
+	public DataObject setChar(char charValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		
+		this.type = checkAndRetType(DataType.CHAR);
 		resetValue();
-		this.type = DataType.CHAR;
 		this.charValue = charValue;
 		
 		return this;
@@ -281,14 +302,14 @@ public class DataObject {
 		return charValue;
 	}
 	
-	public DataObject setError(ErrorObject error) {
+	public DataObject setError(ErrorObject error) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(error == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.ERROR);
 		resetValue();
-		this.type = DataType.ERROR;
 		this.error = error;
 		
 		return this;
@@ -298,25 +319,30 @@ public class DataObject {
 		return error;
 	}
 	
-	public DataType getTypeValue() {
-		return typeValue;
-	}
-	
-	public DataObject setTypeValue(DataType typeValue) {
+	public DataObject setTypeValue(DataType typeValue) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(typeValue == null)
 			return setNull();
 		
+		this.type = checkAndRetType(DataType.TYPE);
 		resetValue();
-		this.type = DataType.TYPE;
 		this.typeValue = typeValue;
 		
 		return this;
 	}
 	
+	public DataType getTypeValue() {
+		return typeValue;
+	}
+	
 	//Meta data methods
-	public DataObject setVariableName(String variableName) {
+	public DataObject setVariableName(String variableName) throws DataTypeConstraintViolatedException {
+		DataTypeConstraint newTypeRequirement = getTypeConstraintFor(variableName);
+		if(!newTypeRequirement.isTypeAllowed(type))
+			throw new DataTypeConstraintViolatedException();
+		
+		this.typeConstraint = newTypeRequirement;
 		this.variableName = variableName;
 		
 		return this;
@@ -338,6 +364,17 @@ public class DataObject {
 	
 	public DataType getType() {
 		return type;
+	}
+	
+	public DataType checkAndRetType(DataType type) throws DataTypeConstraintViolatedException {
+		if(!typeConstraint.isTypeAllowed(type))
+			throw new DataTypeConstraintViolatedException();
+		
+		return type;
+	}
+	
+	public DataTypeConstraint getTypeConstraint() {
+		return typeConstraint;
 	}
 	
 	public DataObject convertToNumberAndCreateNewDataObject() {
@@ -2960,6 +2997,46 @@ public class DataObject {
 	public static enum DataType {
 		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
+	public static final class DataTypeConstraint {
+		private final List<DataType> types;
+		private final boolean allowed;
+		
+		public static DataTypeConstraint fromAllowedTypes(List<DataType> allowedTypes) {
+			return new DataTypeConstraint(allowedTypes, true);
+		}
+		
+		public static DataTypeConstraint fromNotAllowedTypes(List<DataType> notAllowedTypes) {
+			return new DataTypeConstraint(notAllowedTypes, false);
+		}
+		
+		private DataTypeConstraint(List<DataType> types, boolean allowed) {
+			this.types = new ArrayList<>(types);
+			this.allowed = allowed;
+		}
+		
+		public boolean isTypeAllowed(DataType type) {
+			return type == null || types.contains(type) == allowed;
+		}
+		
+		@Override
+		public String toString() {
+			return (allowed?"= ":"! ") + "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
+		}
+		
+		public String printAllowedTypes() {
+			if(allowed)
+				return "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
+			
+			return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)(types::contains)).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
+		}
+		
+		public String printNotAllowedTypes() {
+			if(allowed)
+				return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)(types::contains)).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
+			
+			return "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
+		}
+	}
 	public static final class FunctionPointerObject {
 		/**
 		 * Normal function pointer
@@ -3158,6 +3235,14 @@ public class DataObject {
 		@Override
 		public int hashCode() {
 			return Objects.hash(err);
+		}
+	}
+	
+	public static class DataTypeConstraintViolatedException extends RuntimeException {
+		private static final long serialVersionUID = 7449156115495467372L;
+		
+		public DataTypeConstraintViolatedException() {
+			super("The data type would violate a type constraint");
 		}
 	}
 }
