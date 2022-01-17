@@ -199,14 +199,14 @@ func.printTerminal(-1, \n\n\n)
 	$func = $funcprintTerminal
 	# $func is set to "func.printTerminal" as TEXT
 	
-	$realFunc = func.exec({{{return $func}}})
+	$realFunc = func.exec(ret\!urn $func)
 	# Execution of "return func.printTerminal" will return a real function pointer object
 	
 	$realFunc(6, test)
 	# execute function
 	
 	# Function to convert function name to function pointer
-	fp.convertToFP = ($funcName) -> return func.exec({{{return func.$funcName}}})
+	fp.convertToFP = ($funcName) -> return func.exec(ret\!urn func.$funcName)
 	
 	fp.println = fp.convertToFP(println)
 	fp.println(TEST)
