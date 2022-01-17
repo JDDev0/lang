@@ -2210,7 +2210,7 @@ final class LangPredefinedFunctions {
 			
 			DataObject[] arr = new DataObject[length];
 			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject().setNull();
+				arr[i] = new DataObject(); //Null data object
 			if(oldData != null)
 				oldData.setArray(arr);
 			else if(arrPointerObject == null)

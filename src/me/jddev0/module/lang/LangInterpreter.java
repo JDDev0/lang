@@ -459,7 +459,7 @@ public final class LangInterpreter {
 				case DOUBLE_VALUE:
 					return new DataObject().setDouble(((DoubleValueNode)node).getDouble());
 				case NULL_VALUE:
-					return new DataObject().setNull();
+					return new DataObject();
 				case VOID_VALUE:
 					return new DataObject().setVoid();
 				
@@ -1029,7 +1029,7 @@ public final class LangInterpreter {
 	
 	private void interpretLangDataAndExecutionFlags(String langDataExecutionFlag, DataObject value, final int DATA_ID) {
 		if(value == null)
-			value = new DataObject().setNull();
+			value = new DataObject(); //Set value to null data object
 		
 		switch(langDataExecutionFlag) {
 			//Data
@@ -1090,7 +1090,7 @@ public final class LangInterpreter {
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int DATA_ID) {
 		DataObject rvalue = interpretNode(node.getRvalue(), DATA_ID);
 		if(rvalue == null)
-			rvalue = new DataObject().setNull();
+			rvalue = new DataObject(); //Set rvalue to null data object
 		
 		Node lvalueNode = node.getLvalue();
 		if(lvalueNode == null)

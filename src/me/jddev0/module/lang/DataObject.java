@@ -40,8 +40,11 @@ public class DataObject {
 		setData(dataObject);
 	}
 	
+	/**
+	 * Creates a new data object of type NULL
+	 */
 	public DataObject() {
-		this("");
+		setNull();
 	}
 	public DataObject(String txt) {
 		this(txt, false);
