@@ -701,8 +701,11 @@ final class LangPredefinedFunctions {
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
 				//Add variables and local variables
 				interpreter.createDataMap(NEW_DATA_ID);
-				//Create clean data map without coping from caller's data map
-				
+				//Copies must not be final
+				interpreter.data.get(DATA_ID).var.forEach((key, val) -> {
+					if(!key.startsWith("$LANG_") && !key.startsWith("&LANG_"))
+						interpreter.data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
+				});
 				//Initialize copyAfterFP
 				interpreter.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
 				interpreter.interpretLines(lines, NEW_DATA_ID);
