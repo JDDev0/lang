@@ -168,16 +168,16 @@ func.println(-----------------)
 # Changed values
 {
 	$a = 42
-	fp.mod = ($a) -> {
+	fp.scopeTest = ($a) -> {
 		$a = 43
 		func.println(Local: $a)
 	}
-	fp.mod($a)
-	fp.mod = () -> {
+	fp.scopeTest($a)
+	fp.scopeTest = () -> {
 		$a = 44
 		func.println(Inner: $a)
 	}
-	fp.mod()
+	fp.scopeTest()
 	func.println(Outer: $a)
 	
 	# If you want to copy a local variable to the caller: See [07_loops.lang: func.copyAfterFP]
