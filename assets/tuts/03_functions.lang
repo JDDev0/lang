@@ -148,10 +148,10 @@ func.println($char2)
 
 # func.ttoc(text) # Will return the first character of the text if the text has a length of 1
 func.println(func.ttoc(text))
-func.println(func.ttoc(t))
-func.println(func.ttoc(µ))
-func.println(func.ttoc($))
-func.println(func.ttoc(¤))
+func.println(func.ttoc(t\e))
+func.println(func.ttoc(µ\e))
+func.println(func.ttoc($\e))
+func.println(func.ttoc(¤\e))
 
 # String functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
