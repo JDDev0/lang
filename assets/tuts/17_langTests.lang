@@ -176,10 +176,10 @@ fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 # Assert no return:
 #   func.langTestAssertNoReturn(value): Checks if the next normal function pointer which will be called returns no value
 
-func.langTestAssertNoReturn(0) # Will not pass
+func.langTestAssertNoReturn() # Will not pass
 fp.xyz_ret(0)
 
-func.langTestAssertNoReturn($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+func.langTestAssertNoReturn() # Will not pass
 fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
 func.langTestAssertNoReturn() # Will pass
