@@ -2236,12 +2236,12 @@ public class DataObject {
 						if(dataObject.intValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 						
-						return new DataObject().setInt(intValue / dataObject.intValue);
+						return new DataObject().setInt(Math.floorDiv(intValue, dataObject.intValue));
 					case LONG:
 						if(dataObject.longValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 						
-						return new DataObject().setLong(intValue / dataObject.longValue);
+						return new DataObject().setLong(Math.floorDiv(intValue, dataObject.longValue));
 					case FLOAT:
 						if(dataObject.floatValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
@@ -2272,12 +2272,12 @@ public class DataObject {
 						if(dataObject.intValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 						
-						return new DataObject().setLong(longValue / dataObject.intValue);
+						return new DataObject().setLong(Math.floorDiv(longValue, dataObject.intValue));
 					case LONG:
 						if(dataObject.longValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
 						
-						return new DataObject().setLong(longValue / dataObject.longValue);
+						return new DataObject().setLong(Math.floorDiv(longValue, dataObject.longValue));
 					case FLOAT:
 						if(dataObject.floatValue == 0)
 							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
