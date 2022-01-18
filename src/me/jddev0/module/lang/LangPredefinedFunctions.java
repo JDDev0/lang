@@ -2942,6 +2942,7 @@ final class LangPredefinedFunctions {
 			
 			InterpretingError expectedError = expectedThrowObject.getError().getInterprettingError();
 			
+			interpreter.langTestExpectedReturnValueDataID = DATA_ID;
 			interpreter.langTestExpectedThrowValue = expectedError;
 			interpreter.langTestMessageForLastTestResult = messageObject == null?null:messageObject.getText();
 			
@@ -2958,6 +2959,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
+			interpreter.langTestExpectedReturnValueDataID = DATA_ID;
 			interpreter.langTestExpectedReturnValue = expectedReturnObject;
 			interpreter.langTestMessageForLastTestResult = messageObject == null?null:messageObject.getText();
 			
@@ -2971,6 +2973,7 @@ final class LangPredefinedFunctions {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
 			
+			interpreter.langTestExpectedReturnValueDataID = DATA_ID;
 			interpreter.langTestExpectedNoReturnValue = true;
 			interpreter.langTestMessageForLastTestResult = messageObject == null?null:messageObject.getText();
 			

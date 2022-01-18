@@ -52,6 +52,7 @@ public final class LangInterpreter {
 	DataObject langTestExpectedReturnValue;
 	boolean langTestExpectedNoReturnValue;
 	String langTestMessageForLastTestResult;
+	int langTestExpectedReturnValueDataID;
 	
 	//Fields for return/throw node, continue/break node, and force stopping execution
 	private final ExecutionState excutionState = new ExecutionState();
@@ -1377,7 +1378,7 @@ public final class LangInterpreter {
 		if(excutionState.isThrownValue && DATA_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(), DATA_ID);
 		
-		if(executionFlags.langTest) {
+		if(executionFlags.langTest && DATA_ID == langTestExpectedReturnValueDataID) {
 			if(langTestExpectedThrowValue != null) {
 				InterpretingError gotError = excutionState.isThrownValue?retTmp.getError().getInterprettingError():null;
 				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, langTestMessageForLastTestResult, gotError, langTestExpectedThrowValue));
