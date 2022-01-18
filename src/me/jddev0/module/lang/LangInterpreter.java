@@ -1399,6 +1399,7 @@ public final class LangInterpreter {
 				langTestExpectedNoReturnValue = false;
 			}
 			langTestMessageForLastTestResult = null;
+			langTestExpectedReturnValueDataID = 0;
 		}
 		
 		excutionState.isThrownValue = false;
