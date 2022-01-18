@@ -51,7 +51,7 @@ public final class LangInterpreter {
 	InterpretingError langTestExpectedThrowValue;
 	DataObject langTestExpectedReturnValue;
 	boolean langTestExpectedNoReturnValue;
-	String messageForLastExcpetion;
+	String langTestMessageForLastTestResult;
 	
 	//Fields for return/throw node, continue/break node, and force stopping execution
 	private final ExecutionState excutionState = new ExecutionState();
@@ -1380,24 +1380,24 @@ public final class LangInterpreter {
 		if(executionFlags.langTest) {
 			if(langTestExpectedThrowValue != null) {
 				InterpretingError gotError = excutionState.isThrownValue?retTmp.getError().getInterprettingError():null;
-				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, messageForLastExcpetion, gotError, langTestExpectedThrowValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultThrow(gotError == langTestExpectedThrowValue, langTestMessageForLastTestResult, gotError, langTestExpectedThrowValue));
 				
 				langTestExpectedThrowValue = null;
 			}
 			
 			if(langTestExpectedReturnValue != null) {
-				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!excutionState.isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), messageForLastExcpetion, retTmp,
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!excutionState.isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), langTestMessageForLastTestResult, retTmp,
 						langTestExpectedReturnValue));
 				
 				langTestExpectedReturnValue = null;
 			}
 			
 			if(langTestExpectedNoReturnValue) {
-				langTestStore.addAssertResult(new LangTest.AssertResultNoReturn(retTmp == null, messageForLastExcpetion, retTmp));
+				langTestStore.addAssertResult(new LangTest.AssertResultNoReturn(retTmp == null, langTestMessageForLastTestResult, retTmp));
 				
 				langTestExpectedNoReturnValue = false;
 			}
-			messageForLastExcpetion = null;
+			langTestMessageForLastTestResult = null;
 		}
 		
 		excutionState.isThrownValue = false;
