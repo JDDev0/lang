@@ -1414,7 +1414,7 @@ public final class LangInterpreter {
 				if(valFrom != null) {
 					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
 						DataObject dataTo = data.get(DATA_ID_TO).var.get(to);
-						 //$LANG and final vars can't be change
+						//$LANG and final vars can't be change
 						if(to.startsWith("$LANG_") || to.startsWith("&LANG_") || (dataTo != null && dataTo.isFinalData())) {
 							setErrno(InterpretingError.FINAL_VAR_CHANGE, "during copy after FP execution", DATA_ID_TO);
 							return;
