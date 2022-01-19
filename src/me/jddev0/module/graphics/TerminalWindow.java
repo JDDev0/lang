@@ -349,6 +349,10 @@ public class TerminalWindow extends JFrame {
 		term.setCaretPosition(term.getDocument().getLength());
 	}
 	
+	public void clearOutput() {
+		term.setText("");
+	}
+	
 	public void setTerminalIO(TerminalIO termIO) {
 		this.termIO = termIO;
 	}

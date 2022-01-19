@@ -143,6 +143,8 @@ public class Startup {
 			termWin.setFontSize(getFontSize());
 		}).addCommand("printHelp", input -> {
 			printHelp();
+		}).addCommand("clear", input -> {
+			termWin.clearOutput();
 		}).addCommand("exit", input -> {
 			if(input.length != 0) {
 				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
@@ -210,6 +212,7 @@ public class Startup {
 		System.out.println("    -startShell             Opens the \"LangShell\" window");
 		System.out.println("    -toogle4k               Changes the fontSize");
 		System.out.println("    -printHelp              Prints this help page");
+		System.out.println("    -clear                  Clears the output of the \"TermIO-Control\" window");
 		System.out.println("    -exit                   Exits the \"TermIO-Control\" window");
 		System.out.println("    -commands               Lists all \"TermIO-Control\" window commands");
 		System.out.println("");
