@@ -1504,6 +1504,8 @@ public class DataObject {
 				return new DataObject().setDouble(-doubleValue);
 			case CHAR:
 				return new DataObject().setChar((char)(-charValue));
+			case TEXT:
+				return new DataObject(new StringBuilder(txt).reverse().toString());
 			case ARRAY:
 				DataObject[] arrInv = new DataObject[arr.length];
 				int index = arrInv.length - 1;
@@ -1512,7 +1514,6 @@ public class DataObject {
 				
 				return new DataObject().setArray(arrInv);
 			
-			case TEXT:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
