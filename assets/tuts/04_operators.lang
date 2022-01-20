@@ -22,6 +22,7 @@ lang.version = v1.0.0
 # opr1 * opr2         - Multiplication
 # opr1 / opr2         - Division
 # opr1 // opr2        - Floor division
+# opr1 ^/ opr2        - Ceil division
 # opr1 % opr2         - Modulo
 # opr1 + opr2         - Addition
 # opr1 - opr2         - Subtract
@@ -57,6 +58,7 @@ lang.version = v1.0.0
 # expr1 *= expr2      - Multiplication assignment   (Is equivalent to "expr1 = parser.op((expr1) * (expr2))")
 # expr1 /= expr2      - Division assignment         (Is equivalent to "expr1 = parser.op((expr1) / (expr2))")
 # expr1 //= expr2     - Floor division assignment   (Is equivalent to "expr1 = parser.op((expr1) // (expr2))")
+# expr1 ^/= expr2     - Ceil division assignment    (Is equivalent to "expr1 = parser.op((expr1) ^/ (expr2))")
 # expr1 **= expr2     - Power assignment            (Is equivalent to "expr1 = parser.op((expr1) ** (expr2))")
 # expr1 %= expr2      - Modulo assignment           (Is equivalent to "expr1 = parser.op((expr1) % (expr2))")
 # expr1 >>= expr2     - Right shift assignment      (Is equivalent to "expr1 = parser.op((expr1) >> (expr2))")
@@ -88,6 +90,7 @@ lang.version = v1.0.0
 #  4         | opr1 * opr2        | left-to-right | Multiplication
 #            | opr1 / opr2        |               | Division
 #            | opr1 // opr2       |               | Floor division
+#            | opr1 ^/ opr2       |               | Ceil division
 #            | opr1 % opr2        |               | Modulo
 # -----------|--------------------|---------------|-----------------------------
 #  5         | opr1 + opr2        | left-to-right | Addition
@@ -133,6 +136,7 @@ lang.version = v1.0.0
 #            | opr1 *= opr2       |               | Multiplication assignment
 #            | opr1 /= opr2       |               | Division assignment
 #            | opr1 //= opr2      |               | Floor division assignment
+#            | opr1 ^/= opr2      |               | Ceil division assignment
 #            | opr1 **= opr2      |               | Power assignment
 #            | opr1 %= opr2       |               | Modulo assignment
 #            | opr1 >>= opr2      |               | Right shift assignment
