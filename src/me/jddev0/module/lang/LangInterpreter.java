@@ -1066,7 +1066,7 @@ public final class LangInterpreter {
 					
 					return;
 				}
-				executionFlags.errorOutput = number.intValue() != 0;
+				executionFlags.errorOutput = ExecutionFlags.ErrorOutputFlag.getErrorFlagFor(number.intValue());
 				break;
 			case "lang.langTest":
 				number = value.toNumber();
@@ -1869,7 +1869,7 @@ public final class LangInterpreter {
 		if(newErrno >= 0 || currentErrno < 1)
 			data.get(DATA_ID).var.get("$LANG_ERRNO").setInt(newErrno);
 		
-		if(!forceNoErrorOutput && executionFlags.errorOutput && newErrno != 0) {
+		if(!forceNoErrorOutput && executionFlags.errorOutput.shouldPrint(newErrno)) {
 			if(message == null)
 				message = "";
 			
@@ -1951,11 +1951,29 @@ public final class LangInterpreter {
 		/**
 		 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
 		 */
-		boolean errorOutput = true;
+		ErrorOutputFlag errorOutput = ErrorOutputFlag.ALL;
 		/**
 		 * Will enable langTest unit tests (Can not be disabled if enabled once)
 		 */
 		boolean langTest = false;
+		
+		public static enum ErrorOutputFlag {
+			NOTHING, ALL, ERROR_ONLY;
+			
+			public static ErrorOutputFlag getErrorFlagFor(int number) {
+				if(number > 0)
+					return ALL;
+				
+				if(number < 0)
+					return ERROR_ONLY;
+				
+				return NOTHING;
+			}
+			
+			public boolean shouldPrint(int errorCode) {
+				return (errorCode < 0 && this == ALL) || (errorCode > 0 && this != NOTHING);
+			}
+		}
 	}
 	public static class ExecutionState {
 		/**
