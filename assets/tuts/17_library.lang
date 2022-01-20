@@ -23,7 +23,7 @@ $xyz_final = test var
 func.makeFinal($xyz_final)
 
 $xyz_null
-$xyz_void = func.exec( ) # The space is important
+$xyz_void = func.exec(\e)
 
 &xyzData = func.arrayOf(func.getTranslationValue(xyz.lib.ver), func.getTranslationValue(xyz.lib.abc))
 
