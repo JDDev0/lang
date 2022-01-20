@@ -450,8 +450,8 @@ public final class LangParser {
 			}else if(token.startsWith("!==") || token.startsWith("!=~") || token.startsWith("!=") || token.startsWith("===") || token.startsWith("=~") || token.startsWith("==") ||
 			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
 			token.startsWith("&") || token.startsWith("~~") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") ||
-			token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") ||
-			token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
+			token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") ||
+			token.startsWith(">>") || token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -517,6 +517,9 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.DEC;
 				}else if(token.startsWith("*") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.MUL;
+				}else if(token.startsWith("^/") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.CEIL_DIV;
 				}else if(token.startsWith("//") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;
@@ -915,6 +918,9 @@ public final class LangParser {
 						break;
 					case "//":
 						operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;
+						break;
+					case "^/":
+						operator = AbstractSyntaxTree.OperationNode.Operator.CEIL_DIV;
 						break;
 					case "%":
 						operator = AbstractSyntaxTree.OperationNode.Operator.MOD;

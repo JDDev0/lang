@@ -2392,6 +2392,172 @@ public class DataObject {
 		return null;
 	}
 	/**
+	 * For "^/"
+	 */
+	public DataObject opCeilDiv(DataObject dataObject) {
+		switch(type) {
+			case INT:
+				switch(dataObject.type) {
+					case INT:
+						if(dataObject.intValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setInt(-Math.floorDiv(-intValue, dataObject.intValue));
+					case LONG:
+						if(dataObject.longValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(-Math.floorDiv(-intValue, dataObject.longValue));
+					case FLOAT:
+						if(dataObject.floatValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.ceil(intValue / dataObject.floatValue));
+					case DOUBLE:
+						if(dataObject.doubleValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(intValue / dataObject.doubleValue));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case LONG:
+				switch(dataObject.type) {
+					case INT:
+						if(dataObject.intValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(-Math.floorDiv(-longValue, dataObject.intValue));
+					case LONG:
+						if(dataObject.longValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(-Math.floorDiv(-longValue, dataObject.longValue));
+					case FLOAT:
+						if(dataObject.floatValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.ceil(longValue / dataObject.floatValue));
+					case DOUBLE:
+						if(dataObject.doubleValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(longValue / dataObject.doubleValue));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case FLOAT:
+				switch(dataObject.type) {
+					case INT:
+						if(dataObject.intValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.ceil(floatValue / dataObject.intValue));
+					case LONG:
+						if(dataObject.longValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.ceil(floatValue / dataObject.longValue));
+					case FLOAT:
+						if(dataObject.floatValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.ceil(floatValue / dataObject.floatValue));
+					case DOUBLE:
+						if(dataObject.doubleValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(floatValue / dataObject.doubleValue));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				
+				return null;
+			case DOUBLE:
+				switch(dataObject.type) {
+					case INT:
+						if(dataObject.intValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(doubleValue / dataObject.intValue));
+					case LONG:
+						if(dataObject.longValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(floatValue / dataObject.longValue));
+					case FLOAT:
+						if(dataObject.floatValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(floatValue / dataObject.floatValue));
+					case DOUBLE:
+						if(dataObject.doubleValue == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.ceil(floatValue / dataObject.doubleValue));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case TEXT:
+			case CHAR:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	/**
 	 * For "%"
 	 */
 	public DataObject opMod(DataObject dataObject) {

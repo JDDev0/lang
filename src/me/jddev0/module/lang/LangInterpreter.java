@@ -880,6 +880,9 @@ public final class LangInterpreter {
 				case FLOOR_DIV:
 					output = leftSideOperand.opFloorDiv(rightSideOperand);
 					break;
+				case CEIL_DIV:
+					output = leftSideOperand.opCeilDiv(rightSideOperand);
+					break;
 				case MOD:
 					output = leftSideOperand.opMod(rightSideOperand);
 					break;
