@@ -1710,8 +1710,28 @@ public final class LangParser {
 		//Remove comments
 		if(line.startsWith("#"))
 			return null;
-		line = line.split("(?<!\\\\)#")[0]; //Splits at "#", but not at "\#" (RegEx negative look behind)
-		line = line.replace("\\#", "#");
+		
+		//Find start index of comment if any
+		int index = -1;
+		int i = 0;
+		while(i < line.length()) {
+			char c = line.charAt(i);
+			if(c == '\\') { //Ignore next char
+				i += 2;
+				
+				continue;
+			}
+			
+			if(c == '#') {
+				index = i;
+				
+				break;
+			}
+			
+			i++;
+		}
+		if(index > -1)
+			line = line.substring(0, index);
 		
 		line = line.trim();
 		
