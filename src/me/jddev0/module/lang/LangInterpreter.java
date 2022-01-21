@@ -1755,7 +1755,7 @@ public final class LangInterpreter {
 				
 				if((!LangPatterns.matches(variableName, LangPatterns.VAR_NAME) && !LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR)) ||
 				LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
-					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter", DATA_ID);
+					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter: \"" + variableName + "\"", DATA_ID);
 					
 					continue;
 				}
