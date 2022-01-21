@@ -706,17 +706,50 @@ public class LangShellWindow extends JDialog {
 			if(tokens.length == 0)
 				return;
 			
-			final String lastToken = tokens[tokens.length - 1];
+			String lastToken = tokens[tokens.length - 1];
 			if(lastToken.matches("(\\$|&|fp\\.).*")) {
-				List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName ->
-				varName.startsWith(lastToken) && !varName.equals(lastToken)).sorted().collect(Collectors.toList());
+				final int appendClosingBracketCount;
+				if(lastToken.matches("\\$\\**\\[*\\w*")) {
+					//Handle var pointer referencing and dereferencing "$*" and "$["
+					
+					lastToken = lastToken.replace("*", ""); //Ignore "*"
+					
+					int oldLen = lastToken.length();
+					lastToken = lastToken.replace("[", ""); //Ignore "["
+					int diff = oldLen - lastToken.length();
+					if(diff == 0 && lastToken.length() > 0)
+						appendClosingBracketCount = -1;
+					else
+						appendClosingBracketCount = diff;
+				}else {
+					appendClosingBracketCount = -1;
+				}
+				
+				final String lastTokenCopy = lastToken;
+				List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName -> {
+					int oldLen = varName.length();
+					varName = varName.replace("[", "");
+					
+					return (oldLen == varName.length() || appendClosingBracketCount > -1) && varName.startsWith(lastTokenCopy) && !varName.equals(lastTokenCopy);
+				}).sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
 				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
-				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size())
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size()) {
 					autoCompleteText = "";
-				else
-					autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastToken.length()) + (lastToken.startsWith("fp.")?"(":"");
+				}else {
+					autoCompleteText = autoCompletes.get(autoCompletePos).replace("]", "");
+					
+					int openingBracketCountVarName = (int)autoCompleteText.chars().filter(c -> c == '[').count();
+					int diff = Math.max(0, openingBracketCountVarName - Math.max(0, appendClosingBracketCount));
+					for(int i = 0;i < diff;i++)
+						autoCompleteText = "$[" + autoCompleteText.substring(1);
+					
+					autoCompleteText = autoCompleteText.substring(openingBracketCountVarName - diff + lastTokenCopy.length()) + (lastTokenCopy.startsWith("fp.")?"(":"");
+					
+					for(int i = 0;i < Math.max(appendClosingBracketCount, openingBracketCountVarName);i++)
+						autoCompleteText += "]";
+				}
 			}else if(lastToken.matches("(func|linker)\\..*")) {
 				boolean isLinkerFunction = lastToken.startsWith("linker.");
 				int indexFunctionNameStart = lastToken.indexOf('.') + 1;
