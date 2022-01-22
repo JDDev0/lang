@@ -198,7 +198,6 @@ fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 func.langTestAssertNoReturn(No return failed for {{{fp.xyz_noRet()}}}) # Will pass and will not print message
 fp.xyz_noRet()
 
-
 lang.errorOutput = 1 # Re-enable error output
 
 # New Unit
