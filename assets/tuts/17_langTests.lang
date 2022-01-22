@@ -16,10 +16,11 @@ $ret = linker.include(17_library.lang)
 #   - SubUnit 1
 
 # langTest assert functions:
-#   assert functions can be used in:
+# - assert functions can be used in:
 #   - the noname unit (= Default unit if "func.langTestUnit()" was not called)
 #   - the noname subUnit (= Default SubUnit of an Unit if "func.langTestSubUnit()" was not called)
 #   - a subUnit (= In a SubUnit if "func.langTestSubUnit()" was called)
+# - a message can be included in every assert function which will be printed if the assert failed (Optional paramter in every assert function except "func.langTestAssertFail()")
 
 # Assert fail:
 #   func.langTestAssertFail(reason) # Will always fail (Should be used for not yet implemented tests)
@@ -33,6 +34,9 @@ func.langTestUnit(Tests without library)
 #   func.langTestAssertEquals(actual, expected): Checks if actual == expected
 func.langTestAssertEquals($ret, 42) # Will pass
 func.langTestAssertEquals($ret, -42) # Will not pass
+
+func.langTestAssertEquals($ret, 42, {{{$ret was not 42}}}) # Will pass and will not print message
+func.langTestAssertEquals($ret, -42, {{{$ret was not -42}}}) # Will not pass and will print message
 
 # Assert not equals:
 #   func.langTestAssertNotEquals(actual, expected): Checks if actual != expected
@@ -184,6 +188,16 @@ fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
 func.langTestAssertNoReturn() # Will pass
 fp.xyz_noRet()
+
+func.langTestAssertNoReturn(No return failed for {{{fp.xyz_ret(0)}}}) # Will not pass and will print message
+fp.xyz_ret(0)
+
+func.langTestAssertNoReturn(No return failed for {{{fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)}}}) # Will not pass and will print message
+fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
+
+func.langTestAssertNoReturn(No return failed for {{{fp.xyz_noRet()}}}) # Will pass and will not print message
+fp.xyz_noRet()
+
 
 lang.errorOutput = 1 # Re-enable error output
 
