@@ -408,6 +408,9 @@ public final class LangParser {
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
 					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(2), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
+					if(node == null) //End was reached inside middle part of a tenary operator
+						return null;
+					
 					token = innerTokensLeft.toString();
 					
 					if(token.isEmpty()) {
@@ -587,6 +590,9 @@ public final class LangParser {
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
 					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(operatorLength), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
+					if(node == null) //End was reached inside middle part of a tenary operator
+						return null;
+					
 					token = innerTokensLeft.toString();
 					
 					if(token.isEmpty()) {
@@ -625,6 +631,9 @@ public final class LangParser {
 					
 					StringBuilder innerTokensLeft = new StringBuilder();
 					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(operatorLength), innerTokensLeft, tokensLeftBehindMiddlePartEnd, operator.getPrecedence(), type);
+					if(node == null) //End was reached inside middle part of a tenary operator
+						return null;
+					
 					token = innerTokensLeft.toString();
 					
 					AbstractSyntaxTree.Node innerRightNode;
