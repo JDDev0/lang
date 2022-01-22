@@ -1118,9 +1118,6 @@ public final class LangInterpreter {
 							
 							variableName = lvalue.getVariableName();
 							if(variableName == null) {
-								if(flags[1])
-									data.get(DATA_ID).var.remove(variableName);
-								
 								return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT, "Anonymous values can not be changed", DATA_ID);
 							}
 							
