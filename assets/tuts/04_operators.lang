@@ -21,6 +21,7 @@ lang.version = v1.0.0
 # ▼opr                - Decrement (Will NOT change value of opr)
 # opr1 * opr2         - Multiplication
 # opr1 / opr2         - Division
+# opr1 ~/ opr2        - Truncation division
 # opr1 // opr2        - Floor division
 # opr1 ^/ opr2        - Ceil division
 # opr1 % opr2         - Modulo
@@ -52,21 +53,22 @@ lang.version = v1.0.0
 
 # Assignments
 # expr1 = expr2       - Normal assignment
-# expr1 $= expr2      - Set assignment              (Is equivalent to "expr1 = parser.op(expr2)")
-# expr1 += expr2      - Addition assignment         (Is equivalent to "expr1 = parser.op((expr1) + (expr2))")
-# expr1 -= expr2      - Subtract assignment         (Is equivalent to "expr1 = parser.op((expr1) - (expr2))")
-# expr1 *= expr2      - Multiplication assignment   (Is equivalent to "expr1 = parser.op((expr1) * (expr2))")
-# expr1 /= expr2      - Division assignment         (Is equivalent to "expr1 = parser.op((expr1) / (expr2))")
-# expr1 //= expr2     - Floor division assignment   (Is equivalent to "expr1 = parser.op((expr1) // (expr2))")
-# expr1 ^/= expr2     - Ceil division assignment    (Is equivalent to "expr1 = parser.op((expr1) ^/ (expr2))")
-# expr1 **= expr2     - Power assignment            (Is equivalent to "expr1 = parser.op((expr1) ** (expr2))")
-# expr1 %= expr2      - Modulo assignment           (Is equivalent to "expr1 = parser.op((expr1) % (expr2))")
-# expr1 >>= expr2     - Right shift assignment      (Is equivalent to "expr1 = parser.op((expr1) >> (expr2))")
-# expr1 >>>= expr2    - Right shift zero assignment (Is equivalent to "expr1 = parser.op((expr1) >>> (expr2))")
-# expr1 <<= expr2     - Left shift assignment       (Is equivalent to "expr1 = parser.op((expr1) << (expr2))")
-# expr1 &= expr2      - Bitwise and assignment      (Is equivalent to "expr1 = parser.op((expr1) & (expr2))")
-# expr1 |= expr2      - Bitwise or assignment       (Is equivalent to "expr1 = parser.op((expr1) | (expr2))")
-# expr1 ^= expr2      - Bitwise xor assignment      (Is equivalent to "expr1 = parser.op((expr1) ^ (expr2))")
+# expr1 $= expr2      - Set assignment                 (Is equivalent to "expr1 = parser.op(expr2)")
+# expr1 += expr2      - Addition assignment            (Is equivalent to "expr1 = parser.op((expr1) + (expr2))")
+# expr1 -= expr2      - Subtract assignment            (Is equivalent to "expr1 = parser.op((expr1) - (expr2))")
+# expr1 *= expr2      - Multiplication assignment      (Is equivalent to "expr1 = parser.op((expr1) * (expr2))")
+# expr1 /= expr2      - Division assignment            (Is equivalent to "expr1 = parser.op((expr1) / (expr2))")
+# expr1 ~/= expr2     - Truncation division assignment (Is equivalent to "expr1 = parser.op((expr1) ~/ (expr2))")
+# expr1 //= expr2     - Floor division assignment      (Is equivalent to "expr1 = parser.op((expr1) // (expr2))")
+# expr1 ^/= expr2     - Ceil division assignment       (Is equivalent to "expr1 = parser.op((expr1) ^/ (expr2))")
+# expr1 **= expr2     - Power assignment               (Is equivalent to "expr1 = parser.op((expr1) ** (expr2))")
+# expr1 %= expr2      - Modulo assignment              (Is equivalent to "expr1 = parser.op((expr1) % (expr2))")
+# expr1 >>= expr2     - Right shift assignment         (Is equivalent to "expr1 = parser.op((expr1) >> (expr2))")
+# expr1 >>>= expr2    - Right shift zero assignment    (Is equivalent to "expr1 = parser.op((expr1) >>> (expr2))")
+# expr1 <<= expr2     - Left shift assignment          (Is equivalent to "expr1 = parser.op((expr1) << (expr2))")
+# expr1 &= expr2      - Bitwise and assignment         (Is equivalent to "expr1 = parser.op((expr1) & (expr2))")
+# expr1 |= expr2      - Bitwise or assignment          (Is equivalent to "expr1 = parser.op((expr1) | (expr2))")
+# expr1 ^= expr2      - Bitwise xor assignment         (Is equivalent to "expr1 = parser.op((expr1) ^ (expr2))")
 
 # Operator precedence/associativity
 # Precedence | Operator           | Associativity | Operator name
@@ -89,6 +91,7 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|-----------------------------
 #  4         | opr1 * opr2        | left-to-right | Multiplication
 #            | opr1 / opr2        |               | Division
+#            | opr1 ~/ opr2       |               | Truncation division
 #            | opr1 // opr2       |               | Floor division
 #            | opr1 ^/ opr2       |               | Ceil division
 #            | opr1 % opr2        |               | Modulo
