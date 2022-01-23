@@ -1588,6 +1588,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			LEN                   ("@",     1,  1,       OperatorType.GENERAL),
 			DEEP_COPY             ("^",     1,  1,       OperatorType.GENERAL),
 			SPACESHIP             ("<=>",      10,       OperatorType.GENERAL),
+			INSTANCE_OF           ("~~",       10,       OperatorType.GENERAL),
 			ELVIS                 ("?:",       13, true, OperatorType.GENERAL),
 			NULL_COALESCING       ("??",       13, true, OperatorType.GENERAL),
 			INLINE_IF             ("?...:", 3, 14, true, OperatorType.GENERAL),
@@ -1619,7 +1620,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			//Condition
 			CONDITIONAL_NON       ("",      1, -1,       OperatorType.CONDITION),
 			NOT                   ("!",     1,  3,       OperatorType.CONDITION),
-			INSTANCE_OF           ("~~",       10,       OperatorType.CONDITION),
 			EQUALS                ("==",       10,       OperatorType.CONDITION),
 			NOT_EQUALS            ("!=",       10,       OperatorType.CONDITION),
 			MATCHES               ("=~",       10,       OperatorType.CONDITION),

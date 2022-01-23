@@ -7,6 +7,7 @@ lang.version = v1.0.0
 # @opr                - Length
 # ^opr                - Deep copy
 # opr1 <=> opr2       - Spaceship
+# opr1 ~~ opr2        - Instance of
 # opr1 ?: oprr2       - Elvis
 # opr1 ?? opr2        - Null coalescing
 # opr1 ? opr2 : opr3  - Inline if
@@ -37,7 +38,6 @@ lang.version = v1.0.0
 # Condition
 # (opr)               - Grouping
 # !opr                - Not
-# opr1 ~~ opr2        - Instance of
 # opr1 == opr2        - Equals
 # opr1 != opr2        - Not equals
 # opr1 =~ opr2        - Matches
