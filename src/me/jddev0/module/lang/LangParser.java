@@ -509,7 +509,7 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.NOT;
 				}else if(token.startsWith("&") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_AND;
-				}else if(token.startsWith("~~") && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type)) {
+				}else if(token.startsWith("~~") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.INSTANCE_OF;
 				}else if(token.startsWith("~") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
