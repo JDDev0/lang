@@ -452,9 +452,9 @@ public final class LangParser {
 				}
 			}else if(token.startsWith("!==") || token.startsWith("!=~") || token.startsWith("!=") || token.startsWith("===") || token.startsWith("=~") || token.startsWith("==") ||
 			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
-			token.startsWith("&") || token.startsWith("~~") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") || token.startsWith("//") ||
-			token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") || token.startsWith(">>>") ||
-			token.startsWith(">>") || token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
+			token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") ||
+			token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") ||
+			token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -512,6 +512,9 @@ public final class LangParser {
 				}else if(token.startsWith("~~") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.INSTANCE_OF;
+				}else if(token.startsWith("~/") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.TRUNC_DIV;
 				}else if(token.startsWith("~") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_NOT;
 				}else if(token.startsWith("▲") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
@@ -924,6 +927,9 @@ public final class LangParser {
 						break;
 					case "/":
 						operator = AbstractSyntaxTree.OperationNode.Operator.DIV;
+						break;
+					case "~/":
+						operator = AbstractSyntaxTree.OperationNode.Operator.TRUNC_DIV;
 						break;
 					case "//":
 						operator = AbstractSyntaxTree.OperationNode.Operator.FLOOR_DIV;

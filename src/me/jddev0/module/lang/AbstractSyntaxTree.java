@@ -1603,6 +1603,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			DEC                   ("▼",     1,  3,       OperatorType.MATH),
 			MUL                   ("*",         4,       OperatorType.MATH),
 			DIV                   ("/",         4,       OperatorType.MATH),
+			TRUNC_DIV             ("~/",        4,       OperatorType.MATH),
 			FLOOR_DIV             ("//",        4,       OperatorType.MATH),
 			CEIL_DIV              ("^/",        4,       OperatorType.MATH),
 			MOD                   ("%",         4,       OperatorType.MATH),

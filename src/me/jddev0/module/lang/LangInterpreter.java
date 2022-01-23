@@ -877,6 +877,9 @@ public final class LangInterpreter {
 				case DIV:
 					output = leftSideOperand.opDiv(rightSideOperand);
 					break;
+				case TRUNC_DIV:
+					output = leftSideOperand.opTruncDiv(rightSideOperand);
+					break;
 				case FLOOR_DIV:
 					output = leftSideOperand.opFloorDiv(rightSideOperand);
 					break;

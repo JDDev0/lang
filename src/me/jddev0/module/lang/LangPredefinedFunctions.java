@@ -1575,6 +1575,7 @@ final class LangPredefinedFunctions {
 		funcs.put("mul", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMul, DATA_ID), DATA_ID));
 		funcs.put("pow", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opPow, DATA_ID), DATA_ID));
 		funcs.put("div", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opDiv, DATA_ID), DATA_ID));
+		funcs.put("truncDiv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opTruncDiv, DATA_ID), DATA_ID));
 		funcs.put("floorDiv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opFloorDiv, DATA_ID), DATA_ID));
 		funcs.put("ceilDiv", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opCeilDiv, DATA_ID), DATA_ID));
 		funcs.put("mod", (argumentList, DATA_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opMod, DATA_ID), DATA_ID));
