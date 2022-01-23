@@ -212,6 +212,20 @@ func.printTerminal(-1, \n\n\n)
 	fp.println(TEST)
 }
 
+# Call function with pointer dereferencing
+{
+	# This type of function calls is only possible if call of previous value is supported
+	
+	fp.ptr = ($[ptr]) -> return $ptr
+	fp.print = ($text...) -> func.println($text)
+	$ptr = fp.ptr(fp.print)
+	
+	$*ptr(abc, test)
+	
+	$*ptr = func.println
+	$*ptr(test)
+}
+
 # &LANG var as argument
 {
 	# Is only possible with call by pointer
