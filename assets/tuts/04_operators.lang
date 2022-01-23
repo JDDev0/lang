@@ -53,6 +53,8 @@ lang.version = v1.0.0
 
 # Assignments
 # expr1 = expr2       - Normal assignment
+# expr1 ?= expr2      - Set condition assignment       (Is equivalent to "expr1 = parser.con(expr2)")
+# expr1 := expr2      - Set math assignment            (Is equivalent to "expr1 = parser.math(expr2)")
 # expr1 $= expr2      - Set operation assignment       (Is equivalent to "expr1 = parser.op(expr2)")
 # expr1 += expr2      - Addition assignment            (Is equivalent to "expr1 = parser.op((expr1) + (expr2))")
 # expr1 -= expr2      - Subtract assignment            (Is equivalent to "expr1 = parser.op((expr1) - (expr2))")
@@ -133,6 +135,8 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|--------------------------------
 # 15         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
+#            | opr1 ?= opr2       |               | Set condition assignment
+#            | opr1 := opr2       |               | Set math assignment
 #            | opr1 $= opr2       |               | Set operation assignment
 #            | opr1 += opr2       |               | Addition assignment
 #            | opr1 -= opr2       |               | Subtraction assignment
@@ -247,6 +251,32 @@ func.println()
 # Normal assignment
 $a = 42
 func.println($a)
+
+func.println()
+
+# Set condition assignment
+$test ?= 1 || 0
+func.println($test)
+
+$test ?= 1 && 0
+func.println($test)
+
+func.println()
+
+# Set math assignment
+$test := 2 + 3
+func.println($test)
+
+$test := 2 ** 3
+func.println($test)
+
+$test := 10 ~/ 4
+func.println($test)
+
+$test := -10 ~/ 4
+func.println($test)
+
+func.println()
 
 # Set operation assignment
 $test $= func.rand() % 11 ?: 42 # Rvalue will be parsed as operation expression "parser.op()"
