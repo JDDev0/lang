@@ -1,13 +1,13 @@
 lang.name = Final Vars
 lang.version = v1.0.0
 
-# Final vars
+# Make variable final
 # func.makeFinal(varPtr)
-# func.makeFinal(arrPtr)
-# func.makeFinal(funcPtr) # Will make the variable final
-#                           (= not overrideable)
-#                           The content of a final arrPtr
-#                           can be changed
+# func.makeFinal(funcPtr)
+# func.makeFinal(arrPtr) # Will make the variable final
+#                        (= not overrideable)
+#                        The content of a final arrPtr
+#                        can be changed
 # Final var
 $a = DO NOT modify!
 func.makeFinal($[a])
@@ -24,6 +24,11 @@ $b = $a # No Error
 $b = TEST # Also no error ($b is not final)
 func.printTerminal(2, $a: $b)
 func.printError()
+
+# Check if a variable is final
+# func.isFinal(any) # Returns 1 if the provided variable is final
+func.println(func.isFinal($a)) # 1
+func.println(func.isFinal($b)) # 0
 
 fp.test = () -> {
 	# No error, because $a is an local variable of the function
