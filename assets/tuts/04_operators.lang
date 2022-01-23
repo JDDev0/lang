@@ -288,6 +288,9 @@ func.println($test)
 $test $= (func.randChoice(null, 0, 1, 2, abc) ?? text-) + 30
 func.println($test)
 
+$test $= 1 ~~ $LANG_TYPE_INT
+func.println($test)
+
 func.println()
 
 $test $= 0 ?: null ?: 0.0
