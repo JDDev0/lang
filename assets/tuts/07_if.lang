@@ -10,6 +10,8 @@ lang.version = v1.0.0
 # }else { # Optional (Can be used only once)
 #     ... #Will be executed if none of the above conditions is true
 # } # End of if statement
+#
+# The whitespace after "}" and before "{" will be ignored
 $var = 42
 if($var) {
 	func.println($var => True)
@@ -137,6 +139,66 @@ func.println(parser.con(0))
 func.println(parser.con(-1))
 func.println(parser.con(42))
 func.println(parser.con(1))
+
+func.println(-----------------)
+
+# Alternative if statement syntax
+# Besides the curly brackets if statement syntax there is the end block if statement syntax
+# Curly brackets if statement syntax
+if(1) {
+	func.println(test-1)
+}
+if(0) {
+	func.println(test-2)
+}else {
+	func.println(test-3)
+}
+if(0) {
+	func.println(test-4)
+}elif(0) {
+	func.println(test-5)
+}else {
+	func.println(test-6)
+}
+
+func.println()
+
+# End block if statement syntax
+con.if(1)
+	func.println(test-1)
+con.endif
+con.if(0)
+	func.println(test-2)
+con.else
+	func.println(test-3)
+con.endif
+con.if(0)
+	func.println(test-4)
+con.elif(0)
+	func.println(test-5)
+con.else
+	func.println(test-6)
+con.endif
+
+# The "con." prefix can also be used in the curly brackets if statement syntax (It can also be used only sometimes but this is not recommended)
+
+func.println()
+
+con.if(1) {
+	func.println(test-1)
+}
+con.if(0) {
+	func.println(test-2)
+}con.else {
+	func.println(test-3)
+}
+con.if(0) {
+	func.println(test-4)
+}elif(0) {
+	func.println(test-5)
+}con.else {
+	func.println(test-6)
+}
 
 func.println(-----------------)
 
