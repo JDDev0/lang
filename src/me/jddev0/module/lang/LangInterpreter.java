@@ -800,9 +800,6 @@ public final class LangInterpreter {
 					break;
 				
 				//Binary
-				case INSTANCE_OF:
-					output = rightSideOperand.getType() == DataType.TYPE?new DataObject().setBoolean(leftSideOperand.getType() == rightSideOperand.getTypeValue()):null;
-					break;
 				case SPACESHIP:
 					output = leftSideOperand.opSpaceship(rightSideOperand);
 					break;
@@ -967,6 +964,13 @@ public final class LangInterpreter {
 					break;
 				
 				//Binary (Comparison operators)
+				case INSTANCE_OF:
+					if(rightSideOperand.getType() != DataType.TYPE)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The second operand of the \"" + node.getOperator().getSymbol() + "\" operator must be of type " +
+							DataType.TYPE.name(), DATA_ID);
+					
+					conditionOuput = leftSideOperand.getType() == rightSideOperand.getTypeValue();
+					break;
 				case EQUALS:
 				case NOT_EQUALS:
 					conditionOuput = leftSideOperand.isEquals(rightSideOperand);
