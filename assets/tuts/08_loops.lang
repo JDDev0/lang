@@ -188,7 +188,7 @@ lang.version = v1.0.0
 		con.break
 	con.endloop
 
-	# The "con." prefix can also be used in the curly brackets loop statement syntax (It can also be used only sometimes but this is not recommended)
+	# The "con." prefix can also be used in the curly brackets loop statement syntax (It can also be used only sometimes, but this is not recommended)
 
 	func.println()
 

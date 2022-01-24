@@ -180,7 +180,7 @@ con.else
 	func.println(test-6)
 con.endif
 
-# The "con." prefix can also be used in the curly brackets if statement syntax (It can also be used only sometimes but this is not recommended)
+# The "con." prefix can also be used in the curly brackets if statement syntax (It can also be used only sometimes, but this is not recommended)
 
 func.println()
 
