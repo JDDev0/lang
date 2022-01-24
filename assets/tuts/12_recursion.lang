@@ -3,9 +3,9 @@ lang.version = v1.0.0
 
 # Recursion
 fp.factorial = ($num) -> {
-	con.if($num < 2)
+	if($num < 2) {
 		return 1
-	con.endif
+	}
 	
 	# Recursive call: fp.factorial(...)
 	return func.mull($num, fp.factorial(func.subi($num, 1)))
@@ -20,9 +20,9 @@ fp.a = ($a) -> {
 	return $a - fp.b(func.subi($a, 2))
 }
 fp.b = ($a) -> {
-	con.if($a < 0)
+	if($a < 0) {
 		return END
-	con.endif
+	}
 	
 	return $a - fp.a(func.addi($a, 1))
 }

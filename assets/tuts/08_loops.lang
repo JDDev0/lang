@@ -4,63 +4,63 @@ lang.version = v1.0.0
 # Loop statements
 {
 	# While loop
-	# con.while(condition)
+	# while(condition) {
 	#     ...
-	# con.endloop
+	# }
 	$num = 50
 	
-	con.while($num > 41)
+	while($num > 41) {
 		func.println($num)
 		$num = func.subi($num, 1)
-	con.endloop
+	}
 	
 	# Until loop
-	# con.until(condition)
+	# until(condition) {
 	#     ...
-	# con.endloop
+	# }
 	$win = 0
 	$num = func.modi(func.rand(), 10)
-	con.until($win)
+	until($win) {
 		$guess = func.addi(func.modi(func.rand(), 10))
-		con.if($guess < $num)
+		if($guess < $num) {
 			func.printTerminal(3, The number is larger than $guess!)
-		con.elif($guess > $num)
+		}elif($guess > $num) {
 			func.printTerminal(3, The number is smaller than $guess!)
-		con.else
+		}else {
 			$win = 1
 			
 			func.printTerminal(2, You got the number $guess!)
-		con.endif
-	con.endloop
+		}
+	}
 	
 	# Repeat loop
-	# con.repeat(varPtr, count) # varPtr can be null
+	# repeat(varPtr, count) { # varPtr can be null
 	#     ...
-	# con.endloop
+	# }
 	$i
 	func.println(Before Loop: $i)
-	con.repeat($[i], 10)
+	repeat($[i], 10) {
 		func.println(In Loop: $i)
-	con.endloop
+	}
 	func.println(After Loop: $i)
 	
-	con.repeat(null, 10)
+	repeat(null, 10) {
 		func.println(In Loop2: $i)
-	con.endloop
+	}
 	
-	con.repeat($[i], 8)
+	repeat($[i], 8) {
 		func.printTerminal(func.deci($i), TEXT-TEXT-TEXT)
-	con.endloop
+	}
 	
 	$j
-	con.repeat($[j], func.modi(func.rand(), 10))
+	repeat($[j], func.modi(func.rand(), 10)) {
 		func.printTerminal(0, RANDOM: $j)
-	con.endloop
+	}
 	
 	fp.getFP = () -> return () -> return 10
-	con.repeat($[j], fp.getFP()())
+	repeat($[j], fp.getFP()()) {
 		func.println($j with call of returned value)
-	con.endloop
+	}
 	
 	func.println()
 	
@@ -68,40 +68,40 @@ lang.version = v1.0.0
 	# con.break # Breaks the current loop
 	# con.continue # Breaks the current iteration and skips to the next iteration
 	$val = 42
-	con.while(1)
-		con.if($val == 50)
+	while(1) {
+		if($val == 50) {
 			con.break
-		con.endif
+		}
 		
 		func.println(Value: $val)
 		$val = func.inci($val)
-	con.endloop # Will output numbers from 42 to 49
+	} # Will output numbers from 42 to 49
 	
 	func.println()
 	
 	# Endless loop with con.loop (Can only be exited with break or continue with level > 1)
 	$val = 42
-	con.loop
-		con.if($val == 50)
+	loop {
+		if($val == 50) {
 			con.break
-		con.endif
+		}
 		
 		func.println(Value: $val)
 		$val = func.inci($val)
-	con.endloop # Will output numbers from 42 to 49
+	} # Will output numbers from 42 to 49
 	
 	func.println()
 	
 	$val = 41
-	con.while($val < 50)
+	while($val < 50) {
 		$val = func.inci($val)
 		
-		con.if($val == 45)
+		if($val == 45) {
 			con.continue
-		con.endif
+		}
 		
 		func.println(Value: $val)
-	con.endloop # Will output numbers from 42 to 49 without 45
+	} # Will output numbers from 42 to 49 without 45
 	
 	func.println()
 	
@@ -111,38 +111,38 @@ lang.version = v1.0.0
 	# -> num can be an expression with function call of returned value
 	$val = 42
 	$i
-	con.loop
-		con.repeat($[i], 2)
+	loop {
+		repeat($[i], 2) {
 			func.println(	Inner Value: $i)
 			
-			con.if($val == 50)
+			if($val == 50) {
 				con.break(2) # Will break the "con.loop" loop
-			con.endif
-		con.endloop
+			}
+		}
 		
 		func.println(Value: $val)
 		$val = func.inci($val)
-	con.endloop # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
+	} # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
 	
 	func.println()
 	func.println()
 	
 	$val = 41
-	con.while($val < 50)
+	while($val < 50) {
 		$val = func.inci($val)
 		
 		func.println()
 		
-		con.repeat($[i], 2)
+		repeat($[i], 2) {
 			func.println(	Inner Value: $i)
 			
-			con.if($val == 45)
+			if($val == 45) {
 				con.continue(2) # Will continue the "con.while($val < 50)" loop
-			con.endif
-		con.endloop
+			}
+		}
 		
 		func.println(Value: $val)
-	con.endloop # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
+	} # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
 }
 
 # Loop functions

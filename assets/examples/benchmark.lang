@@ -3,12 +3,12 @@ lang.version = v1.0.0
 
 fp.benchmark = ($runs, fp.func) -> {
 	$time = 0
-	con.repeat(null, $runs)
+	repeat(null, $runs) {
 		$start = func.currentTimeMillis()
 		fp.func()
 		$end = func.currentTimeMillis()
 		$time += $end - $start
-	con.endloop
+	}
 	
 	return func.divd($time, $runs)
 }
@@ -16,7 +16,7 @@ fp.benchmark = ($runs, fp.func) -> {
 func.println(Enter 0 for "Normal functions benchmark" and 1 for "One-line functions benchmark")
 $input = func.input()
 
-con.if(!func.toNumber($input))
+if(!func.toNumber($input)) {
 	# Normal functions
 	fp.empty = () -> {
 	}
@@ -44,7 +44,7 @@ con.if(!func.toNumber($input))
 	}
 
 	func.println(\s          Normal functions           \s)
-con.else
+}else {
 	# One-line functions
 	fp.empty = () -> {
 	}
@@ -59,7 +59,7 @@ con.else
 	fp.sleep = () -> func.sleep(1)
 
 	func.println(\s         One-line functions          \s)
-con.endif
+}
 
 func.println(\s      Test        |       Time       \s)
 func.println(-------------------|-------------------)

@@ -75,11 +75,11 @@ func.println()
 
 # Return value from executed lang file
 $i
-con.repeat($[i], 4)
+repeat($[i], 4) {
 	func.printTerminal(1, \nRun num $i:)
 	$ret = linker.link(10_linkTestReturn.lang)
 	func.printTerminal(1, Returned value: "$ret")
-con.endloop
+}
 func.println()
 
 # Thrown value from executed lang file

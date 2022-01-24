@@ -93,158 +93,158 @@ func.println(Error code: $LANG_ERRNO)
 
 # Error Handling example
 $value = func.divi(42, 0)
-con.if($LANG_ERRNO != 0) # "con.if($LANG_ERRNO)" would also be possible
+if($LANG_ERRNO != 0) { # "if($LANG_ERRNO)" would also be possible
 	func.printError(An error occurred)
 	func.printError($LANG_ERRNO was reseted) # Will print "No Error"
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 func.println()
 
 func.arrayMake(&a, -1)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 func.println()
 
 func.arraySetAll(&a, 10, 32, 42)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 $LANG_VER = 42
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 fp.test(Test1)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 func.repeat(fp.test, 42)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 func.repeat(fp.abc)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 func.printTerminal(-1, ((Test))
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 $value = func.hexToDec(0xG42)
-con.if($LANG_ERRNO)
+if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])
-con.else
+}else {
 	# Do something
-con.endif
+}
 
 # Check exact error of $LANG_ERRNO
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divd(1, 0)
-con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO) # $LANG_ERRNO should be checked with strict equals and $LANG_ERRNO_...
+if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO) { # $LANG_ERRNO should be checked with strict equals and $LANG_ERRNO_...
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divd(1, abc)
-con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO)
+if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO) {
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divd(1, 3)
-con.if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO)
+if($LANG_ERRNO === $LANG_ERRNO_DIV_BY_ZERO) {
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 # Check errors from functions
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divi(2, 0)
-con.if($ret === $LANG_ERROR_DIV_BY_ZERO) # Function errors should be checked with strict equals and $LANG_ERROR_...
+if($ret === $LANG_ERROR_DIV_BY_ZERO) { # Function errors should be checked with strict equals and $LANG_ERROR_...
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divi(2, abc)
-con.if($ret === $LANG_ERROR_DIV_BY_ZERO)
+if($ret === $LANG_ERROR_DIV_BY_ZERO) {
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 $ret = func.divi(2, 3)
-con.if($ret === $LANG_ERROR_DIV_BY_ZERO)
+if($ret === $LANG_ERROR_DIV_BY_ZERO) {
 	func.printTerminal(5, Div by zero error)
-con.elif($LANG_ERRNO)
+}elif($LANG_ERRNO) {
 	func.printTerminal(5, Some error occurred [Code: $LANG_ERRNO])
-con.else
+}else {
 	func.printTerminal(1, $ret)
-con.endif
+}
 
 func.getErrorText() # Reset $LANG_ERRNO
 
 fp.a = ($i) -> {
-	con.if(!$i)
+	if(!$i) {
 		# The throw statement will return the error object and will set $LANG_ERRNO
 		throw $LANG_ERROR_INVALID_ARGUMENTS # $LANG_ERROR_... or a data object of type ERROR must be used for throwing error
-	con.elif($i === abc)
+	}elif($i === abc) {
 		throw $LANG_ERROR_NO_NUM
-	con.endif
+	}
 	
 	return func.addi($i, 1)
 }
@@ -275,32 +275,32 @@ fp.testError = ($a, $b) -> {
 }
 
 $ret = fp.testError(0, 0)
-con.if($LANG_ERRNO != 0)
+if($LANG_ERRNO != 0) {
 	func.printError()
-con.else
+}else {
 	func.printTerminal(1, Result: $ret)
-con.endif
+}
 
 $ret = fp.testError(0, 1)
-con.if($LANG_ERRNO != 0)
+if($LANG_ERRNO != 0) {
 	func.printError()
-con.else
+}else {
 	func.printTerminal(1, Result: $ret)
-con.endif
+}
 
 $ret = fp.testError(text, 1)
-con.if($LANG_ERRNO != 0)
+if($LANG_ERRNO != 0) {
 	func.printError()
-con.else
+}else {
 	func.printTerminal(1, Result: $ret)
-con.endif
+}
 
 $ret = fp.testError(text, text)
-con.if($LANG_ERRNO != 0)
+if($LANG_ERRNO != 0) {
 	func.printError()
-con.else
+}else {
 	func.printTerminal(1, Result: $ret)
-con.endif
+}
 
 # Get the error text from an error value
 # func.errorText(ERROR)

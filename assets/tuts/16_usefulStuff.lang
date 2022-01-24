@@ -53,22 +53,22 @@ func.printTerminal(-1, \n\n\n)
 
 # Custom IO functions
 {
-	con.if(func.isTerminalAvailable())
+	if(func.isTerminalAvailable()) {
 		fp.input = func.readTerminal
 		fp.print = func.printTerminal
 		fp.error = ($text...) -> func.printTerminal(5, $text)
-	con.else
+	}else {
 		fp.input = ($text...) -> {
-			con.if($text)
+			if($text) {
 				func.print($text: )
-			con.else
+			}else {
 				func.print(Input: )
-			con.endif
+			}
 			return func.input()
 		}
 		fp.print = ($lvl, $text...) -> func.println($text)
 		fp.error = func.errorln
-	con.endif
+	}
 	
 	$input = fp.input(Test)
 	fp.print(1, Input: $input)

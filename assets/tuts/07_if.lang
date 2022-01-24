@@ -2,68 +2,68 @@ lang.name = If Statement
 lang.version = v1.0.0
 
 # If statement:
-# con.if("condition") # (Can be used only once)
+# if("condition") { # (Can be used only once)
 #     ... # Will be executed if condition is true (!= 0) else
 #         # it skips to the next block
-# con.elif("condition") # Optional (Can be used more than once)
+# }elif("condition") { # Optional (Can be used more than once)
 #     ... # Will be executed if condtion is true
-# con.else # Optional (Can be used only once)
+# }else { # Optional (Can be used only once)
 #     ... #Will be executed if none of the above conditions is true
-# con.endif # End of if statement
+# } # End of if statement
 $var = 42
-con.if($var)
+if($var) {
 	func.println($var => True)
-con.else
+}else {
 	func.println($var => False)
-con.endif
+}
 
 func.println(-----------------)
 
 $var = 0
-con.if($var)
+if($var) {
 	func.println($var => True)
-con.else
+}else {
 	func.println($var => False)
-con.endif
+}
 
 func.println(-----------------)
 
 $var = -1
-con.if($var)
+if($var) {
 	func.println($var => True)
-con.else
+}else {
 	func.println($var => False)
-con.endif
+}
 
 func.println(-----------------)
 
 fp.testElif = ($varA, $varB, $varC) -> {
 	func.println(Testing: $varA, $varB, $varC)
 	func.println(1st)
-	con.if($varA)
+	if($varA) {
 		func.println(\$varA => True)
-	con.endif
-	con.if($varB)
+	}
+	if($varB) {
 		func.println(\$varB => True)
-	con.endif
-	con.if($varC)
+	}
+	if($varC) {
 		func.println(\$varC => True)
-	con.else
+	}else {
 		func.println(No var is True)
-	con.endif
+	}
 	
 	func.println(-----------------)
 	
 	func.println(2nd)
-	con.if($varA)
+	if($varA) {
 		func.println(\$varA => True)
-	con.elif($varB)
+	}elif($varB) {
 		func.println(\$varB => True)
-	con.elif($varC)
+	}elif($varC) {
 		func.println(\$varC => True)
-	con.else
+	}else {
 		func.println(No var is True)
-	con.endif
+	}
 	
 	func.println(-----------------)
 }
@@ -79,55 +79,55 @@ fp.testElif(1, 1, 1)
 func.println(-----------------)
 
 # If statetment inside if statement
-# con.if("condition")
-#     con.if("condition")
+# if("condition") {
+#     if("condition") {
 #         ...
-#     con.else
+#     }else {
 #         ...
-#     con.endif
-# con.else
+#     }
+# }else {
 #     ...
-# con.endif
+# }
 
 $var1 = 42
 $var2 = 0
-con.if($var1)
-	con.if($var2)
+if($var1) {
+	if($var2) {
 		func.println(\$var1 and \$var2)
-	con.else
+	}else {
 		func.println(\$var1 only)
-	con.endif
-con.else
+	}
+}else {
 	func.println(not \$var1)
-con.endif
+}
 
 func.println(-----------------)
 
 $var1 = 42
 $var2 = 12
-con.if($var1)
-	con.if($var2)
+if($var1) {
+	if($var2) {
 		func.println(\$var1 and \$var2)
-	con.else
+	}else {
 		func.println(\$var1 only)
-	con.endif
-con.else
+	}
+}else {
 	func.println(not \$var1)
-con.endif
+}
 
 func.println(-----------------)
 
 $var1 = 0
 $var2 = 12
-con.if($var1)
-	con.if($var2)
+if($var1) {
+	if($var2) {
 		func.println(\$var1 and \$var2)
-	con.else
+	}else {
 		func.println(\$var1 only)
-	con.endif
-con.else
+	}
+}else {
 	func.println(not \$var1)
-con.endif
+}
 
 func.println(-----------------)
 

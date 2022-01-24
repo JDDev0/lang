@@ -60,12 +60,12 @@ func.println(\s)
 func.println(Global scope)
 func.println(\$a: $a)
 
-con.if(1)
+if(1) {
 	func.println(\s)
 	func.println(Global scope ["IF"])
 	$e = test
 	func.println(\$e: $e)
-con.endif
+}
 
 func.println(\s)
 func.println(Global scope)
