@@ -1014,7 +1014,7 @@ public final class LangParser {
 		//Control flow statements
 		final String originalToken = token;
 		if(token.startsWith("con.") || token.endsWith("{")) {
-			if(token.endsWith("{") && !token.startsWith("con.")) //"con." is optional if "{" syntax is used
+			if(token.endsWith("{") && !token.startsWith("con.")) //"con." is optional if the curly brackets syntax is used
 				token = "con." + token;
 			
 			if(!token.endsWith("{") && (token.startsWith("con.continue") || token.startsWith("con.break"))) {
@@ -1043,7 +1043,7 @@ public final class LangParser {
 				String loopStatement = token;
 				do {
 					if(blockBracketFlag) {
-						//Remove "{" and "}" for loop statement syntax with "{"
+						//Remove "{" and "}" for the curly brackets loop statement syntax
 						if(firstStatement) {
 							if(!loopStatement.endsWith("{"))
 								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
@@ -1164,7 +1164,7 @@ public final class LangParser {
 				String ifStatement = token;
 				do {
 					if(blockBracketFlag) {
-						//Remove "{" and "}" for if statement syntax with "{"
+						//Remove "{" and "}" for the curly brackets if statement syntax
 						if(firstStatement) {
 							if(!ifStatement.endsWith("{"))
 								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
