@@ -1072,7 +1072,7 @@ public final class LangParser {
 						
 						loopCondition = null;
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing loop statement arguments"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONT_FLOW_ARG_MISSING, "Missing loop statement arguments"));
 						return ast;
 					}else if(loopStatement.startsWith("con.while(") || loopStatement.startsWith("con.until(") || loopStatement.startsWith("con.repeat(") || loopStatement.startsWith("con.foreach(")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
@@ -1193,7 +1193,7 @@ public final class LangParser {
 						
 						ifCondition = null;
 					}else if(!ifStatement.contains("(") || !ifStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONDITION_MISSING, "Missing if statement condition"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONT_FLOW_ARG_MISSING, "Missing if statement condition"));
 						
 						ifCondition = null;
 					}else if(ifStatement.startsWith("con.if(") || ifStatement.startsWith("con.elif(")) {
@@ -1860,11 +1860,11 @@ public final class LangParser {
 	}
 	
 	public static enum ParsingError {
-		BRACKET_MISMATCH  (-1, "Bracket mismatch"),
-		CONDITION_MISSING (-2, "If statement condition missing"),
-		EOF               (-3, "End of file was reached early"),
-		INVALID_CON_PART  (-4, "Invalid statement part for conditional statement"),
-		INVALID_ASSIGNMENT(-5, "Invalid assignment operation");
+		BRACKET_MISMATCH     (-1, "Bracket mismatch"),
+		CONT_FLOW_ARG_MISSING(-2, "Control flow statement condition(s) or argument(s) is/are missing"),
+		EOF                  (-3, "End of file was reached early"),
+		INVALID_CON_PART     (-4, "Invalid statement part in control flow statement"),
+		INVALID_ASSIGNMENT   (-5, "Invalid assignment operation");
 		
 		private final int errorCode;
 		private final String errorText;

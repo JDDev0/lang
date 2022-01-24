@@ -483,8 +483,8 @@ public final class LangInterpreter {
 				error = InterpretingError.BRACKET_MISMATCH;
 				break;
 			
-			case CONDITION_MISSING:
-				error = InterpretingError.IF_CONDITION_MISSING;
+			case CONT_FLOW_ARG_MISSING:
+				error = InterpretingError.CONT_FLOW_ARG_MISSING;
 				break;
 			
 			case EOF:
@@ -2033,13 +2033,13 @@ public final class LangInterpreter {
 		TRANS_KEY_NOT_FOUND   (26, "Translation key does not exist"),
 		FUNCTION_NOT_SUPPORTED(27, "Function not supported"),
 		BRACKET_MISMATCH      (28, "Bracket mismatch"),
-		IF_CONDITION_MISSING  (29, "If statement condition missing"),
+		CONT_FLOW_ARG_MISSING (29, "Control flow statement condition(s) or argument(s) is/are missing"),
 		INVALID_AST_NODE      (30, "Invalid AST node or AST node order"),
 		INVALID_PTR           (31, "Invalid pointer"),
 		INCOMPATIBLE_DATA_TYPE(32, "Incompatible data type"),
 		LANG_ARRAYS_COPY      (33, "&LANG arrays can not be copied"),
 		LANG_VER_ERROR        (34, "Lang file's version is not compatible with this version"),
-		INVALID_CON_PART      (35, "Invalid statement part for conditional statement"),
+		INVALID_CON_PART      (35, "Invalid statement in control flow statement"),
 		INVALID_FORMAT        (36, "Invalid format sequence"),
 		INVALID_ASSIGNMENT    (37, "Invalid assignment"),
 		
