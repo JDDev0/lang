@@ -115,6 +115,8 @@ public class LangShellWindow extends JDialog {
 			 public void windowClosing(WindowEvent e) {
 				if(specialCharInputWindow != null)
 					specialCharInputWindow.dispatchEvent(new WindowEvent(specialCharInputWindow, WindowEvent.WINDOW_CLOSING));
+				
+				lii.stop(); //Stop interpreter if window is closed
 			}
 		});
 		
