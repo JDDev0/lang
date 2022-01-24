@@ -104,11 +104,11 @@ public final class LangParser {
 			line = currentLine = prepareLine(line);
 			if(line != null) {
 				//Blocks and function bodies
-				if(line.endsWith("{") && !line.endsWith("\\{") && !line.endsWith(") -> {") /* Function definition is no "block" */) {
+				if(line.equals("{")) {
 					blockPos++;
 					
 					continue;
-				}else if(line.startsWith("}")) {
+				}else if(line.startsWith("}")) { //"startsWith" is needed for parsing of control flow statements
 					blockPos--;
 					
 					if(blockPos < 0)
@@ -1011,9 +1011,13 @@ public final class LangParser {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
 		
-		//If statement
-		if(token.startsWith("con.")) {
-			if(token.startsWith("con.continue") || token.startsWith("con.break")) {
+		//Control flow statements
+		final String originalToken = token;
+		if(token.startsWith("con.") || token.endsWith("{")) {
+			if(token.endsWith("{") && !token.startsWith("con.")) //"con." is optional if "{" syntax is used
+				token = "con." + token;
+			
+			if(!token.endsWith("{") && (token.startsWith("con.continue") || token.startsWith("con.break"))) {
 				List<AbstractSyntaxTree.Node> argumentNodes;
 				if(!token.contains("(") && !token.contains(")")) {
 					argumentNodes = null;
@@ -1033,8 +1037,29 @@ public final class LangParser {
 			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
+				boolean blockBracketFlag = token.endsWith("{");
+				boolean firstStatement = true;
+				
 				String loopStatement = token;
 				do {
+					if(blockBracketFlag) {
+						//Remove "{" and "}" for loop statement syntax with "{"
+						if(firstStatement) {
+							if(!loopStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							loopStatement = loopStatement.substring(0, loopStatement.length() - 1).trim();
+						}else if(!loopStatement.equals("}")) {
+							if(!loopStatement.startsWith("}") || !loopStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							loopStatement = loopStatement.substring(1, loopStatement.length() - 1).trim();
+							
+							if(!loopStatement.startsWith("con.")) //"con." is optional if "{" syntax is used
+								loopStatement = "con." + loopStatement;
+						}
+					}
+					
 					String loopCondition = null;
 					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
 						if(!loopStatement.equals("con.else") && !loopStatement.equals("con.loop")) {
@@ -1123,8 +1148,9 @@ public final class LangParser {
 							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, varPointerNode, repeatCountOrArrayOrTextNode));
 					}
 					
+					firstStatement = false;
 					loopStatement = currentLine;
-				}while(loopStatement != null && !loopStatement.equals("con.endloop"));
+				}while(loopStatement != null && !(blockBracketFlag?loopStatement.equals("}"):loopStatement.equals("con.endloop")));
 				
 				nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
 				
@@ -1132,8 +1158,29 @@ public final class LangParser {
 			}else if(token.startsWith("con.if")) {
 				List<AbstractSyntaxTree.IfStatementPartNode> ifStatmentParts = new ArrayList<>();
 				
+				boolean blockBracketFlag = token.endsWith("{");
+				boolean firstStatement = true;
+				
 				String ifStatement = token;
 				do {
+					if(blockBracketFlag) {
+						//Remove "{" and "}" for if statement syntax with "{"
+						if(firstStatement) {
+							if(!ifStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							ifStatement = ifStatement.substring(0, ifStatement.length() - 1).trim();
+						}else if(!ifStatement.equals("}")) {
+							if(!ifStatement.startsWith("}") || !ifStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							ifStatement = ifStatement.substring(1, ifStatement.length() - 1).trim();
+							
+							if(!ifStatement.startsWith("con.")) //"con." is optional if "{" syntax is used
+								ifStatement = "con." + ifStatement;
+						}
+					}
+					
 					String ifCondition;
 					if(ifStatement.startsWith("con.else")) {
 						if(!ifStatement.equals("con.else")) {
@@ -1178,13 +1225,16 @@ public final class LangParser {
 					else
 						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, parseCondition(ifCondition)));
 					
+					firstStatement = false;
 					ifStatement = currentLine;
-				}while(ifStatement != null && !ifStatement.equals("con.endif"));
+				}while(ifStatement != null && !(blockBracketFlag?ifStatement.equals("}"):ifStatement.equals("con.endif")));
 				
 				nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts));
 				
 				return ast;
-			}else {
+			}else if(!originalToken.startsWith("con.")) {
+				token = originalToken; //Ignore, because ".*{" was no control flow statement
+			}else{
 				return null;
 			}
 		}
@@ -1219,7 +1269,7 @@ public final class LangParser {
 		
 		return ast;
 	}
-
+	
 	private AbstractSyntaxTree parseTranslationKey(String translationKey) throws IOException {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
