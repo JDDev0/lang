@@ -7,6 +7,8 @@ lang.version = v1.0.0
 	# while(condition) {
 	#     ...
 	# }
+	#
+	# The whitespace after "}" and before "{" will be ignored
 	$num = 50
 	
 	while($num > 41) {
@@ -143,6 +145,70 @@ lang.version = v1.0.0
 		
 		func.println(Value: $val)
 	} # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
+
+	# Alternative loop statement syntax
+	# Besides the curly brackets loop statement syntax there is the end block loop statement syntax
+	# Curly brackets loop statement syntax
+	repeat(null, 1) {
+		func.println(test-1)
+	}
+	while(0) {
+		func.println(test-2)
+	}else {
+		func.println(test-3)
+	}
+	until(1) {
+		func.println(test-4)
+	}else {
+		func.println(test-5)
+	}
+	loop {
+		func.println(test-6)
+		con.break
+	}
+
+	func.println()
+
+	# End block loop statement syntax
+	con.repeat(null, 1)
+		func.println(test-1)
+	con.endloop
+	con.while(0)
+		func.println(test-2)
+	con.else
+		func.println(test-3)
+	con.endloop
+	con.until(1)
+		func.println(test-4)
+	con.else
+		func.println(test-5)
+	con.endloop
+	con.loop
+		func.println(test-6)
+		con.break
+	con.endloop
+
+	# The "con." prefix can also be used in the curly brackets loop statement syntax (It can also be used only sometimes but this is not recommended)
+
+	func.println()
+
+	con.repeat(null, 1) {
+		func.println(test-1)
+	}
+	con.while(0) {
+		func.println(test-2)
+	}else {
+		func.println(test-3)
+	}
+	until(1) {
+		func.println(test-4)
+	}con.else {
+		func.println(test-5)
+	}
+	con.loop {
+		func.println(test-6)
+		con.break
+	}
 }
 
 # Loop functions
