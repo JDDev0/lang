@@ -60,8 +60,8 @@ func.println(Error code: $LANG_ERRNO)
 #        26: TRANS_KEY_NOT_FOUND
 #        27: FUNCTION_NOT_SUPPORTED
 #        28: BRACKET_MISMATCH
-#    If statement errors:
-#        29: IF_CONDITION_MISSING
+#    Control flow statement errors:
+#        29: CONT_FLOW_ARG_MISSING
 #    Parsing errors:
 #        30: INVALID_AST_NODE
 #    Function errors:
@@ -71,7 +71,7 @@ func.println(Error code: $LANG_ERRNO)
 #        33: LANG_ARRAYS_COPY
 #    Lang errors:
 #        34: LANG_VER_ERROR
-#    Conditionals errors:
+#    Control flow statement errors:
 #        35: INVALID_CON_PART
 #    Format errors:
 #        36: INVALID_FORMAT
