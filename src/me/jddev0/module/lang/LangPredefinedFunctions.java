@@ -1550,7 +1550,8 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
 			
-			return throwErrorOnNullOrErrorTypeHelper(dataObject.convertToNumberAndCreateNewDataObject(), DATA_ID);
+			dataObject = dataObject.convertToNumberAndCreateNewDataObject();
+			return throwErrorOnNullOrErrorTypeHelper(dataObject.getType() == DataType.NULL?null:dataObject, DATA_ID);
 		});
 	}
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
