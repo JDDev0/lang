@@ -202,21 +202,6 @@ con.if(0) {
 
 func.println(-----------------)
 
-# Operators
-#     For all types:
-#         "==":  Equals
-#         "!=":  Not equals
-#         "===": Strict equals
-#         "!==": Not Strict equals
-#         "<":   Less than
-#         ">":   Greater than
-#         "<=":  Less than or equals
-#         ">=":  Greater than or equals
-#     For condition combination:
-#         "!":  Not
-#         "&&": And
-#         "||": Or
-#         "()": Execute as an unit
 func.println(a compared to a)
 func.println(parser.con(a == a))
 func.println(parser.con(a != a))
