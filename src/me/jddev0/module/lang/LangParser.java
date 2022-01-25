@@ -103,7 +103,7 @@ public final class LangParser {
 			
 			line = currentLine = prepareLine(line);
 			if(line != null) {
-				//Blocks and function bodies
+				//Blocks
 				if(line.equals("{")) {
 					blockPos++;
 					
