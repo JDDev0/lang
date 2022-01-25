@@ -44,6 +44,7 @@ public class DataObject {
 	private String variableName;
 	private DataType type;
 	private boolean finalData;
+	private boolean langVar;
 	
 	public static DataTypeConstraint getTypeConstraintFor(String variableName) {
 		if(variableName == null)
@@ -360,6 +361,16 @@ public class DataObject {
 	
 	public boolean isFinalData() {
 		return finalData;
+	}
+	
+	DataObject setLangVar() {
+		this.langVar = true;
+		
+		return this;
+	}
+	
+	public boolean isLangVar() {
+		return langVar;
 	}
 	
 	public DataType getType() {

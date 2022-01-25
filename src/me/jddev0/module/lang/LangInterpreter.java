@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -665,7 +666,7 @@ public final class LangInterpreter {
 						flag = true;
 						
 						if(var != null) {
-							if(var.isFinalData())
+							if(var.isFinalData() || var.isLangVar())
 								setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.repeat current iteration value can not be set", DATA_ID);
 							else
 								var.setInt(i);
@@ -699,7 +700,7 @@ public final class LangInterpreter {
 							flag = true;
 							
 							if(var != null) {
-								if(var.isFinalData())
+								if(var.isFinalData() || var.isLangVar())
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
 								else
 									var.setData(arr[i]);
@@ -720,7 +721,7 @@ public final class LangInterpreter {
 							flag = true;
 							
 							if(var != null) {
-								if(var.isFinalData())
+								if(var.isFinalData() || var.isLangVar())
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", DATA_ID);
 								else
 									var.setChar(text.charAt(i));
@@ -1128,7 +1129,7 @@ public final class LangInterpreter {
 								return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT, "Anonymous values can not be changed", DATA_ID);
 							}
 							
-							if((lvalue.isFinalData() || variableName.startsWith("$LANG_") || variableName.startsWith("&LANG_"))) {
+							if(lvalue.isFinalData() || lvalue.isLangVar()) {
 								if(flags[1])
 									data.get(DATA_ID).var.remove(variableName);
 								
@@ -1421,8 +1422,8 @@ public final class LangInterpreter {
 				if(valFrom != null) {
 					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
 						DataObject dataTo = data.get(DATA_ID_TO).var.get(to);
-						//$LANG and final vars can't be change
-						if(to.startsWith("$LANG_") || to.startsWith("&LANG_") || (dataTo != null && dataTo.isFinalData())) {
+						//LANG and final vars can't be change
+						if(LangPatterns.matches(to, LangPatterns.LANG_VAR) || (dataTo != null && (dataTo.isFinalData() || dataTo.isLangVar()))) {
 							setErrno(InterpretingError.FINAL_VAR_CHANGE, "during copy after FP execution", DATA_ID_TO);
 							return;
 						}
@@ -1479,7 +1480,7 @@ public final class LangInterpreter {
 				createDataMap(NEW_DATA_ID);
 				//Copies must not be final
 				data.get(DATA_ID).var.forEach((key, val) -> {
-					if(!key.startsWith("$LANG_") && !key.startsWith("&LANG_"))
+					if(!val.isLangVar())
 						data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
 				});
 				//Initialize copyAfterFP
@@ -1810,52 +1811,51 @@ public final class LangInterpreter {
 		StackElement currentStackElement = getCurrentCallStackElement();
 		
 		//Final vars
-		data.get(DATA_ID).var.put("$LANG_VERSION", new DataObject(VERSION, true).setVariableName("$LANG_VERSION"));
-		data.get(DATA_ID).var.put("$LANG_NAME", new DataObject("Standard LANG", true).setVariableName("$LANG_NAME"));
-		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setVariableName("$LANG_PATH"));
-		data.get(DATA_ID).var.put("$LANG_FILE", new DataObject(currentStackElement.getLangFile(), true).setVariableName("$LANG_FILE"));
-		data.get(DATA_ID).var.put("$LANG_CURRENT_FUNCTION", new DataObject(currentStackElement.getLangFunctionName(), true).setVariableName("$LANG_CURRENT_FUNCTION"));
-		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setVariableName("$LANG_RAND_MAX"));
-		data.get(DATA_ID).var.put("$LANG_OS_NAME", new DataObject(System.getProperty("os.name")).setFinalData(true).setVariableName("$LANG_OS_NAME"));
-		data.get(DATA_ID).var.put("$LANG_OS_VER", new DataObject(System.getProperty("os.version")).setFinalData(true).setVariableName("$LANG_OS_VER"));
-		data.get(DATA_ID).var.put("$LANG_OS_ARCH", new DataObject(System.getProperty("os.arch")).setFinalData(true).setVariableName("$LANG_OS_ARCH"));
-		data.get(DATA_ID).var.put("$LANG_OS_FILE_SEPARATOR", new DataObject(System.getProperty("file.separator")).setFinalData(true).setVariableName("$LANG_OS_FILE_SEPARATOR"));
-		data.get(DATA_ID).var.put("$LANG_OS_LINE_SEPARATOR", new DataObject(System.getProperty("line.separator")).setFinalData(true).setVariableName("$LANG_OS_LINE_SEPARATOR"));
-		data.get(DATA_ID).var.put("$LANG_FLOAT_NAN", new DataObject().setFloat(Float.NaN).setFinalData(true).setVariableName("$LANG_FLOAT_NAN"));
-		data.get(DATA_ID).var.put("$LANG_FLOAT_POS_INF", new DataObject().setFloat(Float.POSITIVE_INFINITY).setFinalData(true).setVariableName("$LANG_FLOAT_POS_INF"));
-		data.get(DATA_ID).var.put("$LANG_FLOAT_NEG_INF", new DataObject().setFloat(Float.NEGATIVE_INFINITY).setFinalData(true).setVariableName("$LANG_FLOAT_NEG_INF"));
-		data.get(DATA_ID).var.put("$LANG_DOUBLE_NAN", new DataObject().setDouble(Double.NaN).setFinalData(true).setVariableName("$LANG_DOUBLE_NAN"));
-		data.get(DATA_ID).var.put("$LANG_DOUBLE_POS_INF", new DataObject().setDouble(Double.POSITIVE_INFINITY).setFinalData(true).setVariableName("$LANG_DOUBLE_POS_INF"));
-		data.get(DATA_ID).var.put("$LANG_DOUBLE_NEG_INF", new DataObject().setDouble(Double.NEGATIVE_INFINITY).setFinalData(true).setVariableName("$LANG_DOUBLE_NEG_INF"));
-		data.get(DATA_ID).var.put("$LANG_MATH_PI", new DataObject().setDouble(Math.PI).setFinalData(true).setVariableName("$LANG_MATH_PI"));
-		data.get(DATA_ID).var.put("$LANG_MATH_E", new DataObject().setDouble(Math.E).setFinalData(true).setVariableName("$LANG_MATH_E"));
-		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setVariableName("&LANG_ARGS"):langArgs);
+		data.get(DATA_ID).var.put("$LANG_VERSION", new DataObject(VERSION, true).setLangVar().setVariableName("$LANG_VERSION"));
+		data.get(DATA_ID).var.put("$LANG_NAME", new DataObject("Standard LANG", true).setLangVar().setVariableName("$LANG_NAME"));
+		data.get(DATA_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setLangVar().setVariableName("$LANG_PATH"));
+		data.get(DATA_ID).var.put("$LANG_FILE", new DataObject(currentStackElement.getLangFile(), true).setLangVar().setVariableName("$LANG_FILE"));
+		data.get(DATA_ID).var.put("$LANG_CURRENT_FUNCTION", new DataObject(currentStackElement.getLangFunctionName(), true).setLangVar().setVariableName("$LANG_CURRENT_FUNCTION"));
+		data.get(DATA_ID).var.put("$LANG_RAND_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setLangVar().setVariableName("$LANG_RAND_MAX"));
+		data.get(DATA_ID).var.put("$LANG_OS_NAME", new DataObject(System.getProperty("os.name")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_NAME"));
+		data.get(DATA_ID).var.put("$LANG_OS_VER", new DataObject(System.getProperty("os.version")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_VER"));
+		data.get(DATA_ID).var.put("$LANG_OS_ARCH", new DataObject(System.getProperty("os.arch")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_ARCH"));
+		data.get(DATA_ID).var.put("$LANG_OS_FILE_SEPARATOR", new DataObject(System.getProperty("file.separator")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_FILE_SEPARATOR"));
+		data.get(DATA_ID).var.put("$LANG_OS_LINE_SEPARATOR", new DataObject(System.getProperty("line.separator")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_LINE_SEPARATOR"));
+		data.get(DATA_ID).var.put("$LANG_FLOAT_NAN", new DataObject().setFloat(Float.NaN).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_NAN"));
+		data.get(DATA_ID).var.put("$LANG_FLOAT_POS_INF", new DataObject().setFloat(Float.POSITIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_POS_INF"));
+		data.get(DATA_ID).var.put("$LANG_FLOAT_NEG_INF", new DataObject().setFloat(Float.NEGATIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_NEG_INF"));
+		data.get(DATA_ID).var.put("$LANG_DOUBLE_NAN", new DataObject().setDouble(Double.NaN).setFinalData(true).setLangVar().setVariableName("$LANG_DOUBLE_NAN"));
+		data.get(DATA_ID).var.put("$LANG_DOUBLE_POS_INF", new DataObject().setDouble(Double.POSITIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_DOUBLE_POS_INF"));
+		data.get(DATA_ID).var.put("$LANG_DOUBLE_NEG_INF", new DataObject().setDouble(Double.NEGATIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_DOUBLE_NEG_INF"));
+		data.get(DATA_ID).var.put("$LANG_MATH_PI", new DataObject().setDouble(Math.PI).setFinalData(true).setLangVar().setVariableName("$LANG_MATH_PI"));
+		data.get(DATA_ID).var.put("$LANG_MATH_E", new DataObject().setDouble(Math.E).setFinalData(true).setLangVar().setVariableName("$LANG_MATH_E"));
+		data.get(DATA_ID).var.put("&LANG_ARGS", langArgs == null?new DataObject().setArray(new DataObject[0]).setFinalData(true).setLangVar().setVariableName("&LANG_ARGS"):langArgs);
 		
 		for(InterpretingError error:InterpretingError.values()) {
 			String upperCaseErrorName = error.name().toUpperCase();
 			String variableName = "$LANG_ERROR_" + upperCaseErrorName;
-			data.get(DATA_ID).var.put(variableName, new DataObject().setError(new ErrorObject(error)).setFinalData(true).setVariableName(variableName));
+			data.get(DATA_ID).var.put(variableName, new DataObject().setError(new ErrorObject(error)).setFinalData(true).setLangVar().setVariableName(variableName));
 			variableName = "$LANG_ERRNO_" + upperCaseErrorName;
-			data.get(DATA_ID).var.put(variableName, new DataObject().setInt(error.getErrorCode()).setFinalData(true).setVariableName(variableName));
+			data.get(DATA_ID).var.put(variableName, new DataObject().setInt(error.getErrorCode()).setFinalData(true).setLangVar().setVariableName(variableName));
 		}
 		
 		for(DataType type:DataType.values()) {
 			String upperCaseTypeName = type.name().toUpperCase();
 			String variableName = "$LANG_TYPE_" + upperCaseTypeName;
-			data.get(DATA_ID).var.put(variableName, new DataObject().setTypeValue(type).setFinalData(true).setVariableName(variableName));
+			data.get(DATA_ID).var.put(variableName, new DataObject().setTypeValue(type).setFinalData(true).setLangVar().setVariableName(variableName));
 		}
 		
 		//Not final vars
 		setErrno(InterpretingError.NO_ERROR, DATA_ID); //Set $LANG_ERRNO
 	}
 	void resetVars(final int DATA_ID) {
-		String[] keys = data.get(DATA_ID).var.keySet().toArray(new String[0]);
-		for(int i = data.get(DATA_ID).var.size() - 1;i > -1;i--) {
-			if((keys[i].startsWith("$") && !keys[i].startsWith("$LANG_")) ||
-			(keys[i].startsWith("&") && !keys[i].startsWith("&LANG_"))) {
-				data.get(DATA_ID).var.remove(keys[i]);
-			}
-		}
+		Set<Map.Entry<String, DataObject>> entrySet = new HashSet<>(data.get(DATA_ID).var.entrySet());
+		entrySet.forEach(entry -> {
+			String key = entry.getKey();
+			if(!entry.getValue().isLangVar() && key.startsWith("$") && key.startsWith("&"))
+				data.get(DATA_ID).var.remove(key);
+		});
 		
 		//Not final vars
 		setErrno(InterpretingError.NO_ERROR, DATA_ID); //Set $LANG_ERRNO
@@ -1868,7 +1868,7 @@ public final class LangInterpreter {
 		setErrno(error, message, false, DATA_ID);
 	}
 	private void setErrno(InterpretingError error, String message, boolean forceNoErrorOutput, final int DATA_ID) {
-		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setVariableName("$LANG_ERRNO"));
+		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setLangVar().setVariableName("$LANG_ERRNO"));
 		
 		int currentErrno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();
 		int newErrno = error.getErrorCode();

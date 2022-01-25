@@ -418,7 +418,7 @@ final class LangPredefinedFunctions {
 			if(variableName == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
-			if(dereferencedVarPointer.isFinalData() || variableName.startsWith("$LANG_") || variableName.startsWith("&LANG_"))
+			if(dereferencedVarPointer.isFinalData() || dereferencedVarPointer.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			interpreter.data.get(DATA_ID).var.remove(variableName);
@@ -645,7 +645,7 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			}
 			
-			if(dataObject.getVariableName() != null && LangPatterns.matches(dataObject.getVariableName(), LangPatterns.LANG_VAR))
+			if(dataObject.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			dataObject.setFinalData(true);
@@ -703,7 +703,7 @@ final class LangPredefinedFunctions {
 				interpreter.createDataMap(NEW_DATA_ID);
 				//Copies must not be final
 				interpreter.data.get(DATA_ID).var.forEach((key, val) -> {
-					if(!key.startsWith("$LANG_") && !key.startsWith("&LANG_"))
+					if(!val.isLangVar())
 						interpreter.data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
 				});
 				//Initialize copyAfterFP
@@ -3075,7 +3075,7 @@ final class LangPredefinedFunctions {
 					//Copy all vars, arrPtrs and funcPtrs
 					interpreter.data.get(NEW_DATA_ID).var.forEach((name, val) -> {
 						DataObject oldData = interpreter.data.get(DATA_ID).var.get(name);
-						if(!name.startsWith("$LANG_") && !name.startsWith("&LANG_") && (oldData == null || !oldData.isFinalData())) { //No LANG data vars and no final data
+						if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars and no final data
 							interpreter.data.get(DATA_ID).var.put(name, val);
 						}
 					});
@@ -3119,7 +3119,7 @@ final class LangPredefinedFunctions {
 					//Copy all vars, arrPtrs and funcPtrs
 					interpreter.data.get(NEW_DATA_ID).var.forEach((name, val) -> {
 						DataObject oldData = interpreter.data.get(DATA_ID).var.get(name);
-						if(!name.startsWith("$LANG_") && !name.startsWith("&LANG_") && (oldData == null || !oldData.isFinalData())) { //No LANG data vars and no final data
+						if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars and no final data
 							interpreter.data.get(DATA_ID).var.put(name, val);
 						}
 					});
