@@ -1142,7 +1142,7 @@ final class LangPredefinedFunctions {
 			
 			dataObject = dataObject.convertToNumberAndCreateNewDataObject();
 			if(dataObject.getType() == DataType.NULL)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);;
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
 			
 			return dataObject;
 		});
