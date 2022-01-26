@@ -932,6 +932,13 @@ public final class LangInterpreter {
 					
 					TryStatementPartCatchNode catchNode = (TryStatementPartCatchNode)node;
 					if(catchNode.getExpections() != null) {
+						if(catchNode.getExpections().size() == 0) {
+							setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty catch part \"catch()\" is not allowed!\n"
+									+ "For checking all warnings \"catch\" without \"()\" should be used", DATA_ID);
+							
+							return false;
+						}
+						
 						List<DataObject> catchErrors = new LinkedList<>();
 						List<DataObject> interpretedNodes = new LinkedList<>();
 						int foundErrorIndex = -1;
