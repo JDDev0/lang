@@ -1429,6 +1429,318 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	//Is only super class for other nodes
+	public static class TryStatementPartNode extends ChildlessNode {
+		private final AbstractSyntaxTree tryBody;
+		
+		public TryStatementPartNode(AbstractSyntaxTree tryBody) {
+			this.tryBody = tryBody;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.GENERAL;
+		}
+		
+		public AbstractSyntaxTree getTryBody() {
+			return tryBody;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementPartNode))
+				return false;
+			
+			TryStatementPartNode that = (TryStatementPartNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.tryBody.equals(that.tryBody);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.tryBody);
+		}
+	}
+	
+	public static final class TryStatementPartTryNode extends TryStatementPartNode {
+		public TryStatementPartTryNode(AbstractSyntaxTree loopBody) {
+			super(loopBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_TRY;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartTryNode: TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartLoopNode))
+				return false;
+			
+			TryStatementPartTryNode that = (TryStatementPartTryNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getTryBody());
+		}
+	}
+	
+	public static final class TryStatementPartCatchNode extends TryStatementPartNode {
+		private final List<Node> errors;
+		
+		/**
+		 * Every error will be accepted
+		 */
+		public TryStatementPartCatchNode(AbstractSyntaxTree tryBody) {
+			this(tryBody, null);
+		}
+		
+		/**
+		 * @param errors Every error will be accepted if errors is null
+		 */
+		public TryStatementPartCatchNode(AbstractSyntaxTree tryBody, List<Node> errors) {
+			super(tryBody);
+			
+			this.errors = errors == null?null:new ArrayList<>(errors);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_CATCH;
+		}
+		
+		public List<Node> getExpections() {
+			return errors == null?null:new ArrayList<>(errors);
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartCatchNode: Errors: {\n");
+			if(errors == null)
+				builder.append("\tnull\n");
+			else
+				errors.forEach(node -> {
+					String[] tokens = node.toString().split("\\n");
+					for(String token:tokens) {
+						builder.append("\t");
+						builder.append(token);
+						builder.append("\n");
+					}
+				});
+			builder.append("}, TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementPartCatchNode))
+				return false;
+			
+			TryStatementPartCatchNode that = (TryStatementPartCatchNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.errors.equals(that.errors) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.errors, this.getTryBody());
+		}
+	}
+	
+	public static final class TryStatementPartElseNode extends TryStatementPartNode {
+		public TryStatementPartElseNode(AbstractSyntaxTree tryBody) {
+			super(tryBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_ELSE;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartElseNode: TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementPartElseNode))
+				return false;
+			
+			TryStatementPartElseNode that = (TryStatementPartElseNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getTryBody());
+		}
+	}
+	
+	public static final class TryStatementPartFinallyNode extends TryStatementPartNode {
+		public TryStatementPartFinallyNode(AbstractSyntaxTree loopBody) {
+			super(loopBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_FINALLY;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartFinallyNode: TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof LoopStatementPartLoopNode))
+				return false;
+			
+			TryStatementPartTryNode that = (TryStatementPartTryNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getTryBody());
+		}
+	}
+	
+	public static final class TryStatementNode implements Node {
+		private final List<TryStatementPartNode> nodes;
+		
+		public  TryStatementNode(List<TryStatementPartNode> nodes) {
+			this.nodes = nodes;
+		}
+		
+		@Override
+		public List<Node> getChildren() {
+			return new ArrayList<>(nodes);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT;
+		}
+		
+		public List<TryStatementPartNode> getTryStatementPartNodes() {
+			return nodes;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementNode: Children: {\n");
+			nodes.forEach(node -> {
+				String[] tokens = node.toString().split("\\n");
+				for(String token:tokens) {
+					builder.append("\t");
+					builder.append(token);
+					builder.append("\n");
+				}
+			});
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementNode))
+				return false;
+			
+			TryStatementNode that = (TryStatementNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.nodes.equals(that.nodes);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.nodes);
+		}
+	}
+	
+	
 	public static final class OperationNode implements Node {
 		private final List<Node> nodes;
 		private final Operator operator;
@@ -2261,7 +2573,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
 		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
-		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
+		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, TRY_STATEMENT_PART_TRY, TRY_STATEMENT_PART_CATCH, TRY_STATEMENT_PART_ELSE,
+		TRY_STATEMENT_PART_FINALLY, TRY_STATEMENT, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
 		TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY;
 	}
 }

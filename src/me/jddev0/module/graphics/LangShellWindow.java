@@ -92,7 +92,8 @@ public class LangShellWindow extends JDialog {
 	
 	//Lists for auto complete
 	private final List<String> langDataAndExecutionFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "langTest = ", "name = ", "version = ");
-	private final List<String> controlFlowStatements = Arrays.asList("break", "continue", "elif(", "else", "endif", "endloop", "if(", "foreach(", "loop", "repeat(", "until(", "while(");
+	private final List<String> controlFlowStatements = Arrays.asList("break", "catch", "continue", "elif(", "else", "endif", "endloop", "endtry", "finally", "foreach(", "if(", "loop", "repeat(",
+			"try", "until(", "while(");
 	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "op(");
 	
 	public LangShellWindow(Frame owner, TerminalIO term) {
@@ -904,8 +905,8 @@ public class LangShellWindow extends JDialog {
 			flagMultilineText = containsMultilineText(line);
 			if(!flagMultilineText)
 				flagLineContinuation = line.endsWith("\\");
-			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop") &&
-					!line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")) ||
+			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.end") && !line.trim().startsWith("con.break") &&
+					!line.trim().startsWith("con.continue")) ||
 			flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
@@ -934,7 +935,7 @@ public class LangShellWindow extends JDialog {
 			}
 			
 			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.loop") || line.trim().startsWith("con.while") ||
-					line.trim().startsWith("con.until") || line.trim().startsWith("con.repeat") || line.trim().startsWith("con.foreach")))
+					line.trim().startsWith("con.until") || line.trim().startsWith("con.repeat") || line.trim().startsWith("con.foreach") || line.trim().startsWith("con.try")))
 				indent++;
 			
 			multiLineTmp.append(line);
@@ -942,10 +943,10 @@ public class LangShellWindow extends JDialog {
 			
 			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.loop") && !line.trim().startsWith("con.while") &&
 					!line.trim().startsWith("con.until") && !line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.foreach") && !line.trim().startsWith("con.if") &&
-					!line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")))) {
+					!line.trim().startsWith("con.try") && !line.trim().startsWith("con.break") && !line.trim().startsWith("con.continue")))) {
 				indent--;
 				
-				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.endif") && !line.trim().startsWith("con.endloop"))
+				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.end"))
 					indent++;
 				
 				//Remove the first indent from actual line

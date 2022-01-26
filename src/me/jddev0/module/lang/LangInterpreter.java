@@ -243,6 +243,15 @@ public final class LangInterpreter {
 					interpretLoopStatementContinueBreak((LoopStatementContinueBreakStatement)node, DATA_ID);
 					return null;
 				
+				case TRY_STATEMENT:
+					return new DataObject().setBoolean(interpretTryStatementNode((TryStatementNode)node, DATA_ID));
+				
+				case TRY_STATEMENT_PART_TRY:
+				case TRY_STATEMENT_PART_CATCH:
+				case TRY_STATEMENT_PART_ELSE:
+				case TRY_STATEMENT_PART_FINALLY:
+					return new DataObject().setBoolean(interpretTryStatementPartNode((TryStatementPartNode)node, DATA_ID));
+				
 				case OPERATION:
 				case MATH:
 				case CONDITION:
@@ -779,6 +788,224 @@ public final class LangInterpreter {
 		executionState.stopParsingFlag = true;
 	}
 	
+	/**
+	 * @return Returns true if a catch or an else block was executed
+	 */
+	private boolean interpretTryStatementNode(TryStatementNode node, final int DATA_ID) {
+		List<TryStatementPartNode> tryPartNodes = node.getTryStatementPartNodes();
+		if(tryPartNodes.isEmpty()) {
+			setErrno(InterpretingError.INVALID_AST_NODE, "Empty try statement", DATA_ID);
+			
+			return false;
+		}
+		
+		ExecutionState savedExecutionState = new ExecutionState();
+		
+		TryStatementPartNode tryPart = tryPartNodes.get(0);
+		if(tryPart.getNodeType() != NodeType.TRY_STATEMENT_PART_TRY) {
+			setErrno(InterpretingError.INVALID_AST_NODE, "First part of try statement was no try part", DATA_ID);
+			
+			return false;
+		}
+		interpretTryStatementPartNode(tryPart, DATA_ID);
+		
+		if(executionState.stopParsingFlag) {
+			//Save execution state to stop execution but reset for further execution
+			savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
+			savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
+			savedExecutionState.isThrownValue = executionState.isThrownValue;
+			savedExecutionState.breakContinueCount = executionState.breakContinueCount;
+			savedExecutionState.isContinueStatement = executionState.isContinueStatement;
+			executionState.stopParsingFlag = false;
+			executionState.returnedOrThrownValue = null;
+			executionState.isThrownValue = false;
+			executionState.breakContinueCount = 0;
+			executionState.isContinueStatement = false;
+		}
+		
+		boolean flag = false;
+		if(savedExecutionState.stopParsingFlag && executionState.tryThrownError != null) {
+			List<TryStatementPartNode> catchParts = new LinkedList<>();
+			for(int i = 1;i < tryPartNodes.size();i++) {
+				TryStatementPartNode tryPartNode = tryPartNodes.get(i);
+				if(tryPartNode.getNodeType() != NodeType.TRY_STATEMENT_PART_CATCH)
+					break;
+				
+				catchParts.add(tryPartNode);
+			}
+			
+			for(TryStatementPartNode catchPart:catchParts) {
+				if(flag = interpretTryStatementPartNode(catchPart, DATA_ID)) {
+					if(executionState.stopParsingFlag) {
+						//Save execution state to stop execution but reset for further execution
+						savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
+						savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
+						savedExecutionState.isThrownValue = executionState.isThrownValue;
+						savedExecutionState.breakContinueCount = executionState.breakContinueCount;
+						savedExecutionState.isContinueStatement = executionState.isContinueStatement;
+						executionState.stopParsingFlag = false;
+						executionState.returnedOrThrownValue = null;
+						executionState.isThrownValue = false;
+						executionState.breakContinueCount = 0;
+						executionState.isContinueStatement = false;
+					}else {
+						//Reset saved execution state because the reason of the execution stop was handled by the catch block
+						savedExecutionState = new ExecutionState();
+						executionState.tryThrownError = null;
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		if(!flag && !savedExecutionState.stopParsingFlag) {
+			TryStatementPartNode elsePart = null;
+			if(!flag && tryPartNodes.size() > 1) {
+				if(tryPartNodes.get(tryPartNodes.size() - 2).getNodeType() == NodeType.TRY_STATEMENT_PART_ELSE)
+					elsePart = tryPartNodes.get(tryPartNodes.size() - 2);
+				if(tryPartNodes.get(tryPartNodes.size() - 1).getNodeType() == NodeType.TRY_STATEMENT_PART_ELSE)
+					elsePart = tryPartNodes.get(tryPartNodes.size() - 1);
+			}
+			if(elsePart != null) {
+				flag = interpretTryStatementPartNode(elsePart, DATA_ID);
+				
+				if(executionState.stopParsingFlag) {
+					//Save execution state to stop execution but reset for further execution
+					savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
+					savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
+					savedExecutionState.isThrownValue = executionState.isThrownValue;
+					savedExecutionState.breakContinueCount = executionState.breakContinueCount;
+					savedExecutionState.isContinueStatement = executionState.isContinueStatement;
+					executionState.stopParsingFlag = false;
+					executionState.returnedOrThrownValue = null;
+					executionState.isThrownValue = false;
+					executionState.breakContinueCount = 0;
+					executionState.isContinueStatement = false;
+				}
+			}
+		}
+		
+		TryStatementPartNode finallyPart = null;
+		if(tryPartNodes.size() > 1 && tryPartNodes.get(tryPartNodes.size() - 1).getNodeType() == NodeType.TRY_STATEMENT_PART_FINALLY)
+			finallyPart = tryPartNodes.get(tryPartNodes.size() - 1);
+		
+		if(finallyPart != null)
+			interpretTryStatementPartNode(finallyPart, DATA_ID);
+		
+		//Reset saved execution flag to stop execution if finally has not set the stop execution flag
+		if(!executionState.stopParsingFlag) {
+			executionState.stopParsingFlag = savedExecutionState.stopParsingFlag;
+			executionState.returnedOrThrownValue = savedExecutionState.returnedOrThrownValue;
+			executionState.isThrownValue = savedExecutionState.isThrownValue;
+			executionState.breakContinueCount = savedExecutionState.breakContinueCount;
+			executionState.isContinueStatement = savedExecutionState.isContinueStatement;
+		}
+		
+		return flag;
+	}
+	
+	/**
+	 * @return Returns true if a catch or an else block was executed
+	 */
+	private boolean interpretTryStatementPartNode(TryStatementPartNode node, final int DATA_ID) {
+		boolean flag = false;
+		
+		try {
+			switch(node.getNodeType()) {
+				case TRY_STATEMENT_PART_TRY:
+					executionState.tryThrownError = null;
+					executionState.tryBlockLevel++;
+					
+					try {
+						interpretAST(node.getTryBody(), DATA_ID);
+					}finally {
+						executionState.tryBlockLevel--;
+					}
+					break;
+				case TRY_STATEMENT_PART_CATCH:
+					if(executionState.tryThrownError == null)
+						return false;
+					
+					TryStatementPartCatchNode catchNode = (TryStatementPartCatchNode)node;
+					if(catchNode.getExpections() != null) {
+						List<DataObject> catchErrors = new LinkedList<>();
+						List<DataObject> interpretedNodes = new LinkedList<>();
+						int foundErrorIndex = -1;
+						DataObject previousDataObject = null;
+						for(Node argument:catchNode.getExpections()) {
+							if(argument.getNodeType() == NodeType.FUNCTION_CALL_PREVIOUS_NODE_VALUE && previousDataObject != null) {
+								try {
+									Node ret = processFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)argument, previousDataObject, DATA_ID);
+									if(ret.getNodeType() == NodeType.FUNCTION_CALL_PREVIOUS_NODE_VALUE) {
+										interpretedNodes.remove(interpretedNodes.size() - 1); //Remove last data Object, because it is used as function pointer for a function call
+										interpretedNodes.add(interpretFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)ret, previousDataObject, DATA_ID));
+									}else {
+										interpretedNodes.add(interpretNode(ret, DATA_ID));
+									}
+								}catch(ClassCastException e) {
+									interpretedNodes.add(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, DATA_ID));
+								}
+								
+								previousDataObject = interpretedNodes.get(interpretedNodes.size() - 1);
+								
+								continue;
+							}
+							
+							DataObject argumentValue = interpretNode(argument, DATA_ID);
+							if(argumentValue == null) {
+								previousDataObject = null;
+								
+								continue;
+							}
+							
+							interpretedNodes.add(argumentValue);
+							previousDataObject = argumentValue;
+						}
+						while(!interpretedNodes.isEmpty()) {
+							DataObject dataObject = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(interpretedNodes, true));
+							if(dataObject.getType() != DataType.ERROR) {
+								setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Variable with type other than ERROR in catch statement", DATA_ID);
+								
+								continue;
+							}
+							
+							if(dataObject.getError().getInterprettingError() == executionState.tryThrownError)
+								foundErrorIndex = catchErrors.size();
+							
+							catchErrors.add(dataObject);
+						}
+						
+						if(foundErrorIndex == -1)
+							return false;
+					}
+					
+					flag = true;
+					
+					interpretAST(node.getTryBody(), DATA_ID);
+					break;
+				case TRY_STATEMENT_PART_ELSE:
+					if(executionState.tryThrownError != null)
+						return false;
+					
+					flag = true;
+					
+					interpretAST(node.getTryBody(), DATA_ID);
+					break;
+				case TRY_STATEMENT_PART_FINALLY:
+					interpretAST(node.getTryBody(), DATA_ID);
+					break;
+				
+				default:
+					break;
+			}
+		}catch(ClassCastException e) {
+			setErrno(InterpretingError.INVALID_AST_NODE, DATA_ID);
+		}
+		
+		return flag;
+	}
+	
 	private DataObject interpretOperationNode(OperationNode node, final int DATA_ID) {
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), DATA_ID);
 		DataObject middleOperand = (!node.getOperator().isTernary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getMiddleOperand(), DATA_ID);
@@ -1038,6 +1265,11 @@ public final class LangInterpreter {
 			executionState.returnedOrThrownValue = errorObject;
 		executionState.isThrownValue = true;
 		executionState.stopParsingFlag = true;
+		
+		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0) {
+			executionState.tryThrownError = executionState.returnedOrThrownValue.getError().getInterprettingError();
+			executionState.stopParsingFlag = true;
+		}
 	}
 	
 	private void interpretLangDataAndExecutionFlags(String langDataExecutionFlag, DataObject value, final int DATA_ID) {
@@ -1180,6 +1412,11 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_PART_LOOP:
 				case LOOP_STATEMENT_PART_ELSE:
 				case LOOP_STATEMENT_CONTINUE_BREAK:
+				case TRY_STATEMENT:
+				case TRY_STATEMENT_PART_TRY:
+				case TRY_STATEMENT_PART_CATCH:
+				case TRY_STATEMENT_PART_ELSE:
+				case TRY_STATEMENT_PART_FINALLY:
 				case MATH:
 				case OPERATION:
 				case INT_VALUE:
@@ -1383,6 +1620,7 @@ public final class LangInterpreter {
 	DataObject getAndResetReturnValue(final int DATA_ID) {
 		DataObject retTmp = executionState.returnedOrThrownValue;
 		executionState.returnedOrThrownValue = null;
+		
 		if(executionState.isThrownValue && DATA_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(), DATA_ID);
 		
@@ -1411,7 +1649,10 @@ public final class LangInterpreter {
 		}
 		
 		executionState.isThrownValue = false;
-		executionState.stopParsingFlag = false;
+		
+		if(executionState.tryThrownError == null || executionState.tryBlockLevel == 0)
+			executionState.stopParsingFlag = false;
+		
 		return retTmp;
 	}
 	void executeAndClearCopyAfterFP(final int DATA_ID_TO, final int DATA_ID_FROM) {
@@ -1893,6 +2134,11 @@ public final class LangInterpreter {
 			else
 				term.logln(newErrno < 0?Level.WARNING:Level.ERROR, output, LangInterpreter.class);
 		}
+		
+		if(newErrno > 0 && executionState.tryBlockLevel > 0) {
+			executionState.tryThrownError = error;
+			executionState.stopParsingFlag = true;
+		}
 	}
 	
 	DataObject setErrnoErrorObject(InterpretingError error, final int DATA_ID) {
@@ -1999,6 +2245,13 @@ public final class LangInterpreter {
 		 */
 		private int breakContinueCount;
 		private boolean isContinueStatement;
+		
+		//Fields for try statements
+		/**
+		 * Current try block level
+		 */
+		private int tryBlockLevel;
+		private InterpretingError tryThrownError;
 	}
 	
 	public static enum InterpretingError {

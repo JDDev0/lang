@@ -1034,6 +1034,88 @@ public final class LangParser {
 				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
 				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
 				return ast;
+			}else if(token.startsWith("con.try")) {
+				List<AbstractSyntaxTree.TryStatementPartNode> tryStatmentParts = new ArrayList<>();
+				
+				boolean blockBracketFlag = token.endsWith("{");
+				boolean firstStatement = true;
+				
+				String tryStatement = token;
+				do {
+					if(blockBracketFlag) {
+						//Remove "{" and "}" for the curly brackets if statement syntax
+						if(firstStatement) {
+							if(!tryStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							tryStatement = tryStatement.substring(0, tryStatement.length() - 1).trim();
+						}else if(!tryStatement.equals("}")) {
+							if(!tryStatement.startsWith("}") || !tryStatement.endsWith("{"))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							
+							tryStatement = tryStatement.substring(1, tryStatement.length() - 1).trim();
+							
+							if(!tryStatement.startsWith("con.")) //"con." is optional if "{" syntax is used
+								tryStatement = "con." + tryStatement;
+						}
+					}
+					
+					String tryArguments;
+					if(tryStatement.startsWith("con.try") || tryStatement.startsWith("con.else") || tryStatement.startsWith("con.finally")) {
+						if(!tryStatement.equals("con.try") && !tryStatement.equals("con.else") && !tryStatement.equals("con.finally")) {
+							if(tryStatement.startsWith("con.try(") || tryStatement.startsWith("con.else(") || tryStatement.startsWith("con.finally("))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try/Finally/Else part with arguments"));
+							else
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+							return ast;
+						}
+						
+						tryArguments = null;
+					}else if(tryStatement.startsWith("con.catch")) {
+						if(tryStatement.equals("con.catch")) {
+							tryArguments = null;
+						}else {
+							int argumentsStartIndex = tryStatement.indexOf('(');
+							int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(tryStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
+							if(argumentsEndIndex == -1) {
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Missing catch statement arguments"));
+								return ast;
+							}
+							if(argumentsEndIndex != tryStatement.length() - 1) {
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind arguments"));
+								return ast;
+							}
+							tryArguments = tryStatement.substring(argumentsStartIndex + 1, argumentsEndIndex);
+						}
+					}else {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try statement part is invalid"));
+						return ast;
+					}
+					
+					AbstractSyntaxTree tryBody = parseLines(lines);
+					if(tryBody == null) {
+						nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In try body"));
+						
+						return ast;
+					}
+					
+					if(tryStatement.startsWith("con.try")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody));
+					}else if(tryStatement.startsWith("con.catch")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, tryArguments == null?null:parseFunctionParameterList(tryArguments, false).getChildren()));
+					}else if(tryStatement.startsWith("con.else")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartElseNode(tryBody));
+					}else if(tryStatement.startsWith("con.finally")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartFinallyNode(tryBody));
+					}
+					
+					firstStatement = false;
+					tryStatement = currentLine;
+				}while(tryStatement != null && !(blockBracketFlag?tryStatement.equals("}"):tryStatement.equals("con.endtry")));
+				
+				nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts));
+				return ast;
 			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
