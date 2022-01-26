@@ -854,6 +854,9 @@ public final class LangInterpreter {
 						executionState.tryThrownError = null;
 					}
 					
+					//Error was handled: reset $LANG_ERRNO
+					getAndClearErrnoErrorObject(DATA_ID);
+					
 					break;
 				}
 			}
