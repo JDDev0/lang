@@ -659,6 +659,32 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(dataObject.isFinalData());
 		});
+		funcs.put("makeStatic", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			if(dataObject.getVariableName() == null && dataObject.getType() == DataType.VAR_POINTER) {
+				dataObject = dataObject.getVarPointer().getVar();
+				
+				if(dataObject == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, DATA_ID);
+			}
+			
+			if(dataObject.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
+			
+			dataObject.setStaticData(true);
+			
+			return null;
+		});
+		funcs.put("isStatic", (argumentList, DATA_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), DATA_ID);
+			
+			return new DataObject().setBoolean(dataObject.isStaticData());
+		});
 		funcs.put("condition", new LangPredefinedFunctionObject() {
 			public DataObject callFunc(List<DataObject> argumentList, int DATA_ID) {
 				DataObject condition = LangUtils.combineDataObjects(argumentList);
@@ -705,6 +731,9 @@ final class LangPredefinedFunctions {
 				interpreter.data.get(DATA_ID).var.forEach((key, val) -> {
 					if(!val.isLangVar())
 						interpreter.data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
+					
+					if(val.isStaticData())
+						interpreter.data.get(NEW_DATA_ID).var.put(key, val);
 				});
 				//Initialize copyAfterFP
 				interpreter.copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
@@ -3046,6 +3075,7 @@ final class LangPredefinedFunctions {
 		//Update call stack
 		interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null));
 		
+		//Create an empty data map
 		interpreter.createDataMap(NEW_DATA_ID, langArgs);
 		
 		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {

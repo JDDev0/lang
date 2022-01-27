@@ -1713,6 +1713,9 @@ public final class LangInterpreter {
 				data.get(DATA_ID).var.forEach((key, val) -> {
 					if(!val.isLangVar())
 						data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
+					
+					if(val.isStaticData())
+						data.get(NEW_DATA_ID).var.put(key, val);
 				});
 				//Initialize copyAfterFP
 				copyAfterFP.put(NEW_DATA_ID, new HashMap<String, String>());
@@ -2099,7 +2102,7 @@ public final class LangInterpreter {
 		setErrno(error, message, false, DATA_ID);
 	}
 	private void setErrno(InterpretingError error, String message, boolean forceNoErrorOutput, final int DATA_ID) {
-		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setLangVar().setVariableName("$LANG_ERRNO"));
+		data.get(DATA_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setStaticData(true).setLangVar().setVariableName("$LANG_ERRNO"));
 		
 		int currentErrno = data.get(DATA_ID).var.get("$LANG_ERRNO").getInt();
 		int newErrno = error.getErrorCode();

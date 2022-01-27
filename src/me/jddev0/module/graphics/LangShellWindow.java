@@ -520,6 +520,8 @@ public class LangShellWindow extends JDialog {
 		builder.append(dataObject.getType());
 		builder.append("\nFinal: ");
 		builder.append(dataObject.isFinalData());
+		builder.append("\nStatic: ");
+		builder.append(dataObject.isStaticData());
 		builder.append("\nLang var: ");
 		builder.append(dataObject.isLangVar());
 		builder.append("\nVariable Name: ");
