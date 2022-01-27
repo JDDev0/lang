@@ -964,6 +964,12 @@ public final class LangParser {
 					case "|":
 						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
 						break;
+					case "?:":
+						operator = AbstractSyntaxTree.OperationNode.Operator.ELVIS;
+						break;
+					case "??":
+						operator = AbstractSyntaxTree.OperationNode.Operator.NULL_COALESCING;
+						break;
 					case "?":
 						operator = AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON;
 						break;
