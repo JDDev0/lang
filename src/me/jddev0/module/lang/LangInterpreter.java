@@ -126,11 +126,11 @@ public final class LangInterpreter {
 	}
 	
 	public void forceStop() {
-		executionState.forceStopParsingFlag = true;
+		executionState.forceStopExecutionFlag = true;
 	}
 	
-	public boolean isForceStopParsingFlag() {
-		return executionState.forceStopParsingFlag;
+	public boolean isForceStopExecutionFlag() {
+		return executionState.forceStopExecutionFlag;
 	}
 	
 	public StackElement getCurrentCallStackElement() {
@@ -172,11 +172,11 @@ public final class LangInterpreter {
 		if(ast == null)
 			return;
 		
-		if(executionState.forceStopParsingFlag)
+		if(executionState.forceStopExecutionFlag)
 			throw new StoppedException();
 		
 		for(Node node:ast) {
-			if(executionState.stopParsingFlag)
+			if(executionState.stopExecutionFlag)
 				return;
 			
 			interpretNode(node, DATA_ID);
@@ -187,7 +187,7 @@ public final class LangInterpreter {
 	 * @return Might return null
 	 */
 	private DataObject interpretNode(Node node, final int DATA_ID) {
-		if(executionState.forceStopParsingFlag)
+		if(executionState.forceStopExecutionFlag)
 			throw new StoppedException();
 		
 		if(node == null) {
@@ -580,7 +580,7 @@ public final class LangInterpreter {
 	 * false if continue for the current level
 	 */
 	private Boolean interpretLoopContinueAndBreak() {
-		if(executionState.stopParsingFlag) {
+		if(executionState.stopExecutionFlag) {
 			if(executionState.breakContinueCount == 0)
 				return true;
 			
@@ -589,7 +589,7 @@ public final class LangInterpreter {
 			if(executionState.breakContinueCount > 0)
 				return true;
 			
-			executionState.stopParsingFlag = false;
+			executionState.stopExecutionFlag = false;
 			
 			if(executionState.isContinueStatement)
 				return false;
@@ -785,16 +785,16 @@ public final class LangInterpreter {
 		}
 		
 		executionState.isContinueStatement = node.isContinueNode();
-		executionState.stopParsingFlag = true;
+		executionState.stopExecutionFlag = true;
 	}
 	
 	private void saveExecutionStopStateToVarAndReset(ExecutionState savedExecutionState) {
-		savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
+		savedExecutionState.stopExecutionFlag = executionState.stopExecutionFlag;
 		savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
 		savedExecutionState.isThrownValue = executionState.isThrownValue;
 		savedExecutionState.breakContinueCount = executionState.breakContinueCount;
 		savedExecutionState.isContinueStatement = executionState.isContinueStatement;
-		executionState.stopParsingFlag = false;
+		executionState.stopExecutionFlag = false;
 		executionState.returnedOrThrownValue = null;
 		executionState.isThrownValue = false;
 		executionState.breakContinueCount = 0;
@@ -821,11 +821,11 @@ public final class LangInterpreter {
 		}
 		interpretTryStatementPartNode(tryPart, DATA_ID);
 		
-		if(executionState.stopParsingFlag)
+		if(executionState.stopExecutionFlag)
 			saveExecutionStopStateToVarAndReset(savedExecutionState);
 		
 		boolean flag = false;
-		if(savedExecutionState.stopParsingFlag && executionState.tryThrownError != null) {
+		if(savedExecutionState.stopExecutionFlag && executionState.tryThrownError != null) {
 			List<TryStatementPartNode> catchParts = new LinkedList<>();
 			for(int i = 1;i < tryPartNodes.size();i++) {
 				TryStatementPartNode tryPartNode = tryPartNodes.get(i);
@@ -837,7 +837,7 @@ public final class LangInterpreter {
 			
 			for(TryStatementPartNode catchPart:catchParts) {
 				if(flag = interpretTryStatementPartNode(catchPart, DATA_ID)) {
-					if(executionState.stopParsingFlag) {
+					if(executionState.stopExecutionFlag) {
 						saveExecutionStopStateToVarAndReset(savedExecutionState);
 					}else {
 						//Reset saved execution state because the reason of the execution stop was handled by the catch block
@@ -853,7 +853,7 @@ public final class LangInterpreter {
 			}
 		}
 		
-		if(!flag && !savedExecutionState.stopParsingFlag) {
+		if(!flag && !savedExecutionState.stopExecutionFlag) {
 			TryStatementPartNode elsePart = null;
 			if(!flag && tryPartNodes.size() > 1) {
 				if(tryPartNodes.get(tryPartNodes.size() - 2).getNodeType() == NodeType.TRY_STATEMENT_PART_ELSE)
@@ -864,7 +864,7 @@ public final class LangInterpreter {
 			if(elsePart != null) {
 				flag = interpretTryStatementPartNode(elsePart, DATA_ID);
 				
-				if(executionState.stopParsingFlag)
+				if(executionState.stopExecutionFlag)
 					saveExecutionStopStateToVarAndReset(savedExecutionState);
 			}
 		}
@@ -877,8 +877,8 @@ public final class LangInterpreter {
 			interpretTryStatementPartNode(finallyPart, DATA_ID);
 		
 		//Reset saved execution flag to stop execution if finally has not set the stop execution flag
-		if(!executionState.stopParsingFlag) {
-			executionState.stopParsingFlag = savedExecutionState.stopParsingFlag;
+		if(!executionState.stopExecutionFlag) {
+			executionState.stopExecutionFlag = savedExecutionState.stopExecutionFlag;
 			executionState.returnedOrThrownValue = savedExecutionState.returnedOrThrownValue;
 			executionState.isThrownValue = savedExecutionState.isThrownValue;
 			executionState.breakContinueCount = savedExecutionState.breakContinueCount;
@@ -1242,7 +1242,7 @@ public final class LangInterpreter {
 		
 		executionState.returnedOrThrownValue = returnValueNode == null?null:interpretNode(returnValueNode, DATA_ID);
 		executionState.isThrownValue = false;
-		executionState.stopParsingFlag = true;
+		executionState.stopExecutionFlag = true;
 	}
 	
 	private void interpretThrowNode(ThrowNode node, final int DATA_ID) {
@@ -1254,11 +1254,11 @@ public final class LangInterpreter {
 		else
 			executionState.returnedOrThrownValue = errorObject;
 		executionState.isThrownValue = true;
-		executionState.stopParsingFlag = true;
+		executionState.stopExecutionFlag = true;
 		
 		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0) {
 			executionState.tryThrownError = executionState.returnedOrThrownValue.getError().getInterprettingError();
-			executionState.stopParsingFlag = true;
+			executionState.stopExecutionFlag = true;
 		}
 	}
 	
@@ -1641,7 +1641,7 @@ public final class LangInterpreter {
 		executionState.isThrownValue = false;
 		
 		if(executionState.tryThrownError == null || executionState.tryBlockLevel == 0)
-			executionState.stopParsingFlag = false;
+			executionState.stopExecutionFlag = false;
 		
 		return retTmp;
 	}
@@ -2127,7 +2127,7 @@ public final class LangInterpreter {
 		
 		if(newErrno > 0 && executionState.tryBlockLevel > 0) {
 			executionState.tryThrownError = error;
-			executionState.stopParsingFlag = true;
+			executionState.stopExecutionFlag = true;
 		}
 	}
 	
@@ -2220,10 +2220,10 @@ public final class LangInterpreter {
 	}
 	public static class ExecutionState {
 		/**
-		 * Will be set to true for returning a value or breaking/continuing a loop
+		 * Will be set to true for returning/throwing a value or breaking/continuing a loop or for try statements
 		 */
-		private boolean stopParsingFlag;
-		private boolean forceStopParsingFlag;
+		private boolean stopExecutionFlag;
+		private boolean forceStopExecutionFlag;
 		
 		//Fields for return statements
 		private DataObject returnedOrThrownValue;
@@ -2451,13 +2451,13 @@ public final class LangInterpreter {
 		 * {@link me.jddev0.module.lang.LangInterpreter.StoppedException StoppedException} exception
 		 */
 		public void stop() {
-			interpreter.executionState.forceStopParsingFlag = true;
+			interpreter.executionState.forceStopExecutionFlag = true;
 		}
 		/**
 		 * Must be called before execution if the {@link LangInterpreter.LangInterpreterInterface#stop() stop()} method was previously called
 		 */
 		public void resetStopFlag() {
-			interpreter.executionState.forceStopParsingFlag = false;
+			interpreter.executionState.forceStopExecutionFlag = false;
 		}
 		
 		public StackElement getCurrentCallStackElement() {
