@@ -1714,7 +1714,7 @@ public final class LangInterpreter {
 					if(!val.isLangVar())
 						data.get(NEW_DATA_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
 					
-					if(val.isStaticData())
+					if(val.isStaticData()) //Static lang data should also be copied
 						data.get(NEW_DATA_ID).var.put(key, val);
 				});
 				//Initialize copyAfterFP
