@@ -30,4 +30,5 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
   - "func.isCompilerVersionNewer()" was removed and replaced with "func.isLangVersionNewer()"
   - "func.isCompilerVersionOlder()" was removed and replaced with "func.isLangVersionOlder()"
   - "func.exec()" can access variables defined in the caller's data map
+  - "$LANG\_ERRNO" is now static: If "$LANG\_ERRNO" is set inside a function, "$LANG\_ERRNO" in the caller scope will also be this value
 
