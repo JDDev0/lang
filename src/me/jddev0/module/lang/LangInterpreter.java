@@ -788,6 +788,18 @@ public final class LangInterpreter {
 		executionState.stopParsingFlag = true;
 	}
 	
+	private void saveExecutionStopStateToVarAndReset(ExecutionState savedExecutionState) {
+		savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
+		savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
+		savedExecutionState.isThrownValue = executionState.isThrownValue;
+		savedExecutionState.breakContinueCount = executionState.breakContinueCount;
+		savedExecutionState.isContinueStatement = executionState.isContinueStatement;
+		executionState.stopParsingFlag = false;
+		executionState.returnedOrThrownValue = null;
+		executionState.isThrownValue = false;
+		executionState.breakContinueCount = 0;
+		executionState.isContinueStatement = false;
+	}
 	/**
 	 * @return Returns true if a catch or an else block was executed
 	 */
@@ -809,19 +821,8 @@ public final class LangInterpreter {
 		}
 		interpretTryStatementPartNode(tryPart, DATA_ID);
 		
-		if(executionState.stopParsingFlag) {
-			//Save execution state to stop execution but reset for further execution
-			savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
-			savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
-			savedExecutionState.isThrownValue = executionState.isThrownValue;
-			savedExecutionState.breakContinueCount = executionState.breakContinueCount;
-			savedExecutionState.isContinueStatement = executionState.isContinueStatement;
-			executionState.stopParsingFlag = false;
-			executionState.returnedOrThrownValue = null;
-			executionState.isThrownValue = false;
-			executionState.breakContinueCount = 0;
-			executionState.isContinueStatement = false;
-		}
+		if(executionState.stopParsingFlag)
+			saveExecutionStopStateToVarAndReset(savedExecutionState);
 		
 		boolean flag = false;
 		if(savedExecutionState.stopParsingFlag && executionState.tryThrownError != null) {
@@ -837,17 +838,7 @@ public final class LangInterpreter {
 			for(TryStatementPartNode catchPart:catchParts) {
 				if(flag = interpretTryStatementPartNode(catchPart, DATA_ID)) {
 					if(executionState.stopParsingFlag) {
-						//Save execution state to stop execution but reset for further execution
-						savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
-						savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
-						savedExecutionState.isThrownValue = executionState.isThrownValue;
-						savedExecutionState.breakContinueCount = executionState.breakContinueCount;
-						savedExecutionState.isContinueStatement = executionState.isContinueStatement;
-						executionState.stopParsingFlag = false;
-						executionState.returnedOrThrownValue = null;
-						executionState.isThrownValue = false;
-						executionState.breakContinueCount = 0;
-						executionState.isContinueStatement = false;
+						saveExecutionStopStateToVarAndReset(savedExecutionState);
 					}else {
 						//Reset saved execution state because the reason of the execution stop was handled by the catch block
 						savedExecutionState = new ExecutionState();
@@ -873,19 +864,8 @@ public final class LangInterpreter {
 			if(elsePart != null) {
 				flag = interpretTryStatementPartNode(elsePart, DATA_ID);
 				
-				if(executionState.stopParsingFlag) {
-					//Save execution state to stop execution but reset for further execution
-					savedExecutionState.stopParsingFlag = executionState.stopParsingFlag;
-					savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
-					savedExecutionState.isThrownValue = executionState.isThrownValue;
-					savedExecutionState.breakContinueCount = executionState.breakContinueCount;
-					savedExecutionState.isContinueStatement = executionState.isContinueStatement;
-					executionState.stopParsingFlag = false;
-					executionState.returnedOrThrownValue = null;
-					executionState.isThrownValue = false;
-					executionState.breakContinueCount = 0;
-					executionState.isContinueStatement = false;
-				}
+				if(executionState.stopParsingFlag)
+					saveExecutionStopStateToVarAndReset(savedExecutionState);
 			}
 		}
 		
