@@ -2198,6 +2198,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "from pointer is invalid", DATA_ID);
 			
 			interpreter.copyAfterFP.get(DATA_ID).put(to, from);
+			interpreter.setErrno(InterpretingError.USE_OF_COPY_AFTER_FP, DATA_ID);
 			
 			return null;
 		});
