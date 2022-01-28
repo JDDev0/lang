@@ -242,3 +242,35 @@ fp.function = ($a) -> {
 fp.function(test)
 
 func.println(\$a: $a) # Static
+
+func.println()
+
+# Static final vars
+# Variables can be static and final at the same time
+$a = Final Static
+func.makeFinal($a)
+func.makeStatic($a)
+
+$b = Static Final
+func.makeStatic($b)
+func.makeFinal($b)
+
+# Both "$a" and "$b" are both static and final, the order of the "makeStatic" call and the "makeFinal" call is not important
+
+func.println(\$a: $a) # Final Static
+func.println(\$b: $b) # Static Final
+
+fp.function = () -> {
+	func.println(\$a: $a) # Final Static
+	func.println(\$b: $b) # Static Final
+
+	$a = 42 # Will throw an error: Final var change
+	$b = 43 # Will throw an error too: Final var change
+	
+	func.println(\$a: $a) # Final Static
+	func.println(\$b: $b) # Static Final
+}
+fp.function()
+
+func.println(\$a: $a) # Final Static
+func.println(\$b: $b) # Static Final
