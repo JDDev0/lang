@@ -422,7 +422,6 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			interpreter.data.get(DATA_ID).var.remove(variableName);
-			dereferencedVarPointer.setVariableName(null);
 			
 			return null;
 		});
