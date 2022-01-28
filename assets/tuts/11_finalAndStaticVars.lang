@@ -84,7 +84,7 @@ func.printError()
 # Clear var
 # func.clearVar(varPtr)
 # func.clearVar(arrPtr)
-# func.clearVar(funcPtr) # Will remove a variable
+# func.clearVar(funcPtr) # Will remove a variable in the current scope
 $var = Test
 func.printTerminal(-1, $var)
 func.clearVar($[var])
@@ -104,8 +104,8 @@ func.printTerminal(3, func.arrayGetAll(&a))
 func.printError()
 
 # Clear all vars
-# func.clearAllVars() # Will remove ALL vars (inculding
-#                       final vars)
+# func.clearAllVars() # Will remove ALL vars in the current scope
+#                       (inculding final vars)
 #                       -> Only way to remove final vars
 func.clearAllVars()
 
@@ -188,3 +188,27 @@ fp.function()
 
 func.println(\&a: &a) # [1, 2, 3]
 func.println(\&b: &b) # [2, 422]
+
+func.println()
+
+# Static vars and var clearing
+$a = Static
+$b = Not static
+func.makeStatic($[a])
+
+func.println(\$a: $a) # Static
+func.println(\$b: $b) # Not static
+
+fp.function = () -> {
+	func.println(\$a [In function]: $a) # Static
+	func.println(\$b [In function]: $b) # Not static
+	
+	func.clearVar($[a])
+	func.println(\$a [In function]: $a) # $a
+	func.clearVar($[b])
+	func.println(\$b [In function]: $b) # $b
+}
+fp.function()
+
+func.println(\$a: $a) # Static
+func.println(\$b: $b) # Not static
