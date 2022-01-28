@@ -274,3 +274,49 @@ fp.function()
 
 func.println(\$a: $a) # Final Static
 func.println(\$b: $b) # Static Final
+
+func.println()
+
+# Static vars in multiple scope
+$outerStatic = Outer static
+func.makeStatic($outerStatic)
+
+func.println(\$outerStatic: $outerStatic) # Outer static
+
+$x = X # Will not be static in outer scope
+func.println(\$x: $x) # X
+
+fp.inner = () -> {
+	$innerStatic = Inner static
+	func.makeStatic($innerStatic)
+	
+	func.println(\$innerStatic: $innerStatic) # Inner static
+	
+	func.println(\$x: $x) # X
+	func.makeStatic($x) # Make $x static in inner scope
+	func.println(\$x: $x) # X
+	
+	fp.function = () -> {
+		func.println(\$innerStatic: $innerStatic) # Inner static
+		func.println(\$outerStatic: $outerStatic) # Outer static
+		func.println(\$x: $x) # X
+		
+		$innerStatic = 42
+		func.println(\$innerStatic: $innerStatic) # 42
+		
+		$outerStatic = 40
+		func.println(\$outerStatic: $outerStatic) # 40
+		
+		$x = 42
+		func.println(\$x: $x) # 42
+	}
+	fp.function()
+	
+	func.println(\$innerStatic: $innerStatic) # 42
+	func.println(\$x: $x) # 42
+}
+fp.inner()
+
+func.println(\$innerStatic: $innerStatic) # $innerStatic
+func.println(\$outerStatic: $outerStatic) # 40
+func.println(\$x: $x) # X
