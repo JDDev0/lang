@@ -1491,7 +1491,7 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
+		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR) || LangPatterns.matches(variableName, LangPatterns.LANG_VAR_POINTER_REDIRECTION)) {
 			if(flags != null && flags.length == 2)
 				flags[0] = true;
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);

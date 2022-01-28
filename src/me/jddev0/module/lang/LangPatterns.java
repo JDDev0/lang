@@ -24,6 +24,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_NORMAL = Pattern.compile("\\$\\w+");
 	/**
+	 * RegEx: \$\[+LANG_.*\]+
+	 */
+	public static final Pattern LANG_VAR_POINTER_REDIRECTION = Pattern.compile("\\$\\[+LANG_.*\\]+");
+	/**
 	 * RegEx: (\$|&|fp\.)\w+
 	 */
 	public static final Pattern VAR_NAME = Pattern.compile("(\\$|&|fp\\.)\\w+");
