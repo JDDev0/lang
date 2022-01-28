@@ -222,3 +222,23 @@ fp.function()
 func.println(\$a: $a) # Static
 func.println(\$b: $b) # Not static
 func.println(\$b: $c) # Static 2
+
+func.println()
+
+# Static var shadowing
+$a = Static
+func.makeStatic($[a])
+
+func.println(\$a: $a) # Static
+
+fp.function = ($a) -> {
+	# "$a" will shadow the static "$a" variable
+	
+	func.println(\$a [In function]: $a) # test
+	
+	$a = 42
+	func.println(\$a [In function]: $a) # 42
+}
+fp.function(test)
+
+func.println(\$a: $a) # Static
