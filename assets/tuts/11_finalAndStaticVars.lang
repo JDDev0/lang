@@ -121,7 +121,7 @@ func.printError()
 # func.makeStatic(varPtr)
 # func.makeStatic(funcPtr)
 # func.makeStatic(arrPtr)
-# -> If a variable is static, it will can be overriden in function and "func.exec" scopes.
+# -> If a variable is static, it will can be overriden in function and "func.exec" scopes. Static vars are not accessible in linked lang files.
 
 # Static var
 $a = Static
