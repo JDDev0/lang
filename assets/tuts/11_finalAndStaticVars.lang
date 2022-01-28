@@ -194,21 +194,31 @@ func.println()
 # Static vars and var clearing
 $a = Static
 $b = Not static
+$c = Static 2
 func.makeStatic($[a])
+func.makeStatic($[c])
 
 func.println(\$a: $a) # Static
 func.println(\$b: $b) # Not static
+func.println(\$c: $c) # Static 2
 
 fp.function = () -> {
 	func.println(\$a [In function]: $a) # Static
 	func.println(\$b [In function]: $b) # Not static
+	func.println(\$c [In function]: $c) # Static 2
 	
 	func.clearVar($[a])
 	func.println(\$a [In function]: $a) # $a
 	func.clearVar($[b])
 	func.println(\$b [In function]: $b) # $b
+	func.clearVar($[c])
+	func.println(\$c [In function]: $c) # $c
+	
+	$c = test # $c is now a new variable (It is not the static outer scope variable)
+	func.println(\$c [In function]: $c) # test
 }
 fp.function()
 
 func.println(\$a: $a) # Static
 func.println(\$b: $b) # Not static
+func.println(\$b: $c) # Static 2
