@@ -1,4 +1,4 @@
-lang.name = Final Vars
+lang.name = Final and static Vars
 lang.version = v1.0.0
 
 # Make variable final
