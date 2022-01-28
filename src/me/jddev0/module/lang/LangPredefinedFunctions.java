@@ -2595,9 +2595,9 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
+			
+			if(arrPointerObject.isFinalData() || arrPointerObject.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, DATA_ID);
 			
 			String variableName = arrPointerObject.getVariableName();
 			if(variableName == null)
