@@ -2273,15 +2273,13 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int index = indexNumber.intValue();
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			if(index < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			else if(index >= arr.length)
@@ -2298,10 +2296,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			DataObject valueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			if(argumentList.size() == 0) { //arraySetAll with one value
 				for(int i = 0;i < arr.length;i++)
@@ -2334,15 +2330,13 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, DATA_ID);
 			int index = indexNumber.intValue();
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			if(index < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, DATA_ID);
 			else if(index >= arr.length)
@@ -2357,13 +2351,9 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			
 			StringBuilder builder = new StringBuilder();
 			
-			for(DataObject ele:arr) {
+			for(DataObject ele:arrPointerObject.getArray()) {
 				builder.append(ele.getText());
 				builder.append(", ");
 			}
@@ -2379,10 +2369,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			long count = Arrays.stream(arr).filter(ele -> ele.isStrictEquals(elementObject)).count();
 			return new DataObject().setLong(count);
 		});
@@ -2394,10 +2382,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			for(int i = 0;i < arr.length;i++)
 				if(arr[i].isStrictEquals(elementObject))
 					return new DataObject().setInt(i);
@@ -2413,9 +2399,6 @@ final class LangPredefinedFunctions {
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			
 			for(int i = arr.length - 1;i >= 0;i--)
 				if(arr[i].isStrictEquals(elementObject))
 					return new DataObject().setInt(i);
@@ -2429,11 +2412,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
-			return new DataObject().setInt(arr.length);
+			return new DataObject().setInt(arrPointerObject.getArray().length);
 		});
 		funcs.put("arrayMap", (argumentList, DATA_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
@@ -2443,10 +2423,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 			
@@ -2467,13 +2445,11 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			for(DataObject ele:arr) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(currentValueObject);
@@ -2492,13 +2468,11 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			for(DataObject ele:arr) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(ele);
@@ -2515,13 +2489,11 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			for(int i = 0;i < arr.length;i++) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(new DataObject().setInt(i));
@@ -2539,9 +2511,6 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), DATA_ID);
 				
 				DataObject[] arr = arrPointerObject.getArray();
-				if(arr == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-				
 				return arr.length == 0?null:arr[LangInterpreter.RAN.nextInt(arr.length)];
 			}
 			
@@ -2579,10 +2548,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, DATA_ID);
 			
+			DataObject[] arr = arrPointerObject.getArray();
 			for(DataObject ele:arr)
 				ele.setNull();
 			
