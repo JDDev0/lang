@@ -2087,7 +2087,7 @@ public final class LangInterpreter {
 		Set<Map.Entry<String, DataObject>> entrySet = new HashSet<>(data.get(DATA_ID).var.entrySet());
 		entrySet.forEach(entry -> {
 			String key = entry.getKey();
-			if(!entry.getValue().isLangVar() && key.startsWith("$") && key.startsWith("&"))
+			if(!entry.getValue().isLangVar() && (key.startsWith("$") || key.startsWith("&")))
 				data.get(DATA_ID).var.remove(key);
 		});
 		
