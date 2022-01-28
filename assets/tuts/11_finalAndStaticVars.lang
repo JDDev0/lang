@@ -8,6 +8,8 @@ lang.version = v1.0.0
 #                        (= not overrideable)
 #                        The content of a final arrPtr
 #                        can be changed
+# -> If a variable is final, it can not be overriden by another value.
+
 # Final var
 $a = DO NOT modify!
 func.makeFinal($[a])
@@ -114,3 +116,36 @@ func.printError()
 $a = New variable # Will also produce no error
 func.printTerminal(2, $a)
 func.printError()
+
+# Make variable static
+# func.makeStatic(varPtr)
+# func.makeStatic(funcPtr)
+# func.makeStatic(arrPtr)
+# -> If a variable is static, it will can be overriden in function and "func.exec" scopes.
+
+# Static var
+$a = Static
+$b = Not static
+func.makeStatic($[a])
+
+func.println(\$a: $a) # Static
+func.println(\$b: $b) # Not static
+
+$a = 42
+func.println(\$a: $a) # 42
+$b = 43
+func.println(\$b: $b) # 43
+
+fp.function = () -> {
+	func.println(\$a [In function]: $a) # 42
+	func.println(\$b [In function]: $b) # 43
+	
+	$a = 40
+	func.println(\$a [In function]: $a) # 40
+	$b = 41
+	func.println(\$b [In function]: $b) # 41
+}
+fp.function()
+
+func.println(\$a: $a) # 40
+func.println(\$b: $b) # 43
