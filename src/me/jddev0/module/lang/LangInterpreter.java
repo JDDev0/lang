@@ -1733,16 +1733,20 @@ public final class LangInterpreter {
 						if(variableName.startsWith("$")) {
 							//Text varargs
 							DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
-							data.get(NEW_DATA_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
+							DataObject old = data.get(NEW_DATA_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
 							new DataObject().setVoid().getText()).setVariableName(variableName));
+							if(old != null && old.isStaticData())
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_DATA_ID);
 						}else {
 							//Array varargs
 							List<DataObject> varArgsTmpList = new LinkedList<>();
 							while(argumentValueList.size() > 0)
 								varArgsTmpList.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true));
 							
-							data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
+							DataObject old = data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
 							toArray(new DataObject[0])).setVariableName(variableName));
+							if(old != null && old.isStaticData())
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_DATA_ID);
 						}
 						
 						break;
@@ -1756,7 +1760,9 @@ public final class LangInterpreter {
 							lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 						else if(lastDataObject == null)
 							lastDataObject = new DataObject().setVoid();
-						data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
+						DataObject old = data.get(NEW_DATA_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
+						if(old != null && old.isStaticData())
+							setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_DATA_ID);
 						
 						continue;
 					}
@@ -1773,7 +1779,9 @@ public final class LangInterpreter {
 						lastDataObject = new DataObject().setVoid();
 					
 					try {
-						data.get(NEW_DATA_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
+						DataObject old = data.get(NEW_DATA_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
+						if(old != null && old.isStaticData())
+							setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_DATA_ID);
 					}catch(DataTypeConstraintViolatedException e) {
 						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", DATA_ID);
 						
