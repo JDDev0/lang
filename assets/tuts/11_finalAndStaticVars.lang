@@ -320,3 +320,38 @@ fp.inner()
 func.println(\$innerStatic: $innerStatic) # $innerStatic
 func.println(\$outerStatic: $outerStatic) # 40
 func.println(\$x: $x) # X
+
+func.println()
+
+$y = Static
+func.makeStatic($[y])
+
+func.println(\$y: $y) # Static
+
+fp.y = () -> {
+	func.println(fp\.y: \$y: $y)
+	# 1st time: Static
+	# 2nd time: 42
+	
+	$y = abc
+	func.println(fp\.y: \$y: $y) # abc
+}
+fp.y()
+
+func.println(\$y: $y) # abc
+
+$y = Static
+
+func.println(\$y: $y) # Static
+
+fp.y2 = ($y) -> {
+	func.println(fp\.y2.\$y: $y) # test
+	
+	$y = 42
+	func.println(fp\.y2.\$y: $y) # 42
+	
+	fp.y()
+	func.println(fp\.y2.\$y: $y) # 42
+}
+fp.y2(test)
+func.println(\$y: $y) # Static
