@@ -1468,8 +1468,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	public static final class TryStatementPartTryNode extends TryStatementPartNode {
-		public TryStatementPartTryNode(AbstractSyntaxTree loopBody) {
-			super(loopBody);
+		public TryStatementPartTryNode(AbstractSyntaxTree tryBody) {
+			super(tryBody);
 		}
 		
 		@Override
@@ -1500,7 +1500,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			if(obj == null)
 				return false;
 			
-			if(!(obj instanceof LoopStatementPartLoopNode))
+			if(!(obj instanceof TryStatementPartTryNode))
 				return false;
 			
 			TryStatementPartTryNode that = (TryStatementPartTryNode)obj;
