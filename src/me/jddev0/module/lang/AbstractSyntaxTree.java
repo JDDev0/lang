@@ -1513,6 +1513,98 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	public static final class TryStatementPartSoftTryNode extends TryStatementPartNode {
+		public TryStatementPartSoftTryNode(AbstractSyntaxTree tryBody) {
+			super(tryBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_SOFT_TRY;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartSoftTryNode: TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementPartSoftTryNode))
+				return false;
+			
+			TryStatementPartSoftTryNode that = (TryStatementPartSoftTryNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getTryBody());
+		}
+	}
+	
+	public static final class TryStatementPartNonTryNode extends TryStatementPartNode {
+		public TryStatementPartNonTryNode(AbstractSyntaxTree tryBody) {
+			super(tryBody);
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.TRY_STATEMENT_PART_NON_TRY;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("TryStatementPartNonTryNode: TryBody: {\n");
+			String[] tokens = getTryBody().toString().split("\\n");
+			for(String token:tokens) {
+				builder.append("\t");
+				builder.append(token);
+				builder.append("\n");
+			}
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof TryStatementPartNonTryNode))
+				return false;
+			
+			TryStatementPartNonTryNode that = (TryStatementPartNonTryNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.getTryBody().equals(that.getTryBody());
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType(), this.getTryBody());
+		}
+	}
+	
 	public static final class TryStatementPartCatchNode extends TryStatementPartNode {
 		private final List<Node> errors;
 		
@@ -2573,8 +2665,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
 		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
-		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, TRY_STATEMENT_PART_TRY, TRY_STATEMENT_PART_CATCH, TRY_STATEMENT_PART_ELSE,
-		TRY_STATEMENT_PART_FINALLY, TRY_STATEMENT, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE, FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE,
-		TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY;
+		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, TRY_STATEMENT_PART_TRY, TRY_STATEMENT_PART_SOFT_TRY, TRY_STATEMENT_PART_NON_TRY,
+		TRY_STATEMENT_PART_CATCH, TRY_STATEMENT_PART_ELSE, TRY_STATEMENT_PART_FINALLY, TRY_STATEMENT, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE,
+		FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY;
 	}
 }

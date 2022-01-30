@@ -1040,7 +1040,7 @@ public final class LangParser {
 				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
 				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
 				return ast;
-			}else if(token.startsWith("con.try")) {
+			}else if(token.startsWith("con.try") || token.startsWith("con.softtry") || token.startsWith("con.nontry")) {
 				List<AbstractSyntaxTree.TryStatementPartNode> tryStatmentParts = new ArrayList<>();
 				
 				boolean blockBracketFlag = token.endsWith("{");
@@ -1067,10 +1067,13 @@ public final class LangParser {
 					}
 					
 					String tryArguments;
-					if(tryStatement.startsWith("con.try") || tryStatement.startsWith("con.else") || tryStatement.startsWith("con.finally")) {
-						if(!tryStatement.equals("con.try") && !tryStatement.equals("con.else") && !tryStatement.equals("con.finally")) {
-							if(tryStatement.startsWith("con.try(") || tryStatement.startsWith("con.else(") || tryStatement.startsWith("con.finally("))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try/Finally/Else part with arguments"));
+					if(tryStatement.startsWith("con.try") || tryStatement.startsWith("con.softtry") || tryStatement.startsWith("con.nontry") || tryStatement.startsWith("con.else") ||
+					tryStatement.startsWith("con.finally")) {
+						if(!tryStatement.equals("con.try") && !tryStatement.startsWith("con.softtry") && !tryStatement.startsWith("con.nontry") && !tryStatement.equals("con.else") &&
+						!tryStatement.equals("con.finally")) {
+							if(tryStatement.startsWith("con.try(") || tryStatement.startsWith("con.softtry(") || tryStatement.startsWith("con.nontry(") || tryStatement.startsWith("con.else(") ||
+							tryStatement.startsWith("con.finally("))
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try/Softtry/Nontry/Finally/Else part with arguments"));
 							else
 								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
 							return ast;
@@ -1108,6 +1111,10 @@ public final class LangParser {
 					
 					if(tryStatement.startsWith("con.try")) {
 						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody));
+					}else if(tryStatement.startsWith("con.softtry")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartSoftTryNode(tryBody));
+					}else if(tryStatement.startsWith("con.nontry")) {
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartNonTryNode(tryBody));
 					}else if(tryStatement.startsWith("con.catch")) {
 						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, tryArguments == null?null:parseFunctionParameterList(tryArguments, false).getChildren()));
 					}else if(tryStatement.startsWith("con.else")) {

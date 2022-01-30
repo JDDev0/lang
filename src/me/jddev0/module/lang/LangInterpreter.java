@@ -247,6 +247,8 @@ public final class LangInterpreter {
 					return new DataObject().setBoolean(interpretTryStatementNode((TryStatementNode)node, DATA_ID));
 				
 				case TRY_STATEMENT_PART_TRY:
+				case TRY_STATEMENT_PART_SOFT_TRY:
+				case TRY_STATEMENT_PART_NON_TRY:
 				case TRY_STATEMENT_PART_CATCH:
 				case TRY_STATEMENT_PART_ELSE:
 				case TRY_STATEMENT_PART_FINALLY:
@@ -814,8 +816,9 @@ public final class LangInterpreter {
 		ExecutionState savedExecutionState = new ExecutionState();
 		
 		TryStatementPartNode tryPart = tryPartNodes.get(0);
-		if(tryPart.getNodeType() != NodeType.TRY_STATEMENT_PART_TRY) {
-			setErrno(InterpretingError.INVALID_AST_NODE, "First part of try statement was no try part", DATA_ID);
+		if(tryPart.getNodeType() != NodeType.TRY_STATEMENT_PART_TRY && tryPart.getNodeType() != NodeType.TRY_STATEMENT_PART_SOFT_TRY &&
+		tryPart.getNodeType() != NodeType.TRY_STATEMENT_PART_NON_TRY) {
+			setErrno(InterpretingError.INVALID_AST_NODE, "First part of try statement was no try nor soft try nor non try part", DATA_ID);
 			
 			return false;
 		}
@@ -897,13 +900,37 @@ public final class LangInterpreter {
 		try {
 			switch(node.getNodeType()) {
 				case TRY_STATEMENT_PART_TRY:
+				case TRY_STATEMENT_PART_SOFT_TRY:
 					executionState.tryThrownError = null;
 					executionState.tryBlockLevel++;
+					boolean isSoftTryOld = executionState.isSoftTry;
+					executionState.isSoftTry = node.getNodeType() == NodeType.TRY_STATEMENT_PART_SOFT_TRY;
+					int oldTryBlockDataID = executionState.tryBodyDataID;
+					executionState.tryBodyDataID = DATA_ID;
 					
 					try {
 						interpretAST(node.getTryBody(), DATA_ID);
 					}finally {
 						executionState.tryBlockLevel--;
+						executionState.isSoftTry = isSoftTryOld;
+						executionState.tryBodyDataID = oldTryBlockDataID;
+					}
+					break;
+				case TRY_STATEMENT_PART_NON_TRY:
+					executionState.tryThrownError = null;
+					int oldTryBlockLevel = executionState.tryBlockLevel;
+					executionState.tryBlockLevel = 0;
+					isSoftTryOld = executionState.isSoftTry;
+					executionState.isSoftTry = false;
+					oldTryBlockDataID = executionState.tryBodyDataID;
+					executionState.tryBodyDataID = 0;
+					
+					try {
+						interpretAST(node.getTryBody(), DATA_ID);
+					}finally {
+						executionState.tryBlockLevel = oldTryBlockLevel;
+						executionState.isSoftTry = isSoftTryOld;
+						executionState.tryBodyDataID = oldTryBlockDataID;
 					}
 					break;
 				case TRY_STATEMENT_PART_CATCH:
@@ -1256,7 +1283,7 @@ public final class LangInterpreter {
 		executionState.isThrownValue = true;
 		executionState.stopExecutionFlag = true;
 		
-		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0) {
+		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0 && (!executionState.isSoftTry || executionState.tryBodyDataID == DATA_ID)) {
 			executionState.tryThrownError = executionState.returnedOrThrownValue.getError().getInterprettingError();
 			executionState.stopExecutionFlag = true;
 		}
@@ -1404,6 +1431,8 @@ public final class LangInterpreter {
 				case LOOP_STATEMENT_CONTINUE_BREAK:
 				case TRY_STATEMENT:
 				case TRY_STATEMENT_PART_TRY:
+				case TRY_STATEMENT_PART_SOFT_TRY:
+				case TRY_STATEMENT_PART_NON_TRY:
 				case TRY_STATEMENT_PART_CATCH:
 				case TRY_STATEMENT_PART_ELSE:
 				case TRY_STATEMENT_PART_FINALLY:
@@ -1623,8 +1652,8 @@ public final class LangInterpreter {
 			}
 			
 			if(langTestExpectedReturnValue != null) {
-				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!executionState.isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), langTestMessageForLastTestResult, retTmp,
-						langTestExpectedReturnValue));
+				langTestStore.addAssertResult(new LangTest.AssertResultReturn(!executionState.isThrownValue && langTestExpectedReturnValue.isStrictEquals(retTmp), langTestMessageForLastTestResult,
+						retTmp, langTestExpectedReturnValue));
 				
 				langTestExpectedReturnValue = null;
 			}
@@ -1640,7 +1669,7 @@ public final class LangInterpreter {
 		
 		executionState.isThrownValue = false;
 		
-		if(executionState.tryThrownError == null || executionState.tryBlockLevel == 0)
+		if(executionState.tryThrownError == null || executionState.tryBlockLevel == 0 || (executionState.isSoftTry && executionState.tryBodyDataID != DATA_ID))
 			executionState.stopExecutionFlag = false;
 		
 		return retTmp;
@@ -2136,7 +2165,7 @@ public final class LangInterpreter {
 				term.logln(newErrno < 0?Level.WARNING:Level.ERROR, output, LangInterpreter.class);
 		}
 		
-		if(newErrno > 0 && executionState.tryBlockLevel > 0) {
+		if(newErrno > 0 && executionState.tryBlockLevel > 0 && (!executionState.isSoftTry || executionState.tryBodyDataID == DATA_ID)) {
 			executionState.tryThrownError = error;
 			executionState.stopExecutionFlag = true;
 		}
@@ -2253,6 +2282,8 @@ public final class LangInterpreter {
 		 */
 		private int tryBlockLevel;
 		private InterpretingError tryThrownError;
+		private boolean isSoftTry;
+		private int tryBodyDataID;
 	}
 	
 	public static enum InterpretingError {
