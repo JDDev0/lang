@@ -1505,7 +1505,7 @@ public final class LangInterpreter {
 			if(indexMatchingBracket != variableName.length() - 1) {
 				if(flags != null && flags.length == 2)
 					flags[0] = true;
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching dereferencing brackets", DATA_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Non matching referencing brackets", DATA_ID);
 			}
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
