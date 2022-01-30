@@ -64,7 +64,7 @@ public class TerminalIO {
 						
 						actions.get(strs[0]).action(args);
 					}else {
-						logln(Level.ERROR, "Command \"" + strs[0] + "\" was'n found!", TerminalIO.class);
+						logln(Level.ERROR, "Command \"" + strs[0] + "\" was not found!", TerminalIO.class);
 					}
 				}
 			});
