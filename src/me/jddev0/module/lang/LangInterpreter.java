@@ -1499,7 +1499,7 @@ public final class LangInterpreter {
 			return new DataObject(); //If no var pointer was dereferenced, return null data object
 		}
 		
-		if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check dereferenced variable name
+		if(supportsPointerReferencing && variableName.contains("[") && variableName.contains("]")) { //Check referenced variable name
 			int indexOpeningBracket = variableName.indexOf("[");
 			int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 			if(indexMatchingBracket != variableName.length() - 1) {
