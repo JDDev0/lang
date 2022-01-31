@@ -1,7 +1,7 @@
 lang.name = Lang Test
 lang.version = v1.0.0
 
-lang.langTest = 1 # Enable langTest unit test
+lang.test = 1 # Enable langTest unit test
 
 # Include library which should be tested
 $ret = linker.include(16_library.lang)

@@ -1328,17 +1328,17 @@ public final class LangInterpreter {
 				}
 				executionFlags.errorOutput = ExecutionFlags.ErrorOutputFlag.getErrorFlagFor(number.intValue());
 				break;
-			case "lang.langTest":
+			case "lang.test":
 				number = value.toNumber();
 				if(number == null) {
-					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.langTest flag!", DATA_ID);
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.test flag!", DATA_ID);
 					
 					return;
 				}
 				
 				boolean langTestNewValue = number.intValue() != 0;
 				if(executionFlags.langTest && !langTestNewValue) {
-					setErrno(InterpretingError.INVALID_ARGUMENTS, "The lang.langTest flag can not be changed if it was once set to true!", DATA_ID);
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "The lang.test flag can not be changed if it was once set to true!", DATA_ID);
 					
 					return;
 				}
