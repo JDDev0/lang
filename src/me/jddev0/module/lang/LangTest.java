@@ -890,6 +890,28 @@ public class LangTest {
 		}
 	}
 	
+	public static final class AssertResultStatic extends AssertResultDataObjectString {
+		public AssertResultStatic(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "== static");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultStatic";
+		}
+	}
+	
+	public static final class AssertResultNotStatic extends AssertResultDataObjectString {
+		public AssertResultNotStatic(boolean testPassed, String message, DataObject actualValue) {
+			super(testPassed, message, actualValue, "!= static");
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "assertResultNotStatic";
+		}
+	}
+	
 	public static final class AssertResultThrow implements AssertResult {
 		private final boolean testPassed;
 		private final String message;

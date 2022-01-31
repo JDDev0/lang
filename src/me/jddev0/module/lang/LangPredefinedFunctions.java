@@ -2925,6 +2925,37 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("langTestAssertStatic", (argumentList, DATA_ID) -> {
+			DataObject actualValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject messageObject = null;
+			if(argumentList.size() > 0)
+				messageObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 or 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), DATA_ID);
+			
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(),
+					actualValueObject));
+			
+			return null;
+		});
+		funcs.put("langTestAssertNotStatic", (argumentList, DATA_ID) -> {
+			DataObject actualValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject messageObject = null;
+			if(argumentList.size() > 0)
+				messageObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 or 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), DATA_ID);
+			
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", DATA_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(!actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(), actualValueObject));
+			
+			return null;
+		});
 		funcs.put("langTestAssertThrow", (argumentList, DATA_ID) -> {
 			DataObject expectedThrowObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject messageObject = null;
