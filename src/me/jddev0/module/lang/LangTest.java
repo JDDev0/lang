@@ -503,15 +503,19 @@ public class LangTest {
 	private static abstract class AssertResultDataObject implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
-		private final DataObject actualValue;
-		private final DataObject expectedValue;
+		private final String actualValueText;
+		private final String actualValueTypeName;
+		private final String expectedValueText;
+		private final String expectedValueTypeName;
 		private final String expectedValueOperator;
 		
 		public AssertResultDataObject(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue, String expectedValueOperator) {
 			this.testPassed = testPassed;
 			this.message = message;
-			this.actualValue = actualValue;
-			this.expectedValue = expectedValue;
+			this.actualValueText = actualValue == null?null:actualValue.getText();
+			this.actualValueTypeName = actualValue == null?null:actualValue.getType().name();
+			this.expectedValueText = expectedValue == null?null:expectedValue.getText();
+			this.expectedValueTypeName = expectedValue == null?null:expectedValue.getType().name();
 			this.expectedValueOperator = expectedValueOperator;
 		}
 		
@@ -527,12 +531,12 @@ public class LangTest {
 		
 		@Override
 		public String getActualValue() {
-			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
+			return "\"" + actualValueText + "\"" + ", Type: " + actualValueTypeName;
 		}
 		
 		@Override
 		public String getExpectedValue() {
-			return expectedValueOperator + " \"" + expectedValue.getText() + "\"" + ", Type: " + expectedValue.getType().name();
+			return expectedValueOperator + " \"" + expectedValueText + "\"" + ", Type: " + expectedValueTypeName;
 		}
 	}
 	
@@ -787,13 +791,15 @@ public class LangTest {
 	private static abstract class AssertResultDataObjectString implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
-		private final DataObject actualValue;
+		private final String actualValueText;
+		private final String actualValueTypeName;
 		private final String expectedValue;
 		
 		public AssertResultDataObjectString(boolean testPassed, String message, DataObject actualValue, String expectedValue) {
 			this.testPassed = testPassed;
 			this.message = message;
-			this.actualValue = actualValue;
+			this.actualValueText = actualValue == null?null:actualValue.getText();
+			this.actualValueTypeName = actualValue == null?null:actualValue.getType().name();
 			this.expectedValue = expectedValue;
 		}
 
@@ -809,7 +815,7 @@ public class LangTest {
 		
 		@Override
 		public String getActualValue() {
-			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
+			return "\"" + actualValueText + "\"" + ", Type: " + actualValueTypeName;
 		}
 		
 		@Override
@@ -926,16 +932,20 @@ public class LangTest {
 	public static class AssertResultReturn implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
-		private final DataObject actualValue;
-		private final DataObject expectedValue;
+		private final String actualValueText;
+		private final String actualValueTypeName;
+		private final String expectedValueText;
+		private final String expectedValueTypeName;
 		
 		public AssertResultReturn(boolean testPassed, String message, DataObject actualValue, DataObject expectedValue) {
 			this.testPassed = testPassed;
 			this.message = message;
-			this.actualValue = actualValue;
-			this.expectedValue = expectedValue;
+			this.actualValueText = actualValue == null?null:actualValue.getText();
+			this.actualValueTypeName = actualValue == null?null:actualValue.getType().name();
+			this.expectedValueText = expectedValue == null?null:expectedValue.getText();
+			this.expectedValueTypeName = expectedValue == null?null:expectedValue.getType().name();
 		}
-
+		
 		@Override
 		public boolean hasTestPassed() {
 			return testPassed;
@@ -953,26 +963,28 @@ public class LangTest {
 		
 		@Override
 		public String getActualValue() {
-			return actualValue == null?"nothing returned":("\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name());
+			return actualValueText == null?"nothing returned":("\"" + actualValueText + "\"" + ", Type: " + actualValueTypeName);
 		}
 		
 		@Override
 		public String getExpectedValue() {
-			return "=== \"" + expectedValue.getText() + "\"" + ", Type: " + expectedValue.getType().name();
+			return "=== \"" + expectedValueText + "\"" + ", Type: " + expectedValueTypeName;
 		}
 	}
 	
 	public static class AssertResultNoReturn implements AssertResult {
 		private final boolean testPassed;
 		private final String message;
-		private final DataObject actualValue;
+		private final String actualValueText;
+		private final String actualValueTypeName;
 		
 		public AssertResultNoReturn(boolean testPassed, String message, DataObject actualValue) {
 			this.testPassed = testPassed;
 			this.message = message;
-			this.actualValue = actualValue;
+			this.actualValueText = actualValue == null?null:actualValue.getText();
+			this.actualValueTypeName = actualValue == null?null:actualValue.getType().name();
 		}
-
+		
 		@Override
 		public boolean hasTestPassed() {
 			return testPassed;
@@ -990,7 +1002,7 @@ public class LangTest {
 		
 		@Override
 		public String getActualValue() {
-			return "\"" + actualValue.getText() + "\"" + ", Type: " + actualValue.getType().name();
+			return "\"" + actualValueText + "\"" + ", Type: " + actualValueTypeName;
 		}
 		
 		@Override
@@ -1005,7 +1017,7 @@ public class LangTest {
 		public AssertResultFail(String message) {
 			this.message = message;
 		}
-
+		
 		@Override
 		public boolean hasTestPassed() {
 			return false;
