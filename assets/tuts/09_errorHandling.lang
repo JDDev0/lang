@@ -90,6 +90,8 @@ func.println(Error code: $LANG_ERRNO)
 #        -5: VAR_SHADOWING_WARNING
 #    Value warnings:
 #        -6: UNDEF_ESCAPE_SEQUENCE
+#    Function warnings:
+#        -7: USE_OF_COPY_AFTER_FP
 
 # Error Handling example
 $value = func.divi(42, 0)
