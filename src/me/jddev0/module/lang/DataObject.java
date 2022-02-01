@@ -1998,7 +1998,10 @@ public class DataObject {
 			case INT:
 				switch(dataObject.type) {
 					case INT:
-						return new DataObject().setDouble(Math.pow(intValue, dataObject.intValue));
+						double ret = Math.pow(intValue, dataObject.intValue);
+						if(Math.abs(ret) > Integer.MAX_VALUE || dataObject.intValue < 0)
+							return new DataObject().setDouble(ret);
+						return new DataObject().setInt((int)ret);
 					case LONG:
 						return new DataObject().setDouble(Math.pow(intValue, dataObject.longValue));
 					case FLOAT:
