@@ -22,16 +22,16 @@ public interface LangFunctionObject extends LangPredefinedFunctionObject {
 	 * @deprecated Will be removed in v1.2.0
 	 */
 	@Deprecated
-	String callFunc(BufferedReader lines, String arg, final int DATA_ID);
+	String callFunc(BufferedReader lines, String arg, final int SCOPE_ID);
 	
 	/**
 	 * @deprecated Will be removed in v1.2.0
 	 */
 	@Deprecated
 	@Override
-	default DataObject callFunc(List<DataObject> parameterList, final int DATA_ID) {
+	default DataObject callFunc(List<DataObject> parameterList, final int SCOPE_ID) {
 		StringBuilder builder = new StringBuilder();
 		parameterList.forEach(builder::append);
-		return new DataObject(callFunc(new BufferedReader(new StringReader("")), builder.toString(), DATA_ID));
+		return new DataObject(callFunc(new BufferedReader(new StringReader("")), builder.toString(), SCOPE_ID));
 	}
 }

@@ -747,111 +747,111 @@ public final class Lang {
 			HashMap<Integer, Compiler.Data> convertedDataMap = new HashMap<>();
 			
 			Map<Integer, LangInterpreter.Data> dataMap = lii.getData();
-			dataMap.forEach((DATA_ID, data) -> {
+			dataMap.forEach((SCOPE_ID, data) -> {
 				Compiler.Data convertedData = new Compiler.Data();
 				convertedData.lang = data.lang;
 				convertedData.var = new HashMap<>();
 				data.var.forEach((varName, varData) -> convertedData.var.put(varName, Compiler.DataObject.convert(varData, lii)));
 				
-				convertedDataMap.put(DATA_ID, convertedData);
+				convertedDataMap.put(SCOPE_ID, convertedData);
 			});
 			
 			return convertedDataMap;
 		}
-		public Compiler.Data getData(final int DATA_ID) {
-			return getData().get(DATA_ID);
+		public Compiler.Data getData(final int SCOPE_ID) {
+			return getData().get(SCOPE_ID);
 		}
 		
-		public Map<String, String> getTranslationMap(final int DATA_ID) {
-			Compiler.Data data = getData(DATA_ID);
+		public Map<String, String> getTranslationMap(final int SCOPE_ID) {
+			Compiler.Data data = getData(SCOPE_ID);
 			if(data == null)
 				return null;
 			
 			return data.lang;
 		}
-		public String getTranslation(final int DATA_ID, String key) {
-			Map<String, String> translations = getTranslationMap(DATA_ID);
+		public String getTranslation(final int SCOPE_ID, String key) {
+			Map<String, String> translations = getTranslationMap(SCOPE_ID);
 			if(translations == null)
 				return null;
 			
 			return translations.get(key);
 		}
 		
-		public void setTranslation(final int DATA_ID, String key, String value) {
-			Map<String, String> translations = getTranslationMap(DATA_ID);
+		public void setTranslation(final int SCOPE_ID, String key, String value) {
+			Map<String, String> translations = getTranslationMap(SCOPE_ID);
 			if(translations != null)
 				translations.put(key, value);
 		}
 		
-		public Map<String, Compiler.DataObject> getVarMap(final int DATA_ID) {
-			Compiler.Data data = getData(DATA_ID);
+		public Map<String, Compiler.DataObject> getVarMap(final int SCOPE_ID) {
+			Compiler.Data data = getData(SCOPE_ID);
 			if(data == null)
 				return null;
 			
 			return data.var;
 		}
-		public Compiler.DataObject getVar(final int DATA_ID, String varName) {
-			Map<String, Compiler.DataObject> vars = getVarMap(DATA_ID);
+		public Compiler.DataObject getVar(final int SCOPE_ID, String varName) {
+			Map<String, Compiler.DataObject> vars = getVarMap(SCOPE_ID);
 			if(vars == null)
 				return null;
 			
 			return vars.get(varName);
 		}
 		
-		private void setVar(final int DATA_ID, String varName, Compiler.DataObject data, boolean ignoreFinal) {
-			lii.setVar(DATA_ID, varName, data.convert(lii), ignoreFinal);
+		private void setVar(final int SCOPE_ID, String varName, Compiler.DataObject data, boolean ignoreFinal) {
+			lii.setVar(SCOPE_ID, varName, data.convert(lii), ignoreFinal);
 		}
-		public void setVar(final int DATA_ID, String varName, String text) {
-			setVar(DATA_ID, varName, text, false);
+		public void setVar(final int SCOPE_ID, String varName, String text) {
+			setVar(SCOPE_ID, varName, text, false);
 		}
-		public void setVar(final int DATA_ID, String varName, String text, boolean ignoreFinal) {
-			setVar(DATA_ID, varName, new Compiler.DataObject(text), ignoreFinal);
+		public void setVar(final int SCOPE_ID, String varName, String text, boolean ignoreFinal) {
+			setVar(SCOPE_ID, varName, new Compiler.DataObject(text), ignoreFinal);
 		}
-		public void setVar(final int DATA_ID, String varName, Compiler.DataObject[] arr) {
-			setVar(DATA_ID, varName, arr, false);
+		public void setVar(final int SCOPE_ID, String varName, Compiler.DataObject[] arr) {
+			setVar(SCOPE_ID, varName, arr, false);
 		}
-		public void setVar(final int DATA_ID, String varName, Compiler.DataObject[] arr, boolean ignoreFinal) {
-			setVar(DATA_ID, varName, new Compiler.DataObject().setArray(arr), ignoreFinal);
-		}
-		/**
-		 * @param function Call: function(String funcArgs, int DATA_ID): String
-		 */
-		public void setVar(final int DATA_ID, String varName, BiFunction<String, Integer, String> function) {
-			setVar(DATA_ID, varName, function, false);
+		public void setVar(final int SCOPE_ID, String varName, Compiler.DataObject[] arr, boolean ignoreFinal) {
+			setVar(SCOPE_ID, varName, new Compiler.DataObject().setArray(arr), ignoreFinal);
 		}
 		/**
-		 * @param function Call: function(String funcArgs, int DATA_ID): String
+		 * @param function Call: function(String funcArgs, int SCOPE_ID): String
 		 */
-		public void setVar(final int DATA_ID, String varName, BiFunction<String, Integer, String> function, boolean ignoreFinal) {
-			setVar(DATA_ID, varName, new Compiler.DataObject().setFunctionPointer(new Compiler.FunctionPointerObject(function)), ignoreFinal);
-		}
-		public void setVar(final int DATA_ID, String varName, int errno) {
-			setVar(DATA_ID, varName, errno, false);
-		}
-		public void setVar(final int DATA_ID, String varName, int errno, boolean ignoreFinal) {
-			setVar(DATA_ID, varName, new Compiler.DataObject().setError(new Compiler.ErrorObject(errno)), false);
+		public void setVar(final int SCOPE_ID, String varName, BiFunction<String, Integer, String> function) {
+			setVar(SCOPE_ID, varName, function, false);
 		}
 		/**
-		 * @param voidNull Sets the var to null if voidNull else void
+		 * @param function Call: function(String funcArgs, int SCOPE_ID): String
 		 */
-		public void setVar(final int DATA_ID, String varName, boolean voidNull) {
-			setVar(DATA_ID, varName, voidNull, false);
+		public void setVar(final int SCOPE_ID, String varName, BiFunction<String, Integer, String> function, boolean ignoreFinal) {
+			setVar(SCOPE_ID, varName, new Compiler.DataObject().setFunctionPointer(new Compiler.FunctionPointerObject(function)), ignoreFinal);
+		}
+		public void setVar(final int SCOPE_ID, String varName, int errno) {
+			setVar(SCOPE_ID, varName, errno, false);
+		}
+		public void setVar(final int SCOPE_ID, String varName, int errno, boolean ignoreFinal) {
+			setVar(SCOPE_ID, varName, new Compiler.DataObject().setError(new Compiler.ErrorObject(errno)), false);
 		}
 		/**
 		 * @param voidNull Sets the var to null if voidNull else void
 		 */
-		public void setVar(final int DATA_ID, String varName, boolean voidNull, boolean ignoreFinal) {
+		public void setVar(final int SCOPE_ID, String varName, boolean voidNull) {
+			setVar(SCOPE_ID, varName, voidNull, false);
+		}
+		/**
+		 * @param voidNull Sets the var to null if voidNull else void
+		 */
+		public void setVar(final int SCOPE_ID, String varName, boolean voidNull, boolean ignoreFinal) {
 			Compiler.DataObject dataObject = new Compiler.DataObject();
 			if(voidNull)
 				dataObject.setNull();
 			else
 				dataObject.setVoid();
 			
-			setVar(DATA_ID, varName, dataObject, ignoreFinal);
+			setVar(SCOPE_ID, varName, dataObject, ignoreFinal);
 		}
 		
 		/**
-		 * Creates an function which is accessible globally in the Compiler (= in all DATA_IDs)<br>
+		 * Creates an function which is accessible globally in the Compiler (= in all SCOPE_IDs)<br>
 		 * If function already exists, it will be overridden<br>
 		 * Function can be accessed with "func.[funcName]" and can't be removed nor changed by the lang file
 		 */
@@ -860,24 +860,24 @@ public final class Lang {
 			getFunctionPointer().getPredefinedFunction());
 		}
 		
-		public void exec(final int DATA_ID, BufferedReader lines) throws IOException {
-			lii.exec(DATA_ID, lines);
+		public void exec(final int SCOPE_ID, BufferedReader lines) throws IOException {
+			lii.exec(SCOPE_ID, lines);
 		}
-		public void exec(final int DATA_ID, String lines) throws IOException {
+		public void exec(final int SCOPE_ID, String lines) throws IOException {
 			try(BufferedReader reader = new BufferedReader(new StringReader(lines))) {
-				exec(DATA_ID, reader);
+				exec(SCOPE_ID, reader);
 			}
 		}
-		public String execLine(final int DATA_ID, String line) {
+		public String execLine(final int SCOPE_ID, String line) {
 			try {
-				exec(DATA_ID, line);
+				exec(SCOPE_ID, line);
 			}catch(IOException e) {
 				return "Error";
 			}
 			
 			return "";
 		}
-		public String callFunction(final int DATA_ID, String funcName, String funcArgs) {
+		public String callFunction(final int SCOPE_ID, String funcName, String funcArgs) {
 			List<Node> argumentList = new LinkedList<>();
 			String code = "func.abc(" + funcArgs + ")";
 			try(BufferedReader reader = new BufferedReader(new StringReader(code))) {
@@ -900,11 +900,11 @@ public final class Lang {
 				}).map(Map.Entry<String, LangPredefinedFunctionObject>::getValue).findFirst();
 				fp = new me.jddev0.module.lang.DataObject.FunctionPointerObject(predefinedFunction.orElse(null));
 			}else {
-				me.jddev0.module.lang.DataObject dataObject = lii.getData(DATA_ID).var.get(funcName);
+				me.jddev0.module.lang.DataObject dataObject = lii.getData(SCOPE_ID).var.get(funcName);
 				fp = dataObject == null?null:dataObject.getFunctionPointer();
 			}
 			
-			return lii.interpretFunctionPointer(fp, funcName, argumentList, DATA_ID).getText();
+			return lii.interpretFunctionPointer(fp, funcName, argumentList, SCOPE_ID).getText();
 		}
 	}
 	/**
@@ -1491,7 +1491,7 @@ public final class Lang {
 						me.jddev0.module.lang.DataObject.FunctionPointerObject convertedFP = null;
 						switch(fp.getFunctionPointerType()) {
 							case FunctionPointerObject.NORMAL:
-								convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, DATA_ID) -> {
+								convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject((LangPredefinedFunctionObject)(argumentList, SCOPE_ID) -> {
 									String function = "fp.abc = (" + fp.getHead() + ") -> {\n" + fp.getBody() + "}";
 									try(BufferedReader reader = new BufferedReader(new StringReader(function))) {
 										AbstractSyntaxTree ast = lii.parseLines(reader);
@@ -1511,7 +1511,7 @@ public final class Lang {
 											parameterList.add(parameter);
 										}
 										
-										return lii.callFunctionPointer(new me.jddev0.module.lang.DataObject.FunctionPointerObject(parameterList, functionBody), null, argumentList, DATA_ID);
+										return lii.callFunctionPointer(new me.jddev0.module.lang.DataObject.FunctionPointerObject(parameterList, functionBody), null, argumentList, SCOPE_ID);
 									}catch(ClassCastException|IOException e) {
 										return new me.jddev0.module.lang.DataObject().setError(new me.jddev0.module.lang.DataObject.ErrorObject(InterpretingError.INVALID_AST_NODE));
 									}
@@ -1534,9 +1534,9 @@ public final class Lang {
 								}
 								break;
 							case FunctionPointerObject.EXTERNAL:
-								LangExternalFunctionObject convertedExternalFunction = (argumentList, DATA_ID) -> {
+								LangExternalFunctionObject convertedExternalFunction = (argumentList, SCOPE_ID) -> {
 									String args = LangUtils.combineDataObjects(argumentList).getText();
-									return new me.jddev0.module.lang.DataObject(fp.getExternalFunction().apply(args, DATA_ID));
+									return new me.jddev0.module.lang.DataObject(fp.getExternalFunction().apply(args, SCOPE_ID));
 								};
 								
 								convertedFP = new me.jddev0.module.lang.DataObject.FunctionPointerObject(convertedExternalFunction);
@@ -1607,7 +1607,7 @@ public final class Lang {
 								convertedFP = new FunctionPointerObject(dataObject.getVariableName());
 								break;
 							case me.jddev0.module.lang.DataObject.FunctionPointerObject.EXTERNAL:
-								BiFunction<String, Integer, String> convertedExternalFunction = (args, DATA_ID) -> {
+								BiFunction<String, Integer, String> convertedExternalFunction = (args, SCOPE_ID) -> {
 									List<Node> argumentList = new LinkedList<>();
 									String code = "func.abc(" + args + ")";
 									try(BufferedReader reader = new BufferedReader(new StringReader(code))) {
@@ -1617,7 +1617,7 @@ public final class Lang {
 										argumentList.add(new ParsingErrorNode(ParsingError.EOF));
 									}
 									
-									me.jddev0.module.lang.DataObject ret = lii.interpretFunctionPointer(fp, dataObject.getVariableName(), argumentList, DATA_ID);
+									me.jddev0.module.lang.DataObject ret = lii.interpretFunctionPointer(fp, dataObject.getVariableName(), argumentList, SCOPE_ID);
 									return ret == null?"":ret.getText();
 								};
 								

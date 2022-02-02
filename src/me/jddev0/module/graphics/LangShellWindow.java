@@ -464,16 +464,16 @@ public class LangShellWindow extends JDialog {
 		lii = Lang.createInterpreterInterface(term, langPlatformAPI, langArgs);
 		
 		//Add debug functions
-		lii.addPredefinedFunction("printHelp", (argumentList, DATA_ID) -> {
+		lii.addPredefinedFunction("printHelp", (argumentList, SCOPE_ID) -> {
 			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 			"func.printDebug(value) # Prints debug information about the provided DataObject", LangShellWindow.class);
 			
 			return null;
 		});
-		lii.addPredefinedFunction("printDebug", (argumentList, DATA_ID) -> {
+		lii.addPredefinedFunction("printDebug", (argumentList, SCOPE_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, DATA_ID);
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
 			
 			StringBuilder builder = new StringBuilder();
 			builder.append("Debug[");
@@ -487,8 +487,8 @@ public class LangShellWindow extends JDialog {
 		});
 		
 		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
-		lii.addPredefinedFunction("input", (argumentList, DATA_ID) -> {
-			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", DATA_ID);
+		lii.addPredefinedFunction("input", (argumentList, SCOPE_ID) -> {
+			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
 			return new DataObject().setError(new DataObject.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
 		});
 		

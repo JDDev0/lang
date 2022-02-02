@@ -11,7 +11,7 @@ import java.util.List;
  */
 @FunctionalInterface
 public interface LangPredefinedFunctionObject {
-	DataObject callFunc(List<DataObject> argumentList, final int DATA_ID);
+	DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID);
 	
 	/**
 	 * @return Returns true if this function is a linker function

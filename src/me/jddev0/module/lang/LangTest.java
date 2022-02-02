@@ -924,7 +924,7 @@ public class LangTest {
 			this.actualValue = actualValue;
 			this.expectedValue = expectedValue;
 		}
-
+		
 		@Override
 		public boolean hasTestPassed() {
 			return testPassed;
