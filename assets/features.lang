@@ -1187,4 +1187,18 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.println(func.getItem(func.arrayOf(1, 42, 3, abc, test), 2)) # 3
 		func.println(func.getItem(func.arrayOf(1, 42, 3, abc, test), 3)) # abc
 	}
+	
+	# Pointer redirection of lang vars is no longer possible
+	{
+		func.printTerminal(4, $LANG_VERSION)
+		func.printTerminal(4, $[LANG_VERSION])
+		func.printTerminal(4, $[[LANG_VERSION]])
+		func.printTerminal(4, $[[[LANG_VERSION]]])
+		
+		$[[LANG_VERSION]] = Not \$LANG_VERSION # Is not possible
+		func.printTerminal(4, $LANG_VERSION)
+		func.printTerminal(4, $[LANG_VERSION])
+		func.printTerminal(4, $[[LANG_VERSION]])
+		func.printTerminal(4, $[[[LANG_VERSION]]])
+	}
 }
