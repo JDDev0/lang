@@ -1392,6 +1392,34 @@ public final class LangParser {
 				continue;
 			}
 			
+			//Parser function calls
+			if(LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_PARSER_FUNCTION_CALL)) {
+				clearAndParseStringBuilder(builder, nodes);
+				
+				int parameterStartIndex = translationKey.indexOf('(');
+				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(translationKey, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
+				if(parameterEndIndex == -1) {
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					return ast;
+				}
+				
+				String functionCall = translationKey.substring(0, parameterEndIndex + 1);
+				
+				String functionName = functionCall.substring(translationKey.indexOf('.') + 1, parameterStartIndex);
+				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
+				
+				AbstractSyntaxTree.Node ret = parseParserFunction(functionName, functionParameterList);
+				if(ret != null) {
+					translationKey = translationKey.substring(parameterEndIndex + 1);
+					
+					nodes.add(ret);
+					
+					continue;
+				}
+				
+				//Invalid parser function
+			}
+			
 			//Force node split
 			if(translationKey.startsWith("$")) {
 				//Variable split for variable concatenation
@@ -1515,6 +1543,7 @@ public final class LangParser {
 				nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
 				continue;
 			}
+			
 			//Function call of previous value
 			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE)) {
 				clearAndParseStringBuilder(builder, nodes);
