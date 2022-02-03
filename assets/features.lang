@@ -1212,6 +1212,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		
 		func.println()
 		
+		# "con." prefix is optional in the curly brackets flow control statement syntax
 		if(1) {
 			func.println(IF)
 		}else {
