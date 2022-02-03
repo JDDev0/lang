@@ -1188,6 +1188,51 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.println(func.getItem(func.arrayOf(1, 42, 3, abc, test), 3)) # abc
 	}
 	
+	func.println()
+	
+	# New syntax for control flow statements
+	{
+		con.if(1) {
+			func.println(IF)
+		}con.else {
+			func.println(ELSE)
+		}
+		
+		con.if(0) {
+			func.println(IF)
+		}con.else {
+			func.println(ELSE)
+		}
+		
+		con.if(0) {
+			func.println(IF)
+		}con.elif(1) {
+			func.println(ELIF)
+		}
+		
+		func.println()
+		
+		if(1) {
+			func.println(IF)
+		}else {
+			func.println(ELSE)
+		}
+		
+		if(0) {
+			func.println(IF)
+		}else {
+			func.println(ELSE)
+		}
+		
+		if(0) {
+			func.println(IF)
+		}elif(1) {
+			func.println(ELIF)
+		}
+	}
+	
+	func.println()
+	
 	# Pointer redirection of lang vars is no longer possible
 	{
 		func.printTerminal(4, $LANG_VERSION)
