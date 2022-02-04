@@ -236,4 +236,99 @@ func.printTerminal(-1, \n\n\n)
 	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 2))
 	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 3))
 	func.printTerminal(-1, fp.getElement(&LANG_ARGS, 4))
-} 
+}
+
+func.println()
+
+# Emulating loop types that are not directly supported by lang
+{
+	# do-while loop
+	{
+		# do {
+		#     # Stuff
+		# }while(CONDITION)
+		
+		# Can be emulated by
+		# loop {
+		#     # STUFF
+		#
+		#     if(!(CONDITION)) {
+		#         con.break
+		#     }
+		# }
+		
+		# Example
+		# $i = 0
+		# do {
+		#     func.println($i)
+		# }while($i)
+		$i = 0
+		loop {
+			func.println($i)
+			
+			if(!($i)) {
+				con.break
+			}
+		}
+	}
+	
+	func.println()
+	
+	# do-until loop
+	{
+		# do {
+		#     # Stuff
+		# }until(CONDITION)
+		
+		# Can be emulated by
+		# loop {
+		#     # STUFF
+		#
+		#     if(CONDITION) {
+		#         con.break
+		#     }
+		# }
+		
+		# Example
+		# $i = 1
+		# do {
+		#     func.println($i)
+		# }until($i)
+		$i = 1
+		loop {
+			func.println($i)
+			
+			if($i) {
+				con.break
+			}
+		}
+	}
+	
+	func.println()
+	
+	# for loop
+	{
+		# for(INIT; CONDITION; UPDATE) {
+		#     # Stuff
+		# }
+		
+		# Can be emulated by
+		# # INIT
+		# while(CONDITION) {
+		#     # STUFF
+		#
+		#     # Update
+		# }
+		
+		# Example
+		# for($x = 0; $x < 10; $x += 1) {
+		#     func.println($i)
+		# }
+		$x = 0 # Init
+		while($x < 10) {
+			func.println($x)
+			
+			$x += 1 # Update
+		}
+	}
+}
