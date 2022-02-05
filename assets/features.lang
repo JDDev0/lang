@@ -1085,7 +1085,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		
 		func.println()
 		
-		func.println(func.pow(42, 2)) # 1764.0
+		func.println(func.pow(42, 2)) # 1764
 		func.println(func.pow(42.2, 2.3)) # 5472.9134199161135
 		func.println(func.pow(42.2, .5)) # 6.496152766287093
 		func.println(func.pow(42.2, .0)) # 1.0
