@@ -2093,6 +2093,10 @@ public final class LangInterpreter {
 		data.get(SCOPE_ID).var.put("$LANG_OS_ARCH", new DataObject(System.getProperty("os.arch")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_ARCH"));
 		data.get(SCOPE_ID).var.put("$LANG_OS_FILE_SEPARATOR", new DataObject(System.getProperty("file.separator")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_FILE_SEPARATOR"));
 		data.get(SCOPE_ID).var.put("$LANG_OS_LINE_SEPARATOR", new DataObject(System.getProperty("line.separator")).setFinalData(true).setLangVar().setVariableName("$LANG_OS_LINE_SEPARATOR"));
+		data.get(SCOPE_ID).var.put("$LANG_INT_MIN", new DataObject().setInt(Integer.MIN_VALUE).setFinalData(true).setLangVar().setVariableName("$LANG_INT_MIN"));
+		data.get(SCOPE_ID).var.put("$LANG_INT_MAX", new DataObject().setInt(Integer.MAX_VALUE).setFinalData(true).setLangVar().setVariableName("$LANG_INT_MAX"));
+		data.get(SCOPE_ID).var.put("$LANG_LONG_MIN", new DataObject().setLong(Long.MIN_VALUE).setFinalData(true).setLangVar().setVariableName("$LANG_LONG_MIN"));
+		data.get(SCOPE_ID).var.put("$LANG_LONG_MAX", new DataObject().setLong(Long.MAX_VALUE).setFinalData(true).setLangVar().setVariableName("$LANG_LONG_MAX"));
 		data.get(SCOPE_ID).var.put("$LANG_FLOAT_NAN", new DataObject().setFloat(Float.NaN).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_NAN"));
 		data.get(SCOPE_ID).var.put("$LANG_FLOAT_POS_INF", new DataObject().setFloat(Float.POSITIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_POS_INF"));
 		data.get(SCOPE_ID).var.put("$LANG_FLOAT_NEG_INF", new DataObject().setFloat(Float.NEGATIVE_INFINITY).setFinalData(true).setLangVar().setVariableName("$LANG_FLOAT_NEG_INF"));
