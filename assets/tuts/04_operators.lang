@@ -457,3 +457,19 @@ func.println(Output: parser.op(printAndRet(l, 0) ? printAndRet(m, m) : printAndR
 func.println()
 func.println(null ? m : r:)
 func.println(Output: parser.op(printAndRet(l, null) ? printAndRet(m, m) : printAndRet(r, r)))
+
+func.println()
+
+# Operators with non number types
+# - (unary) for TEXT and ARRAY values
+# Will reverse the text/array value
+func.println(-\e \= parser.op(-\e))
+func.println(-a\e \= parser.op(-a\e))
+func.println(-ABC \= parser.op(-ABC))
+
+func.println()
+
+&a = func.arrayOf(42, abc, test, null, 14)
+func.println(-func.arrayOf() \= parser.op(-func.arrayOf()))
+func.println(-func.arrayOf(abc) \= parser.op(-func.arrayOf(abc)))
+func.println(-&a \= parser.op(-&a))
