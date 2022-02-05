@@ -2122,7 +2122,8 @@ public final class LangInterpreter {
 		}
 		
 		//Not final vars
-		setErrno(InterpretingError.NO_ERROR, SCOPE_ID); //Set $LANG_ERRNO
+		data.get(SCOPE_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().
+				setError(new ErrorObject(InterpretingError.NO_ERROR)).setStaticData(true).setLangVar().setVariableName("$LANG_ERRNO"));
 	}
 	void resetVars(final int SCOPE_ID) {
 		Set<Map.Entry<String, DataObject>> entrySet = new HashSet<>(data.get(SCOPE_ID).var.entrySet());
@@ -2143,8 +2144,6 @@ public final class LangInterpreter {
 		setErrno(error, message, false, SCOPE_ID);
 	}
 	private void setErrno(InterpretingError error, String message, boolean forceNoErrorOutput, final int SCOPE_ID) {
-		data.get(SCOPE_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().setStaticData(true).setLangVar().setVariableName("$LANG_ERRNO"));
-		
 		int currentErrno = data.get(SCOPE_ID).var.get("$LANG_ERRNO").getInt();
 		int newErrno = error.getErrorCode();
 		
