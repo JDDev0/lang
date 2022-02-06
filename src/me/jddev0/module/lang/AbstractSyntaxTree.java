@@ -1390,7 +1390,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("ConditionalContinueBreakStatementNode: numberNode: {\n");
+			builder.append("LoopStatementContinueBreakStatementNode: numberNode: {\n");
 			if(numberNode == null) {
 				builder.append("null");
 			}else {
