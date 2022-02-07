@@ -473,3 +473,39 @@ func.println()
 func.println(-func.arrayOf() \= parser.op(-func.arrayOf()))
 func.println(-func.arrayOf(abc) \= parser.op(-func.arrayOf(abc)))
 func.println(-&a \= parser.op(-&a))
+
+func.println()
+# + (binary) for TEXT and ARRAY values
+# Will append something to the text/array value
+func.println(\e+\e \= parser.op(\e+\e))
+func.println(test+\e \= parser.op(test+\e))
+func.println(\e+test \= parser.op(\e+test))
+func.println(test+test \= parser.op(test+test))
+
+func.println()
+
+func.println(\e+42 \= parser.op(\e+42))
+func.println(\e+\s \= parser.op(\e+\s))
+func.println(\e+func.arrayOf(1, 2, a) \= parser.op(\e+func.arrayOf(1, 2, a)))
+func.println(test+42 \= parser.op(test+42))
+func.println(test+\s \= parser.op(test+\s))
+func.println(test+func.arrayOf(1, 2, a) \= parser.op(test+func.arrayOf(1, 2, a)))
+
+func.println()
+
+# ARRAY + ARRAY: The second array will be added as one element in the first array
+&a = func.arrayOf(42, abc, null, test)
+&e = func.arrayMake(0)
+func.println(&e+&e \= parser.op(&e+&e))
+func.println(&a+&e \= parser.op(&a+&e))
+func.println(&e+&a \= parser.op(&e+&a))
+func.println(&a+&a \= parser.op(&a+&a))
+
+func.println()
+
+func.println(&e+42 \= parser.op(&e+42))
+func.println(&e+\s \= parser.op(&e+\s))
+func.println(&e+test \= parser.op(&e+test))
+func.println(&a+42 \= parser.op(&a+42))
+func.println(&a+\s \= parser.op(&a+\s))
+func.println(&a+test \= parser.op(&a+test))
