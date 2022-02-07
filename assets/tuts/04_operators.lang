@@ -475,6 +475,7 @@ func.println(-func.arrayOf(abc) \= parser.op(-func.arrayOf(abc)))
 func.println(-&a \= parser.op(-&a))
 
 func.println()
+
 # + (binary) for TEXT and ARRAY values
 # Will append something to the text/array value
 func.println(\e+\e \= parser.op(\e+\e))
@@ -509,3 +510,17 @@ func.println(&e+test \= parser.op(&e+test))
 func.println(&a+42 \= parser.op(&a+42))
 func.println(&a+\s \= parser.op(&a+\s))
 func.println(&a+test \= parser.op(&a+test))
+
+func.println()
+
+# * (binary) for TEXT values
+# Will repeat the text 0 or more times
+
+func.println(\e*0 \= parser.op(\e*0))
+func.println(\e*1 \= parser.op(\e*1))
+func.println(\e*2 \= parser.op(\e*2))
+func.println(\e*3 \= parser.op(\e*3))
+func.println(test*0 \= parser.op(test*0))
+func.println(test*1 \= parser.op(test*1))
+func.println(test*2 \= parser.op(test*2))
+func.println(test*3 \= parser.op(test*3))
