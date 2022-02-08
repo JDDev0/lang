@@ -77,6 +77,9 @@ func.println(Error code: $LANG_ERRNO)
 #        36: INVALID_FORMAT
 #    Variable errors:
 #        37: INVALID_ASSIGNMENT
+#    Number errors:
+#        38: NO_BIN_NUM
+#        39: NO_OCT_NUM
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
