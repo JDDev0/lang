@@ -998,12 +998,12 @@ final class LangPredefinedFunctions {
 			
 			String binString = binObject.getText();
 			if(!binString.startsWith("0b") && !binString.startsWith("0B"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Wrong prefix (Should be 0b or 0B)", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, "Wrong prefix (Should be 0b or 0B)", SCOPE_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(binString.substring(2), 2));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, e.getMessage(), SCOPE_ID);
 			}
 		});
 		funcs.put("octToDec", (argumentList, SCOPE_ID) -> {
@@ -1013,12 +1013,12 @@ final class LangPredefinedFunctions {
 			
 			String octString = octObject.getText();
 			if(!octString.startsWith("0o") && !octString.startsWith("0O"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Wrong prefix (Should be 0o or 0O)", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, "Wrong prefix (Should be 0o or 0O)", SCOPE_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
 			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, e.getMessage(), SCOPE_ID);
 			}
 		});
 		funcs.put("hexToDez", new LangPredefinedFunctionObject() {

@@ -2330,6 +2330,8 @@ public final class LangInterpreter {
 		INVALID_CON_PART      (35, "Invalid statement in control flow statement"),
 		INVALID_FORMAT        (36, "Invalid format sequence"),
 		INVALID_ASSIGNMENT    (37, "Invalid assignment"),
+		NO_BIN_NUM            (38, "No binary number"),
+		NO_OCT_NUM            (39, "No octal number"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
