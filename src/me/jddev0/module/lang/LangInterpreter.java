@@ -846,10 +846,10 @@ public final class LangInterpreter {
 						//Reset saved execution state because the reason of the execution stop was handled by the catch block
 						savedExecutionState = new ExecutionState();
 						executionState.tryThrownError = null;
+						
+						//Error was handled and (the try statement is the most outer try statement or no other error was thrown): reset $LANG_ERRNO
+						getAndClearErrnoErrorObject(SCOPE_ID);
 					}
-					
-					//Error was handled: reset $LANG_ERRNO
-					getAndClearErrnoErrorObject(SCOPE_ID);
 					
 					break;
 				}
