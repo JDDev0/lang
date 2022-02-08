@@ -535,7 +535,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			
@@ -562,9 +562,9 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, "Loop function FP", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
 			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function FP", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
@@ -581,9 +581,9 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR_LOOP, "Loop function FP", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
 			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function FP", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
