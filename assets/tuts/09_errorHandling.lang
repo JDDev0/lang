@@ -80,6 +80,8 @@ func.println(Error code: $LANG_ERRNO)
 #    Number errors:
 #        38: NO_BIN_NUM
 #        39: NO_OCT_NUM
+#        40: NO_BASE_N_NUM
+#        41: INVALID_NUMBER_BASE
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
