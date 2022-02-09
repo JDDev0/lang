@@ -228,6 +228,54 @@ func.printTerminal(-1, \n\n\n)
 
 func.println()
 
+# Assignment operators with pointer dereferencing
+{
+	$val = test
+	$ptr = $[val]
+	func.println($*ptr, $val)
+	
+	$*ptr ?= 1 && 0
+	func.println($*ptr, $val)
+	
+	$*ptr := 1 + 8
+	func.println($*ptr, $val)
+	
+	$*ptr $= 0 || (1 - 2)
+	func.println($*ptr, $val)
+	
+	$*ptr += 41
+	func.println($*ptr, $val)
+	
+	$*ptr //= 2
+	func.println($*ptr, $val)
+	
+	$*ptr /= 2
+	func.println($*ptr, $val)
+	
+	$*ptr **= 2
+	func.println($*ptr, $val)
+	
+	$*ptr $= null
+	func.println($*ptr, $val)
+	
+	$*ptr ??= test
+	func.println($*ptr, $val)
+	
+	$*ptr ??= 42
+	func.println($*ptr, $val)
+	
+	$*ptr $= null
+	func.println($*ptr, $val)
+	
+	$*ptr ?:= 0
+	func.println($*ptr, $val)
+	
+	$*ptr ?:= 42
+	func.println($*ptr, $val)
+}
+
+func.println()
+
 # Emulating loop types that are not directly supported by lang
 {
 	# do-while loop
