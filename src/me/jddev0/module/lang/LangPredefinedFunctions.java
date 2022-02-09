@@ -1107,7 +1107,10 @@ final class LangPredefinedFunctions {
 			
 			Number number = numberObject.toNumber();
 			Number base = baseObject.toNumber();
-			if(number == null || base == null)
+			if(number == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Number must be a number", SCOPE_ID);
+			
+			if(base == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be a number", SCOPE_ID);
 			
 			if(base.intValue() < 2 || base.intValue() > 36)
@@ -1119,7 +1122,7 @@ final class LangPredefinedFunctions {
 				if(numberLong < 0?(numberLong < numberInt):(numberLong > numberInt))
 					return new DataObject().setText(Long.toString(number.longValue(), base.intValue()).toUpperCase());
 				else
-				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
+					return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
 			}catch(NumberFormatException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
 			}
