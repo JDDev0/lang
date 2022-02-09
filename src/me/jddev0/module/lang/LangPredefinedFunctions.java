@@ -1081,10 +1081,10 @@ final class LangPredefinedFunctions {
 			String numberString = numberObject.getText();
 			Number base = baseObject.toNumber();
 			if(base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be a number", SCOPE_ID);
 			
 			if(base.intValue() < 2 || base.intValue() > 36)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
 			
 			try {
 				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
@@ -1092,7 +1092,7 @@ final class LangPredefinedFunctions {
 				try {
 					return new DataObject().setLong(Long.parseLong(numberString, base.intValue()));
 				}catch(NumberFormatException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_BASE_N_NUM, "The text \"" + numberString + "\" is not in base \"" + base.intValue() + "\"", SCOPE_ID);
 				}
 			}
 		});
@@ -1108,10 +1108,10 @@ final class LangPredefinedFunctions {
 			Number number = numberObject.toNumber();
 			Number base = baseObject.toNumber();
 			if(number == null || base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be a number", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be a number", SCOPE_ID);
 			
 			if(base.intValue() < 2 || base.intValue() > 36)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
 			
 			try {
 				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
