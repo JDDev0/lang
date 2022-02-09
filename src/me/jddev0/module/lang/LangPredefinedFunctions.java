@@ -1113,14 +1113,15 @@ final class LangPredefinedFunctions {
 			if(base.intValue() < 2 || base.intValue() > 36)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
 			
+			int numberInt = number.intValue();
+			long numberLong = number.longValue();
 			try {
-				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
-			}catch(NumberFormatException e1) {
-				try {
+				if(numberLong < 0?(numberLong < numberInt):(numberLong > numberInt))
 					return new DataObject().setText(Long.toString(number.longValue(), base.intValue()).toUpperCase());
-				}catch(NumberFormatException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
-				}
+				else
+				return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
 			}
 		});
 		funcs.put("toIntBits", (argumentList, SCOPE_ID) -> {
