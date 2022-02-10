@@ -2558,23 +2558,41 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("arrayClear", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		funcs.put("arrayClear", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				if(argumentList.size() > 0) //Not 1 argument
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+				
+				if(arrPointerObject.getType() != DataType.ARRAY)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+				
+				if(arrPointerObject.isFinalData() || arrPointerObject.isLangVar())
+					return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+				
+				String variableName = arrPointerObject.getVariableName();
+				if(variableName == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+				
+				interpreter.data.get(SCOPE_ID).var.remove(variableName);
+				return null;
+			}
 			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
 			
-			if(arrPointerObject.isFinalData() || arrPointerObject.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
 			
-			String variableName = arrPointerObject.getVariableName();
-			if(variableName == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			interpreter.data.get(SCOPE_ID).var.remove(variableName);
-			return null;
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.clearVar";
+			}
 		});
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
