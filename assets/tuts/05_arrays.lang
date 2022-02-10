@@ -193,8 +193,8 @@ func.arrayEnumerate(&testArray, func.printTerminal)
 func.println()
 
 # Remove an array
-# func.arrayClear(arrPtr)
-func.arrayClear(&arr)
+# func.clearVar(arrPtr)
+func.clearVar(&arr)
 func.println(func.arrayGetAll(&arr)) # Will result in an error, because &arr won't exist anymore
 
 # Split a Text
