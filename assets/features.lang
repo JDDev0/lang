@@ -338,7 +338,7 @@ lang.errorOutput = 1 # Reenable error ouput
 	fp.printArray(&arr)
 	
 	# Clears the array data from RAM
-	func.arrayClear(&arr)
+	func.clearVar(&arr)
 	fp.printArray(&arr)
 	
 	# Gets a random TEXT from an TEXT list
