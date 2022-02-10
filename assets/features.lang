@@ -277,7 +277,7 @@ lang.errorOutput = 0 # Disable error ouput
 	user.setting.1 = func.readTerminal(Enter setting 1:)
 }
 
-lang.errorOutput = 1 # Reenable error ouput
+lang.errorOutput = -1 # Disable warning output
 
 # Arrays
 {
@@ -345,6 +345,8 @@ lang.errorOutput = 1 # Reenable error ouput
 	$txt = func.randChoice(TEST, 1, 42, THIS is a Text!, $a - $b, $c)
 	func.printTerminal(-1, $txt)
 }
+
+lang.errorOutput = 1 # Reenable error ouput
 
 # String functions
 {
