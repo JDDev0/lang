@@ -77,8 +77,7 @@ public class TerminalWindow extends JFrame {
 					}
 					if(e.getKeyCode() == KeyEvent.VK_ENTER && !b) { //Starts sending command to TerminalIO
 						readingTmp = new StringBuilder(txtEnterCommands.getText() + "");
-						history.add(readingTmp.toString());
-						historyPos = history.size();
+						addToHistory(readingTmp.toString());
 						termIO.logln(Level.USER, readingTmp.toString(), TerminalWindow.class);
 						
 						txtEnterCommands.setText(null);
@@ -337,6 +336,13 @@ public class TerminalWindow extends JFrame {
 				}
 			}
 		}, true));
+	}
+	
+	private void addToHistory(String str) {
+		if(!str.trim().isEmpty() && (history.isEmpty() || !history.get(history.size() - 1).equals(str)))
+			history.add(str);
+		
+		historyPos = history.size();
 	}
 	
 	public void setFontSize(int fontSize) {
