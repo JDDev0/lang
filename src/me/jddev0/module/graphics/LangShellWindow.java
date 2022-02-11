@@ -232,7 +232,7 @@ public class LangShellWindow extends JDialog {
 									executionQueue.clear();
 									term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
 								}
-							}else if(lines.length > 1) {
+							}else if(lines.length > 1 && !executionQueue.isEmpty()) {
 								executeCodeFromExecutionQueue();
 							}
 						}
