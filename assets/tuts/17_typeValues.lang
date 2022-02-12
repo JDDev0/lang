@@ -1,0 +1,133 @@
+lang.name = Type values
+lang.version = v1.0.0
+
+# Types (v1.0.0):
+#   TEXT
+#   CHAR
+#   INT
+#   LONG
+#   FLOAT
+#   DOUBLE
+#   ARRAY
+#   VAR_POINTER
+#   FUNCTION_POINTER
+#   ERROR
+#   NULL
+#   VOID
+#   ARGUMENT_SEPARATOR
+#   TYPE
+
+# LANG variables with type as value: $LANG_TYPE_<type>
+func.println($LANG_TYPE_TEXT)
+func.println($LANG_TYPE_CHAR)
+func.println($LANG_TYPE_INT)
+func.println($LANG_TYPE_LONG)
+func.println($LANG_TYPE_FLOAT)
+func.println($LANG_TYPE_DOUBLE)
+func.println($LANG_TYPE_ARRAY)
+func.println($LANG_TYPE_VAR_POINTER)
+func.println($LANG_TYPE_FUNCTION_POINTER)
+func.println($LANG_TYPE_ERROR)
+func.println($LANG_TYPE_NULL)
+func.println($LANG_TYPE_VOID)
+func.println($LANG_TYPE_ARGUMENT_SEPARATOR)
+func.println($LANG_TYPE_TYPE)
+
+func.println()
+
+# Get the type of a value
+# func.typeOf(any) # Returns the type of the value as type value
+func.println(func.typeOf(\e)) # TEXT
+func.println(func.typeOf({{{}}})) # TEXT
+func.println(func.typeOf(test)) # TEXT
+
+func.println()
+
+func.println(func.typeOf(\s)) # CHAR
+func.println(func.typeOf(\n)) # CHAR
+func.println(func.typeOf(\t)) # CHAR
+func.println(func.typeOf(\#)) # CHAR
+func.println(func.typeOf(a)) # CHAR
+func.println(func.typeOf(@)) # CHAR
+
+func.println()
+
+func.println(func.typeOf(42)) # INT
+func.println(func.typeOf(-42)) # INT
+func.println(func.typeOf(0)) # INT
+func.println(func.typeOf($LANG_ERRNO_DIV_BY_ZERO)) # INT
+func.println(func.typeOf($LANG_INT_MIN)) # LONG
+
+func.println()
+
+func.println(func.typeOf(func.long(42))) # LONG
+func.println(func.typeOf(4242424242424242)) # LONG
+func.println(func.typeOf($LANG_LONG_MAX)) # LONG
+
+func.println()
+
+func.println(func.typeOf(0.)) # FLOAT
+func.println(func.typeOf(.0)) # FLOAT
+func.println(func.typeOf(-0.)) # FLOAT
+func.println(func.typeOf(.42)) # FLOAT
+func.println(func.typeOf(-.42)) # FLOAT
+func.println(func.typeOf(1e1)) # FLOAT
+func.println(func.typeOf(func.div(2, 0))) # FLOAT
+func.println(func.typeOf(424242424242424242424242)) # FLOAT
+
+func.println()
+
+func.println(func.typeOf(.42e100)) # DOUBLE
+func.println(func.typeOf(-.42e200)) # DOUBLE
+func.println(func.typeOf(1e122)) # DOUBLE
+func.println(func.typeOf(424242424242424242424242424242424242424242424242)) # DOUBLE
+func.println(func.typeOf($LANG_DOUBLE_NAN)) # DOUBLE
+
+func.println()
+
+func.println(func.typeOf(func.arrayMake(0))) # ARRAY
+func.println(func.typeOf(func.arrayOf())) # ARRAY
+func.println(func.typeOf(func.arrayOf(1, abc, test))) # ARRAY
+
+func.println()
+
+func.println(func.typeOf($[LANG_ERRNO])) # VAR_POINTER
+$var
+$ptr = $[var]
+func.println(func.typeOf($ptr)) # VAR_POINTER
+
+func.println()
+
+func.println(func.typeOf(func.typeOf)) # FUNCTION_POINTER
+func.println(func.typeOf(linker.include)) # FUNCTION_POINTER
+fp.empty = () -> return
+func.println(func.typeOf(fp.empty)) # FUNCTION_POINTER
+
+func.println()
+
+lang.errorOutput = 0 # Disable error output
+
+func.println(func.typeOf($LANG_ERROR_DIV_BY_ZERO)) # ERROR
+func.println(func.typeOf(func.truncDiv(2, 0))) # ERROR
+
+func.println()
+
+lang.errorOutput = 1 # Re-enable error output
+
+func.println(func.typeOf(null)) # NULL
+
+func.println()
+
+func.println(func.typeOf()) # VOID
+func.println(func.typeOf(\!)) # VOID
+func.println(func.typeOf(func.print(\e))) # VOID
+
+func.println()
+
+# ARGUMENT_SEPARATOR are only used in function calls, a value of this type can only be gotten by non-standard lang functions
+
+func.println()
+func.println(func.typeOf($LANG_TYPE_TEXT)) # TYPE
+func.println(func.typeOf($LANG_TYPE_TYPE)) # TYPE
+func.println(func.typeOf(func.typeOf(42))) # TYPE
+func.println(func.typeOf(func.typeOf($LANG_TYPE_TYPE))) # TYPE
