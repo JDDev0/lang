@@ -131,3 +131,21 @@ func.println(func.typeOf($LANG_TYPE_TEXT)) # TYPE
 func.println(func.typeOf($LANG_TYPE_TYPE)) # TYPE
 func.println(func.typeOf(func.typeOf(42))) # TYPE
 func.println(func.typeOf(func.typeOf($LANG_TYPE_TYPE))) # TYPE
+
+func.println()
+
+# Check if a value is of a certain type
+# func.isInstanceOf(any, TYPE) # Returns 1 if any is of type TYPE else 0
+func.println(func.isInstanceOf(abc, $LANG_TYPE_TEXT)) # 1
+func.println(func.isInstanceOf(\e, $LANG_TYPE_TEXT)) # 1
+func.println(func.isInstanceOf(a, $LANG_TYPE_TEXT)) # 0
+func.println(func.isInstanceOf(a, $LANG_TYPE_CHAR)) # 1
+func.println(func.isInstanceOf(42, $LANG_TYPE_TEXT)) # 0
+func.println(func.isInstanceOf(42, $LANG_TYPE_INT)) # 1
+func.println(func.isInstanceOf(\!, $LANG_TYPE_VOID)) # 1
+&a = func.arrayMake(0)
+func.println(func.isInstanceOf(&a, $LANG_TYPE_ARRAY)) # 1
+func.println(func.isInstanceOf(&a, $LANG_TYPE_NULL)) # 0
+&e = null
+func.println(func.isInstanceOf(&e, $LANG_TYPE_ARRAY)) # 0
+func.println(func.isInstanceOf(&e, $LANG_TYPE_NULL)) # 1
