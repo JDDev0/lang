@@ -124,7 +124,7 @@ func.println(func.typeOf(func.print(\e))) # VOID
 
 func.println()
 
-# ARGUMENT_SEPARATOR are only used in function calls, a value of this type can only be gotten by non-standard lang functions
+# ARGUMENT_SEPARATOR values are only used in the execution of function calls, a value of this type can only be gotten by non-standard lang functions
 
 func.println()
 func.println(func.typeOf($LANG_TYPE_TEXT)) # TYPE
