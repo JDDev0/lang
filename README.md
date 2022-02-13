@@ -29,7 +29,7 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
   - "$LANG\_COMPILER\_VERSION" was removed and replaced with "$LANG\_VERSION"
   - "func.isCompilerVersionNewer()" was removed and replaced with "func.isLangVersionNewer()"
   - "func.isCompilerVersionOlder()" was removed and replaced with "func.isLangVersionOlder()"
-  - "func.exec()" can access variables defined in the caller's data map
+  - "func.exec()" can access variables defined in the caller's scope
   - "$LANG\_ERRNO" is now static: If "$LANG\_ERRNO" is set inside a function, "$LANG\_ERRNO" in the caller scope will also be this value
   - Pointer redirection of lang vars is no longer possible
 
