@@ -71,7 +71,7 @@ func.println(\s)
 func.println(Global scope)
 func.println(\$e: $e)
 
-# Translations are always be in the global scope
+# Translations are always in the global scope
 fp.a = () -> {
 	fp.b = () -> {
 		fp.c = () -> {
