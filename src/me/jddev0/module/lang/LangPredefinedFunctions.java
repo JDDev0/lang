@@ -535,7 +535,7 @@ final class LangPredefinedFunctions {
 			
 			@Override
 			public String getDeprecatedReplacementFunction() {
-				return "func.clearAllVars";
+				return "func.freeAllVars";
 			}
 		});
 	}
