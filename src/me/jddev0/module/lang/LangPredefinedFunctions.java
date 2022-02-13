@@ -381,7 +381,91 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("clearVar", (argumentList, SCOPE_ID) -> {
+		funcs.put("clearVar", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+				if(argumentList.size() > 0) //Not 1 argument
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+				
+				DataObject dereferencedVarPointer = null;
+				switch(pointerObject.getType()) {
+					case VAR_POINTER:
+						if(pointerObject.getVariableName() == null)
+							dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+						break;
+					
+					case FUNCTION_POINTER:
+					case ARRAY:
+						dereferencedVarPointer = pointerObject;
+						break;
+					
+					case ARGUMENT_SEPARATOR:
+					case CHAR:
+					case DOUBLE:
+					case ERROR:
+					case FLOAT:
+					case INT:
+					case LONG:
+					case NULL:
+					case TEXT:
+					case VOID:
+					case TYPE:
+						break;
+				}
+				if(dereferencedVarPointer == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+				
+				String variableName = dereferencedVarPointer.getVariableName();
+				if(variableName == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+				
+				if(dereferencedVarPointer.isFinalData() || dereferencedVarPointer.isLangVar())
+					return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+				
+				interpreter.data.get(SCOPE_ID).var.remove(variableName);
+				
+				return null;
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.freeVar";
+			}
+		});
+		funcs.put("clearAllVars", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				interpreter.resetVars(SCOPE_ID);
+				return null;
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.2.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.freeAllVars";
+			}
+		});
+		funcs.put("freeVar", (argumentList, SCOPE_ID) -> {
 			DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
@@ -425,7 +509,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("clearAllVars", (argumentList, SCOPE_ID) -> {
+		funcs.put("freeAllVars", (argumentList, SCOPE_ID) -> {
 			interpreter.resetVars(SCOPE_ID);
 			return null;
 		});
