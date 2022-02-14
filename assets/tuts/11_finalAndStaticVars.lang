@@ -76,38 +76,38 @@ fp.test = () -> { # Will result in an error
 fp.test()
 func.printError()
 
-# func.clearVar can only remove non final vars
-func.clearVar(fp.test) # Will result in an error
+# func.freeVar can only remove non final vars
+func.freeVar(fp.test) # Will result in an error
 fp.test()
 func.printError()
 
-# Clear var
-# func.clearVar(varPtr)
-# func.clearVar(arrPtr)
-# func.clearVar(funcPtr) # Will remove a variable in the current scope
+# Free var
+# func.freeVar(varPtr)
+# func.freeVar(arrPtr)
+# func.freeVar(funcPtr) # Will remove a variable in the current scope
 $var = Test
 func.printTerminal(-1, $var)
-func.clearVar($[var])
+func.freeVar($[var])
 func.printTerminal(-1, $var)
 
-func.clearVar($[a]) # Will result in an error
+func.freeVar($[a]) # Will result in an error
                     # [Final vars can't be removed]
 func.printTerminal(2, $a)
 func.printError()
 
-func.clearVar(fp.test) # Will also result in an error
+func.freeVar(fp.test) # Will also result in an error
 fp.test()
 func.printError()
 
-func.clearVar(&a) # Will also result in an error
+func.freeVar(&a) # Will also result in an error
 func.printTerminal(3, func.arrayGetAll(&a))
 func.printError()
 
-# Clear all vars
-# func.clearAllVars() # Will remove ALL vars in the current scope
+# Free all vars
+# func.freeAllVars() # Will remove ALL vars in the current scope
 #                       (inculding final vars)
 #                       -> Only way to remove final vars
-func.clearAllVars()
+func.freeAllVars()
 
 $a # Will produce no error
 func.printTerminal(2, $a)
@@ -191,7 +191,7 @@ func.println(\&b: &b) # [2, 422]
 
 func.println()
 
-# Static vars and var clearing
+# Static vars and removing of vars
 $a = Static
 $b = Not static
 $c = Static 2
@@ -207,11 +207,11 @@ fp.function = () -> {
 	func.println(\$b [In function]: $b) # Not static
 	func.println(\$c [In function]: $c) # Static 2
 	
-	func.clearVar($[a])
+	func.freeVar($[a])
 	func.println(\$a [In function]: $a) # $a
-	func.clearVar($[b])
+	func.freeVar($[b])
 	func.println(\$b [In function]: $b) # $b
-	func.clearVar($[c])
+	func.freeVar($[c])
 	func.println(\$c [In function]: $c) # $c
 	
 	$c = test # $c is now a new variable (It is not the static outer scope variable)
