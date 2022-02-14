@@ -337,8 +337,8 @@ lang.errorOutput = -1 # Disable warning output
 	func.arrayDelete(&arr)
 	fp.printArray(&arr)
 	
-	# Clears the array data from RAM
-	func.clearVar(&arr)
+	# Frees the array data from RAM
+	func.freeVar(&arr)
 	fp.printArray(&arr)
 	
 	# Gets a random TEXT from an TEXT list
@@ -463,12 +463,12 @@ lang.errorOutput = 1 # Reenable error ouput
 	# \# -> escape sequence for #
 	\#test.value = test
 
-	# Clear all variables and arrays
+	# Free all variables and arrays
 	$a = TEST
 	$b = YES!
 	func.printTerminal(-1, $a: $b)
 
-	func.clearAllVars()
+	func.freeAllVars()
 
 	func.printTerminal(-1, $a: $b)
 	
@@ -496,7 +496,7 @@ lang.errorOutput = 1 # Reenable error ouput
 
 # New in version v0.2.0
 {
-	# Clear a var
+	# Free a var
 	{
 		func.printTerminal(1, $x) # Prints: "$x"
 		
@@ -506,7 +506,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		$x = 42
 		func.printTerminal(1, $x) # Prints: "42"
 		
-		func.clearVar($[x])
+		func.freeVar($[x])
 		func.printTerminal(1, $x) # Prints: "$x"
 	}
 	
@@ -558,13 +558,13 @@ lang.errorOutput = 1 # Reenable error ouput
 		fp.test()
 		func.printError()
 		
-		# func.clearVar can only remove non final vars
-		func.clearVar(fp.test) # Will result in an error
+		# func.freeVar can only remove non final vars
+		func.freeVar(fp.test) # Will result in an error
 		fp.test()
 		func.printError()
 		
 		# Only way to remove final vars
-		func.clearAllVars()
+		func.freeAllVars()
 		
 		$a # Will produce no error
 		func.printTerminal(2, $a)
@@ -811,7 +811,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		$pointer
 		func.printTerminal(3, $*pointer) # Will print null
 		
-		func.clearVar($[pointer]) # Undefine $pointer
+		func.freeVar($[pointer]) # Undefine $pointer
 		func.printTerminal(3, $pointer) # Will print "$*pointer", because "$pointer" is not defined
 	}
 	
