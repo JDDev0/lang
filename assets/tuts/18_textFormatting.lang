@@ -14,7 +14,7 @@ lang.version = v1.0.0
 #   - %c # CHAR value (An INT value will be converted)
 #   - %s # TEXT value
 #   - %t # Translation value of a translation key
-#   - %n # A line termination sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
+#   - %n # Platform independent newline sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
 # - Format arguments:
 #   - %<num>  # For: d, f, c, s, t # Size [Padding with spaces]
 #   - %-<num> # For: d, f, c, s, t # Size [left-justify]
