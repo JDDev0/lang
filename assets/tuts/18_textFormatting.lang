@@ -1,0 +1,55 @@
+lang.name = Text Formatting
+lang.version = v1.0.0
+
+# Formatting functions
+# func.format(FORMAT, VARARGS) # Returns a TEXT value
+# func.printf(FORMAT, VARARGS) # Will print the formatted text to standard out without line ending
+# func.errorf(FORMAT, VARARGS) # Will print the formatted text to standard err without line ending
+
+# FORMAT:
+# - Format sequences:
+#   - %% # % sign
+#   - %d # Integer number
+#   - %f # Floating point number
+#   - %c # CHAR value (An INT value will be converted)
+#   - %s # TEXT value
+#   - %t # Translation value of a translation key
+#   - %n # A line termination sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
+# - Format arguments:
+#   - %<num>  # For: d, f, c, s, t # Size [Padding with spaces]
+#   - %-<num> # For: d, f, c, s, t # Size [left-justify]
+#   - %0<num> # For: d, f          # Size [Padding with 0s]
+#   - %+      # For: d, f          # Force sign
+#   - %*      # For: d, f, c, s, t # Size from varargs
+#   - %.<num> # For:    f          # Decimal places (Rounded)
+#   - %.*     # For:    f          # Decimal places from varargs (Rounded)
+# - Format arguments incompabilities:
+#   - "-" or "0" without size
+#   - "-" and "0" together
+
+test.value = A value in a translation
+
+# EXAMPLEs:
+func.println(func.format(Simple "%%" sign!))
+func.printf(A simple text: "%s"%n, TEST - ABC)
+func.printf(A simple translation value: "%t"%n, test.value)
+func.printf(Lang name "%15t"\, lang file version "%-15t"%n, lang.name, lang.version)
+func.printf(Numbers: %04d %04d %04d%n, 42, 43, 44)
+func.printf(Numbers: %0*d %0*d %0*d%n, 2, 42, 3, 43, 4, 44)
+func.printf(Floating point numbers: %-*.*f $%n, 10, 2, 20.2567)
+func.printf(Floating point numbers: %-+10.*f $%n, 2, 20.2367) # "+" must be behind "-"
+func.printf(Floating point numbers: %0*.2f $%n, 10, 20.2567)
+func.printf(Floating point numbers: %+010.2f $%n, 20.2367)
+func.println(func.format(%c, 65)) # A
+func.println(func.format(%c, 8364)) # €
+func.println(func.format(|%10c|, 65)) # |         A|
+func.println(func.format(|%-10c|, 65)) # |A         |
+func.errorf(Error "%s" was thrown!, func.errorText($LANG_ERROR_DIV_BY_ZERO))
+
+func.println()
+
+# EXAMPLEs of errors:
+func.printf(Translation key not found: %t, test.not.found)
+func.printf(Test %-s, test)
+func.printf(Test %*s, abc, 20)
+func.printf(Test %d, test)
