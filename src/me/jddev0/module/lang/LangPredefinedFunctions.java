@@ -218,6 +218,8 @@ final class LangPredefinedFunctions {
 				return -2; //Invalid arguments
 			
 			size = number.intValue();
+			if(size < 0)
+				return -2; //Invalid arguments
 		}
 		if(decimalPlacesInArgument) {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
@@ -226,6 +228,8 @@ final class LangPredefinedFunctions {
 				return -2; //Invalid arguments
 			
 			decimalPlacesCount = number.intValue();
+			if(decimalPlacesCount < 0)
+				return -2; //Invalid arguments
 		}
 		
 		//Format argument
@@ -261,7 +265,7 @@ final class LangPredefinedFunctions {
 					if(forceSign && output.charAt(0) != '-')
 						output = "+" + output;
 				}else {
-					output = String.format(Locale.ENGLISH, "%" + (decimalPlacesCount == null?"":("." + decimalPlacesCount)) + "f", number.doubleValue());
+					output = String.format(Locale.ENGLISH, "%" + (decimalPlacesCount == null?"":("." + decimalPlacesCount)) + "f", value);
 					if(forceSign && output.charAt(0) != '-')
 						output = "+" + output;
 				}
