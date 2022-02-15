@@ -234,7 +234,7 @@ final class LangPredefinedFunctions {
 		
 		//Format argument
 		String output = null;
-		if(argumentList.isEmpty())
+		if(formatType != 'n' && argumentList.isEmpty())
 			return -2; //Invalid arguments
 		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 		switch(formatType) {
