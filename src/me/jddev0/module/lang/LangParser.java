@@ -1665,7 +1665,7 @@ public final class LangParser {
 				translationValue = "";
 			}
 		}
-		if(builder.length() > 0)
+		if(builder.length() > 0 || nodes.isEmpty())
 			nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
 		
 		return ast;
