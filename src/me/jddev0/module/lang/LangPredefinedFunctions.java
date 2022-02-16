@@ -188,11 +188,6 @@ final class LangPredefinedFunctions {
 		if(leftJustify && (!sizeInArgument && size == null))
 			return -1; //Missing size format argument for leftJustify
 		switch(formatType) { //Invalid arguments for formatType
-			case 'd':
-				if(decimalPlaces)
-					return -1; //Invalid format sequence
-				break;
-			
 			case 'f':
 				break;
 			
@@ -204,10 +199,15 @@ final class LangPredefinedFunctions {
 			case 'c':
 			case 's':
 			case 't':
-				if(forceSign || leadingZeros || decimalPlaces)
+				if(forceSign || leadingZeros)
 					return -1; //Invalid format sequence
 				
+				//Fall-trough
+			case 'd':
+				if(decimalPlaces)
+					return -1; //Invalid format sequence
 				break;
+			
 		}
 		
 		//Get size from arguments
