@@ -904,6 +904,13 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
+		if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_TRANSLATION)) {
+			String[] tokens = line.split("=", 2);
+			
+			//The translation value for empty simple translation will be set to an empty text ""
+			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.TextValueNode(tokens[0]), parseSimpleTranslationValue(tokens[1]).convertToNode());
+		}
+		
 		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
 		if(isInnerAssignment?isVariableAssignment:LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
 			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
@@ -1622,6 +1629,44 @@ public final class LangParser {
 				clearAndParseStringBuilder(builder, nodes);
 			}
 		}
+		
+		return ast;
+	}
+	
+	private AbstractSyntaxTree parseSimpleTranslationValue(String translationValue) {
+		AbstractSyntaxTree ast = new AbstractSyntaxTree();
+		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
+		
+		StringBuilder builder = new StringBuilder();
+		while(translationValue.length() > 0) {
+			//Unescaping
+			if(translationValue.startsWith("\\")) {
+				if(builder.length() > 0) {
+					nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
+					builder.delete(0, builder.length());
+				}
+				
+				if(translationValue.length() == 1)
+					break;
+				
+				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(translationValue.charAt(1)));
+				
+				if(translationValue.length() < 3)
+					break;
+				
+				translationValue = translationValue.substring(2);
+				continue;
+			}
+			
+			builder.append(translationValue.charAt(0));
+			if(translationValue.length() > 1) {
+				translationValue = translationValue.substring(1);
+			}else {
+				translationValue = "";
+			}
+		}
+		if(builder.length() > 0)
+			nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
 		
 		return ast;
 	}
