@@ -50,3 +50,16 @@ esc.backslash = \\ # "\"
 
 # Empty translation
 empty.nothing =
+
+# Simple translations
+# translationKey=translationValue
+# The translation key can only contain alpanumeric (a-z, A-Z, 0-9), _, -, ., and : characters
+# Only escape sequences and text values are parsed in the translation value
+simple.trans.1=test
+simple.trans.2=$test
+simple.trans.3=func.getTranslationValue(ui.ok) # The function will not be executed and is saved as text
+simple.trans.4=This is a multiline\nTranslation!
+simple.trans.5=\\\s\\ # "\ \"
+
+# Empty simple translation
+simple.empty.nothing=
