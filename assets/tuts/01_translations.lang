@@ -45,7 +45,7 @@ esc.cb.2 = \} # "}"
 esc.eq = \= # "="
 esc.lt = \< # "<"
 esc.gt = \> # ">"
-esc.fns = \! # Forced node split (Will force the parse to split the current node)
+esc.fns = \! # Force node split (Will force the parse to split the current node)
 esc.backslash = \\ # "\"
 
 # Empty translation
@@ -60,6 +60,7 @@ simple.trans.2=$test
 simple.trans.3=func.getTranslationValue(ui.ok) # The function will not be executed and is saved as text
 simple.trans.4=This is a multiline\nTranslation!
 simple.trans.5=\\\s\\ # "\ \"
+simple.fns=\!
 
 # Empty simple translation
 simple.empty.nothing=
