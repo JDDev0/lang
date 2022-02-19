@@ -2498,6 +2498,50 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setInt(-1);
 		});
+		funcs.put("arrayCountLike", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			long count = Arrays.stream(arr).filter(ele -> ele.isEquals(elementObject)).count();
+			return new DataObject().setLong(count);
+		});
+		funcs.put("arrayIndexLike", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			for(int i = 0;i < arr.length;i++)
+				if(arr[i].isEquals(elementObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		});
+		funcs.put("arrayLastIndexLike", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject elementObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			DataObject[] arr = arrPointerObject.getArray();
+			for(int i = arr.length - 1;i >= 0;i--)
+				if(arr[i].isEquals(elementObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		});
 		funcs.put("arrayLength", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
