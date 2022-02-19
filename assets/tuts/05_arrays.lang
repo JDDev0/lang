@@ -53,7 +53,7 @@ $ele = func.randChoice(&arr) # Will return a random element of the array &arr
 func.println($ele)
 
 # Get count of an element in an array
-# func.arrayCountOf(arrPtr, ele)
+# func.arrayCountOf(arrPtr, ele) # Will return the count of the element (strict equals)
 $count = func.arrayCountOf(&arr, value1) # Will return 1
 func.println($count)
 $count = func.arrayCountOf(&arr, 5) # Will return 1
@@ -67,23 +67,53 @@ func.println($count)
 
 func.println()
 
+&arr = func.arrayOf(1, 2, {{{1}}}, 1., test, t, {{{t}}}, abc, 42, abc, null)
+
+# func.arrayCountLike(arrPtr, ele) # Will return the count of the element (normal equals)
+func.println(func.arrayCountLike(&arr, 1)) # 3
+func.println(func.arrayCountLike(&arr, 1.)) # 3
+func.println(func.arrayCountLike(&arr, t)) # 2
+func.println(func.arrayCountLike(&arr, {{{t}}})) # 2
+func.println(func.arrayCountLike(&arr, abc)) # 2
+func.println(func.arrayCountLike(&arr, null)) # 1
+func.println(func.arrayCountLike(&arr, empty)) # 0
+
+func.println()
+
 # Find element's index
 # func.arrayIndexOf(arrPtr, ele) # Will return the first index where the element was found (strict equals) or -1 if it was not found
-&arrIndexOf = func.arrayOf(1, 2, {{{1}}}, 1., test, t, {{{t}}}, abc, 42, abc, null)
-func.println(func.arrayIndexOf(&arrIndexOf, 1)) # 0
-func.println(func.arrayIndexOf(&arrIndexOf, 1.)) # 3
-func.println(func.arrayIndexOf(&arrIndexOf, t)) # 5
-func.println(func.arrayIndexOf(&arrIndexOf, {{{t}}})) # 6
-func.println(func.arrayIndexOf(&arrIndexOf, abc)) # 7
+func.println(func.arrayIndexOf(&arr, 1)) # 0
+func.println(func.arrayIndexOf(&arr, 1.)) # 3
+func.println(func.arrayIndexOf(&arr, t)) # 5
+func.println(func.arrayIndexOf(&arr, {{{t}}})) # 6
+func.println(func.arrayIndexOf(&arr, abc)) # 7
 
 func.println()
 
 # func.arrayLastIndexOf(arrPtr, ele) # Will return the last index where the element was found (strict equals) or -1 if it was not found
-func.println(func.arrayLastIndexOf(&arrIndexOf, 1)) # 0
-func.println(func.arrayLastIndexOf(&arrIndexOf, 1.)) # 3
-func.println(func.arrayLastIndexOf(&arrIndexOf, t)) # 5
-func.println(func.arrayLastIndexOf(&arrIndexOf, {{{t}}})) # 6
-func.println(func.arrayLastIndexOf(&arrIndexOf, abc)) # 9
+func.println(func.arrayLastIndexOf(&arr, 1)) # 0
+func.println(func.arrayLastIndexOf(&arr, 1.)) # 3
+func.println(func.arrayLastIndexOf(&arr, t)) # 5
+func.println(func.arrayLastIndexOf(&arr, {{{t}}})) # 6
+func.println(func.arrayLastIndexOf(&arr, abc)) # 9
+
+func.println()
+
+# func.arrayIndexLike(arrPtr, ele) # Will return the first index where the element was found (normal equals) or -1 if it was not found
+func.println(func.arrayIndexLike(&arr, 1)) # 0
+func.println(func.arrayIndexLike(&arr, 1.)) # 0
+func.println(func.arrayIndexLike(&arr, t)) # 5
+func.println(func.arrayIndexLike(&arr, {{{t}}})) # 5
+func.println(func.arrayIndexLike(&arr, abc)) # 7
+
+func.println()
+
+# func.arrayLastIndexLike(arrPtr, ele) # Will return the last index where the element was found (normal equals) or -1 if it was not found
+func.println(func.arrayLastIndexLike(&arr, 1)) # 3
+func.println(func.arrayLastIndexLike(&arr, 1.)) # 3
+func.println(func.arrayLastIndexLike(&arr, t)) # 6
+func.println(func.arrayLastIndexLike(&arr, {{{t}}})) # 6
+func.println(func.arrayLastIndexLike(&arr, abc)) # 9
 
 func.println()
 
