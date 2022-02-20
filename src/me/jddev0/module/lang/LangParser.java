@@ -50,7 +50,7 @@ public final class LangParser {
 						//Multiple lines if "}}}" was found before "{{{"
 						if(endIndex != -1) {
 							multipleLinesFlag = false;
-							line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex)) + line.substring(endIndex + 3);
+							line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex).replace("\\{\\e", "\\{")) + line.substring(endIndex + 3);
 						}
 					}
 					
@@ -75,7 +75,7 @@ public final class LangParser {
 							if(lineTmpString.contains("}}}")) {
 								int endIndex = lineTmpString.indexOf("}}}");
 								lineTmp.append(lineTmpString.substring(0, endIndex));
-								line = line + LangUtils.escapeString(lineTmp.toString()) + lineTmpString.substring(endIndex + 3);
+								line = line + LangUtils.escapeString(lineTmp.toString().replace("\\{\\e", "\\{")) + lineTmpString.substring(endIndex + 3);
 								
 								break;
 							}
