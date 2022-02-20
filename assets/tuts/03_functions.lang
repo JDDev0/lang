@@ -400,8 +400,9 @@ func.exec({{{func.println($var)}}}) # Will print "func"
 # Returning values with exec
 $value = 42\.123
 $a = func.exec(ret\!urn $value) # return: See [05_functionPointer.lang: return]
-func.println($value [func.typeOf($value)], $a [func.typeOf($a)])
-# Data types: "$value": TEXT, "$a": FLOAT
+$b = func.exec({{{return $value}}})
+func.println($value [func.typeOf($value)], $a [func.typeOf($a)], $b [func.typeOf($b)])
+# Data types: "$value": TEXT, "$a": FLOAT, "$b": TEXT
 
 # Accessing variables inside exec
 $val = 42
