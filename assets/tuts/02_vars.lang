@@ -156,7 +156,7 @@ func.println($*variableName) # Dereferencing a not defined variable will be pars
 func.println(-----------------)
 
 # $LANG vars
-func.println(\$LANG vars)
+func.println(\$LANG vars:)
 func.println(• "$LANG_VERSION") # Will print the lang version
 func.println(• "$LANG_NAME") # Will print the name of the implementation of lang
 func.println(• "$LANG_PATH") # Will print the path to the lang file
