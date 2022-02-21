@@ -10,19 +10,22 @@ lang.version = v1.0.0
 # - Format sequences:
 #   - %% # % sign
 #   - %d # Integer number
+#   - %b # Binary integer number
+#   - %o # Octal integer number
+#   - %x # Hex integer number
 #   - %f # Floating point number
 #   - %c # CHAR value (An INT value will be converted)
 #   - %s # TEXT value
 #   - %t # Translation value of a translation key
 #   - %n # Platform independent newline sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
 # - Format arguments:
-#   - %<num>  # For: d, f, c, s, t # Size [Padding with spaces]
-#   - %-<num> # For: d, f, c, s, t # Size [left-justify]
-#   - %0<num> # For: d, f          # Size [Padding with 0s]
-#   - %+      # For: d, f          # Force sign
-#   - %*      # For: d, f, c, s, t # Size from varargs
-#   - %.<num> # For:    f          # Decimal places (Rounded)
-#   - %.*     # For:    f          # Decimal places from varargs (Rounded)
+#   - %<num>  # For: d, b, o, x, f, c, s, t # Size [Padding with spaces]
+#   - %-<num> # For: d, b, o, x, f, c, s, t # Size [left-justify]
+#   - %0<num> # For: d, b, o, x, f          # Size [Padding with 0s]
+#   - %+      # For: d, b, o, x, f          # Force sign
+#   - %*      # For: d, b, o, x, f, c, s, t # Size from varargs
+#   - %.<num> # For:             f          # Decimal places (Rounded)
+#   - %.*     # For:             f          # Decimal places from varargs (Rounded)
 # - Format arguments incompabilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
@@ -36,6 +39,9 @@ func.printf(A simple translation value: "%t"%n, test.value)
 func.printf(Lang name "%15t"\, lang file version "%-15t"%n, lang.name, lang.version)
 func.printf(Numbers: %04d %04d %04d%n, 42, 43, 44)
 func.printf(Numbers: %0*d %0*d %0*d%n, 2, 42, 3, 43, 4, 44)
+func.printf(Bin numbers: %08b %08b%n, 42, -42)
+func.printf(Oct numbers: %08o %08o%n, 42, -42)
+func.printf(Hex numbers: %08x %08x%n, 42, -42)
 func.printf(Floating point numbers: %-*.*f $%n, 10, 2, 20.2567)
 func.printf(Floating point numbers: %-+10.*f $%n, 2, 20.2367) # "+" must be behind "-"
 func.printf(Floating point numbers: %0*.2f $%n, 10, 20.2567)
