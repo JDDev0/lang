@@ -243,7 +243,7 @@ final class LangPredefinedFunctions {
 		String output = null;
 		if(formatType != 'n' && argumentList.isEmpty())
 			return -2; //Invalid arguments
-		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject dataObject = formatType == 'n'?null:LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 		switch(formatType) {
 			case 'd':
 				Number number = dataObject.toNumber();
