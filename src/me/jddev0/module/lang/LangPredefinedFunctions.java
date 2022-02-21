@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -675,6 +676,7 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("currentTimeMillis", (argumentList, SCOPE_ID) -> new DataObject().setLong(System.currentTimeMillis()));
+		funcs.put("currentUnixTime", (argumentList, SCOPE_ID) -> new DataObject().setLong(Instant.now().getEpochSecond()));
 		funcs.put("repeat", (argumentList, SCOPE_ID) -> {
 			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject repeatCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
