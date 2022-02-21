@@ -147,6 +147,9 @@ final class LangPredefinedFunctions {
 		boolean forceSign = fullFormat.charAt(0) == '+';
 		if(forceSign)
 			fullFormat = fullFormat.substring(1);
+		boolean signSpace = !forceSign && fullFormat.charAt(0) == ' ';
+		if(signSpace)
+			fullFormat = fullFormat.substring(1);
 		boolean leadingZeros = fullFormat.charAt(0) == '0';
 		if(leadingZeros)
 			fullFormat = fullFormat.substring(1);
@@ -199,7 +202,7 @@ final class LangPredefinedFunctions {
 			case 'c':
 			case 's':
 			case 't':
-				if(forceSign || leadingZeros)
+				if(forceSign || signSpace || leadingZeros)
 					return -1; //Invalid format sequence
 				
 				//Fall-trough
@@ -250,6 +253,9 @@ final class LangPredefinedFunctions {
 				if(forceSign && output.charAt(0) != '-')
 					output = "+" + output;
 				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
 				break;
 			
 			case 'b':
@@ -260,6 +266,9 @@ final class LangPredefinedFunctions {
 				output = Long.toString(number.longValue(), 2).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
 					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
 				
 				break;
 			
@@ -272,6 +281,9 @@ final class LangPredefinedFunctions {
 				if(forceSign && output.charAt(0) != '-')
 					output = "+" + output;
 				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
 				break;
 			
 			case 'x':
@@ -282,6 +294,9 @@ final class LangPredefinedFunctions {
 				output = Long.toString(number.longValue(), 16).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
 					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
 				
 				break;
 			
@@ -300,10 +315,16 @@ final class LangPredefinedFunctions {
 					leadingZeros = false;
 					if(forceSign && output.charAt(0) != '-')
 						output = "+" + output;
+					
+					if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+						output = " " + output;
 				}else {
 					output = String.format(Locale.ENGLISH, "%" + (decimalPlacesCount == null?"":("." + decimalPlacesCount)) + "f", value);
 					if(forceSign && output.charAt(0) != '-')
 						output = "+" + output;
+					
+					if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+						output = " " + output;
 				}
 				
 				break;
@@ -345,7 +366,7 @@ final class LangPredefinedFunctions {
 						output = output + " ";
 				}else if(leadingZeros) {
 					char signOutput = 0;
-					if(output.charAt(0) == '+' || output.charAt(0) == '-') {
+					if(output.charAt(0) == '+' || output.charAt(0) == '-' || output.charAt(0) == ' ') {
 						signOutput = output.charAt(0);
 						output = output.substring(1);
 					}
