@@ -120,7 +120,7 @@ final class LangPredefinedFunctions {
 	 * Will return -3 for not found translation keys
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int SCOPE_ID) {
-		char[] posibleFormats = {'c', 'd', 'f', 'n', 's', 't'};
+		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x'};
 		int[] indices = new int[posibleFormats.length];
 		for(int i = 0;i < posibleFormats.length;i++)
 			indices[i] = format.indexOf(posibleFormats[i]);
@@ -203,7 +203,10 @@ final class LangPredefinedFunctions {
 					return -1; //Invalid format sequence
 				
 				//Fall-trough
+			case 'b':
 			case 'd':
+			case 'o':
+			case 'x':
 				if(decimalPlaces)
 					return -1; //Invalid format sequence
 				break;
@@ -244,6 +247,39 @@ final class LangPredefinedFunctions {
 					return -2; //Invalid arguments
 				
 				output = number.longValue() + "";
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				break;
+			
+			case 'b':
+				number = dataObject.toNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				output = Long.toString(number.longValue(), 2).toUpperCase();
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				break;
+			
+			case 'o':
+				number = dataObject.toNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				output = Long.toString(number.longValue(), 8).toUpperCase();
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				break;
+			
+			case 'x':
+				number = dataObject.toNumber();
+				if(number == null)
+					return -2; //Invalid arguments
+				
+				output = Long.toString(number.longValue(), 16).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
 					output = "+" + output;
 				
