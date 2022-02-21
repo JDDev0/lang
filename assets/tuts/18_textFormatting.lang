@@ -23,12 +23,14 @@ lang.version = v1.0.0
 #   - %-<num> # For: d, b, o, x, f, c, s, t # Size [left-justify]
 #   - %0<num> # For: d, b, o, x, f          # Size [Padding with 0s]
 #   - %+      # For: d, b, o, x, f          # Force sign
+#   - %␣      # For: d, b, o, x, f          # Space sign [Will print a space if no sign is in front of the number]
 #   - %*      # For: d, b, o, x, f, c, s, t # Size from varargs
 #   - %.<num> # For:             f          # Decimal places (Rounded)
 #   - %.*     # For:             f          # Decimal places from varargs (Rounded)
 # - Format arguments incompabilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
+#   - "+" and " " together
 
 test.value = A value in a translation
 
@@ -46,6 +48,8 @@ func.printf(Floating point numbers: %-*.*f $%n, 10, 2, 20.2567)
 func.printf(Floating point numbers: %-+10.*f $%n, 2, 20.2367) # "+" must be behind "-"
 func.printf(Floating point numbers: %0*.2f $%n, 10, 20.2567)
 func.printf(Floating point numbers: %+010.2f $%n, 20.2367)
+func.printf(Numbers: %+07.2f%n%9c%+07.2f%n%9c%+07.2f%n%9c%+07.2f%n, 20.2367, \s, -42.1, \s, 42.2, \s, -900.2)
+func.printf(Numbers: % 07.2f%n%9c% 07.2f%n%9c% 07.2f%n%9c% 07.2f%n, 20.2367, \s, -42.1, \s, 42.2, \s, -900.2)
 func.println(func.format(%c, 65)) # A
 func.println(func.format(%c, 8364)) # €
 func.println(func.format(|%10c|, 65)) # |         A|
@@ -64,3 +68,4 @@ func.printf(Test %*s, -2, test)
 func.printf(Test %*.*f, 2, -1, 42)
 func.printf(Test %*.*f, -2, 1, 42)
 func.printf(Test %*.*f, -2, -1, 42)
+func.printf(Test %+ d, 42)
