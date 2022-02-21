@@ -675,6 +675,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("nanoTime", (argumentList, SCOPE_ID) -> new DataObject().setLong(System.nanoTime()));
 		funcs.put("currentTimeMillis", (argumentList, SCOPE_ID) -> new DataObject().setLong(System.currentTimeMillis()));
 		funcs.put("currentUnixTime", (argumentList, SCOPE_ID) -> new DataObject().setLong(Instant.now().getEpochSecond()));
 		funcs.put("repeat", (argumentList, SCOPE_ID) -> {
