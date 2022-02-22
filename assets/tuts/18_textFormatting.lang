@@ -54,7 +54,7 @@ func.println(func.format(%c, 65)) # A
 func.println(func.format(%c, 8364)) # €
 func.println(func.format(|%10c|, 65)) # |         A|
 func.println(func.format(|%-10c|, 65)) # |A         |
-func.errorf(Error "%s" was thrown!, func.errorText($LANG_ERROR_DIV_BY_ZERO))
+func.errorf(Error "%s" was thrown!%n, func.errorText($LANG_ERROR_DIV_BY_ZERO))
 
 func.println()
 
