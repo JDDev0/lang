@@ -16,13 +16,30 @@ func.println($isLVO)
 
 # System functions
 # func.currentTimeMillis(void) # Returns the system date in ms since midnight 1.1.1970 UTC
+func.println(Current time (Millis): func.currentTimeMillis())
+
 $startTime = func.currentTimeMillis()
 
 # func.sleep(millis) # Sleeps for millis ms
 func.sleep(1000) # Will sleep 1 second
 
 $endTime = func.currentTimeMillis()
-func.println(func.subl($endTime, $startTime) ms)
+func.println(Diff: func.subl($endTime, $startTime) ms)
+
+# func.currentUnixTime(void) # Returns the system data in seconds since midnight 1.1.1970 UTC
+func.println(Current time (Unix): func.currentUnixTime())
+
+$startTime = func.currentUnixTime()
+func.sleep(2000)
+$endTime = func.currentUnixTime()
+func.println(Diff: func.subl($endTime, $startTime) sec)
+
+# func.nanoTime(void) # Returns the nano time since some arbitrary point (Should only be used to measure elapsed time)
+
+$startTime = func.nanoTime()
+func.sleep(1500)
+$endTime = func.nanoTime()
+func.println(Diff: func.subl($endTime, $startTime) ns (func.divl(func.subl($endTime, $startTime), 1000000) ms))
 
 # IO functions
 # func.readTerminal(Text) # Will read a user input, the user will see the text {Function is not supported by all interpreters: If not supported -> $LANG_ERRNO will be set}
