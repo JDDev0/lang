@@ -55,6 +55,7 @@ func.println(func.format(%c, 8364)) # €
 func.println(func.format(|%10c|, 65)) # |         A|
 func.println(func.format(|%-10c|, 65)) # |A         |
 func.errorf(Error "%s" was thrown!%n, func.errorText($LANG_ERROR_DIV_BY_ZERO))
+func.printf(%c%n, t) # Posible because of implicit cast from CHAR to number
 
 func.println()
 
@@ -69,3 +70,4 @@ func.printf(Test %*.*f, 2, -1, 42)
 func.printf(Test %*.*f, -2, 1, 42)
 func.printf(Test %*.*f, -2, -1, 42)
 func.printf(Test %+ d, 42)
+func.printf(%c%n, {{{t}}})
