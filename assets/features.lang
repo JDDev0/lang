@@ -871,7 +871,7 @@ lang.errorOutput = 1 # Reenable error ouput
 		# func.errorf(FORMAT, VARARGS) # No newline
 		
 		# FORMAT:
-		# - Format sequences:
+		# - Format specifier:
 		#   - %% # % sign
 		#   - %d # Integer number
 		#   - %b # Binary integer number
@@ -891,10 +891,14 @@ lang.errorOutput = 1 # Reenable error ouput
 		#   - %*      # For: d, b, o, x, f, c, s, t # Size from varargs
 		#   - %.<num> # For:             f          # Decimal places (Rounded)
 		#   - %.*     # For:             f          # Decimal places from varargs (Rounded)
-		# - Format arguments incompabilities:
+		# - Format argument incompabilities:
 		#   - "-" or "0" without size
 		#   - "-" and "0" together
 		#   - "+" and " " together
+		# - Format sequence:
+		#   - %[format arguments]<format specifier> # e.g.: %+d
+		#     - [format arguments]: 0 or more
+		#     - <format specifier>: 1
 		
 		# EXAMPLES:
 		func.println(func.format(Simple "%%" sign!))
