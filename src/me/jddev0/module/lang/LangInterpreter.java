@@ -1172,16 +1172,16 @@ public final class LangInterpreter {
 			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.CONDITION) {
-			boolean conditionOuput = false;
+			boolean conditionOutput = false;
 			
 			switch(node.getOperator()) {
 				//Unary (Logical operators)
 				case CONDITIONAL_NON:
 				case NOT:
-					conditionOuput = leftSideOperand.getBoolean();
+					conditionOutput = leftSideOperand.getBoolean();
 					
 					if(node.getOperator() == Operator.NOT)
-						conditionOuput = !conditionOuput;
+						conditionOutput = !conditionOutput;
 					break;
 				
 				//Binary (Logical operators)
@@ -1191,20 +1191,20 @@ public final class LangInterpreter {
 						rightSideOperand = interpretNode(node.getRightSideOperand(), SCOPE_ID);
 						if(rightSideOperand == null)
 							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", SCOPE_ID);
-						conditionOuput = rightSideOperand.getBoolean();
+						conditionOutput = rightSideOperand.getBoolean();
 					}else {
-						conditionOuput = false;
+						conditionOutput = false;
 					}
 					break;
 				case OR:
 					leftSideOperandBoolean = leftSideOperand.getBoolean();
 					if(leftSideOperandBoolean) {
-						conditionOuput = true;
+						conditionOutput = true;
 					}else {
 						rightSideOperand = interpretNode(node.getRightSideOperand(), SCOPE_ID);
 						if(rightSideOperand == null)
 							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", SCOPE_ID);
-						conditionOuput = rightSideOperand.getBoolean();
+						conditionOutput = rightSideOperand.getBoolean();
 					}
 					break;
 				
@@ -1214,51 +1214,51 @@ public final class LangInterpreter {
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The second operand of the \"" + node.getOperator().getSymbol() + "\" operator must be of type " +
 							DataType.TYPE.name(), SCOPE_ID);
 					
-					conditionOuput = leftSideOperand.getType() == rightSideOperand.getTypeValue();
+					conditionOutput = leftSideOperand.getType() == rightSideOperand.getTypeValue();
 					break;
 				case EQUALS:
 				case NOT_EQUALS:
-					conditionOuput = leftSideOperand.isEquals(rightSideOperand);
+					conditionOutput = leftSideOperand.isEquals(rightSideOperand);
 					
 					if(node.getOperator() == Operator.NOT_EQUALS)
-						conditionOuput = !conditionOuput;
+						conditionOutput = !conditionOutput;
 					break;
 				case MATCHES:
 				case NOT_MATCHES:
 					try {
-						conditionOuput = leftSideOperand.getText().matches(rightSideOperand.getText());
+						conditionOutput = leftSideOperand.getText().matches(rightSideOperand.getText());
 					}catch(PatternSyntaxException e) {
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 					}
 					
 					if(node.getOperator() == Operator.NOT_MATCHES)
-						conditionOuput = !conditionOuput;
+						conditionOutput = !conditionOutput;
 					break;
 				case STRICT_EQUALS:
 				case STRICT_NOT_EQUALS:
-					conditionOuput = leftSideOperand.isStrictEquals(rightSideOperand);
+					conditionOutput = leftSideOperand.isStrictEquals(rightSideOperand);
 					
 					if(node.getOperator() == Operator.STRICT_NOT_EQUALS)
-						conditionOuput = !conditionOuput;
+						conditionOutput = !conditionOutput;
 					break;
 				case LESS_THAN:
-					conditionOuput = leftSideOperand.isLessThan(rightSideOperand);
+					conditionOutput = leftSideOperand.isLessThan(rightSideOperand);
 					break;
 				case GREATER_THAN:
-					conditionOuput = leftSideOperand.isGreaterThan(rightSideOperand);
+					conditionOutput = leftSideOperand.isGreaterThan(rightSideOperand);
 					break;
 				case LESS_THAN_OR_EQUALS:
-					conditionOuput = leftSideOperand.isLessThanOrEquals(rightSideOperand);
+					conditionOutput = leftSideOperand.isLessThanOrEquals(rightSideOperand);
 					break;
 				case GREATER_THAN_OR_EQUALS:
-					conditionOuput = leftSideOperand.isGreaterThanOrEquals(rightSideOperand);
+					conditionOutput = leftSideOperand.isGreaterThanOrEquals(rightSideOperand);
 					break;
 				
 				default:
 					break;
 			}
 			
-			return new DataObject().setBoolean(conditionOuput);
+			return new DataObject().setBoolean(conditionOutput);
 		}
 		
 		return null;
