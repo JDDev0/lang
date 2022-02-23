@@ -1561,8 +1561,14 @@ public final class LangParser {
 					token = token.substring(parameterEndIndex + 1);
 					
 					String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
+					String tmp = functionParameterList.replaceAll("^\\\\s+", "");
+					int leadingWhitespaceCount = functionParameterList.length() - tmp.length();
+					String leadingWhitespace = functionParameterList.substring(0, leadingWhitespaceCount);
+					tmp = tmp.trim();
+					String trailingWhitespace = functionParameterList.substring(tmp.length() + leadingWhitespaceCount, functionParameterList.length());
 					
-					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
+					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(leadingWhitespace, trailingWhitespace, parseFunctionParameterList(functionParameterList, false).
+							getChildren()));
 					continue;
 				}
 			}
@@ -1750,6 +1756,8 @@ public final class LangParser {
 			StringBuilder builder = new StringBuilder();
 			boolean hasNodesFlag = false;
 			
+			parameterList = parameterList.trim();
+			
 			loop:
 			while(parameterList.length() > 0) {
 				//Unescaping
@@ -1802,8 +1810,14 @@ public final class LangParser {
 						parameterList = parameterList.substring(parameterEndIndex + 1);
 						
 						String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
+						String tmp = functionParameterList.replaceAll("^\\s+", "");
+						int leadingWhitespaceCount = functionParameterList.length() - tmp.length();
+						String leadingWhitespace = functionParameterList.substring(0, leadingWhitespaceCount);
+						tmp = tmp.trim();
+						String trailingWhitespace = functionParameterList.substring(tmp.length() + leadingWhitespaceCount, functionParameterList.length());
 						
-						nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(parseFunctionParameterList(functionParameterList, false).getChildren()));
+						nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(leadingWhitespace, trailingWhitespace, parseFunctionParameterList(functionParameterList, false).
+								getChildren()));
 						
 						hasNodesFlag = true;
 						continue;

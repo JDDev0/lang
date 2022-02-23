@@ -569,10 +569,22 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	public static final class FunctionCallPreviousNodeValueNode implements Node {
+		private final String leadingWhitespace;
+		private final String trailingWhitespace;
 		private final List<Node> argumentList;
 		
-		public FunctionCallPreviousNodeValueNode(List<Node> argumentList) {
+		public FunctionCallPreviousNodeValueNode(String leadingWhitespace, String trailingWhitespace, List<Node> argumentList) {
+			this.leadingWhitespace = leadingWhitespace;
+			this.trailingWhitespace = trailingWhitespace;
 			this.argumentList = new ArrayList<>(argumentList);
+		}
+		
+		public String getLeadingWhitespace() {
+			return leadingWhitespace;
+		}
+		
+		public String getTrailingWhitespace() {
+			return trailingWhitespace;
 		}
 		
 		@Override
@@ -597,7 +609,11 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 					builder.append("\n");
 				}
 			});
-			builder.append("}\n");
+			builder.append("}, LeadingWhitespace: \"");
+			builder.append(leadingWhitespace);
+			builder.append("\", TrailingWhitespace: \"");
+			builder.append(trailingWhitespace);
+			builder.append("\"\n");
 			
 			return builder.toString();
 		}
@@ -614,12 +630,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				return false;
 			
 			FunctionCallPreviousNodeValueNode that = (FunctionCallPreviousNodeValueNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.argumentList.equals(that.argumentList);
+			return this.getNodeType().equals(that.getNodeType()) && this.leadingWhitespace.equals(that.leadingWhitespace) && this.trailingWhitespace.equals(that.trailingWhitespace) &&
+				this.argumentList.equals(that.argumentList);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getNodeType(), this.argumentList);
+			return Objects.hash(this.getNodeType(), this.leadingWhitespace, this.trailingWhitespace, this.argumentList);
 		}
 	}
 	

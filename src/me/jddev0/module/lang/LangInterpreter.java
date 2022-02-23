@@ -416,9 +416,9 @@ public final class LangInterpreter {
 		
 		//Previous node value wasn't a function -> return children of node in between "(" and ")" as ListNode
 		List<Node> nodes = new ArrayList<>();
-		nodes.add(new TextValueNode("("));
+		nodes.add(new TextValueNode("(" + node.getLeadingWhitespace()));
 		nodes.addAll(node.getChildren());
-		nodes.add(new TextValueNode(")"));
+		nodes.add(new TextValueNode(node.getTrailingWhitespace() + ")"));
 		return new ListNode(nodes);
 	}
 	
