@@ -1561,7 +1561,7 @@ public final class LangParser {
 					token = token.substring(parameterEndIndex + 1);
 					
 					String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
-					String tmp = functionParameterList.replaceAll("^\\\\s+", "");
+					String tmp = LangPatterns.replaceAll(functionParameterList, "", LangPatterns.PARSING_FRONT_WHITESPACE);
 					int leadingWhitespaceCount = functionParameterList.length() - tmp.length();
 					String leadingWhitespace = functionParameterList.substring(0, leadingWhitespaceCount);
 					tmp = tmp.trim();
@@ -1810,7 +1810,7 @@ public final class LangParser {
 						parameterList = parameterList.substring(parameterEndIndex + 1);
 						
 						String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
-						String tmp = functionParameterList.replaceAll("^\\s+", "");
+						String tmp = LangPatterns.replaceAll(functionParameterList, "", LangPatterns.PARSING_FRONT_WHITESPACE);
 						int leadingWhitespaceCount = functionParameterList.length() - tmp.length();
 						String leadingWhitespace = functionParameterList.substring(0, leadingWhitespaceCount);
 						tmp = tmp.trim();

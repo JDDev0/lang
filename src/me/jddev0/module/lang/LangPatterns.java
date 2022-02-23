@@ -88,6 +88,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_LEADING_WHITSPACE = Pattern.compile("\\s.*");
 	/**
+	 * RegEx: ^\s+
+	 */
+	public static final Pattern PARSING_FRONT_WHITESPACE = Pattern.compile("^\\s+");
+	/**
 	 * RegEx: (\s.*|.*\s)
 	 */
 	public static final Pattern PARSING_LEADING_OR_TRAILING_WHITSPACE = Pattern.compile("(\\s.*|.*\\s)");
@@ -153,6 +157,10 @@ final class LangPatterns {
 	
 	public static boolean matches(String str, Pattern pattern) {
 		return pattern.matcher(str).matches();
+	}
+	
+	public static String replaceAll(String str, String replacement, Pattern pattern) {
+		return pattern.matcher(str).replaceAll(replacement);
 	}
 	
 	private LangPatterns() {}
