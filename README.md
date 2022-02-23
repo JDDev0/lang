@@ -32,4 +32,5 @@ You can also run "java -jar Lang.jar -**command** **args**" in a terminal or con
   - "func.exec()" can access variables defined in the caller's scope
   - "$LANG\_ERRNO" is now static: If "$LANG\_ERRNO" is set inside a function, "$LANG\_ERRNO" in the caller scope will also be this value
   - Pointer redirection of lang vars is no longer possible
+  - Whitespaces after "(" and before ")" in the argument parsing of function calls will now be ignored
 
