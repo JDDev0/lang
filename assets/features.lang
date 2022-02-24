@@ -224,7 +224,7 @@ ui.button.canel = Cancel
 # \$ -> escape sequence for $
 # \s is needed, because leading whitespaces are behind the argument separator
 # will be removed in every function argument
-func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n )
+func.printTerminal(0, \s\n\n\n\n\$a--------\$\n\n\n\s)
 
 lang.errorOutput = 0 # Disable error ouput
 
