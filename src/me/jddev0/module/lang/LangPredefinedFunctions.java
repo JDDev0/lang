@@ -1643,8 +1643,7 @@ final class LangPredefinedFunctions {
 			}
 			
 			DataObject oldData = arrPtr == null?arrPointerObject:interpreter.data.get(SCOPE_ID).var.get(arrPtr);
-			if((oldData != null && (oldData.isFinalData() || (oldData.getVariableName() != null && oldData.getVariableName().startsWith("&LANG_")))) ||
-			(arrPtr != null && arrPtr.startsWith("&LANG_")))
+			if((oldData != null && (oldData.isFinalData() || oldData.isLangVar())) || (arrPtr != null && arrPtr.startsWith("&LANG_")))
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
 			DataObject[] arr = new DataObject[arrTmp.length];
