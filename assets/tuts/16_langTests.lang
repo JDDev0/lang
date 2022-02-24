@@ -222,6 +222,7 @@ func.langTestAssertNotNull({{{null}}}) # Will pass
 func.langTestAssertVoid(null) # Will not pass
 func.langTestAssertVoid($xyz_null) # Will not pass
 func.langTestAssertVoid($xyz_void) # Will pass
+func.langTestAssertVoid(\!) # Will pass
 func.langTestAssertVoid({{{}}}) # Will not pass
 
 # Assert not void:
@@ -229,6 +230,7 @@ func.langTestAssertVoid({{{}}}) # Will not pass
 func.langTestAssertNotVoid(null) # Will pass
 func.langTestAssertNotVoid($xyz_null) # Will pass
 func.langTestAssertNotVoid($xyz_void) # Will not pass
+func.langTestAssertNotVoid(\!) # Will not pass
 func.langTestAssertNotVoid({{{}}}) # Will pass
 
 func.langTestPrintResults() # Prints langTest results (Only units/subUnits with at least one test will be printed)
