@@ -279,6 +279,10 @@ func.println($split2 (Len: func.arrayLength($split2)))
 &chars = func.split(null, a-very-long-text-42)
 func.println(func.arrayGetAll(&chars))
 
+# func.charsOf(VARARGS) # Returns an array of a text which is split at every char
+&chars = func.charsOf(test, text, var-42-abc, 2, 2.)
+func.println(func.arrayGetAll(&chars))
+
 func.println()
 
 # Array unpacking (Every element of the array will be unpacked as single arguments for a function call)
