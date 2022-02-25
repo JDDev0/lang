@@ -185,7 +185,7 @@ func.printTerminal(-1, \n\n\n)
 	$val = test # Reset $val to "test"
 	func.printTerminal(-1, $val) # Will print "test"
 	
-	func.printTerminal(-1, $val - fp.changeValue($val)) # Will print "new value", because $val's value can be changed until all argument parts of the function call where the variable is located in are interpred
+	func.printTerminal(-1, $val - fp.changeValue($val)) # Will print "new value", because $val's value can be changed until all argument parts of the function call where the variable is located in are interpreted
 
 	$val = test # Reset $val to "test"
 	func.printTerminal(-1, $val) # Will print "test"
