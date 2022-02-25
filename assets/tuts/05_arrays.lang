@@ -275,6 +275,10 @@ $split2 = func.split($split, Test\, test\, abc\, def\, 42\, null\, .5, \,\s)
 func.println($split (Len: func.arrayLength($split)))
 func.println($split2 (Len: func.arrayLength($split2)))
 
+# Convert text to array (= split at every char)
+&chars = func.split(null, a-very-long-text-42)
+func.println(func.arrayGetAll(&chars))
+
 func.println()
 
 # Array unpacking (Every element of the array will be unpacked as single arguments for a function call)
