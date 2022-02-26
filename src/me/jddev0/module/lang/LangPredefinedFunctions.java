@@ -1491,6 +1491,9 @@ final class LangPredefinedFunctions {
 			String text = textObject.getText();
 			String paddingText = paddingTextObject.getText();
 			
+			if(paddingText.length() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
+			
 			if(text.length() >= len)
 				return new DataObject(textObject);
 			
@@ -1517,6 +1520,9 @@ final class LangPredefinedFunctions {
 			
 			String text = textObject.getText();
 			String paddingText = paddingTextObject.getText();
+			
+			if(paddingText.length() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
 			
 			if(text.length() >= len)
 				return new DataObject(textObject);
