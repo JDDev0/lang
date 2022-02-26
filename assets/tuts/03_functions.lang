@@ -170,7 +170,7 @@ func.println(func.ttoc(µ\e))
 func.println(func.ttoc($\e))
 func.println(func.ttoc(¤\e))
 
-# String functions
+# Text functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
 $len = func.strlen(How long I'm? [€¤$])
 func.println(How long I'm? [€¤$]: $len)
