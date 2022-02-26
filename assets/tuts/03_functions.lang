@@ -170,6 +170,8 @@ func.println(func.ttoc(µ\e))
 func.println(func.ttoc($\e))
 func.println(func.ttoc(¤\e))
 
+func.println(\n)
+
 # Text functions
 # func.strlen(Text) # Will return the lenght (Count of chars, NOT Byte count) of the text as int
 $len = func.strlen(How long I'm? [€¤$])
@@ -223,6 +225,28 @@ func.println(func.charAt(100.42000, 0))
 func.println(func.charAt(100.42000, 3))
 func.println(func.charAt(100.42000, 5))
 func.println(func.charAt(100.42000, 42))
+
+func.println()
+
+# func.lpad(Text, Padding text, length) # Will add a padding on the left side of the text (The result will be of length length or the size of Text if it was already greater than the provided length) (Only parts of the padding text can be used if the padding would be greater than the length)
+func.println(func.lpad(A text, \s, 10))
+func.println(func.lpad(A text, *, 10))
+func.println(func.lpad(A text, -., 10))
+func.println(func.lpad(A text, -., 11))
+func.println(func.lpad(A very long text, *, 11))
+func.println(func.lpad(A text, TEST-, 15))
+
+func.println()
+
+# func.rpad(Text, Padding text, length) # Will add a padding on the right side of the text (Everything else has the same behavior as func.lpad)
+func.println(func.rpad(A text, \s, 10))
+func.println(func.rpad(A text, *, 10))
+func.println(func.rpad(A text, -., 10))
+func.println(func.rpad(A text, -., 11))
+func.println(func.rpad(A very long text, *, 11))
+func.println(func.rpad(A text, TEST-, 15))
+
+func.println(\n)
 
 # Math functions
 # func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
