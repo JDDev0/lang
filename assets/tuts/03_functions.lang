@@ -235,6 +235,10 @@ func.println(func.lpad(A text, -., 10))
 func.println(func.lpad(A text, -., 11))
 func.println(func.lpad(A very long text, *, 11))
 func.println(func.lpad(A text, TEST-, 15))
+# The padding text must not be empty
+func.println(func.lpad(A text, \e, 10))
+# Padding text may also not be empty if no padding is needed
+func.println(func.lpad(A text, \e, 5))
 
 func.println()
 
@@ -245,6 +249,10 @@ func.println(func.rpad(A text, -., 10))
 func.println(func.rpad(A text, -., 11))
 func.println(func.rpad(A very long text, *, 11))
 func.println(func.rpad(A text, TEST-, 15))
+# The padding text must not be empty
+func.println(func.rpad(A text, \e, 10))
+# Padding text may also not be empty if no padding is needed
+func.println(func.rpad(A text, \e, 5))
 
 func.println(\n)
 
