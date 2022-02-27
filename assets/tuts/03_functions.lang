@@ -255,6 +255,7 @@ func.println(func.rpad(A text, \e, 10))
 func.println(func.rpad(A text, \e, 5))
 
 func.println()
+
 # func.contains(TEXT, TEXT) # Returns 1 if the 2nd argument is contained in the 1st argument
 func.println(func.contains(testtext, test))
 func.println(func.contains(testtext, text))
@@ -267,6 +268,21 @@ func.println()
 func.println(func.contains(testtext, txt))
 func.println(func.contains(testtext, texttest))
 func.println(func.contains(\e, test))
+
+func.println()
+
+# func.startsWith(TEXT, TEXT) # Returns 1 if the 1st argument starts with the 2nd argument
+func.println(func.startsWith(abc, a))
+func.println(func.startsWith(abc, ab))
+func.println(func.startsWith(abc, abc))
+func.println(func.startsWith(abc, \e))
+func.println(func.startsWith(\e, \e))
+
+func.println()
+
+func.println(func.startsWith(a, abc))
+func.println(func.startsWith(ab, abc))
+func.println(func.startsWith(\e, abc))
 
 func.println(\n)
 
