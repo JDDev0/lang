@@ -254,6 +254,20 @@ func.println(func.rpad(A text, \e, 10))
 # Padding text may also not be empty if no padding is needed
 func.println(func.rpad(A text, \e, 5))
 
+func.println()
+# func.contains(TEXT, TEXT) # Returns 1 if the 2nd argument is contained in the 1st argument
+func.println(func.contains(testtext, test))
+func.println(func.contains(testtext, text))
+func.println(func.contains(testtext, t))
+func.println(func.contains(testtext, \e))
+func.println(func.contains(\e, \e))
+
+func.println()
+
+func.println(func.contains(testtext, txt))
+func.println(func.contains(testtext, texttest))
+func.println(func.contains(\e, test))
+
 func.println(\n)
 
 # Math functions
