@@ -282,7 +282,24 @@ func.println()
 
 func.println(func.startsWith(a, abc))
 func.println(func.startsWith(ab, abc))
+func.println(func.startsWith(abc, cba))
 func.println(func.startsWith(\e, abc))
+
+func.println()
+
+# func.endsWith(TEXT, TEXT) # Returns 1 if the 1st argument ends with the 2nd argument
+func.println(func.endsWith(abc, c))
+func.println(func.endsWith(abc, bc))
+func.println(func.endsWith(abc, abc))
+func.println(func.endsWith(abc, \e))
+func.println(func.endsWith(\e, \e))
+
+func.println()
+
+func.println(func.endsWith(a, abc))
+func.println(func.endsWith(ab, abc))
+func.println(func.endsWith(abc, cba))
+func.println(func.endsWith(\e, abc))
 
 func.println(\n)
 
