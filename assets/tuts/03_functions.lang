@@ -301,6 +301,20 @@ func.println(func.endsWith(ab, abc))
 func.println(func.endsWith(abc, cba))
 func.println(func.endsWith(\e, abc))
 
+func.println()
+
+# func.repeatText(INT, VARARGS) # Repeats the VARARGS TEXT n times (if n = 0, \e will be returned)
+func.println(func.repeatText(2, abc))
+func.println(func.repeatText(3, abc-))
+func.println(func.repeatText(4, abc-))
+func.println(func.repeatText(5, abc))
+func.println(func.repeatText(1, abc))
+func.println(func.repeatText(0, abc))
+func.println(func.repeatText(2, \e))
+func.println(func.repeatText(4, \e))
+func.println(func.repeatText(5, 2))
+func.println(func.repeatText(5, 2,test))
+
 func.println(\n)
 
 # Math functions
