@@ -90,7 +90,7 @@ func.println(Error code: $LANG_ERRNO)
 #        -2: NO_TERMINAL_WARNING
 #    Lang warnings:
 #        -3: LANG_VER_WARNING
-#        -4: INVALID_COMP_FLAG_DATA
+#        -4: INVALID_EXEC_FLAG_DATA
 #    Variable warnings:
 #        -5: VAR_SHADOWING_WARNING
 #    Value warnings:
