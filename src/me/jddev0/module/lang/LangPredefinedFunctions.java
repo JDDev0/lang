@@ -37,7 +37,7 @@ final class LangPredefinedFunctions {
 	//Error string formats
 	private static final String TOO_MANY_ARGUMENTS_FORMAT = "Too many arguments (%s needed)";
 	private static final String ARGUMENT_TYPE = "Argument %smust be from type %s";
-	
+
 	private final LangInterpreter interpreter;
 
 	public LangPredefinedFunctions(LangInterpreter interpreter) {
@@ -51,6 +51,7 @@ final class LangPredefinedFunctions {
 		
 		return dataObject.getText();
 	}
+	
 	private List<DataObject> getAllArguments(List<DataObject> argumentList) {
 		List<DataObject> arguments = new LinkedList<>();
 		
@@ -2616,6 +2617,54 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
 			
 			return new DataObject().setInt(arrPointerObject.getArray().length);
+		});
+		funcs.put("arrayDistinctValuesOf", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			List<DataObject> distinctValues = new LinkedList<>();
+			for(DataObject ele:arrPointerObject.getArray()) {
+				boolean flag = true;
+				for(DataObject distinctEle:distinctValues) {
+					if(ele.isStrictEquals(distinctEle)) {
+						flag = false;
+						break;
+					}
+				}
+				
+				if(flag)
+					distinctValues.add(ele);
+			}
+			
+			return new DataObject().setArray(distinctValues.toArray(new DataObject[0]));
+		});
+		funcs.put("arrayDistinctValuesLike", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			List<DataObject> distinctValues = new LinkedList<>();
+			for(DataObject ele:arrPointerObject.getArray()) {
+				boolean flag = true;
+				for(DataObject distinctEle:distinctValues) {
+					if(ele.isEquals(distinctEle)) {
+						flag = false;
+						break;
+					}
+				}
+				
+				if(flag)
+					distinctValues.add(ele);
+			}
+			
+			return new DataObject().setArray(distinctValues.toArray(new DataObject[0]));
 		});
 		funcs.put("arrayMap", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
