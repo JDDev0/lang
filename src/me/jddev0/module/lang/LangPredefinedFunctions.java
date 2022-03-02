@@ -23,6 +23,7 @@ import java.util.regex.PatternSyntaxException;
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 
@@ -37,9 +38,9 @@ final class LangPredefinedFunctions {
 	//Error string formats
 	private static final String TOO_MANY_ARGUMENTS_FORMAT = "Too many arguments (%s needed)";
 	private static final String ARGUMENT_TYPE = "Argument %smust be from type %s";
-
+	
 	private final LangInterpreter interpreter;
-
+	
 	public LangPredefinedFunctions(LangInterpreter interpreter) {
 		this.interpreter = interpreter;
 	}
@@ -834,6 +835,13 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
 			return new DataObject().setBoolean(dataObject.isStaticData());
+		});
+		funcs.put("pointerTo", (argumentList, SCOPE_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			return new DataObject().setVarPointer(new VarPointerObject(dataObject));
 		});
 		funcs.put("condition", new LangPredefinedFunctionObject() {
 			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
