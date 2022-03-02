@@ -117,6 +117,29 @@ func.println(func.arrayLastIndexLike(&arr, abc)) # 9
 
 func.println()
 
+# Create array with unique values
+# func.arrayDistinctValuesOf(arrPtr) # Will return a new array where no two elements are strict equals
+func.println(func.arrayDistinctValuesOf(&arr))
+func.println(func.arrayDistinctValuesOf(func.arrayOf(test)))
+func.println(func.arrayDistinctValuesOf(func.arrayOf(1, 2, 4, test, 1, 42)))
+func.println(func.arrayDistinctValuesOf(func.arrayOf(1, 2, 4, test, 1, 42, {{{1}}}, 1., x)))
+func.println(func.arrayDistinctValuesOf(func.arrayOf(1., 2, 4, test, 1, 42, {{{1}}}, 1, x)))
+func.println(func.arrayDistinctValuesOf(func.arrayOf(40, x, {{{x}}})))
+func.println(func.arrayDistinctValuesOf(func.arrayOf()))
+
+func.println()
+
+# func.arrayDistinctValuesLike(arrPtr) # Will return a new array where no two elements are normal equals
+func.println(func.arrayDistinctValuesLike(&arr))
+func.println(func.arrayDistinctValuesLike(func.arrayOf(test)))
+func.println(func.arrayDistinctValuesLike(func.arrayOf(1, 2, 4, test, 1, 42)))
+func.println(func.arrayDistinctValuesLike(func.arrayOf(1, 2, 4, test, 1, 42, {{{1}}}, 1., x)))
+func.println(func.arrayDistinctValuesLike(func.arrayOf(1., 2, 4, test, 1, 42, {{{1}}}, 1, x)))
+func.println(func.arrayDistinctValuesLike(func.arrayOf(40, x, {{{x}}})))
+func.println(func.arrayDistinctValuesLike(func.arrayOf()))
+
+func.println()
+
 # Copy an array
 &arr2 = &arr # Will copy the array pointer (The content will not be copied [Same references])
 func.println(func.arrayGetAll(&arr2))
