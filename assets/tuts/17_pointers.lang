@@ -1,0 +1,62 @@
+lang.name = Pointer
+lang.version = v1.0.0
+
+# Referencing and dereferencing of variables
+$variable = test
+func.println($variable)
+func.println($[variable]) # Referencing $variable (Pointer to $variable)
+
+$ptr = $[variable]
+func.println($*ptr) # Dereferencing $ptr (Get value $ptr is pointing to)
+
+$*ptr = 42 # Set the value the pointer is pointing to
+func.println($variable)
+
+$pointer = $ptr # Copy a pointer
+func.println($*pointer)
+
+$*pointer # Set value the pointer is pointing to to null
+func.println($variable)
+
+$variable = 42 # Pointers to variable will work after value change
+func.println($variable)
+$*pointer = 42 - new
+func.println($variable)
+
+func.println($*[variable]) # Combined referecing and dereferencing
+
+$ptr2 = $[ptr] # Pointer to pointer
+func.println($**ptr2) # Dereferencing twice
+
+$ptr3 = $[[varibale]] # Also pointer to pointer
+func.println($**ptr2) # Dereferencing twice
+
+func.println($**[[variable]]) # Combined referecing and dereferencing
+
+$**ptr2 = new value
+func.println($variable)
+
+func.println($*variable) # Dereferencing a non poitner will return null
+
+func.println($*variableName) # Dereferencing a not defined variable will be parsed as text
+
+func.println(-----------------)
+
+# func.pointerTo(any) # References the provided value and will return a pointer to it
+$ptr = func.pointerTo($variable)
+func.println($ptr, $*ptr)
+$*ptr = test
+func.println($ptr, $*ptr)
+
+# Arrays can be referenced too
+&arr = func.arrayOf(1, 2)
+$ptr = func.pointerTo(&arr)
+func.println($ptr, $*ptr)
+$*ptr
+func.println($ptr, $*ptr)
+
+# Anonymous values can be referenced too but the anonymous value can not be changed
+$ptr = func.pointerTo(42)
+func.println($ptr, $*ptr)
+$*ptr = test # Error
+func.println($ptr, $*ptr)
