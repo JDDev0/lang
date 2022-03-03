@@ -1363,6 +1363,45 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			}
 		});
+		funcs.put("isNaN", (argumentList, SCOPE_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isNaN(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isNaN(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(false);
+			}, SCOPE_ID);
+		});
+		funcs.put("isInfinite", (argumentList, SCOPE_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isInfinite(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isInfinite(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(false);
+			}, SCOPE_ID);
+		});
+		funcs.put("isFinite", (argumentList, SCOPE_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				if(number instanceof Float) {
+					return new DataObject().setBoolean(Float.isFinite(number.floatValue()));
+				}
+				
+				if(number instanceof Double) {
+					return new DataObject().setBoolean(Double.isFinite(number.doubleValue()));
+				}
+				
+				return new DataObject().setBoolean(true);
+			}, SCOPE_ID);
+		});
 	}
 	private void addPredefinedCharacterFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("toValue", (argumentList, SCOPE_ID) -> {
@@ -2214,45 +2253,6 @@ final class LangPredefinedFunctions {
 		funcs.put("floor", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setLong((long)Math.floor(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("isNaN", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isNaN(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isNaN(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(false);
-			}, SCOPE_ID);
-		});
-		funcs.put("isInfinite", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isInfinite(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isInfinite(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(false);
-			}, SCOPE_ID);
-		});
-		funcs.put("isFinite", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isFinite(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isFinite(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(true);
 			}, SCOPE_ID);
 		});
 		funcs.put("min", (argumentList, SCOPE_ID) -> {
