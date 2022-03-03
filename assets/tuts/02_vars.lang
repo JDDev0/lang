@@ -155,6 +155,28 @@ func.println($*variableName) # Dereferencing a not defined variable will be pars
 
 func.println(-----------------)
 
+# func.pointerTo(any) # References the provided value and will return a pointer to it
+$ptr = func.pointerTo($variable)
+func.println($ptr, $*ptr)
+$*ptr = test
+func.println($ptr, $*ptr)
+
+# Arrays can be referenced too Arrays: [See: 05_arrays.lang]
+&arr = func.arrayOf(1, 2)
+$ptr = func.pointerTo(&arr)
+func.println($ptr, $*ptr)
+$*ptr
+func.println($ptr, $*ptr)
+
+# Anonymous values can be referenced too but the anonymous value can not be changed
+$ptr = func.pointerTo(42)
+func.println($ptr, $*ptr)
+$*ptr = test # Error
+func.println($ptr, $*ptr)
+
+func.println(-----------------)
+
+
 # $LANG vars
 func.println(\$LANG vars:)
 func.println(• "$LANG_VERSION") # Will print the lang version
