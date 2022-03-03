@@ -920,32 +920,6 @@ final class LangPredefinedFunctions {
 			return interpreter.getAndResetReturnValue(SCOPE_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(interpreter.term != null));
-		funcs.put("min", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			while(argumentList.size() > 0) {
-				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				if(dataObject.isLessThan(min))
-					min = dataObject;
-			}
-			
-			return min;
-		});
-		funcs.put("max", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			while(argumentList.size() > 0) {
-				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				if(dataObject.isGreaterThan(min))
-					min = dataObject;
-			}
-			
-			return min;
-		});
 		funcs.put("isInstanceOf", (argumentList, SCOPE_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject dataTypeObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
@@ -2280,6 +2254,32 @@ final class LangPredefinedFunctions {
 				
 				return new DataObject().setBoolean(true);
 			}, SCOPE_ID);
+		});
+		funcs.put("min", (argumentList, SCOPE_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			while(argumentList.size() > 0) {
+				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(dataObject.isLessThan(min))
+					min = dataObject;
+			}
+			
+			return min;
+		});
+		funcs.put("max", (argumentList, SCOPE_ID) -> {
+			if(argumentList.size() == 0) //Not at least 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			while(argumentList.size() > 0) {
+				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+				if(dataObject.isGreaterThan(min))
+					min = dataObject;
+			}
+			
+			return min;
 		});
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
