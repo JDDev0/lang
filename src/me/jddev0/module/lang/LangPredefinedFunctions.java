@@ -1488,15 +1488,20 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0) //Not 2 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
-			Number index = indexObject.toNumber();
-			if(index == null)
+			Number indexNumber = indexObject.toNumber();
+			if(indexNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
 			
-			try {
-				return new DataObject().setChar(textObject.getText().charAt(index.intValue()));
-			}catch(StringIndexOutOfBoundsException e) {
+			String txt = textObject.getText();
+			int len = txt.length();
+			int index = indexNumber.intValue();
+			if(index < 0)
+				index = len + index;
+			
+			if(index < 0 || index >= len)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			}
+			
+			return new DataObject().setChar(txt.charAt(index));
 		});
 		funcs.put("lpad", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
