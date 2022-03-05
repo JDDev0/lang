@@ -200,7 +200,7 @@ func.println($sub1)
 $sub2 = func.substring(This is a long text!, 15, 19)
 func.println($sub2)
 
-# func.charAt(Text, int) # Will return the char at the index (2nd parameter)
+# func.charAt(Text, int) # Will return the char at the index (2nd parameter). Negative indices are allowed (-1 is the last character, -2 is the character previous to the last character, ...)
 func.println(func.charAt(abc\, test string, 0))
 func.println(func.charAt(abc\, test string, 3))
 func.println(func.charAt(abc\, test string, 5))
@@ -218,13 +218,40 @@ func.println(func.charAt({{{xyz, nice!}}}, 42))
 
 func.println(func.charAt(10042000, 0))
 func.println(func.charAt(10042000, 3))
-func.println(func.charAt(10042000, 10))
+func.println(func.charAt(10042000, 5))
 func.println(func.charAt(10042000, 42))
 
 func.println(func.charAt(100.42000, 0))
 func.println(func.charAt(100.42000, 3))
 func.println(func.charAt(100.42000, 5))
 func.println(func.charAt(100.42000, 42))
+
+func.println()
+
+func.println(func.charAt(abc\, test string, -1))
+func.println(func.charAt(abc\, test string, -4))
+func.println(func.charAt(abc\, test string, -6))
+func.println(func.charAt(abc\, test string, -43))
+
+func.println(func.charAt(def\, text, -1))
+func.println(func.charAt(def\, text, -4))
+func.println(func.charAt(def\, text, -6))
+func.println(func.charAt(def\, text, -43))
+
+func.println(func.charAt({{{xyz, nice!}}}, -1))
+func.println(func.charAt({{{xyz, nice!}}}, -4))
+func.println(func.charAt({{{xyz, nice!}}}, -6))
+func.println(func.charAt({{{xyz, nice!}}}, -43))
+
+func.println(func.charAt(10042000, -1))
+func.println(func.charAt(10042000, -4))
+func.println(func.charAt(10042000, -6))
+func.println(func.charAt(10042000, -43))
+
+func.println(func.charAt(100.42000, -1))
+func.println(func.charAt(100.42000, -4))
+func.println(func.charAt(100.42000, -6))
+func.println(func.charAt(100.42000, -43))
 
 func.println()
 
