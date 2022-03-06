@@ -117,10 +117,12 @@ final class LangPredefinedFunctions {
 	}
 	
 	/**
-	 * @return The count of chars used for the format sequence<br>
-	 * Will return -1 for invalid format sequences
-	 * Will return -2 for invalid parameters
-	 * Will return -3 for not found translation keys
+	 * @return The count of chars used for the format sequence
+	 * <ul>
+	 * <li>Will return -1 for invalid format sequences</li>
+	 * <li>Will return -2 for invalid parameters</li>
+	 * <li>Will return -3 for not found translation keys</li>
+	 * </ul>
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int SCOPE_ID) {
 		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x'};
