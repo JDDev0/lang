@@ -19,14 +19,15 @@ lang.version = v1.0.0
 #   - %t # Translation value of a translation key
 #   - %n # Platform independent newline sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
 # - Format arguments:
-#   - %<num>  # For: d, b, o, x, f, c, s, t # Size [Padding with spaces]
-#   - %-<num> # For: d, b, o, x, f, c, s, t # Size [left-justify]
-#   - %0<num> # For: d, b, o, x, f          # Size [Padding with 0s]
-#   - %+      # For: d, b, o, x, f          # Force sign
-#   - %␣      # For: d, b, o, x, f          # Space sign [Will print a space if no sign is in front of the number]
-#   - %*      # For: d, b, o, x, f, c, s, t # Size from varargs
-#   - %.<num> # For:             f          # Decimal places (Rounded)
-#   - %.*     # For:             f          # Decimal places from varargs (Rounded)
+#   - %[<index>] # For: d, b, o, x, f, c, s, t # Value at specific argument index (0th index is the format text)
+#   - %<num>     # For: d, b, o, x, f, c, s, t # Size [Padding with spaces]
+#   - %-<num>    # For: d, b, o, x, f, c, s, t # Size [left-justify]
+#   - %0<num>    # For: d, b, o, x, f          # Size [Padding with 0s]
+#   - %+         # For: d, b, o, x, f          # Force sign
+#   - %␣         # For: d, b, o, x, f          # Space sign [Will print a space if no sign is in front of the number]
+#   - %*         # For: d, b, o, x, f, c, s, t # Size from varargs
+#   - %.<num>    # For:             f          # Decimal places (Rounded)
+#   - %.*        # For:             f          # Decimal places from varargs (Rounded)
 # - Format argument incompabilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
@@ -60,6 +61,15 @@ func.println(func.format(|%10c|, 65)) # |         A|
 func.println(func.format(|%-10c|, 65)) # |A         |
 func.errorf(Error "%s" was thrown!%n, func.errorText($LANG_ERROR_DIV_BY_ZERO))
 func.printf(%c%n, t) # Posible because of implicit cast from CHAR to number
+func.printf(%s %[1]s%n, test)
+func.printf(%[2]s%n, test, abc)
+func.printf(%[2]05d%n, test, 42)
+func.printf(%[1]s%n, test\!42\!\eabc0)
+func.printf(%[1]s%n, {{{testabc[]+01294378?=}}})
+func.printf(%[0]s%n)
+func.println(func.format(%5s: %[1]-+5d\, %[1]- 5.2f, 42.528))
+func.println(func.format(%[1]15d [Base 10] %[1]15b [Base 2] %[1]15o [Base 8] %[1]15x [Base 16], 4200))
+func.println(func.format(%-15s \= %[1]-15t, test.value))
 
 func.println()
 
@@ -75,3 +85,9 @@ func.printf(Test %*.*f, -2, 1, 42)
 func.printf(Test %*.*f, -2, -1, 42)
 func.printf(Test %+ d, 42)
 func.printf(%c%n, {{{t}}})
+func.printf(%[1]n, test)
+func.printf(%[2]d%n, test, abc, t)
+func.printf(%[20]d%n, test, 42, t)
+func.printf(%[205d%n, test, 42)
+func.printf(%[ab]d%n, test, 42)
+func.printf(%s%[1]f%n, abc)
