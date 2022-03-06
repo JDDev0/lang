@@ -18,7 +18,7 @@ public final class LangUtils {
 	private LangUtils() {}
 	
 	/**
-	 * @return Will return null if the dataObjects was empty or if dataObjects only contains Java null values
+	 * @return Will return null if the dataObjects is empty or if dataObjects only contains Java null values
 	 */
 	public static DataObject combineDataObjects(List<DataObject> dataObjects) {
 		dataObjects = new LinkedList<>(dataObjects);
@@ -33,7 +33,7 @@ public final class LangUtils {
 		//Remove all void objects
 		dataObjects.removeIf(dataObject -> dataObject.getType() == DataType.VOID);
 		
-		//Return a single void object if every data object was a void object
+		//Return a single void object if every data object is a void object
 		if(dataObjects.size() == 0)
 			return new DataObject().setVoid();
 		
