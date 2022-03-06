@@ -167,6 +167,40 @@ func.println(func.isNaN(.2))
 
 func.println()
 
+# func.isInfinite(number) # Will return true if the provided number is floating point positive/negative infinity. Will always return false for non floating point numbers
+func.println(func.isInfinite($LANG_FLOAT_NAN))
+func.println(func.isInfinite($LANG_DOUBLE_NAN))
+func.println(func.isInfinite(func.div(0, 0)))
+func.println(func.isInfinite($LANG_FLOAT_POS_INF))
+func.println(func.isInfinite($LANG_FLOAT_NEG_INF))
+func.println(func.isInfinite($LANG_DOUBLE_POS_INF))
+func.println(func.isInfinite($LANG_DOUBLE_NEG_INF))
+func.println(func.isInfinite(func.div(1, 0)))
+func.println(func.isInfinite(func.div(1, -0)))
+func.println(func.isInfinite(func.div(-1, -0)))
+func.println(func.isInfinite(4.2))
+func.println(func.isInfinite(2))
+func.println(func.isInfinite(.2))
+
+func.println()
+
+# func.isFinite(number) # Will return true if the provided number is no floating point positive/negative infinity. Will always return true for non floating point numbers
+func.println(func.isFinite($LANG_FLOAT_NAN))
+func.println(func.isFinite($LANG_DOUBLE_NAN))
+func.println(func.isFinite(func.div(0, 0)))
+func.println(func.isFinite($LANG_FLOAT_POS_INF))
+func.println(func.isFinite($LANG_FLOAT_NEG_INF))
+func.println(func.isFinite($LANG_DOUBLE_POS_INF))
+func.println(func.isFinite($LANG_DOUBLE_NEG_INF))
+func.println(func.isFinite(func.div(1, 0)))
+func.println(func.isFinite(func.div(1, -0)))
+func.println(func.isFinite(func.div(-1, -0)))
+func.println(func.isFinite(4.2))
+func.println(func.isFinite(2))
+func.println(func.isFinite(.2))
+
+func.println()
+
 # Character functions
 # func.toValue(char) # Will return the Unicode value of a char
 $valA = func.toValue(a)
