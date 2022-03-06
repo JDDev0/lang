@@ -117,14 +117,19 @@ final class LangPredefinedFunctions {
 	}
 	
 	/**
+	 * @param argumentList The argument list of the function call without the format argument (= argument at index 0). Used data objects will be removed from the list
+	 * @param fullArgumentList The argument list of the function call where every argument are already combined to single values without argument separators with the format argument
+	 * (= argument at index 0). This list will not be modified and is used for value referencing by index
+	 * 
 	 * @return The count of chars used for the format sequence
 	 * <ul>
 	 * <li>Will return -1 for invalid format sequences</li>
 	 * <li>Will return -2 for invalid parameters</li>
 	 * <li>Will return -3 for not found translation keys</li>
+	 * <li>Will return -4 for specified indices out of bounds</li>
 	 * </ul>
 	 */
-	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, final int SCOPE_ID) {
+	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, List<DataObject> fullArgumentList, final int SCOPE_ID) {
 		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x'};
 		int[] indices = new int[posibleFormats.length];
 		for(int i = 0;i < posibleFormats.length;i++)
@@ -146,6 +151,27 @@ final class LangPredefinedFunctions {
 		char formatType = fullFormat.charAt(fullFormat.length() - 1);
 		
 		//Parsing format arguments
+		Integer valueSpecifiedIndex = null;
+		if(fullFormat.charAt(0) == '[') {
+			int valueSpecifiedIndexEndIndex = fullFormat.indexOf(']');
+			if(valueSpecifiedIndexEndIndex < 0)
+				return -1;
+			
+			String valueSpecifiedIndexString = fullFormat.substring(1, valueSpecifiedIndexEndIndex);
+			fullFormat = fullFormat.substring(valueSpecifiedIndexEndIndex + 1);
+			
+			String number = "";
+			while(!valueSpecifiedIndexString.isEmpty()) {
+				if(valueSpecifiedIndexString.charAt(0) < '0' || valueSpecifiedIndexString.charAt(0) > '9')
+					return -1;
+				
+				number += valueSpecifiedIndexString.charAt(0);
+				valueSpecifiedIndexString = valueSpecifiedIndexString.substring(1);
+			}
+			valueSpecifiedIndex = Integer.parseInt(number);
+			if(valueSpecifiedIndex >= fullArgumentList.size())
+				return -4;
+		}
 		boolean leftJustify = fullFormat.charAt(0) == '-';
 		if(leftJustify)
 			fullFormat = fullFormat.substring(1);
@@ -200,7 +226,7 @@ final class LangPredefinedFunctions {
 				break;
 			
 			case 'n':
-				if(sizeInArgument || size != null)
+				if(valueSpecifiedIndex != null || sizeInArgument || size != null)
 					return -1; //Invalid format sequence
 				
 				//Fall-trough
@@ -245,9 +271,9 @@ final class LangPredefinedFunctions {
 		
 		//Format argument
 		String output = null;
-		if(formatType != 'n' && argumentList.isEmpty())
+		if(formatType != 'n' && valueSpecifiedIndex == null && argumentList.isEmpty())
 			return -2; //Invalid arguments
-		DataObject dataObject = formatType == 'n'?null:LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject dataObject = formatType == 'n'?null:(valueSpecifiedIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(valueSpecifiedIndex));
 		switch(formatType) {
 			case 'd':
 				Number number = dataObject.toNumber();
@@ -395,6 +421,8 @@ final class LangPredefinedFunctions {
 	}
 	private DataObject formatText(String format, List<DataObject> argumentList, final int SCOPE_ID) {
 		StringBuilder builder = new StringBuilder();
+		List<DataObject> fullArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		fullArgumentList.add(0, new DataObject(format));
 		
 		int i = 0;
 		while(i < format.length()) {
@@ -411,13 +439,15 @@ final class LangPredefinedFunctions {
 					continue;
 				}
 				
-				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, SCOPE_ID);
+				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, fullArgumentList, SCOPE_ID);
 				if(charCountUsed == -1)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
 				else if(charCountUsed == -2)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 				else if(charCountUsed == -3)
 					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+				else if(charCountUsed == -4)
+					return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 				
 				i += charCountUsed;
 				

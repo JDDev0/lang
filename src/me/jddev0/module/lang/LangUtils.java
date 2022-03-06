@@ -1,5 +1,6 @@
 package me.jddev0.module.lang;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -17,13 +18,13 @@ public final class LangUtils {
 	private LangUtils() {}
 	
 	/**
-	 * @return Might return null
+	 * @return Will return null if the dataObjects was empty or if dataObjects only contains Java null values
 	 */
 	public static DataObject combineDataObjects(List<DataObject> dataObjects) {
 		dataObjects = new LinkedList<>(dataObjects);
 		dataObjects.removeIf(Objects::isNull);
 		
-		if(dataObjects.size() == 0)
+		if(dataObjects.isEmpty())
 			return null;
 		
 		if(dataObjects.size() == 1)
@@ -46,12 +47,11 @@ public final class LangUtils {
 	}
 	
 	/**
-	 * @return Returns the next DataObject (One DataObject or a combined text value DataObject) before the next ARGUMENT_SEPARATOR or the end and removes all used data objects<br>
-	 * Might return null
+	 * @return Returns the next DataObject (One DataObject or a combined text value DataObject) before the next ARGUMENT_SEPARATOR or the end and removes all used data objects
 	 */
 	public static DataObject getNextArgumentAndRemoveUsedDataObjects(List<DataObject> argumentList, boolean removeArgumentSpearator) {
 		List<DataObject> argumentTmpList = new LinkedList<>();
-		while(argumentList.size() > 0 && argumentList.get(0).getType() != DataType.ARGUMENT_SEPARATOR)
+		while(!argumentList.isEmpty() && argumentList.get(0).getType() != DataType.ARGUMENT_SEPARATOR)
 			argumentTmpList.add(argumentList.remove(0));
 		
 		if(argumentTmpList.isEmpty())
@@ -61,6 +61,40 @@ public final class LangUtils {
 			argumentList.remove(0); //Remove ARGUMENT_SEPARATOR
 		
 		return combineDataObjects(argumentTmpList);
+	}
+	
+	/**
+	 * @return Returns a list of DataObjects where every ARGUMENT_SEPARATOR is removed and arguments are combined into single values (A VOID value is used for empty arguments)
+	 */
+	public static List<DataObject> combineArgumentsWithoutArgumentSeparators(List<DataObject> argumentList) {
+		if(argumentList.isEmpty())
+			return new ArrayList<>();
+		
+		argumentList = new LinkedList<>(argumentList);
+		
+		List<DataObject> combinedArgumentList = new ArrayList<>();
+		List<DataObject> argumentTmpList = new LinkedList<>();
+		while(!argumentList.isEmpty()) {
+			DataObject currentDataObject = argumentList.remove(0);
+			if(currentDataObject.getType() == DataType.ARGUMENT_SEPARATOR) {
+				if(argumentTmpList.isEmpty())
+					argumentTmpList.add(new DataObject().setVoid());
+				
+				combinedArgumentList.add(combineDataObjects(argumentTmpList));
+				argumentTmpList.clear();
+				
+				continue;
+			}
+			
+			argumentTmpList.add(currentDataObject);
+		}
+		
+		if(argumentTmpList.isEmpty())
+			argumentTmpList.add(new DataObject().setVoid());
+		
+		combinedArgumentList.add(combineDataObjects(argumentTmpList));
+		
+		return combinedArgumentList;
 	}
 	
 	/**
