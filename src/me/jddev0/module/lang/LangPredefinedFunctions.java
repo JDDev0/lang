@@ -187,6 +187,27 @@ final class LangPredefinedFunctions {
 		boolean sizeInArgument = fullFormat.charAt(0) == '*';
 		if(sizeInArgument)
 			fullFormat = fullFormat.substring(1);
+		Integer sizeArgumentIndex = null;
+		if(sizeInArgument && fullFormat.charAt(0) == '[') {
+			int sizeArgumentIndexEndIndex = fullFormat.indexOf(']');
+			if(sizeArgumentIndexEndIndex < 0)
+				return -1;
+			
+			String sizeArgumentIndexString = fullFormat.substring(1, sizeArgumentIndexEndIndex);
+			fullFormat = fullFormat.substring(sizeArgumentIndexEndIndex + 1);
+			
+			String number = "";
+			while(!sizeArgumentIndexString.isEmpty()) {
+				if(sizeArgumentIndexString.charAt(0) < '0' || sizeArgumentIndexString.charAt(0) > '9')
+					return -1;
+				
+				number += sizeArgumentIndexString.charAt(0);
+				sizeArgumentIndexString = sizeArgumentIndexString.substring(1);
+			}
+			sizeArgumentIndex = Integer.parseInt(number);
+			if(sizeArgumentIndex >= fullArgumentList.size())
+				return -4;
+		}
 		Integer size = null;
 		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
 			String number = "";
@@ -249,7 +270,7 @@ final class LangPredefinedFunctions {
 		
 		//Get size from arguments
 		if(sizeInArgument) {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject dataObject = sizeArgumentIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(sizeArgumentIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
 				return -2; //Invalid arguments
