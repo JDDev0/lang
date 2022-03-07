@@ -219,12 +219,33 @@ final class LangPredefinedFunctions {
 		}
 		boolean decimalPlaces = fullFormat.charAt(0) == '.';
 		boolean decimalPlacesInArgument = false;
+		Integer decimalPlacesCountIndex = null;
 		Integer decimalPlacesCount = null;
 		if(decimalPlaces) {
 			fullFormat = fullFormat.substring(1);
 			decimalPlacesInArgument = fullFormat.charAt(0) == '*';
 			if(decimalPlacesInArgument)
 				fullFormat = fullFormat.substring(1);
+			if(decimalPlacesInArgument && fullFormat.charAt(0) == '[') {
+				int decimalPlacesCountIndexEndIndex = fullFormat.indexOf(']');
+				if(decimalPlacesCountIndexEndIndex < 0)
+					return -1;
+				
+				String decimalPlacesCountIndexString = fullFormat.substring(1, decimalPlacesCountIndexEndIndex);
+				fullFormat = fullFormat.substring(decimalPlacesCountIndexEndIndex + 1);
+				
+				String number = "";
+				while(!decimalPlacesCountIndexString.isEmpty()) {
+					if(decimalPlacesCountIndexString.charAt(0) < '0' || decimalPlacesCountIndexString.charAt(0) > '9')
+						return -1;
+					
+					number += decimalPlacesCountIndexString.charAt(0);
+					decimalPlacesCountIndexString = decimalPlacesCountIndexString.substring(1);
+				}
+				decimalPlacesCountIndex = Integer.parseInt(number);
+				if(decimalPlacesCountIndex >= fullArgumentList.size())
+					return -4;
+			}
 			if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
 				String number = "";
 				while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
@@ -280,7 +301,7 @@ final class LangPredefinedFunctions {
 				return -2; //Invalid arguments
 		}
 		if(decimalPlacesInArgument) {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject dataObject = decimalPlacesCountIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(decimalPlacesCountIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
 				return -2; //Invalid arguments
