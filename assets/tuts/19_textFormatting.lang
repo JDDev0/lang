@@ -17,19 +17,20 @@ lang.version = v1.0.0
 #   - %c # CHAR value (An INT value will be converted)
 #   - %s # TEXT value
 #   - %t # Translation value of a translation key
+#   - %? # Boolean value (Will print "true" for truthy values and "false" for falsy values)
 #   - %n # Platform independent newline sequence (Should be used instead of \n, because "\n" will only print a line feed whereas "%n" will print the correct line termination sequence for every OS)
 # - Format arguments:
-#   - %[<index>]   # For: d, b, o, x, f, c, s, t # Value at specific argument index (0th index is the format text)
-#   - %<num>       # For: d, b, o, x, f, c, s, t # Size [Padding with spaces]
-#   - %-<num>      # For: d, b, o, x, f, c, s, t # Size [left-justify]
-#   - %0<num>      # For: d, b, o, x, f          # Size [Padding with 0s]
-#   - %+           # For: d, b, o, x, f          # Force sign
-#   - %␣           # For: d, b, o, x, f          # Space sign [Will print a space if no sign is in front of the number]
-#   - %*           # For: d, b, o, x, f, c, s, t # Size from varargs
-#   - %*[<index>]  # For: d, b, o, x, f, c, s, t # Size from varargs at a specific argument index (0th index is the format text)
-#   - %.<num>      # For:             f          # Decimal places (Rounded)
-#   - %.*          # For:             f          # Decimal places from varargs (Rounded)
-#   - %.*[<index>] # For:             f          # Decimal places from varargs at a specific argument index (0th index is the format text) (Rounded)
+#   - %[<index>]   # For: d, b, o, x, f, c, s, t, ? # Value at specific argument index (0th index is the format text)
+#   - %<num>       # For: d, b, o, x, f, c, s, t, ? # Size [Padding with spaces]
+#   - %-<num>      # For: d, b, o, x, f, c, s, t, ? # Size [left-justify]
+#   - %0<num>      # For: d, b, o, x, f             # Size [Padding with 0s]
+#   - %+           # For: d, b, o, x, f             # Force sign
+#   - %␣           # For: d, b, o, x, f             # Space sign [Will print a space if no sign is in front of the number]
+#   - %*           # For: d, b, o, x, f, c, s, t, ? # Size from varargs
+#   - %*[<index>]  # For: d, b, o, x, f, c, s, t, ? # Size from varargs at a specific argument index (0th index is the format text)
+#   - %.<num>      # For:             f             # Decimal places (Rounded)
+#   - %.*          # For:             f             # Decimal places from varargs (Rounded)
+#   - %.*[<index>] # For:             f             # Decimal places from varargs at a specific argument index (0th index is the format text) (Rounded)
 # - Format argument incompabilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
