@@ -145,7 +145,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		if(minEndIndex == Integer.MAX_VALUE)
-			return -1;
+			return -1; //Invalid format sequence
 		
 		String fullFormat = format.substring(0, minEndIndex + 1);
 		char formatType = fullFormat.charAt(fullFormat.length() - 1);
@@ -155,7 +155,7 @@ final class LangPredefinedFunctions {
 		if(fullFormat.charAt(0) == '[') {
 			int valueSpecifiedIndexEndIndex = fullFormat.indexOf(']');
 			if(valueSpecifiedIndexEndIndex < 0)
-				return -1;
+				return -1; //Invalid format sequence
 			
 			String valueSpecifiedIndexString = fullFormat.substring(1, valueSpecifiedIndexEndIndex);
 			fullFormat = fullFormat.substring(valueSpecifiedIndexEndIndex + 1);
@@ -163,14 +163,14 @@ final class LangPredefinedFunctions {
 			String number = "";
 			while(!valueSpecifiedIndexString.isEmpty()) {
 				if(valueSpecifiedIndexString.charAt(0) < '0' || valueSpecifiedIndexString.charAt(0) > '9')
-					return -1;
+					return -1; //Invalid format sequence
 				
 				number += valueSpecifiedIndexString.charAt(0);
 				valueSpecifiedIndexString = valueSpecifiedIndexString.substring(1);
 			}
 			valueSpecifiedIndex = Integer.parseInt(number);
 			if(valueSpecifiedIndex >= fullArgumentList.size())
-				return -4;
+				return -4; //Index out of bounds
 		}
 		boolean leftJustify = fullFormat.charAt(0) == '-';
 		if(leftJustify)
@@ -191,7 +191,7 @@ final class LangPredefinedFunctions {
 		if(sizeInArgument && fullFormat.charAt(0) == '[') {
 			int sizeArgumentIndexEndIndex = fullFormat.indexOf(']');
 			if(sizeArgumentIndexEndIndex < 0)
-				return -1;
+				return -1; //Invalid format sequence
 			
 			String sizeArgumentIndexString = fullFormat.substring(1, sizeArgumentIndexEndIndex);
 			fullFormat = fullFormat.substring(sizeArgumentIndexEndIndex + 1);
@@ -199,14 +199,14 @@ final class LangPredefinedFunctions {
 			String number = "";
 			while(!sizeArgumentIndexString.isEmpty()) {
 				if(sizeArgumentIndexString.charAt(0) < '0' || sizeArgumentIndexString.charAt(0) > '9')
-					return -1;
+					return -1; //Invalid format sequence
 				
 				number += sizeArgumentIndexString.charAt(0);
 				sizeArgumentIndexString = sizeArgumentIndexString.substring(1);
 			}
 			sizeArgumentIndex = Integer.parseInt(number);
 			if(sizeArgumentIndex >= fullArgumentList.size())
-				return -4;
+				return -4; //Index out of bounds
 		}
 		Integer size = null;
 		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
@@ -229,7 +229,7 @@ final class LangPredefinedFunctions {
 			if(decimalPlacesInArgument && fullFormat.charAt(0) == '[') {
 				int decimalPlacesCountIndexEndIndex = fullFormat.indexOf(']');
 				if(decimalPlacesCountIndexEndIndex < 0)
-					return -1;
+					return -1; //Invalid format sequence
 				
 				String decimalPlacesCountIndexString = fullFormat.substring(1, decimalPlacesCountIndexEndIndex);
 				fullFormat = fullFormat.substring(decimalPlacesCountIndexEndIndex + 1);
@@ -237,14 +237,14 @@ final class LangPredefinedFunctions {
 				String number = "";
 				while(!decimalPlacesCountIndexString.isEmpty()) {
 					if(decimalPlacesCountIndexString.charAt(0) < '0' || decimalPlacesCountIndexString.charAt(0) > '9')
-						return -1;
+						return -1; //Invalid format sequence
 					
 					number += decimalPlacesCountIndexString.charAt(0);
 					decimalPlacesCountIndexString = decimalPlacesCountIndexString.substring(1);
 				}
 				decimalPlacesCountIndex = Integer.parseInt(number);
 				if(decimalPlacesCountIndex >= fullArgumentList.size())
-					return -4;
+					return -4; //Index out of bounds
 			}
 			if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
 				String number = "";
