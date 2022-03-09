@@ -39,6 +39,12 @@ final class LangPredefinedFunctions {
 	private static final String TOO_MANY_ARGUMENTS_FORMAT = "Too many arguments (%s needed)";
 	private static final String ARGUMENT_TYPE = "Argument %smust be from type %s";
 	
+	//Return values for format sequence errors
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE = -1;
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS = -2;
+	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND = -3;
+	private static final int FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS = -4;
+	
 	private final LangInterpreter interpreter;
 	
 	public LangPredefinedFunctions(LangInterpreter interpreter) {
@@ -122,12 +128,14 @@ final class LangPredefinedFunctions {
 	 * (= argument at index 0). This list will not be modified and is used for value referencing by index
 	 * 
 	 * @return The count of chars used for the format sequence
+	 * Will return any of
 	 * <ul>
-	 * <li>Will return -1 for invalid format sequences</li>
-	 * <li>Will return -2 for invalid parameters</li>
-	 * <li>Will return -3 for not found translation keys</li>
-	 * <li>Will return -4 for specified indices out of bounds</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS}</li>
 	 * </ul>
+	 * for errors
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, List<DataObject> fullArgumentList, final int SCOPE_ID) {
 		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x', '?'};
@@ -145,7 +153,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		if(minEndIndex == Integer.MAX_VALUE)
-			return -1; //Invalid format sequence
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 		
 		String fullFormat = format.substring(0, minEndIndex + 1);
 		char formatType = fullFormat.charAt(fullFormat.length() - 1);
@@ -155,7 +163,7 @@ final class LangPredefinedFunctions {
 		if(fullFormat.charAt(0) == '[') {
 			int valueSpecifiedIndexEndIndex = fullFormat.indexOf(']');
 			if(valueSpecifiedIndexEndIndex < 0)
-				return -1; //Invalid format sequence
+				return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 			
 			String valueSpecifiedIndexString = fullFormat.substring(1, valueSpecifiedIndexEndIndex);
 			fullFormat = fullFormat.substring(valueSpecifiedIndexEndIndex + 1);
@@ -163,14 +171,14 @@ final class LangPredefinedFunctions {
 			String number = "";
 			while(!valueSpecifiedIndexString.isEmpty()) {
 				if(valueSpecifiedIndexString.charAt(0) < '0' || valueSpecifiedIndexString.charAt(0) > '9')
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
 				number += valueSpecifiedIndexString.charAt(0);
 				valueSpecifiedIndexString = valueSpecifiedIndexString.substring(1);
 			}
 			valueSpecifiedIndex = Integer.parseInt(number);
 			if(valueSpecifiedIndex >= fullArgumentList.size())
-				return -4; //Index out of bounds
+				return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
 		}
 		boolean leftJustify = fullFormat.charAt(0) == '-';
 		if(leftJustify)
@@ -191,7 +199,7 @@ final class LangPredefinedFunctions {
 		if(sizeInArgument && fullFormat.charAt(0) == '[') {
 			int sizeArgumentIndexEndIndex = fullFormat.indexOf(']');
 			if(sizeArgumentIndexEndIndex < 0)
-				return -1; //Invalid format sequence
+				return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 			
 			String sizeArgumentIndexString = fullFormat.substring(1, sizeArgumentIndexEndIndex);
 			fullFormat = fullFormat.substring(sizeArgumentIndexEndIndex + 1);
@@ -199,14 +207,14 @@ final class LangPredefinedFunctions {
 			String number = "";
 			while(!sizeArgumentIndexString.isEmpty()) {
 				if(sizeArgumentIndexString.charAt(0) < '0' || sizeArgumentIndexString.charAt(0) > '9')
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
 				number += sizeArgumentIndexString.charAt(0);
 				sizeArgumentIndexString = sizeArgumentIndexString.substring(1);
 			}
 			sizeArgumentIndex = Integer.parseInt(number);
 			if(sizeArgumentIndex >= fullArgumentList.size())
-				return -4; //Index out of bounds
+				return  FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
 		}
 		Integer size = null;
 		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
@@ -229,7 +237,7 @@ final class LangPredefinedFunctions {
 			if(decimalPlacesInArgument && fullFormat.charAt(0) == '[') {
 				int decimalPlacesCountIndexEndIndex = fullFormat.indexOf(']');
 				if(decimalPlacesCountIndexEndIndex < 0)
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
 				String decimalPlacesCountIndexString = fullFormat.substring(1, decimalPlacesCountIndexEndIndex);
 				fullFormat = fullFormat.substring(decimalPlacesCountIndexEndIndex + 1);
@@ -237,14 +245,14 @@ final class LangPredefinedFunctions {
 				String number = "";
 				while(!decimalPlacesCountIndexString.isEmpty()) {
 					if(decimalPlacesCountIndexString.charAt(0) < '0' || decimalPlacesCountIndexString.charAt(0) > '9')
-						return -1; //Invalid format sequence
+						return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 					
 					number += decimalPlacesCountIndexString.charAt(0);
 					decimalPlacesCountIndexString = decimalPlacesCountIndexString.substring(1);
 				}
 				decimalPlacesCountIndex = Integer.parseInt(number);
 				if(decimalPlacesCountIndex >= fullArgumentList.size())
-					return -4; //Index out of bounds
+					return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
 			}
 			if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
 				String number = "";
@@ -256,20 +264,19 @@ final class LangPredefinedFunctions {
 			}
 		}
 		
-		//Validate format arguments
 		if(fullFormat.charAt(0) != formatType)
-			return -1; //Invalid characters
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Invalid characters
 		if((sizeInArgument && size != null) || (decimalPlacesInArgument && decimalPlacesCount != null) || (leftJustify && leadingZeros))
-			return -1; //Invalid format argument combinations
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Invalid format argument combinations
 		if(leftJustify && (!sizeInArgument && size == null))
-			return -1; //Missing size format argument for leftJustify
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Missing size format argument for leftJustify
 		switch(formatType) { //Invalid arguments for formatType
 			case 'f':
 				break;
 			
 			case 'n':
 				if(valueSpecifiedIndex != null || sizeInArgument || size != null)
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
 				//Fall-trough
 			case 'c':
@@ -277,7 +284,7 @@ final class LangPredefinedFunctions {
 			case 't':
 			case '?':
 				if(forceSign || signSpace || leadingZeros)
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
 				//Fall-trough
 			case 'b':
@@ -285,7 +292,7 @@ final class LangPredefinedFunctions {
 			case 'o':
 			case 'x':
 				if(decimalPlaces)
-					return -1; //Invalid format sequence
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				break;
 			
 		}
@@ -295,33 +302,33 @@ final class LangPredefinedFunctions {
 			DataObject dataObject = sizeArgumentIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(sizeArgumentIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
-				return -2; //Invalid arguments
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 			
 			size = number.intValue();
 			if(size < 0)
-				return -2; //Invalid arguments
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 		}
 		if(decimalPlacesInArgument) {
 			DataObject dataObject = decimalPlacesCountIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(decimalPlacesCountIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
-				return -2; //Invalid arguments
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 			
 			decimalPlacesCount = number.intValue();
 			if(decimalPlacesCount < 0)
-				return -2; //Invalid arguments
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 		}
 		
 		//Format argument
 		String output = null;
 		if(formatType != 'n' && valueSpecifiedIndex == null && argumentList.isEmpty())
-			return -2; //Invalid arguments
+			return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 		DataObject dataObject = formatType == 'n'?null:(valueSpecifiedIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(valueSpecifiedIndex));
 		switch(formatType) {
 			case 'd':
 				Number number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				output = number.longValue() + "";
 				if(forceSign && output.charAt(0) != '-')
@@ -335,7 +342,7 @@ final class LangPredefinedFunctions {
 			case 'b':
 				number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				output = Long.toString(number.longValue(), 2).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
@@ -349,7 +356,7 @@ final class LangPredefinedFunctions {
 			case 'o':
 				number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				output = Long.toString(number.longValue(), 8).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
@@ -363,7 +370,7 @@ final class LangPredefinedFunctions {
 			case 'x':
 				number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				output = Long.toString(number.longValue(), 16).toUpperCase();
 				if(forceSign && output.charAt(0) != '-')
@@ -377,7 +384,7 @@ final class LangPredefinedFunctions {
 			case 'f':
 				number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				double value = number.doubleValue();
 				if(Double.isNaN(value)) {
@@ -406,7 +413,7 @@ final class LangPredefinedFunctions {
 			case 'c':
 				number = dataObject.toNumber();
 				if(number == null)
-					return -2; //Invalid arguments
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 				
 				output = "" + (char)number.intValue();
 				
@@ -421,7 +428,7 @@ final class LangPredefinedFunctions {
 				String translationKey = dataObject.getText();
 				output = interpreter.getData().get(SCOPE_ID).lang.get(translationKey);
 				if(output == null)
-					return -3; //Translation key not found
+					return FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND;
 				
 				break;
 				
@@ -488,13 +495,13 @@ final class LangPredefinedFunctions {
 				}
 				
 				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, fullArgumentList, SCOPE_ID);
-				if(charCountUsed == -1)
+				if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
-				else if(charCountUsed == -2)
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-				else if(charCountUsed == -3)
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND)
 					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
-				else if(charCountUsed == -4)
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS)
 					return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 				
 				i += charCountUsed;
