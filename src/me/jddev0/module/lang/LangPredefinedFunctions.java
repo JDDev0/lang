@@ -130,7 +130,7 @@ final class LangPredefinedFunctions {
 	 * </ul>
 	 */
 	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, List<DataObject> fullArgumentList, final int SCOPE_ID) {
-		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x'};
+		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x', '?'};
 		int[] indices = new int[posibleFormats.length];
 		for(int i = 0;i < posibleFormats.length;i++)
 			indices[i] = format.indexOf(posibleFormats[i]);
@@ -275,6 +275,7 @@ final class LangPredefinedFunctions {
 			case 'c':
 			case 's':
 			case 't':
+			case '?':
 				if(forceSign || signSpace || leadingZeros)
 					return -1; //Invalid format sequence
 				
@@ -421,6 +422,11 @@ final class LangPredefinedFunctions {
 				output = interpreter.getData().get(SCOPE_ID).lang.get(translationKey);
 				if(output == null)
 					return -3; //Translation key not found
+				
+				break;
+				
+			case '?':
+				output = dataObject.getBoolean()?"true":"false";
 				
 				break;
 				
