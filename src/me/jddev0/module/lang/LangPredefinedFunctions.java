@@ -19,6 +19,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
@@ -1724,6 +1725,20 @@ final class LangPredefinedFunctions {
 				arr[i] = new DataObject().setChar(chars[i]);
 			
 			return new DataObject().setArray(arr);
+		});
+		funcs.put("join", (argumentList, SCOPE_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			String text = textObject.getText();
+			DataObject[] arr = arrPointerObject.getArray();
+			
+			return new DataObject(Arrays.stream(arr).map(DataObject::getText).collect(Collectors.joining(text)));
 		});
 		funcs.put("split", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
