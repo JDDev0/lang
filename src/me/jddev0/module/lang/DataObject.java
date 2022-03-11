@@ -45,6 +45,7 @@ public class DataObject {
 	private DataType type;
 	private boolean finalData;
 	private boolean staticData;
+	private boolean copyStaticAndFinalModifiers;
 	private boolean langVar;
 	
 	public static DataTypeConstraint getTypeConstraintFor(String variableName) {
@@ -79,8 +80,9 @@ public class DataObject {
 	}
 	
 	/**
-	 * This method <b>ignores</b> the final state of the data object<br>
-	 * This method will not change variableName nor finalData
+	 * This method <b>ignores</b> the final and static state of the data object<br>
+	 * This method will not modify variableName<br>
+	 * This method will also not modify finalData nor staticData (<b>Except</b>: {@code dataObject.copyStaticAndFinalModifiers} flag is set)
 	 */
 	void setData(DataObject dataObject) throws DataTypeConstraintViolatedException {
 		this.type = checkAndRetType(dataObject.type);
@@ -96,6 +98,11 @@ public class DataObject {
 		this.charValue = dataObject.charValue;
 		this.error = dataObject.error; //Error: copy reference only
 		this.typeValue = dataObject.typeValue;
+		
+		if(dataObject.copyStaticAndFinalModifiers) {
+			this.finalData = dataObject.finalData;
+			this.staticData = dataObject.staticData;
+		}
 	}
 	
 	//Data value methods
@@ -372,6 +379,16 @@ public class DataObject {
 	
 	public boolean isStaticData() {
 		return staticData;
+	}
+	
+	DataObject setCopyStaticAndFinalModifiers(boolean copyStaticAndFinalModifiers) {
+		this.copyStaticAndFinalModifiers = copyStaticAndFinalModifiers;
+		
+		return this;
+	}
+	
+	public boolean isCopyStaticAndFinalModifiers() {
+		return copyStaticAndFinalModifiers;
 	}
 	
 	DataObject setLangVar() {
