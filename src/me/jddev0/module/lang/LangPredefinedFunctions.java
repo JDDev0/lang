@@ -891,6 +891,13 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("asFinal", (argumentList, SCOPE_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			return new DataObject(dataObject).setCopyStaticAndFinalModifiers(true).setFinalData(true);
+		});
 		funcs.put("isFinal", (argumentList, SCOPE_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			if(argumentList.size() > 0) //Not 1 argument
@@ -916,6 +923,13 @@ final class LangPredefinedFunctions {
 			dataObject.setStaticData(true);
 			
 			return null;
+		});
+		funcs.put("asStatic", (argumentList, SCOPE_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 1 argument
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			return new DataObject(dataObject).setCopyStaticAndFinalModifiers(true).setStaticData(true);
 		});
 		funcs.put("isStatic", (argumentList, SCOPE_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
