@@ -308,6 +308,17 @@ func.println(func.arrayGetAll(&chars))
 
 func.println()
 
+# func.join(TEXT, ARRAY) # Returns a text value consiting of the values of the array separated by the delimiter text
+func.println(func.join(, func.arrayOf()))
+func.println(func.join(\e, func.arrayOf()))
+func.println(func.join(abc, func.arrayOf()))
+func.println(func.join(, func.arrayOf(1, test)))
+func.println(func.join(\e, func.arrayOf(1, test)))
+func.println(func.join(abc, func.arrayOf(1, test)))
+func.println(func.join(-, func.arrayOf(test, abc, 42)))
+
+func.println()
+
 # Array unpacking (Every element of the array will be unpacked as single arguments for a function call)
 # &arr...
 &arr = func.arrayOf(3, 1, 2, 5, 7, 42)
