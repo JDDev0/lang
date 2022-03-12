@@ -40,8 +40,7 @@ con.elif($ver == v0.2.1)
 con.elif($ver == v1.0.0)
 	func.println(This is Code for the lang version v1.0.0!)
 	
-	$a = A final variable
-	func.makeFinal($[a])
+	$a = func.asFinal(A final variable)
 	func.println($a)
 	$a = New var
 	func.println($a)
