@@ -1,6 +1,35 @@
 lang.name = Final and static Vars
 lang.version = v1.0.0
 
+# Create final variables
+# func.asFinal(any) # The provided value will be copied and the copy will be set to final
+# Final var
+$a = func.asFinal(DO NOT modify!)
+
+$a = I have modified you! # Will result in an error
+func.printTerminal(2, $a)
+func.printError()
+
+$a # Will also result in an error
+func.printTerminal(2, $a)
+func.printError()
+
+$b = $a # No Error
+$b = TEST # Also no error ($b is not final)
+func.printTerminal(2, $a: $b)
+func.printError()
+
+$c = Normal var
+$d = func.asFinal($c) # $d will be final but $c won't
+func.println($c: $d)
+$c = 42 # No error
+$d = 17 # ERROR
+func.println($c: $d)
+func.printError()
+
+func.println()
+func.freeAllVars()
+
 # Make variable final
 # func.makeFinal(varPtr)
 # func.makeFinal(funcPtr)
@@ -116,6 +145,37 @@ func.printError()
 $a = New variable # Will also produce no error
 func.printTerminal(2, $a)
 func.printError()
+
+# Create static variables
+# func.asStatic(any) # The provided value will be copied and the copy will be set to static
+# Satic var
+$a = func.asStatic(Static)
+$b = Not static
+
+func.println(\$a: $a) # Static
+func.println(\$b: $b) # Not static
+
+$a = 42
+func.println(\$a: $a) # 42
+$b = 43
+func.println(\$b: $b) # 43
+
+fp.function = () -> {
+	func.println(\$a [In function]: $a) # 42
+	func.println(\$b [In function]: $b) # 43
+	
+	$a = 40
+	func.println(\$a [In function]: $a) # 40
+	$b = 41
+	func.println(\$b [In function]: $b) # 41
+}
+fp.function()
+
+func.println(\$a: $a) # 40
+func.println(\$b: $b) # 43
+
+func.println()
+func.freeAllVars()
 
 # Make variable static
 # func.makeStatic(varPtr)
@@ -250,6 +310,8 @@ func.println()
 $a = Final Static
 func.makeFinal($a)
 func.makeStatic($a)
+
+# Also possible with: "func.asFinal(func.asStatic(<value>))" or "func.asStatic(func.asFinal(<value>))"
 
 $b = Static Final
 func.makeStatic($b)
