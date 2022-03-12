@@ -19,8 +19,7 @@ fp.xyz_noRet = () -> return
 
 $xyz = A VARIABLE
 $xyz_num = 4224
-$xyz_final = test var
-func.makeFinal($xyz_final)
+$xyz_final = func.asFinal(test var)
 
 $xyz_null
 $xyz_void = func.exec(\e)
