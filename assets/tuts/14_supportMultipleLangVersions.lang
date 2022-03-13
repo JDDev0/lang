@@ -4,7 +4,7 @@ lang.version = v0.1.8 # Set to the lowest supported version
 # Get lang version
 $ver = $LANG_VERSION
 # {{{
-$ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0
+$ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0 because multiline comments were introduced in v1.0.0
 # }}}
 
 con.if($ver == v0.1.8)
