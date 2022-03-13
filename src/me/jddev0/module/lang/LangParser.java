@@ -1691,7 +1691,7 @@ public final class LangParser {
 			return;
 		}
 		
-		if(!LangPatterns.matches(token, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+		if(!LangPatterns.matches(token, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) && !LangPatterns.matches(token, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER)) {
 			//INT
 			try {
 				nodes.add(new AbstractSyntaxTree.IntValueNode(Integer.parseInt(token)));

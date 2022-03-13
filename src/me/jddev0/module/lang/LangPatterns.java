@@ -124,6 +124,14 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE = Pattern.compile("\\$(\\*+\\w+|\\[+\\w+\\]+|\\*+\\[+\\w+\\]+).*");
 	/**
+	 * RegEx: (-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)
+	 */
+	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER = Pattern.compile("(-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)");
+	/**
+	 * RegEx: (.*[fFdD])|(0[xX].*)
+	 */
+	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY = Pattern.compile("(.*[fFdD])|(0[xX].*)");
+	/**
 	 * RegEx: \W.{@literal *}
 	 */
 	public static final Pattern PARSING_STARTS_WITH_NON_WORD_CHAR = Pattern.compile("\\W.*");
