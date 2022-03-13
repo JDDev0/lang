@@ -620,7 +620,8 @@ public class DataObject {
 	public Float toFloat() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) &&
+				!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY)) {
 					try {
 						return Float.parseFloat(txt);
 					}catch(NumberFormatException ignore) {}
@@ -656,7 +657,8 @@ public class DataObject {
 	public Double toDouble() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) &&
+				!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY)) {
 					try {
 						return Double.parseDouble(txt);
 					}catch(NumberFormatException ignore) {}
@@ -747,7 +749,8 @@ public class DataObject {
 	public Number toNumber() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) &&
+				!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY)) {
 					//INT
 					try {
 						return Integer.parseInt(txt);

@@ -1443,7 +1443,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
 			String str = textObject.getText();
-			if(LangPatterns.matches(str, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE))
+			if(LangPatterns.matches(str, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) || LangPatterns.matches(str, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			try {
 				return new DataObject().setFloat(Float.parseFloat(str));
@@ -1457,7 +1457,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
 			String str = textObject.getText();
-			if(LangPatterns.matches(str, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE))
+			if(LangPatterns.matches(str, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) || LangPatterns.matches(str, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			try {
 				return new DataObject().setDouble(Double.parseDouble(str));
