@@ -134,12 +134,22 @@ func.println(func.ttol(-0042))
 func.println(func.ttol(42))
 func.println(func.ttol(0042))
 
+func.println()
+
 # func.ttof(text) # Will parse the text as a float and returns the result
 func.println(func.ttof(text))
 func.println(func.ttof(-.42))
 func.println(func.ttof(-42.0))
 func.println(func.ttof(42.))
 func.println(func.ttof(0.42))
+func.println(func.ttof({{{10}}}))
+func.println(func.ttof({{{10.2}}}))
+func.println(func.ttof(-NaN))
+func.println(func.ttof(NaN))
+func.println(func.ttof(Infinity))
+func.println(func.ttof(-Infinity))
+
+func.println()
 
 # func.ttod(text) # Will parse the text as a double and returns the result
 func.println(func.ttod(text))
@@ -147,6 +157,14 @@ func.println(func.ttod(-.42))
 func.println(func.ttod(-42.0))
 func.println(func.ttod(42.))
 func.println(func.ttod(0.42))
+func.println(func.ttod({{{10}}}))
+func.println(func.ttod({{{10.2}}}))
+func.println(func.ttod(-NaN))
+func.println(func.ttod(NaN))
+func.println(func.ttod(Infinity))
+func.println(func.ttod(-Infinity))
+
+func.println()
 
 func.println()
 
