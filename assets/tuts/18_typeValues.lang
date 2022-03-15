@@ -149,3 +149,250 @@ func.println(func.isInstanceOf(&a, $LANG_TYPE_NULL)) # 0
 &e = null
 func.println(func.isInstanceOf(&e, $LANG_TYPE_ARRAY)) # 0
 func.println(func.isInstanceOf(&e, $LANG_TYPE_NULL)) # 1
+
+func.println(\n)
+
+# Type conversion functions (Explicit cast)
+$val = 42
+$ptr = $[val]
+
+# func.text(any) # Casts the provided value to a text value (No implicit casts will be executed)
+func.println(func.text(abc))
+func.println(func.text({{{80}}}))
+func.println(func.text({{{80.4}}}))
+func.println(func.text({{{NaN}}}))
+func.println(func.text(func.arrayOf()))
+func.println(func.text(func.arrayOf(1, abc, test, 0)))
+func.println(func.text($ptr))
+func.println(func.text($[LANG_ERRNO]))
+func.println(func.text(func.pointerTo(func.text)))
+func.println(func.text(func.text))
+func.println(func.text(func.randChoice(func.arrayOf())))
+func.println(func.text(null))
+func.println(func.text(42))
+func.println(func.text(func.long(42)))
+func.println(func.text(42.))
+func.println(func.text($LANG_FLOAT_POS_INF))
+func.println(func.text($LANG_FLOAT_NAN))
+func.println(func.text(func.double(42.)))
+func.println(func.text($LANG_DOUBLE_POS_INF))
+func.println(func.text($LANG_DOUBLE_NAN))
+func.println(func.text(a))
+func.println(func.text($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.text($LANG_TYPE_ARGUMENT_SEPARATOR))
+
+func.println()
+
+# func.char(any) # Casts the provided value to a char value (No implicit casts will be executed)
+func.println(func.char(abc)) # Error
+func.println(func.char({{{80}}})) # Error
+func.println(func.char({{{80.4}}})) # Error
+func.println(func.char({{{NaN}}})) # Error
+func.println(func.char(func.arrayOf())) # Error
+func.println(func.char(func.arrayOf(1, abc, test, 0))) # Error
+func.println(func.char($ptr)) # Error
+func.println(func.char($[LANG_ERRNO])) # Error
+func.println(func.char(func.pointerTo(func.text))) # Error
+func.println(func.char(func.text)) # Error
+func.println(func.char(func.randChoice(func.arrayOf()))) # Error
+func.println(func.char(null)) # Error
+func.println(func.char(42))
+func.println(func.char(func.long(42)))
+func.println(func.char(42.))
+func.println(func.char($LANG_FLOAT_POS_INF))
+func.println(func.char($LANG_FLOAT_NAN))
+func.println(func.char(func.double(42.)))
+func.println(func.char($LANG_DOUBLE_POS_INF))
+func.println(func.char($LANG_DOUBLE_NAN))
+func.println(func.char(a))
+func.println(func.char($LANG_ERROR_DIV_BY_ZERO)) # Error
+func.println(func.char($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.int(any) # Casts the provided value to an int value (No implicit casts will be executed)
+func.println(func.int(abc)) # Error
+func.println(func.int({{{80}}}))
+func.println(func.int({{{80.4}}})) # Error
+func.println(func.int({{{NaN}}})) # Error
+func.println(func.int(func.arrayOf()))
+func.println(func.int(func.arrayOf(1, abc, test, 0)))
+func.println(func.int($ptr)) # Error
+func.println(func.int($[LANG_ERRNO])) # Error
+func.println(func.int(func.pointerTo(func.text))) # Error
+func.println(func.int(func.text)) # Error
+func.println(func.int(func.randChoice(func.arrayOf()))) # Error
+func.println(func.int(null)) # Error
+func.println(func.int(42))
+func.println(func.int(func.long(42)))
+func.println(func.int(42.))
+func.println(func.int($LANG_FLOAT_POS_INF))
+func.println(func.int($LANG_FLOAT_NAN))
+func.println(func.int(func.double(42.)))
+func.println(func.int($LANG_DOUBLE_POS_INF))
+func.println(func.int($LANG_DOUBLE_NAN))
+func.println(func.int(a))
+func.println(func.int($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.int($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.long(any) # Casts the provided value to a long value (No implicit casts will be executed)
+func.println(func.long(abc)) # Error
+func.println(func.long({{{80}}}))
+func.println(func.long({{{80.4}}})) # Error
+func.println(func.long({{{NaN}}})) # Error
+func.println(func.long(func.arrayOf()))
+func.println(func.long(func.arrayOf(1, abc, test, 0)))
+func.println(func.long($ptr)) # Error
+func.println(func.long($[LANG_ERRNO])) # Error
+func.println(func.long(func.pointerTo(func.text))) # Error
+func.println(func.long(func.text)) # Error
+func.println(func.long(func.randChoice(func.arrayOf()))) # Error
+func.println(func.long(null)) # Error
+func.println(func.long(42))
+func.println(func.long(func.long(42)))
+func.println(func.long(42.))
+func.println(func.long($LANG_FLOAT_POS_INF))
+func.println(func.long($LANG_FLOAT_NAN))
+func.println(func.long(func.double(42.)))
+func.println(func.long($LANG_DOUBLE_POS_INF))
+func.println(func.long($LANG_DOUBLE_NAN))
+func.println(func.long(a))
+func.println(func.long($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.long($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.float(any) # Casts the provided value to a float value (No implicit casts will be executed)
+func.println(func.float(abc)) # Error
+func.println(func.float({{{80}}}))
+func.println(func.float({{{80.4}}}))
+func.println(func.float({{{NaN}}}))
+func.println(func.float(func.arrayOf()))
+func.println(func.float(func.arrayOf(1, abc, test, 0)))
+func.println(func.float($ptr)) # Error
+func.println(func.float($[LANG_ERRNO])) # Error
+func.println(func.float(func.pointerTo(func.text))) # Error
+func.println(func.float(func.text)) # Error
+func.println(func.float(func.randChoice(func.arrayOf()))) # Error
+func.println(func.float(null)) # Error
+func.println(func.float(42))
+func.println(func.float(func.long(42)))
+func.println(func.float(42.))
+func.println(func.float($LANG_FLOAT_POS_INF))
+func.println(func.float($LANG_FLOAT_NAN))
+func.println(func.float(func.double(42.)))
+func.println(func.float($LANG_DOUBLE_POS_INF))
+func.println(func.float($LANG_DOUBLE_NAN))
+func.println(func.float(a))
+func.println(func.float($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.float($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.double(any) # Casts the provided value to a double value (No implicit casts will be executed)
+func.println(func.double(abc)) # Error
+func.println(func.double({{{80}}}))
+func.println(func.double({{{80.4}}}))
+func.println(func.double({{{NaN}}}))
+func.println(func.double(func.arrayOf()))
+func.println(func.double(func.arrayOf(1, abc, test, 0)))
+func.println(func.double($ptr)) # Error
+func.println(func.double($[LANG_ERRNO])) # Error
+func.println(func.double(func.pointerTo(func.text))) # Error
+func.println(func.double(func.text)) # Error
+func.println(func.double(func.randChoice(func.arrayOf()))) # Error
+func.println(func.double(null)) # Error
+func.println(func.double(42))
+func.println(func.double(func.long(42)))
+func.println(func.double(42.))
+func.println(func.double($LANG_FLOAT_POS_INF))
+func.println(func.double($LANG_FLOAT_NAN))
+func.println(func.double(func.double(42.)))
+func.println(func.double($LANG_DOUBLE_POS_INF))
+func.println(func.double($LANG_DOUBLE_NAN))
+func.println(func.double(a))
+func.println(func.double($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.double($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.array(any) # Casts the provided value to an array value (No implicit casts will be executed)
+func.println(func.array(abc)) # Error
+func.println(func.array({{{80}}})) # Error
+func.println(func.array({{{80.4}}})) # Error
+func.println(func.array({{{NaN}}})) # Error
+func.println(func.array(func.arrayOf()))
+func.println(func.array(func.arrayOf(1, abc, test, 0)))
+func.println(func.array($ptr)) # Error
+func.println(func.array($[LANG_ERRNO])) # Error
+func.println(func.array(func.pointerTo(func.text))) # Error
+func.println(func.array(func.text)) # Error
+func.println(func.array(func.randChoice(func.arrayOf()))) # Error
+func.println(func.array(null)) # Error
+func.println(func.array(42)) # Error
+func.println(func.array(func.long(42))) # Error
+func.println(func.array(42.)) # Error
+func.println(func.array($LANG_FLOAT_POS_INF)) # Error
+func.println(func.array($LANG_FLOAT_NAN)) # Error
+func.println(func.array(func.double(42.))) # Error
+func.println(func.array($LANG_DOUBLE_POS_INF)) # Error
+func.println(func.array($LANG_DOUBLE_NAN)) # Error
+func.println(func.array(a)) # Error
+func.println(func.array($LANG_ERROR_DIV_BY_ZERO)) # Error
+func.println(func.array($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
+
+func.println()
+
+# func.bool(any) # Casts the provided value to a bool value (No implicit casts will be executed)
+func.println(func.bool(abc))
+func.println(func.bool({{{80}}}))
+func.println(func.bool({{{80.4}}}))
+func.println(func.bool({{{NaN}}}))
+func.println(func.bool(func.arrayOf()))
+func.println(func.bool(func.arrayOf(1, abc, test, 0)))
+func.println(func.bool($ptr))
+func.println(func.bool($[LANG_ERRNO]))
+func.println(func.bool(func.pointerTo(func.text)))
+func.println(func.bool(func.text))
+func.println(func.bool(func.randChoice(func.arrayOf())))
+func.println(func.bool(null))
+func.println(func.bool(42))
+func.println(func.bool(func.long(42)))
+func.println(func.bool(42.))
+func.println(func.bool($LANG_FLOAT_POS_INF))
+func.println(func.bool($LANG_FLOAT_NAN))
+func.println(func.bool(func.double(42.)))
+func.println(func.bool($LANG_DOUBLE_POS_INF))
+func.println(func.bool($LANG_DOUBLE_NAN))
+func.println(func.bool(a))
+func.println(func.bool($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.bool($LANG_TYPE_ARGUMENT_SEPARATOR))
+
+func.println()
+
+# func.number(any) # Casts the provided value to a number value (No implicit casts will be executed)
+func.println(func.number(abc)) # Error
+func.println(func.number({{{80}}}))
+func.println(func.number({{{80.4}}}))
+func.println(func.number({{{NaN}}}))
+func.println(func.number(func.arrayOf()))
+func.println(func.number(func.arrayOf(1, abc, test, 0)))
+func.println(func.number($ptr)) # Error
+func.println(func.number($[LANG_ERRNO])) # Error
+func.println(func.number(func.pointerTo(func.text))) # Error
+func.println(func.number(func.text)) # Error
+func.println(func.number(func.randChoice(func.arrayOf()))) # Error
+func.println(func.number(null)) # Error
+func.println(func.number(42))
+func.println(func.number(func.long(42)))
+func.println(func.number(42.))
+func.println(func.number($LANG_FLOAT_POS_INF))
+func.println(func.number($LANG_FLOAT_NAN))
+func.println(func.number(func.double(42.)))
+func.println(func.number($LANG_DOUBLE_POS_INF))
+func.println(func.number($LANG_DOUBLE_NAN))
+func.println(func.number(a))
+func.println(func.number($LANG_ERROR_DIV_BY_ZERO))
+func.println(func.number($LANG_TYPE_ARGUMENT_SEPARATOR)) # Error
