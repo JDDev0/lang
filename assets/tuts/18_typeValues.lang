@@ -183,6 +183,9 @@ fp.printCastAndTypes(func.text, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.text, func.double(42.))
 fp.printCastAndTypes(func.text, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.text, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.text, NaN)
+fp.printCastAndTypes(func.text, -NaN)
+fp.printCastAndTypes(func.text, -Infinity)
 fp.printCastAndTypes(func.text, a)
 fp.printCastAndTypes(func.text, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.text, $LANG_TYPE_ARGUMENT_SEPARATOR)
@@ -210,6 +213,9 @@ fp.printCastAndTypes(func.char, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.char, func.double(42.))
 fp.printCastAndTypes(func.char, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.char, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.char, NaN) # Error
+fp.printCastAndTypes(func.char, -NaN) # Error
+fp.printCastAndTypes(func.char, -Infinity) # Error
 fp.printCastAndTypes(func.char, a)
 fp.printCastAndTypes(func.char, $LANG_ERROR_DIV_BY_ZERO) # Error
 fp.printCastAndTypes(func.char, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -237,6 +243,9 @@ fp.printCastAndTypes(func.int, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.int, func.double(42.))
 fp.printCastAndTypes(func.int, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.int, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.int, NaN) # Error
+fp.printCastAndTypes(func.int, -NaN) # Error
+fp.printCastAndTypes(func.int, -Infinity) # Error
 fp.printCastAndTypes(func.int, a)
 fp.printCastAndTypes(func.int, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.int, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -264,6 +273,9 @@ fp.printCastAndTypes(func.long, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.long, func.double(42.))
 fp.printCastAndTypes(func.long, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.long, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.long, NaN) # Error
+fp.printCastAndTypes(func.long, -NaN) # Error
+fp.printCastAndTypes(func.long, -Infinity) # Error
 fp.printCastAndTypes(func.long, a)
 fp.printCastAndTypes(func.long, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.long, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -291,6 +303,9 @@ fp.printCastAndTypes(func.float, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.float, func.double(42.))
 fp.printCastAndTypes(func.float, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.float, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.float, NaN)
+fp.printCastAndTypes(func.float, -NaN)
+fp.printCastAndTypes(func.float, -Infinity)
 fp.printCastAndTypes(func.float, a)
 fp.printCastAndTypes(func.float, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.float, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -318,6 +333,9 @@ fp.printCastAndTypes(func.double, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.double, func.double(42.))
 fp.printCastAndTypes(func.double, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.double, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.double, NaN)
+fp.printCastAndTypes(func.double, -NaN)
+fp.printCastAndTypes(func.double, -Infinity)
 fp.printCastAndTypes(func.double, a)
 fp.printCastAndTypes(func.double, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.double, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -345,6 +363,9 @@ fp.printCastAndTypes(func.array, $LANG_FLOAT_NAN) # Error
 fp.printCastAndTypes(func.array, func.double(42.)) # Error
 fp.printCastAndTypes(func.array, $LANG_DOUBLE_POS_INF) # Error
 fp.printCastAndTypes(func.array, $LANG_DOUBLE_NAN) # Error
+fp.printCastAndTypes(func.array, NaN) # Error
+fp.printCastAndTypes(func.array, -NaN) # Error
+fp.printCastAndTypes(func.array, -Infinity) # Error
 fp.printCastAndTypes(func.array, a) # Error
 fp.printCastAndTypes(func.array, $LANG_ERROR_DIV_BY_ZERO) # Error
 fp.printCastAndTypes(func.array, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
@@ -372,6 +393,9 @@ fp.printCastAndTypes(func.bool, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.bool, func.double(42.))
 fp.printCastAndTypes(func.bool, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.bool, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.bool, NaN)
+fp.printCastAndTypes(func.bool, -NaN)
+fp.printCastAndTypes(func.bool, -Infinity)
 fp.printCastAndTypes(func.bool, a)
 fp.printCastAndTypes(func.bool, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.bool, $LANG_TYPE_ARGUMENT_SEPARATOR)
@@ -399,6 +423,9 @@ fp.printCastAndTypes(func.number, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.number, func.double(42.))
 fp.printCastAndTypes(func.number, $LANG_DOUBLE_POS_INF)
 fp.printCastAndTypes(func.number, $LANG_DOUBLE_NAN)
+fp.printCastAndTypes(func.number, NaN)
+fp.printCastAndTypes(func.number, -NaN)
+fp.printCastAndTypes(func.number, -Infinity)
 fp.printCastAndTypes(func.number, a)
 fp.printCastAndTypes(func.number, $LANG_ERROR_DIV_BY_ZERO)
 fp.printCastAndTypes(func.number, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
