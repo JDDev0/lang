@@ -28,6 +28,7 @@ import me.jddev0.module.lang.DataObject.DataTypeConstraintViolatedException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
+import me.jddev0.module.lang.regex.LangRegEx;
 
 /**
  * Lang-Module<br>
@@ -1226,7 +1227,7 @@ public final class LangInterpreter {
 				case MATCHES:
 				case NOT_MATCHES:
 					try {
-						conditionOutput = leftSideOperand.getText().matches(rightSideOperand.getText());
+						conditionOutput = LangRegEx.matches(leftSideOperand.getText(), rightSideOperand.getText());
 					}catch(PatternSyntaxException e) {
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 					}

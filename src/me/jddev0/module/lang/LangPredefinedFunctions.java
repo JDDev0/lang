@@ -27,6 +27,7 @@ import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
+import me.jddev0.module.lang.regex.LangRegEx;
 
 /**
  * Lang-Module<br>
@@ -1551,7 +1552,7 @@ final class LangPredefinedFunctions {
 			if(replacement == null) //Not 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (3 needed)", SCOPE_ID);
 			
-			return new DataObject(textObject.getText().replaceAll(regexObject.getText(), replacement));
+			return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement));
 		});
 		funcs.put("substring", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
@@ -1703,7 +1704,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			try {
-				return new DataObject().setBoolean(textObject.getText().matches(matchTextObject.getText()));
+				return new DataObject().setBoolean(LangRegEx.matches(textObject.getText(), matchTextObject.getText()));
 			}catch(PatternSyntaxException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 			}
@@ -1771,13 +1772,13 @@ final class LangPredefinedFunctions {
 			String[] arrTmp;
 			
 			if(maxSplitCountObject == null) {
-				arrTmp = textObject.getText().split(regexObject.getText());
+				arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
 			}else {
 				Number maxSplitCount = maxSplitCountObject.toNumber();
 				if(maxSplitCount == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
 				
-				arrTmp = textObject.getText().split(regexObject.getText(), maxSplitCount.intValue());
+				arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
 			}
 			
 			String arrPtr;
