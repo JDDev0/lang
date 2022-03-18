@@ -166,6 +166,8 @@ fp.printCastAndTypes = (fp.conversionFunc, $[value]) -> {
 fp.printCastAndTypes(func.text, abc)
 fp.printCastAndTypes(func.text, {{{80}}})
 fp.printCastAndTypes(func.text, {{{80.4}}})
+fp.printCastAndTypes(func.text, {{{1.8e4}}})
+fp.printCastAndTypes(func.text, {{{1.8E4}}})
 fp.printCastAndTypes(func.text, {{{NaN}}})
 fp.printCastAndTypes(func.text, func.arrayOf())
 fp.printCastAndTypes(func.text, func.arrayOf(1, abc, test, 0))
@@ -178,6 +180,8 @@ fp.printCastAndTypes(func.text, null)
 fp.printCastAndTypes(func.text, 42)
 fp.printCastAndTypes(func.text, func.long(42))
 fp.printCastAndTypes(func.text, 42.)
+fp.printCastAndTypes(func.text, 1.8e4)
+fp.printCastAndTypes(func.text, 1.8E4)
 fp.printCastAndTypes(func.text, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.text, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.text, func.double(42.))
@@ -196,6 +200,8 @@ func.println()
 fp.printCastAndTypes(func.char, abc) # Error
 fp.printCastAndTypes(func.char, {{{80}}}) # Error
 fp.printCastAndTypes(func.char, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.char, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.char, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.char, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.char, func.arrayOf()) # Error
 fp.printCastAndTypes(func.char, func.arrayOf(1, abc, test, 0)) # Error
@@ -208,6 +214,8 @@ fp.printCastAndTypes(func.char, null) # Error
 fp.printCastAndTypes(func.char, 42)
 fp.printCastAndTypes(func.char, func.long(42))
 fp.printCastAndTypes(func.char, 42.)
+fp.printCastAndTypes(func.char, 1.8e4)
+fp.printCastAndTypes(func.char, 1.8E4)
 fp.printCastAndTypes(func.char, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.char, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.char, func.double(42.))
@@ -226,6 +234,8 @@ func.println()
 fp.printCastAndTypes(func.int, abc) # Error
 fp.printCastAndTypes(func.int, {{{80}}})
 fp.printCastAndTypes(func.int, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.int, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.int, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.int, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.int, func.arrayOf())
 fp.printCastAndTypes(func.int, func.arrayOf(1, abc, test, 0))
@@ -238,6 +248,8 @@ fp.printCastAndTypes(func.int, null) # Error
 fp.printCastAndTypes(func.int, 42)
 fp.printCastAndTypes(func.int, func.long(42))
 fp.printCastAndTypes(func.int, 42.)
+fp.printCastAndTypes(func.int, 1.8e4)
+fp.printCastAndTypes(func.int, 1.8E4)
 fp.printCastAndTypes(func.int, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.int, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.int, func.double(42.))
@@ -257,6 +269,8 @@ fp.printCastAndTypes(func.long, abc) # Error
 fp.printCastAndTypes(func.long, {{{80}}})
 fp.printCastAndTypes(func.long, {{{80.4}}}) # Error
 fp.printCastAndTypes(func.long, {{{NaN}}}) # Error
+fp.printCastAndTypes(func.long, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.long, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.long, func.arrayOf())
 fp.printCastAndTypes(func.long, func.arrayOf(1, abc, test, 0))
 fp.printCastAndTypes(func.long, $ptr) # Error
@@ -268,6 +282,8 @@ fp.printCastAndTypes(func.long, null) # Error
 fp.printCastAndTypes(func.long, 42)
 fp.printCastAndTypes(func.long, func.long(42))
 fp.printCastAndTypes(func.long, 42.)
+fp.printCastAndTypes(func.long, 1.8e4)
+fp.printCastAndTypes(func.long, 1.8E4)
 fp.printCastAndTypes(func.long, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.long, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.long, func.double(42.))
@@ -286,6 +302,8 @@ func.println()
 fp.printCastAndTypes(func.float, abc) # Error
 fp.printCastAndTypes(func.float, {{{80}}})
 fp.printCastAndTypes(func.float, {{{80.4}}})
+fp.printCastAndTypes(func.float, {{{1.8e4}}})
+fp.printCastAndTypes(func.float, {{{1.8E4}}})
 fp.printCastAndTypes(func.float, {{{NaN}}})
 fp.printCastAndTypes(func.float, func.arrayOf())
 fp.printCastAndTypes(func.float, func.arrayOf(1, abc, test, 0))
@@ -298,6 +316,8 @@ fp.printCastAndTypes(func.float, null) # Error
 fp.printCastAndTypes(func.float, 42)
 fp.printCastAndTypes(func.float, func.long(42))
 fp.printCastAndTypes(func.float, 42.)
+fp.printCastAndTypes(func.float, 1.8e4)
+fp.printCastAndTypes(func.float, 1.8E4)
 fp.printCastAndTypes(func.float, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.float, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.float, func.double(42.))
@@ -316,6 +336,8 @@ func.println()
 fp.printCastAndTypes(func.double, abc) # Error
 fp.printCastAndTypes(func.double, {{{80}}})
 fp.printCastAndTypes(func.double, {{{80.4}}})
+fp.printCastAndTypes(func.double, {{{1.8e4}}})
+fp.printCastAndTypes(func.double, {{{1.8E4}}})
 fp.printCastAndTypes(func.double, {{{NaN}}})
 fp.printCastAndTypes(func.double, func.arrayOf())
 fp.printCastAndTypes(func.double, func.arrayOf(1, abc, test, 0))
@@ -328,6 +350,8 @@ fp.printCastAndTypes(func.double, null) # Error
 fp.printCastAndTypes(func.double, 42)
 fp.printCastAndTypes(func.double, func.long(42))
 fp.printCastAndTypes(func.double, 42.)
+fp.printCastAndTypes(func.double, 1.8e4)
+fp.printCastAndTypes(func.double, 1.8E4)
 fp.printCastAndTypes(func.double, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.double, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.double, func.double(42.))
@@ -346,6 +370,8 @@ func.println()
 fp.printCastAndTypes(func.array, abc) # Error
 fp.printCastAndTypes(func.array, {{{80}}}) # Error
 fp.printCastAndTypes(func.array, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.array, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.array, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.array, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.array, func.arrayOf())
 fp.printCastAndTypes(func.array, func.arrayOf(1, abc, test, 0))
@@ -358,6 +384,8 @@ fp.printCastAndTypes(func.array, null) # Error
 fp.printCastAndTypes(func.array, 42) # Error
 fp.printCastAndTypes(func.array, func.long(42)) # Error
 fp.printCastAndTypes(func.array, 42.) # Error
+fp.printCastAndTypes(func.array, 1.8e4) # Error
+fp.printCastAndTypes(func.array, 1.8E4) # Error
 fp.printCastAndTypes(func.array, $LANG_FLOAT_POS_INF) # Error
 fp.printCastAndTypes(func.array, $LANG_FLOAT_NAN) # Error
 fp.printCastAndTypes(func.array, func.double(42.)) # Error
@@ -376,6 +404,8 @@ func.println()
 fp.printCastAndTypes(func.bool, abc)
 fp.printCastAndTypes(func.bool, {{{80}}})
 fp.printCastAndTypes(func.bool, {{{80.4}}})
+fp.printCastAndTypes(func.bool, {{{1.8e4}}})
+fp.printCastAndTypes(func.bool, {{{1.8E4}}})
 fp.printCastAndTypes(func.bool, {{{NaN}}})
 fp.printCastAndTypes(func.bool, func.arrayOf())
 fp.printCastAndTypes(func.bool, func.arrayOf(1, abc, test, 0))
@@ -388,6 +418,8 @@ fp.printCastAndTypes(func.bool, null)
 fp.printCastAndTypes(func.bool, 42)
 fp.printCastAndTypes(func.bool, func.long(42))
 fp.printCastAndTypes(func.bool, 42.)
+fp.printCastAndTypes(func.bool, 1.8e4)
+fp.printCastAndTypes(func.bool, 1.8E4)
 fp.printCastAndTypes(func.bool, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.bool, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.bool, func.double(42.))
@@ -406,6 +438,8 @@ func.println()
 fp.printCastAndTypes(func.number, abc) # Error
 fp.printCastAndTypes(func.number, {{{80}}})
 fp.printCastAndTypes(func.number, {{{80.4}}})
+fp.printCastAndTypes(func.number, {{{1.8e4}}})
+fp.printCastAndTypes(func.number, {{{1.8E4}}})
 fp.printCastAndTypes(func.number, {{{NaN}}})
 fp.printCastAndTypes(func.number, func.arrayOf())
 fp.printCastAndTypes(func.number, func.arrayOf(1, abc, test, 0))
@@ -418,6 +452,8 @@ fp.printCastAndTypes(func.number, null) # Error
 fp.printCastAndTypes(func.number, 42)
 fp.printCastAndTypes(func.number, func.long(42))
 fp.printCastAndTypes(func.number, 42.)
+fp.printCastAndTypes(func.number, 1.8e4)
+fp.printCastAndTypes(func.number, 1.8E4)
 fp.printCastAndTypes(func.number, $LANG_FLOAT_POS_INF)
 fp.printCastAndTypes(func.number, $LANG_FLOAT_NAN)
 fp.printCastAndTypes(func.number, func.double(42.))
