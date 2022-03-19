@@ -562,6 +562,8 @@ $var6 = func.toFloat(-NaN)
 $var7 = func.toFloat(Infinity)
 $var8 = func.toFloat(-Infinity)
 func.println(|$var1|$var2|$var3|$var4|$var5|$var6|$var7|$var8|)
+func.println(func.toFloat(1e-2))
+func.println(func.toFloat(2E2))
 
 func.println()
 
@@ -575,6 +577,8 @@ $var6 = func.toDouble(-NaN)
 $var7 = func.toDouble(Infinity)
 $var8 = func.toDouble(-Infinity)
 func.println(|$var1|$var2|$var3|$var4|$var5|$var6|$var7|$var8|)
+func.println(func.toDouble(1e-2))
+func.println(func.toDouble(2E2))
 
 func.println()
 
