@@ -732,7 +732,7 @@ public class DataObject {
 				return arr.length > 0;
 			case ERROR:
 				return error.getErrno() != 0;
-				
+			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case TYPE:
