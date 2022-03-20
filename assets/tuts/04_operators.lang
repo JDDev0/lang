@@ -6,6 +6,7 @@ lang.version = v1.0.0
 # (opr)               - Grouping
 # @opr                - Length
 # ^opr                - Deep copy
+# opr1 ||| opr2       - Concat
 # opr1 <=> opr2       - Spaceship
 # opr1 ?: opr2        - Elvis
 # opr1 ?? opr2        - Null coalescing
@@ -71,6 +72,7 @@ lang.version = v1.0.0
 # opr1 <<= opr2       - Left shift assignment          (Is equivalent to "opr1 = parser.op((opr1) << (opr2))")
 # opr1 &= opr2        - Bitwise and assignment         (Is equivalent to "opr1 = parser.op((opr1) & (opr2))")
 # opr1 |= opr2        - Bitwise or assignment          (Is equivalent to "opr1 = parser.op((opr1) | (opr2))")
+# opr1 |||= opr2      - Concat assignment              (Is equivalent to "opr1 = parser.op((opr1) ||| (opr2))")
 # opr1 ^= opr2        - Bitwise xor assignment         (Is equivalent to "opr1 = parser.op((opr1) ^ (opr2))")
 # opr1 ?:= opr2       - Elvis assignment               (Is equivalent to "opr1 = parser.op((opr1) ?: (opr2))")
 # opr1 ??= opr2       - Null coalescing assignment     (Is equivalent to "opr1 = parser.op((opr1) ?? (opr2))")
@@ -101,7 +103,8 @@ lang.version = v1.0.0
 #            | opr1 ^/ opr2       |               | Ceil division
 #            | opr1 % opr2        |               | Modulo
 # -----------|--------------------|---------------|--------------------------------
-#  5         | opr1 + opr2        | left-to-right | Addition
+#  5         | opr1 ||| opr2      | left-to-right | Concat
+#            | opr1 + opr2        |               | Addition
 #            | opr1 - opr2        |               | Subtraction
 # -----------|--------------------|---------------|--------------------------------
 #  6         | opr1 << opr2       | left-to-right | Left shift
@@ -155,6 +158,7 @@ lang.version = v1.0.0
 #            | opr1 <<= opr2      |               | Left shift assignment
 #            | opr1 &= opr2       |               | Bitwise and assignment
 #            | opr1 |= opr2       |               | Bitwise or assignment
+#            | opr1 |||= opr2     |               | Concat assignment
 #            | opr1 ^= opr2       |               | Bitwise xor assignment
 #            | opr1 ?:= opr2      |               | Elvis assignment
 #            | opr1 ??= opr2      |               | Null coalescing assignment
