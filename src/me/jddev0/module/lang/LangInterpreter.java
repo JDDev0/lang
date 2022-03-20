@@ -1046,6 +1046,9 @@ public final class LangInterpreter {
 					break;
 				
 				//Binary
+				case CONCAT:
+					output = leftSideOperand.opConcat(rightSideOperand);
+					break;
 				case SPACESHIP:
 					output = leftSideOperand.opSpaceship(rightSideOperand);
 					break;

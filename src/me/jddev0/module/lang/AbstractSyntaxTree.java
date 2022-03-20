@@ -2008,6 +2008,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			NON                   ("",      1, -1,       OperatorType.GENERAL),
 			LEN                   ("@",     1,  1,       OperatorType.GENERAL),
 			DEEP_COPY             ("^",     1,  1,       OperatorType.GENERAL),
+			CONCAT                ("|||",       5,       OperatorType.GENERAL),
 			SPACESHIP             ("<=>",      10,       OperatorType.GENERAL),
 			ELVIS                 ("?:",       13, true, OperatorType.GENERAL),
 			NULL_COALESCING       ("??",       13, true, OperatorType.GENERAL),

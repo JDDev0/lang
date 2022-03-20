@@ -451,10 +451,11 @@ public final class LangParser {
 					}
 				}
 			}else if(token.startsWith("!==") || token.startsWith("!=~") || token.startsWith("!=") || token.startsWith("===") || token.startsWith("=~") || token.startsWith("==") ||
-			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("&&") || token.startsWith("||") || token.startsWith("!") ||
-			token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") || token.startsWith("*") ||
-			token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") || token.startsWith("<<") ||
-			token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
+			token.startsWith("<=") || token.startsWith(">=") || token.startsWith("<") || token.startsWith(">") || token.startsWith("|||") || token.startsWith("&&") || token.startsWith("||") ||
+			token.startsWith("!") || token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") ||
+			token.startsWith("*") || token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") ||
+			token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+") || token.startsWith("-") || token.startsWith("@") || token.startsWith("?:") ||
+			token.startsWith("??")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -499,6 +500,9 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.LESS_THAN;
 				}else if(token.startsWith(">") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.GREATER_THAN;
+				}else if(token.startsWith("|||") && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type)) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.OperationNode.Operator.CONCAT;
 				}else if(token.startsWith("&&") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.AND;
@@ -970,6 +974,9 @@ public final class LangParser {
 						break;
 					case "|":
 						operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_OR;
+						break;
+					case "|||":
+						operator = AbstractSyntaxTree.OperationNode.Operator.CONCAT;
 						break;
 					case "?:":
 						operator = AbstractSyntaxTree.OperationNode.Operator.ELVIS;

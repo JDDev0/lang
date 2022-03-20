@@ -1451,6 +1451,48 @@ public class DataObject {
 		return null;
 	}
 	/**
+	 * For "|||"
+	 */
+	public DataObject opConcat(DataObject dataObject) {
+		switch(type) {
+			case INT:
+				return new DataObject(intValue + dataObject.getText());
+			case LONG:
+				return new DataObject(longValue + dataObject.getText());
+			case FLOAT:
+				return new DataObject(floatValue + dataObject.getText());
+			case DOUBLE:
+				return new DataObject(doubleValue + dataObject.getText());
+			case CHAR:
+				return new DataObject(charValue + dataObject.getText());
+			case TEXT:
+				return new DataObject(txt + dataObject.getText());
+			case ARRAY:
+				if(dataObject.getType() == DataType.ARRAY) {
+					DataObject[] arrNew = new DataObject[arr.length + dataObject.arr.length];
+					for(int i = 0;i < arr.length;i++)
+						arrNew[i] = arr[i];
+					for(int i = 0;i < dataObject.arr.length;i++)
+						arrNew[arr.length + i] = dataObject.arr[i];
+					
+					return new DataObject().setArray(arrNew);
+				}
+				
+				return null;
+			
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	/**
 	 * For "&lt;=&gt;"
 	 */
 	public DataObject opSpaceship(DataObject other) {
