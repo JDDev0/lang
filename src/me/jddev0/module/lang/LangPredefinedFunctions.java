@@ -2868,6 +2868,108 @@ final class LangPredefinedFunctions {
 			else
 				return func.callFunc(new ArrayList<>(), SCOPE_ID);
 		});
+		funcs.put("combX1", (argumentList, SCOPE_ID) -> {
+			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(outerArgs.size() > 4)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 4), SCOPE_ID);
+			
+			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+			if(outerArgs.size() > 1 && outerArgs.get(1).getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), SCOPE_ID);
+			
+			final int argsLeft = 4 - outerArgs.size();
+			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				if(innerArgs.size() > argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				if(innerArgs.size() < argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				List<DataObject> args = new LinkedList<>();
+				args.addAll(outerArgs);
+				args.addAll(innerArgs);
+				
+				DataObject x = args.get(0);
+				DataObject y = args.get(1);
+				DataObject z = args.get(2);
+				DataObject w = args.get(3);
+				
+				if(x.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+				if(y.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+				
+				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject yFunc = y.getFunctionPointer();
+				
+				List<DataObject> argsX = new LinkedList<>();
+				List<DataObject> argsY = new LinkedList<>();
+				argsY.add(z);
+				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
+				argsX.add(retY == null?new DataObject().setVoid():retY);
+				argsX.add(new DataObject().setArgumentSeparator(", "));
+				argsX.add(w);
+				
+				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+			};
+			if(argsLeft > 0)
+				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+			else
+				return func.callFunc(new ArrayList<>(), SCOPE_ID);
+		});
+		funcs.put("combX2", (argumentList, SCOPE_ID) -> {
+			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(outerArgs.size() > 4)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 4), SCOPE_ID);
+			
+			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+			if(outerArgs.size() > 1 && outerArgs.get(1).getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), SCOPE_ID);
+			
+			final int argsLeft = 4 - outerArgs.size();
+			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				if(innerArgs.size() > argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				if(innerArgs.size() < argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				List<DataObject> args = new LinkedList<>();
+				args.addAll(outerArgs);
+				args.addAll(innerArgs);
+				
+				DataObject x = args.get(0);
+				DataObject y = args.get(1);
+				DataObject z = args.get(2);
+				DataObject w = args.get(3);
+				
+				if(x.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+				if(y.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+				
+				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject yFunc = y.getFunctionPointer();
+				
+				List<DataObject> argsX = new LinkedList<>();
+				argsX.add(z);
+				argsX.add(new DataObject().setArgumentSeparator(", "));
+				List<DataObject> argsY = new LinkedList<>();
+				argsY.add(w);
+				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
+				argsX.add(retY == null?new DataObject().setVoid():retY);
+				
+				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+			};
+			if(argsLeft > 0)
+				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+			else
+				return func.callFunc(new ArrayList<>(), SCOPE_ID);
+		});
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("copyAfterFP", (argumentList, SCOPE_ID) -> {
