@@ -2515,7 +2515,7 @@ final class LangPredefinedFunctions {
 				List<DataObject> argsX = new LinkedList<>();
 				argsX.addAll(args);
 				argsX.remove(0);
-				for(int i = argsX.size() - 1;i >= 0;i--)
+				for(int i = argsX.size() - 1;i > 0;i--)
 					argsX.add(i, new DataObject().setArgumentSeparator(", "));
 				
 				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
