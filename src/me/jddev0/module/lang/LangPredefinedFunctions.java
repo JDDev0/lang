@@ -2429,18 +2429,18 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(y);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(b);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2468,21 +2468,21 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(y);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(z);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(b);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(c);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2505,20 +2505,20 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
+				DataObject a = args.get(0);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.addAll(args);
-				argsX.remove(0);
-				for(int i = argsX.size() - 1;i > 0;i--)
-					argsX.add(i, new DataObject().setArgumentSeparator(", "));
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.addAll(args);
+				argsA.remove(0);
+				for(int i = argsA.size() - 1;i > 0;i--)
+					argsA.add(i, new DataObject().setArgumentSeparator(", "));
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
@@ -2545,25 +2545,25 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				List<DataObject> argsY = new LinkedList<>();
-				argsY.add(z);
-				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
-				argsX.add(retY == null?new DataObject().setVoid():retY);
+				List<DataObject> argsA = new LinkedList<>();
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(c);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(retB == null?new DataObject().setVoid():retB);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2591,21 +2591,21 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(z);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(y);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(c);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(b);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2635,28 +2635,28 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
-				DataObject w = args.get(3);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
+				DataObject d = args.get(3);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(z.getType() != DataType.FUNCTION_POINTER)
+				if(c.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject zFunc = z.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(y);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				List<DataObject> argsZ = new LinkedList<>();
-				argsZ.add(w);
-				DataObject retZ = interpreter.callFunctionPointer(zFunc, z.getVariableName(), argsZ, INNER_SCOPE_ID);
-				argsX.add(retZ == null?new DataObject().setVoid():retZ);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(b);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				List<DataObject> argsC = new LinkedList<>();
+				argsC.add(d);
+				DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, INNER_SCOPE_ID);
+				argsA.add(retC == null?new DataObject().setVoid():retC);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2681,8 +2681,8 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				return x;
+				DataObject a = args.get(0);
+				return a;
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2707,8 +2707,8 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				return x;
+				DataObject a = args.get(0);
+				return a;
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2733,8 +2733,8 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject y = args.get(1);
-				return y;
+				DataObject b = args.get(1);
+				return b;
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2766,34 +2766,34 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
-				DataObject w = args.get(3);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
+				DataObject d = args.get(3);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(z.getType() != DataType.FUNCTION_POINTER)
+				if(c.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
-				FunctionPointerObject zFunc = z.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
+				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				List<DataObject> argsY = new LinkedList<>();
-				argsY.add(w);
-				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
-				argsX.add(retY == null?new DataObject().setVoid():retY);
-				List<DataObject> argsZ = new LinkedList<>();
-				argsZ.add(w);
-				DataObject retZ = interpreter.callFunctionPointer(zFunc, z.getVariableName(), argsZ, INNER_SCOPE_ID);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(retZ == null?new DataObject().setVoid():retZ);
+				List<DataObject> argsA = new LinkedList<>();
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(d);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(retB == null?new DataObject().setVoid():retB);
+				List<DataObject> argsC = new LinkedList<>();
+				argsC.add(d);
+				DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, INNER_SCOPE_ID);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(retC == null?new DataObject().setVoid():retC);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2823,31 +2823,31 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
-				DataObject w = args.get(3);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
+				DataObject d = args.get(3);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				List<DataObject> argsY1 = new LinkedList<>();
-				argsY1.add(z);
-				DataObject retY1 = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY1, INNER_SCOPE_ID);
-				argsX.add(retY1 == null?new DataObject().setVoid():retY1);
-				List<DataObject> argsY2 = new LinkedList<>();
-				argsY2.add(w);
-				DataObject retY2 = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY2, INNER_SCOPE_ID);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(retY2 == null?new DataObject().setVoid():retY2);
+				List<DataObject> argsA = new LinkedList<>();
+				List<DataObject> argsB1 = new LinkedList<>();
+				argsB1.add(c);
+				DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, INNER_SCOPE_ID);
+				argsA.add(retB1 == null?new DataObject().setVoid():retB1);
+				List<DataObject> argsB2 = new LinkedList<>();
+				argsB2.add(d);
+				DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, INNER_SCOPE_ID);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(retB2 == null?new DataObject().setVoid():retB2);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2877,27 +2877,27 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(z);
-				List<DataObject> argsY = new LinkedList<>();
-				argsY.add(z);
-				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(retY == null?new DataObject().setVoid():retY);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(c);
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(c);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(retB == null?new DataObject().setVoid():retB);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2925,20 +2925,20 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(y);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(y);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(b);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(b);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -2968,28 +2968,28 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
-				DataObject w = args.get(3);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
+				DataObject d = args.get(3);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				List<DataObject> argsY = new LinkedList<>();
-				argsY.add(z);
-				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
-				argsX.add(retY == null?new DataObject().setVoid():retY);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				argsX.add(w);
+				List<DataObject> argsA = new LinkedList<>();
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(c);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(retB == null?new DataObject().setVoid():retB);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(d);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
@@ -3019,28 +3019,28 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(0);
-				DataObject y = args.get(1);
-				DataObject z = args.get(2);
-				DataObject w = args.get(3);
+				DataObject a = args.get(0);
+				DataObject b = args.get(1);
+				DataObject c = args.get(2);
+				DataObject d = args.get(3);
 				
-				if(x.getType() != DataType.FUNCTION_POINTER)
+				if(a.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
-				if(y.getType() != DataType.FUNCTION_POINTER)
+				if(b.getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
 				
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				FunctionPointerObject yFunc = y.getFunctionPointer();
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
-				List<DataObject> argsX = new LinkedList<>();
-				argsX.add(z);
-				argsX.add(new DataObject().setArgumentSeparator(", "));
-				List<DataObject> argsY = new LinkedList<>();
-				argsY.add(w);
-				DataObject retY = interpreter.callFunctionPointer(yFunc, y.getVariableName(), argsY, INNER_SCOPE_ID);
-				argsX.add(retY == null?new DataObject().setVoid():retY);
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(c);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(d);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(retB == null?new DataObject().setVoid():retB);
 				
-				return interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_SCOPE_ID);
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			};
 			if(argsLeft > 0)
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
