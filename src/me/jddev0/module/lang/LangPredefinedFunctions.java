@@ -2665,7 +2665,7 @@ final class LangPredefinedFunctions {
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
-			if(outerArgs.size() > 2 && outerArgs.get(3).getType() != DataType.FUNCTION_POINTER)
+			if(outerArgs.size() > 2 && outerArgs.get(2).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "FUNCTION_POINTER"), SCOPE_ID);
 			
 			final int argsLeft = 4 - outerArgs.size();
