@@ -2873,6 +2873,44 @@ final class LangPredefinedFunctions {
 			else
 				return func.callFunc(new ArrayList<>(), SCOPE_ID);
 		});
+		funcs.put("combM", (argumentList, SCOPE_ID) -> {
+			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(outerArgs.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", "FUNCTION_POINTER"), SCOPE_ID);
+			
+			final int argsLeft = 1 - outerArgs.size();
+			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				if(innerArgs.size() > argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				if(innerArgs.size() < argsLeft)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argsLeft), INNER_SCOPE_ID);
+				
+				List<DataObject> args = new LinkedList<>();
+				args.addAll(outerArgs);
+				args.addAll(innerArgs);
+				
+				DataObject a = args.get(0);
+				
+				if(a.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+				
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(a);
+				
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
+			};
+			if(argsLeft > 0)
+				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+			else
+				return func.callFunc(new ArrayList<>(), SCOPE_ID);
+		});
 		funcs.put("combP", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(outerArgs.size() > 4)
