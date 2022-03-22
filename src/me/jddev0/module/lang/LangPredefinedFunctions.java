@@ -97,6 +97,37 @@ final class LangPredefinedFunctions {
 		return operation.apply(leftDataObject, rightDataObject);
 	}
 	
+	private DataObject unaryFromBooleanValueOperationHelper(List<DataObject> argumentList, Function<DataObject, Boolean> operation, final int SCOPE_ID) {
+		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 1 argument
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		
+		return new DataObject().setBoolean(operation.apply(dataObject));
+	}
+	private DataObject unaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, Function<DataObject, Boolean> operation, final int SCOPE_ID) {
+		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 1 argument
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		
+		return new DataObject().setBoolean(!operation.apply(dataObject));
+	}
+	private DataObject binaryFromBooleanValueOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
+		DataObject leftDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject rightDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 2 arguments
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+		
+		return new DataObject().setBoolean(operation.apply(leftDataObject, rightDataObject));
+	}
+	private DataObject binaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
+		DataObject leftDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		DataObject rightDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+		if(argumentList.size() > 0) //Not 2 arguments
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+		
+		return new DataObject().setBoolean(!operation.apply(leftDataObject, rightDataObject));
+	}
+	
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int SCOPE_ID) {
 		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
@@ -1922,6 +1953,21 @@ final class LangPredefinedFunctions {
 		funcs.put("rshift", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRshift, SCOPE_ID), SCOPE_ID));
 		funcs.put("rzshift", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opRzshift, SCOPE_ID), SCOPE_ID));
 		funcs.put("getItem", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opGetItem, SCOPE_ID), SCOPE_ID));
+		
+		//Condition operator functions
+		funcs.put("conNot", (argumentList, SCOPE_ID) -> unaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::toBoolean, SCOPE_ID));
+		funcs.put("conAnd", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (dataObject1, dataObject2) ->
+				dataObject1.toBoolean() && dataObject2.toBoolean(), SCOPE_ID));
+		funcs.put("conOr", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (dataObject1, dataObject2) ->
+		dataObject1.toBoolean() || dataObject2.toBoolean(), SCOPE_ID));
+		funcs.put("conEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
+		funcs.put("conNotEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
+		funcs.put("conStrictEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isStrictEquals, SCOPE_ID));
+		funcs.put("conStrictNotEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::isStrictEquals, SCOPE_ID));
+		funcs.put("conLessThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThan, SCOPE_ID));
+		funcs.put("conGreaterThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThan, SCOPE_ID));
+		funcs.put("conLessThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThanOrEquals, SCOPE_ID));
+		funcs.put("conGreaterThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThanOrEquals, SCOPE_ID));
 	}
 	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("rand", (argumentList, SCOPE_ID) -> new DataObject().setInt(LangInterpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt())));
