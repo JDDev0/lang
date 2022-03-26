@@ -3076,6 +3076,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combQN", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			for(int i = 1;i < outerArgs.size();i++)
+				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3128,6 +3131,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combQZ", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			for(int i = 1;i < outerArgs.size();i++)
+				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3231,6 +3237,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combTN", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			for(int i = 0;i < outerArgs.size() - 1;i++)
+				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3265,6 +3274,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combTZ", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			for(int i = 0;i < outerArgs.size() - 1;i++)
+				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
