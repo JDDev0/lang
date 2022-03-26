@@ -42,8 +42,8 @@ lang.version = v1.0.0
 # PZ: func.combPZ(a, b, ...)
 # QN: func.combQN(a, ...)
 # QZ: func.combQZ(a, ...)
-# TN: func.combTN(..., x)
-# TZ: func.combTZ(..., x)
+# TN: func.combTN(..., z)
+# TZ: func.combTZ(..., z)
 
 # Combinator functions
 # Comb | #Args | Arguments     | Func args   | Execution                    | Comment
@@ -99,8 +99,8 @@ lang.version = v1.0.0
 # SX   | 3     | a, b, c       | a b         | a(b(c), c)                   | -
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # T    | 2     | a, b          |   b         | b(a)                         | -
-# TN   | 1+    | ..., x        |           + | ...(...[1](...[0](x)))       | Every varargs argument will be consecutively applied on x
-# TZ   | 1+    | ..., x        |           + | ...[0](...[1](...(x)))       | Same as TN but with inverse varargs ordering
+# TN   | 1+    | ..., z        |           + | ...(...[1](...[0](z)))       | Every varargs argument will be consecutively applied on z
+# TZ   | 1+    | ..., z        |           + | ...[0](...[1](...(z)))       | Same as TN but with inverse varargs ordering
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # V    | 3     | a, b, c       |     c       | c(a, b)                      | -
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
