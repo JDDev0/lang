@@ -3251,9 +3251,9 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(args.size() - 1);
+				DataObject z = args.get(args.size() - 1);
 				
-				DataObject ret = x;
+				DataObject ret = z;
 				for(int i = 0;i < args.size() - 1;i++) {
 					DataObject n = args.get(i);
 					
@@ -3288,9 +3288,9 @@ final class LangPredefinedFunctions {
 				args.addAll(outerArgs);
 				args.addAll(innerArgs);
 				
-				DataObject x = args.get(args.size() - 1);
+				DataObject z = args.get(args.size() - 1);
 				
-				DataObject ret = x;
+				DataObject ret = z;
 				for(int i = args.size() - 2;i > -1;i--) {
 					DataObject n = args.get(i);
 					
