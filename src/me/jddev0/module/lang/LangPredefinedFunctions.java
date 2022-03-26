@@ -2606,7 +2606,7 @@ final class LangPredefinedFunctions {
 			if(outerArgs.size() > 1 && outerArgs.get(1).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), SCOPE_ID);
 			
-			final int minArgsLeft = 1 - outerArgs.size();
+			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				if(innerArgs.size() < minArgsLeft)
@@ -2896,7 +2896,7 @@ final class LangPredefinedFunctions {
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
 			
-			final int minArgsLeft = 1 - outerArgs.size();
+			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				if(innerArgs.size() < minArgsLeft)
