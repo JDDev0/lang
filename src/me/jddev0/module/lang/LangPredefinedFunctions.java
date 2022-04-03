@@ -157,15 +157,24 @@ final class LangPredefinedFunctions {
 	}
 	
 	/**
+	 * @param argumentList separated arguments with ARGUMENT_SEPARATORs
+	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
+	 */
+	private DataObject combinatorFunctionHelper(List<DataObject> argumentList, int argumentCount, int[] functionPointerIndices, BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc,
+			final int SCOPE_ID) {
+		return combinatorFunctionRecursionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), argumentCount, functionPointerIndices, combinatorFunc, SCOPE_ID);
+	}
+	
+	/**
 	 * @param outerArgs Combined arguments without ARGUMENT_SEPARATORs
 	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
 	 */
-	private DataObject combinatorFunctionHelper(List<DataObject> outerArgs, int argumentCount, int[] functionPointerIncides,
+	private DataObject combinatorFunctionRecursionHelper(List<DataObject> outerArgs, int argumentCount, int[] functionPointerIndices,
 			BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc, final int SCOPE_ID) {
 		if(outerArgs.size() > argumentCount)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argumentCount), SCOPE_ID);
 		
-		for(int i:functionPointerIncides) {
+		for(int i:functionPointerIndices) {
 			if(outerArgs.size() > i && outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 		}
@@ -181,9 +190,9 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argumentCount), INNER_SCOPE_ID);
 			
 			if(args.size() < argumentCount)
-				return combinatorFunctionHelper(args, argumentCount, functionPointerIncides, combinatorFunc, INNER_SCOPE_ID);
+				return combinatorFunctionRecursionHelper(args, argumentCount, functionPointerIndices, combinatorFunc, INNER_SCOPE_ID);
 			
-			for(int i:functionPointerIncides) {
+			for(int i:functionPointerIndices) {
 				if(args.size() > i && args.get(i).getType() != DataType.FUNCTION_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
 			}
@@ -2495,7 +2504,7 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("combA", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -2508,7 +2517,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combA2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2524,7 +2533,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combA3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2609,7 +2618,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combB", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2627,7 +2636,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combB2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2651,7 +2660,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combB3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2724,7 +2733,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combBX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2788,7 +2797,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combC", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2804,7 +2813,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combC3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2823,7 +2832,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combD", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2844,7 +2853,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combE", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 5, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2868,7 +2877,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combEX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2892,7 +2901,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combF", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2908,7 +2917,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combG", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2929,7 +2938,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combH", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2947,7 +2956,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combHB", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -2976,13 +2985,13 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combI", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 1, new int[] {}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 1, new int[] {}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				return a;
 			}, SCOPE_ID);
 		});
 		funcs.put("combJ", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3004,7 +3013,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combJX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3026,19 +3035,19 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combK", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				return a;
 			}, SCOPE_ID);
 		});
 		funcs.put("combKI", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
 				DataObject b = args.get(1);
 				return b;
 			}, SCOPE_ID);
 		});
 		funcs.put("combL", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3055,7 +3064,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combM", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 1, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 1, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
@@ -3067,7 +3076,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combO", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3084,7 +3093,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combP", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3199,7 +3208,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combQ", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3254,7 +3263,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combQX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {1, 2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1, 2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3309,7 +3318,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combR", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3325,7 +3334,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combRX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3341,7 +3350,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combS", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3361,7 +3370,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combSX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3381,7 +3390,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combT", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3468,7 +3477,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combU", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 5, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3494,7 +3503,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combUX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 5, new int[] {0, 3, 4}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 3, 4}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3520,7 +3529,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combV", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3536,7 +3545,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combW", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3551,7 +3560,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combW3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3568,7 +3577,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combWX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				
@@ -3583,7 +3592,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combX1", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
@@ -3604,7 +3613,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combX2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
 				DataObject a = args.get(0);
 				DataObject b = args.get(1);
 				DataObject c = args.get(2);
