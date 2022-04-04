@@ -157,6 +157,71 @@ final class LangPredefinedFunctions {
 	}
 	
 	/**
+	 * Combinator function with 1 argument
+	 * Argument count will not be checked
+	 */
+	@FunctionalInterface
+	private static interface Combinator1ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
+		DataObject callFuncFixedArgs(DataObject a, final int SCOPE_ID);
+		
+		@Override
+		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
+			return callFuncFixedArgs(args.get(0), SCOPE_ID);
+		}
+	}
+	/**
+	 * Combinator function with 2 arguments
+	 * Argument count will not be checked
+	 */
+	@FunctionalInterface
+	private static interface Combinator2ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
+		DataObject callFuncFixedArgs(DataObject a, DataObject b, final int SCOPE_ID);
+		
+		@Override
+		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
+			return callFuncFixedArgs(args.get(0), args.get(1), SCOPE_ID);
+		}
+	}
+	/**
+	 * Combinator function with 3 arguments
+	 * Argument count will not be checked
+	 */
+	@FunctionalInterface
+	private static interface Combinator3ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
+		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, final int SCOPE_ID);
+		
+		@Override
+		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
+			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), SCOPE_ID);
+		}
+	}
+	/**
+	 * Combinator function with 4 arguments
+	 * Argument count will not be checked
+	 */
+	@FunctionalInterface
+	private static interface Combinator4ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
+		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, DataObject d, final int SCOPE_ID);
+		
+		@Override
+		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
+			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), args.get(3), SCOPE_ID);
+		}
+	}
+	/**
+	 * Combinator function with 5 arguments
+	 * Argument count will not be checked
+	 */
+	@FunctionalInterface
+	private static interface Combinator5ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
+		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, DataObject d, DataObject e, final int SCOPE_ID);
+		
+		@Override
+		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
+			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), SCOPE_ID);
+		}
+	}
+	/**
 	 * @param argumentList separated arguments with ARGUMENT_SEPARATORs
 	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
 	 */
@@ -164,7 +229,6 @@ final class LangPredefinedFunctions {
 			final int SCOPE_ID) {
 		return combinatorFunctionRecursionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), argumentCount, functionPointerIndices, combinatorFunc, SCOPE_ID);
 	}
-	
 	/**
 	 * @param outerArgs Combined arguments without ARGUMENT_SEPARATORs
 	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
@@ -2504,10 +2568,7 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("combA", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2517,11 +2578,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combA2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2533,12 +2590,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combA3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2618,11 +2670,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combB", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2636,12 +2684,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combB2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2660,13 +2703,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combB3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				DataObject e = args.get(4);
-				
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2733,12 +2770,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combBX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2797,11 +2829,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combC", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2813,12 +2841,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combC3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2832,12 +2855,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combD", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 2}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
@@ -2853,13 +2871,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combE", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				DataObject e = args.get(4);
-				
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 2}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
@@ -2877,13 +2889,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combEX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				DataObject e = args.get(4);
-				
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2901,11 +2907,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combF", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
 				List<DataObject> argsC = new LinkedList<>();
@@ -2917,12 +2919,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combG", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2938,11 +2935,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combH", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -2956,12 +2949,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combHB", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -2985,18 +2973,12 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combI", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 1, new int[] {}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
+			return combinatorFunctionHelper(argumentList, 1, new int[] {}, (Combinator1ArgFunction)(a, INNER_SCOPE_ID) -> {
 				return a;
 			}, SCOPE_ID);
 		});
 		funcs.put("combJ", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA1 = new LinkedList<>();
@@ -3013,12 +2995,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combJX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA1 = new LinkedList<>();
@@ -3035,22 +3012,17 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combK", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
+			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				return a;
 			}, SCOPE_ID);
 		});
 		funcs.put("combKI", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (args, INNER_SCOPE_ID) -> {
-				DataObject b = args.get(1);
+			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				return b;
 			}, SCOPE_ID);
 		});
 		funcs.put("combL", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3064,9 +3036,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combM", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 1, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				
+			return combinatorFunctionHelper(argumentList, 1, new int[] {0}, (Combinator1ArgFunction)(a, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -3076,10 +3046,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combO", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0, 1}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3093,12 +3060,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combP", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1, 2}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				FunctionPointerObject cFunc = c.getFunctionPointer();
@@ -3208,11 +3170,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combQ", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3263,11 +3221,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combQX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {1, 2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1, 2}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
@@ -3318,11 +3272,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combR", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
 				List<DataObject> argsB = new LinkedList<>();
@@ -3334,11 +3284,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combRX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
 				List<DataObject> argsB = new LinkedList<>();
@@ -3350,11 +3296,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combS", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3370,11 +3312,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combSX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {0, 1}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3390,10 +3328,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combT", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
 				List<DataObject> argsB = new LinkedList<>();
@@ -3477,13 +3412,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
 		funcs.put("combU", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1, 2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				DataObject e = args.get(4);
-				
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 1, 2}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				FunctionPointerObject cFunc = c.getFunctionPointer();
@@ -3503,13 +3432,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combUX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 3, 4}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				DataObject e = args.get(4);
-				
+			return combinatorFunctionHelper(argumentList, 5, new int[] {0, 3, 4}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject dFunc = d.getFunctionPointer();
 				FunctionPointerObject eFunc = e.getFunctionPointer();
@@ -3529,11 +3452,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combV", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				
+			return combinatorFunctionHelper(argumentList, 3, new int[] {2}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
 				FunctionPointerObject cFunc = c.getFunctionPointer();
 				
 				List<DataObject> argsC = new LinkedList<>();
@@ -3545,10 +3464,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combW", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -3560,10 +3476,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combW3", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {0}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
 				List<DataObject> argsA = new LinkedList<>();
@@ -3577,10 +3490,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combWX", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				
+			return combinatorFunctionHelper(argumentList, 2, new int[] {1}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
 				List<DataObject> argsB = new LinkedList<>();
@@ -3592,12 +3502,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combX1", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
@@ -3613,12 +3518,7 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("combX2", (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (args, INNER_SCOPE_ID) -> {
-				DataObject a = args.get(0);
-				DataObject b = args.get(1);
-				DataObject c = args.get(2);
-				DataObject d = args.get(3);
-				
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
 				
