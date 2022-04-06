@@ -3030,6 +3030,11 @@ final class LangPredefinedFunctions {
 				return a;
 			}, SCOPE_ID);
 		});
+		funcs.put("combK3", (argumentList, SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 3, new int[] {}, (Combinator3ArgFunction)(a, b, c, INNER_SCOPE_ID) -> {
+				return a;
+			}, SCOPE_ID);
+		});
 		funcs.put("combKI", (argumentList, SCOPE_ID) -> {
 			return combinatorFunctionHelper(argumentList, 2, new int[] {}, (Combinator2ArgFunction)(a, b, INNER_SCOPE_ID) -> {
 				return b;
