@@ -33,6 +33,7 @@ lang.version = v1.0.0
 # Q : func.combQ(a, b, c)
 # QX: func.combQX(a, b, c)
 # R : func.combR(a, b, c)
+# R3: func.combR3(a, b, c, d)
 # RX: func.combRX(a, b, c)
 # S : func.combS(a, b, c)
 # SX: func.combSX(a, b, c)
@@ -117,6 +118,7 @@ lang.version = v1.0.0
 # QZ   | 1+    | a, ...        |           + | ...[0](...[1](...(a)))       | Same as QN but with inverse varargs ordering
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # R    | 3     | a, b, c       |   b         | b(c, a)                      | -
+# R3   | 4     | a, b, c, d    |   b         | b(d, c, a)                   | -
 # RX   | 3     | a, b, c       |   b         | b(a, c)                      | -
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # S    | 3     | a, b, c       | a b         | a(c, b(c))                   | -
