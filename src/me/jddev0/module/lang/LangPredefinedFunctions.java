@@ -2854,6 +2854,20 @@ final class LangPredefinedFunctions {
 				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 			}, SCOPE_ID);
 		});
+		funcs.put("combCX", (argumentList, SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				
+				List<DataObject> argsA = new LinkedList<>();
+				argsA.add(c);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(d);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(b);
+				
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
+			}, SCOPE_ID);
+		});
 		funcs.put("combD", (argumentList, SCOPE_ID) -> {
 			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 2}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
 				FunctionPointerObject aFunc = a.getFunctionPointer();
