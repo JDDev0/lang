@@ -50,6 +50,7 @@ lang.version = v1.0.0
 # X1: func.combX1(a, b, c, d)
 # X2: func.combX2(a, b, c, d)
 # X3: func.combX3(a, b, c, d)
+# X4: func.combX4(a, b, c, d)
 
 # Infinite argument functions
 # AN: func.combAN(a, ...)
@@ -146,3 +147,4 @@ lang.version = v1.0.0
 # X1   | 4     | a, b, c, d    | a b         | a(b(c), d)                   | -
 # X2   | 4     | a, b, c, d    | a b         | a(c, b(d))                   | -
 # X3   | 4     | a, b, c, d    | a b         | a(b(c, d), c)                | -
+# X4   | 4     | a, b, c, d    | a b         | a(b(d, c), d)                | -
