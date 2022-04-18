@@ -55,6 +55,7 @@ lang.version = v1.0.0
 # X6: func.combX6(a, b, c, d)
 # X7: func.combX7(a, b, c, d)
 # X8: func.combX8(a, b, c, d)
+# X9: func.combX9(a, b, c, d)
 
 # Infinite argument functions
 # AN: func.combAN(a, ...)
@@ -156,3 +157,4 @@ lang.version = v1.0.0
 # X6   | 4     | a, b, c, d    | a b         | a(d, b(c, d))                | -
 # X7   | 4     | a, b, c, d    | a b         | a(b(c, d), b(d, c))          | -
 # X8   | 4     | a, b, c, d    | a b         | a(b(c, c), b(d, d))          | -
+# X9   | 4     | a, b, c, d    | a b         | a(b(d, d), b(c, c))          | -
