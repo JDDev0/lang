@@ -34,6 +34,7 @@ lang.version = v1.0.0
 # M3: func.combM3(a, b, c)
 # O : func.combO(a, b)
 # O2: func.combO2(a, b, c)
+# O3: func.combO3(a, b, c, d)
 # P : func.combP(a, b, c, d)
 # Q : func.combQ(a, b, c)
 # QX: func.combQX(a, b, c)
@@ -126,6 +127,7 @@ lang.version = v1.0.0
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # O    | 2     | a, b          | a b         | b(a(b))                      | -
 # O2   | 3     | a, b, c       | a b         | b(a(b, c))                   | -
+# O3   | 4     | a, b, c, d    | a b         | b(a(b, c, d))                | -
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # P    | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                | -
 # PN   | 2+    | a, b, ...     | a         + | a(...[0](b), ...[1](b), ...) | Every varargs argument will be applied on b first
