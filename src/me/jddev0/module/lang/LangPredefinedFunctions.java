@@ -3305,6 +3305,26 @@ final class LangPredefinedFunctions {
 			};
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
+		funcs.put("combPX", (argumentList, SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, 4, new int[] {0, 1, 2}, (Combinator4ArgFunction)(a, b, c, d, INNER_SCOPE_ID) -> {
+				FunctionPointerObject aFunc = a.getFunctionPointer();
+				FunctionPointerObject bFunc = b.getFunctionPointer();
+				FunctionPointerObject cFunc = c.getFunctionPointer();
+				
+				List<DataObject> argsA = new LinkedList<>();
+				List<DataObject> argsC = new LinkedList<>();
+				argsC.add(d);
+				DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, INNER_SCOPE_ID);
+				argsA.add(retC == null?new DataObject().setVoid():retC);
+				List<DataObject> argsB = new LinkedList<>();
+				argsB.add(d);
+				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, INNER_SCOPE_ID);
+				argsA.add(new DataObject().setArgumentSeparator(", "));
+				argsA.add(retB == null?new DataObject().setVoid():retB);
+				
+				return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
+			}, SCOPE_ID);
+		});
 		funcs.put("combPZ", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
