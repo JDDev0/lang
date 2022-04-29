@@ -48,6 +48,7 @@ lang.version = v1.0.0
 # S : func.combS(a, b, c)
 # SX: func.combSX(a, b, c)
 # T : func.combT(a, b)
+# TX: func.combTX(a, b, c, d)
 # U : func.combU(a, b, c, d, e)
 # UX: func.combUX(a, b, c, d, e)
 # V : func.combV(a, b, c)
@@ -155,6 +156,7 @@ lang.version = v1.0.0
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # T    | 2     | a, b          |   b         | b(a)                         | -
 # TN   | 1+    | ..., z        |           + | ...(...[1](...[0](z)))       | Every varargs argument will be consecutively applied on z
+# TX   | 4     | a, b, c, d    |   b         | b(d, c, a)                   | -
 # TZ   | 1+    | ..., z        |           + | ...[0](...[1](...(z)))       | Same as TN but with inverse varargs ordering
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
 # U    | 5     | a, b, c, d, e | a b c       | a(b(d), c(e))                | -
