@@ -222,6 +222,15 @@ final class LangPredefinedFunctions {
 		}
 	}
 	/**
+	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
+	 */
+	private LangPredefinedFunctionObject combinatorFunctionExternalFunctionObjectHelper(int argumentCount, int[] functionPointerIndices,
+	BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc) {
+		return (argumentList, SCOPE_ID) -> {
+			return combinatorFunctionHelper(argumentList, argumentCount, functionPointerIndices, combinatorFunc, SCOPE_ID);
+		};
+	}
+	/**
 	 * @param argumentList separated arguments with ARGUMENT_SEPARATORs
 	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
 	 */
