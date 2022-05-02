@@ -2606,6 +2606,20 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
 		}));
+		funcs.put("combA4", combinatorFunctionExternalFunctionObjectHelper(5, new int[] {0}, (Combinator5ArgFunction)(a, b, c, d, e, INNER_SCOPE_ID) -> {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			List<DataObject> argsA = new LinkedList<>();
+			argsA.add(b);
+			argsA.add(new DataObject().setArgumentSeparator(", "));
+			argsA.add(c);
+			argsA.add(new DataObject().setArgumentSeparator(", "));
+			argsA.add(d);
+			argsA.add(new DataObject().setArgumentSeparator(", "));
+			argsA.add(e);
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, INNER_SCOPE_ID);
+		}));
 		funcs.put("combAN", (argumentList, SCOPE_ID) -> {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
