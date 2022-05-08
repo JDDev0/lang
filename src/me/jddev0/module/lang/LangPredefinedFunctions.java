@@ -2576,6 +2576,13 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("combA0", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(a, SCOPE_ID) -> {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			List<DataObject> argsA = new LinkedList<>();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+		}));
 		funcs.put("combA", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0}, (Combinator2ArgFunction)(a, b, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
