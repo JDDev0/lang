@@ -4436,7 +4436,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("arrayEveryMatch", (argumentList, SCOPE_ID) -> {
+		funcs.put("arrayMatchEvery", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
@@ -4455,7 +4455,7 @@ final class LangPredefinedFunctions {
 				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
 			}));
 		});
-		funcs.put("arrayAnyMatch", (argumentList, SCOPE_ID) -> {
+		funcs.put("arrayMatchAny", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
@@ -4474,7 +4474,7 @@ final class LangPredefinedFunctions {
 				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
 			}));
 		});
-		funcs.put("arrayNonMatch", (argumentList, SCOPE_ID) -> {
+		funcs.put("arrayMatchNon", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 arguments
