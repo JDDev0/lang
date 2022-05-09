@@ -2,6 +2,7 @@ lang.name = Combinator functions
 lang.version = v1.0.0
 
 # Finite argument functions
+# A0: func.combA0(a)
 # A : func.combA(a, b)
 # A2: func.combA2(a, b, c)
 # A3: func.combA3(a, b, c, d)
@@ -90,6 +91,7 @@ lang.version = v1.0.0
 # Combinator functions
 # Comb | #Args | Arguments     | Func args   | Execution                    | Comment
 # =====|=======|===============|=============|==============================|===========================================================
+# A0   | 1     | a             | a           | a()                          | -
 # A    | 2     | a, b          | a           | a(b)                         | -
 # A2   | 3     | a, b, c       | a           | a(b, c)                      | -
 # A3   | 4     | a, b, c, d    | a           | a(b, c, d)                   | -
