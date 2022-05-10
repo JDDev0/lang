@@ -8,6 +8,7 @@ lang.version = v1.0.0
 # A3: func.combA3(a, b, c, d)
 # A4: func.combA4(a, b, c, d, e)
 # AX: func.combAX(a, b, c, d)
+# B0: func.combB0(a, b)
 # B : func.combB(a, b, c)
 # B2: func.combB2(a, b, c, d)
 # B3: func.combB3(a, b, c, d, e)
@@ -100,6 +101,7 @@ lang.version = v1.0.0
 # AX   | 4     | a, b, c, d    | a           | a(b, d, c)                   | -
 # AZ   | 1+    | a, ...        | a           | a(..., ...[1], ...[0])       | Same as AN but with inverse varargs ordering
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
+# B0   | 2     | a, b          | a b         | a(b())                       | -
 # B    | 3     | a, b, c       | a b         | a(b(c))                      | -
 # B2   | 4     | a, b, c, d    | a b         | a(b(c), b(d))                | -
 # B3   | 5     | a, b, c, d, e | a b         | a(b(c), b(d), b(e))          | -
