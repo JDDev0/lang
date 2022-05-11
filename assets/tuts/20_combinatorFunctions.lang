@@ -77,6 +77,9 @@ lang.version = v1.0.0
 # XA: func.combXA(a, b, c, d)
 # XB: func.combXB(a, b, c, d)
 
+# Array argument functions
+# AV: func.combAV(a, args)
+
 # Infinite argument functions
 # AN: func.combAN(a, ...)
 # AZ: func.combAZ(a, ...)
@@ -98,6 +101,7 @@ lang.version = v1.0.0
 # A3   | 4     | a, b, c, d    | a           | a(b, c, d)                   | -
 # A4   | 5     | a, b, c, d, e | a           | a(b, c, d, e)                | -
 # AN   | 1+    | a, ...        | a           | a(...[0], ...[1], ...)       | -
+# AV   | 2     | a, args[]     | a           | a(args[0], args[1], ...)     | -
 # AX   | 4     | a, b, c, d    | a           | a(b, d, c)                   | -
 # AZ   | 1+    | a, ...        | a           | a(..., ...[1], ...[0])       | Same as AN but with inverse varargs ordering
 # -----|-------|---------------|-------------|------------------------------|-----------------------------------------------------------
