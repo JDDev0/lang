@@ -2660,14 +2660,14 @@ final class LangPredefinedFunctions {
 			};
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
-		funcs.put("combAV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0}, (Combinator2ArgFunction)(a, b, SCOPE_ID) -> {
+		funcs.put("combAV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0}, (Combinator2ArgFunction)(a, args, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
-			if(b.getType() != DataType.ARRAY)
+			if(args.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "ARRAY"), SCOPE_ID);
 			
 			List<DataObject> argsA = new LinkedList<>();
-			for(DataObject ele:b.getArray())
+			for(DataObject ele:args.getArray())
 				argsA.add(ele);
 			for(int i = argsA.size() - 1;i > 0;i--)
 				argsA.add(i, new DataObject().setArgumentSeparator(", "));
