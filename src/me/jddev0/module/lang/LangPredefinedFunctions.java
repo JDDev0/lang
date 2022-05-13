@@ -3337,6 +3337,31 @@ final class LangPredefinedFunctions {
 			};
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
+		funcs.put("combPV", combinatorFunctionExternalFunctionObjectHelper(3, new int[] {0}, (Combinator3ArgFunction)(a, b, args, SCOPE_ID) -> {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			if(args.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "ARRAY"), SCOPE_ID);
+			
+			List<DataObject> argsA = new LinkedList<>();
+			for(int i = 0;i < args.getArray().length;i++) {
+				DataObject n = args.getArray()[i];
+				
+				if(n.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3[" + (i + 1) + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+				
+				FunctionPointerObject nFunc = n.getFunctionPointer();
+				
+				List<DataObject> argsN = new LinkedList<>();
+				argsN.add(b);
+				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), argsN, SCOPE_ID);
+				argsA.add(retN == null?new DataObject().setVoid():retN);
+			}
+			for(int i = argsA.size() - 1;i > 0;i--)
+				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+		}));
 		funcs.put("combPX", combinatorFunctionExternalFunctionObjectHelper(4, new int[] {0, 1, 2}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			FunctionPointerObject bFunc = b.getFunctionPointer();
