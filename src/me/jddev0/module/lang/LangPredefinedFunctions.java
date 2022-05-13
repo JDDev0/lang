@@ -3348,7 +3348,7 @@ final class LangPredefinedFunctions {
 				DataObject n = args.getArray()[i];
 				
 				if(n.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3[" + (i + 1) + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3[" + i + "] ", "FUNCTION_POINTER"), SCOPE_ID);
 				
 				FunctionPointerObject nFunc = n.getFunctionPointer();
 				
