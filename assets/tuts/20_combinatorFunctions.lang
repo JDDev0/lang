@@ -80,6 +80,7 @@ lang.version = v1.0.0
 # Array argument functions
 # AV: func.combAV(a, args)
 # BV: func.combBV(a, b, args)
+# PV: func.combPV(a, b, args)
 
 # Infinite argument functions
 # AN: func.combAN(a, ...)
@@ -159,6 +160,7 @@ lang.version = v1.0.0
 # P    | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                  | -
 # P3   | 5     | a, b, c, d, e | a b c d     | a(b(e), c(e), d(e))            | -
 # PN   | 2+    | a, b, ...     | a         + | a(...[0](b), ...[1](b), ...)   | Every varargs argument will be applied on b first
+# PV   | 3     | a, b, args[]  | a         + | a(args[0](b), args[1](b), ...) | -
 # PX   | 4     | a, b, c, d    | a b c       | a(c(d), b(d))                  | -
 # PZ   | 2+    | a, b, ...     | a         + | a(..., ...[1](b), ...[0](b))   | Same as PN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
