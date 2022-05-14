@@ -3474,6 +3474,27 @@ final class LangPredefinedFunctions {
 			};
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		});
+		funcs.put("combQV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {}, (Combinator2ArgFunction)(a, args, SCOPE_ID) -> {
+			if(args.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "ARRAY"), SCOPE_ID);
+			
+			DataObject ret = a;
+			for(int i = 0;i < args.getArray().length;i++) {
+				DataObject n = args.getArray()[i];
+				
+				if(n.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2[" + i + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+				
+				FunctionPointerObject nFunc = n.getFunctionPointer();
+				
+				List<DataObject> argsN = new LinkedList<>();
+				argsN.add(ret);
+				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), argsN, SCOPE_ID);
+				ret = retN == null?new DataObject().setVoid():retN;
+			}
+			
+			return ret;
+		}));
 		funcs.put("combQX", combinatorFunctionExternalFunctionObjectHelper(3, new int[] {1, 2}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
 			FunctionPointerObject bFunc = b.getFunctionPointer();
 			FunctionPointerObject cFunc = c.getFunctionPointer();
