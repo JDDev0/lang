@@ -1185,7 +1185,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			if(dataTypeObject.getType() != DataType.TYPE)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Second argument must be from type TYPE", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.TYPE), SCOPE_ID);
 			
 			return new DataObject().setBoolean(dataObject.getType() == dataTypeObject.getTypeValue());
 		});
