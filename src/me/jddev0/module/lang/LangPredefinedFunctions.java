@@ -1094,6 +1094,78 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(dataObject.isStaticData());
 		});
+		funcs.put("constrainVariableAllowedTypes", (argumentList, SCOPE_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			
+			if(dataObject.getType() != DataType.VAR_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.VAR_POINTER), SCOPE_ID);
+			
+			dataObject = dataObject.getVarPointer().getVar();
+			
+			if(dataObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			if(dataObject.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			List<DataType> types = new LinkedList<>();
+			
+			int argumentIndex = 1;
+			while(argumentList.size() > 0) {
+				argumentIndex++;
+				
+				DataObject typeObject = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+				
+				if(typeObject.getType() != DataType.TYPE)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, argumentIndex + " ", DataType.TYPE), SCOPE_ID);
+				
+				types.add(typeObject.getTypeValue());
+			}
+			
+			try {
+				dataObject.setTypeConstraint(DataObject.DataTypeConstraint.fromAllowedTypes(types));
+			}catch(DataObject.DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		});
+		funcs.put("constrainVariableNotAllowedTypes", (argumentList, SCOPE_ID) -> {
+			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			
+			if(dataObject.getType() != DataType.VAR_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.VAR_POINTER), SCOPE_ID);
+			
+			dataObject = dataObject.getVarPointer().getVar();
+			
+			if(dataObject == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			if(dataObject.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			List<DataType> types = new LinkedList<>();
+			
+			int argumentIndex = 1;
+			while(argumentList.size() > 0) {
+				argumentIndex++;
+				
+				DataObject typeObject = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
+				
+				if(typeObject.getType() != DataType.TYPE)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, argumentIndex + " ", DataType.TYPE), SCOPE_ID);
+				
+				types.add(typeObject.getTypeValue());
+			}
+			
+			try {
+				dataObject.setTypeConstraint(DataObject.DataTypeConstraint.fromNotAllowedTypes(types));
+			}catch(DataObject.DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		});
 		funcs.put("pointerTo", (argumentList, SCOPE_ID) -> {
 			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
