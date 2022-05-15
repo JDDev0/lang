@@ -82,6 +82,7 @@ lang.version = v1.0.0
 # BV: func.combBV(a, b, args)
 # PV: func.combPV(a, b, args)
 # QV: func.combQV(a, args)
+# TV: func.combTV(args, z)
 
 # Infinite argument functions
 # AN: func.combAN(a, ...)
@@ -182,6 +183,7 @@ lang.version = v1.0.0
 # T3   | 4     | a, b, c, d    |   b         | b(a, c, d)                     | -
 # T4   | 5     | a, b, c, d, e |   b         | b(a, c, d, e)                  | -
 # TN   | 1+    | ..., z        |           + | ...(...[1](...[0](z)))         | Every varargs argument will be consecutively applied on z
+# TV   | 2     | args[], z     |           + | ...(args[1](args[0](z)))       | Every array element will be consecutively applied on z
 # TX   | 4     | a, b, c, d    |   b         | b(d, c, a)                     | -
 # TZ   | 1+    | ..., z        |           + | ...[0](...[1](...(z)))         | Same as TN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
