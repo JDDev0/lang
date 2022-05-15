@@ -18,9 +18,9 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  * @version v1.0.0
  */
 public class DataObject {
-	private final static DataTypeConstraint REQUIREMENT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
-	private final static DataTypeConstraint REQUIREMENT_ARRAY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.NULL));
-	private final static DataTypeConstraint REQUIREMENT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
+	private final static DataTypeConstraint CONSTRAINT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
+	private final static DataTypeConstraint CONSTRAINT_ARRAY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.NULL));
+	private final static DataTypeConstraint CONSTRAINT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
 	
 	//Value
 	private String txt;
@@ -35,7 +35,7 @@ public class DataObject {
 	private ErrorObject error;
 	private DataType typeValue;
 	
-	private DataTypeConstraint typeConstraint = REQUIREMENT_NORMAL;
+	private DataTypeConstraint typeConstraint = CONSTRAINT_NORMAL;
 	
 	//Meta-Data
 	/**
@@ -50,15 +50,15 @@ public class DataObject {
 	
 	public static DataTypeConstraint getTypeConstraintFor(String variableName) {
 		if(variableName == null)
-			return REQUIREMENT_NORMAL;
+			return CONSTRAINT_NORMAL;
 		
 		if(variableName.startsWith("&"))
-			return REQUIREMENT_ARRAY;
+			return CONSTRAINT_ARRAY;
 		
 		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("linker."))
-			return REQUIREMENT_FUNCTION_POINTER;
+			return CONSTRAINT_FUNCTION_POINTER;
 		
-		return REQUIREMENT_NORMAL;
+		return CONSTRAINT_NORMAL;
 	}
 	
 	public DataObject(DataObject dataObject) {
