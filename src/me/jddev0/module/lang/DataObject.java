@@ -405,6 +405,20 @@ public class DataObject {
 		return type;
 	}
 	
+	DataObject setTypeConstraint(DataTypeConstraint typeConstraint) throws DataTypeConstraintException {
+		for(DataType type:this.typeConstraint.getNotAllowedTypes()) {
+			if(typeConstraint.isTypeAllowed(type))
+				throw new DataTypeConstraintException("New type constraint must not allow types which where not allowed previously");
+		}
+		
+		if(!typeConstraint.isTypeAllowed(type))
+			throw new DataTypeConstraintViolatedException();
+		
+		this.typeConstraint = typeConstraint;
+		
+		return this;
+	}
+	
 	public DataType checkAndRetType(DataType type) throws DataTypeConstraintViolatedException {
 		if(!typeConstraint.isTypeAllowed(type))
 			throw new DataTypeConstraintViolatedException();
@@ -3498,6 +3512,20 @@ public class DataObject {
 			return type == null || types.contains(type) == allowed;
 		}
 		
+		public List<DataType> getAllowedTypes() {
+			if(allowed)
+				return types.stream().collect(Collectors.toList());
+			
+			return Arrays.stream(DataType.values()).filter(((Predicate<DataType>)types::contains).negate()).collect(Collectors.toList());
+		}
+		
+		public List<DataType> getNotAllowedTypes() {
+			if(allowed)
+				return Arrays.stream(DataType.values()).filter(((Predicate<DataType>)types::contains).negate()).collect(Collectors.toList());
+			
+			return types.stream().collect(Collectors.toList());
+		}
+		
 		@Override
 		public String toString() {
 			return (allowed?"= ":"! ") + "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
@@ -3718,7 +3746,14 @@ public class DataObject {
 		}
 	}
 	
-	public static class DataTypeConstraintViolatedException extends RuntimeException {
+	public static class DataTypeConstraintException extends RuntimeException {
+		private static final long serialVersionUID = 7335599147999542200L;
+
+		public DataTypeConstraintException(String msg) {
+			super(msg);
+		}
+	}
+	public static class DataTypeConstraintViolatedException extends DataTypeConstraintException {
 		private static final long serialVersionUID = 7449156115495467372L;
 		
 		public DataTypeConstraintViolatedException() {
