@@ -43,6 +43,7 @@ lang.version = v1.0.0
 # M2: func.combM2(a, b)
 # M3: func.combM3(a, b, c)
 # M4: func.combM4(a, b, c, d)
+# M5: func.combM5(a, b, c, d, e)
 # O : func.combO(a, b)
 # O2: func.combO2(a, b, c)
 # O3: func.combO3(a, b, c, d)
@@ -162,6 +163,7 @@ lang.version = v1.0.0
 # M2   | 2     | a, b          | a           | a(a, b)                        | -
 # M3   | 3     | a, b, c       | a           | a(a, b, c)                     | -
 # M4   | 4     | a, b, c, d    | a           | a(a, b, c, d)                  | -
+# M5   | 5     | a, b, c, d, e | a           | a(a, b, c, d, e)               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # O    | 2     | a, b          | a b         | b(a(b))                        | -
 # O2   | 3     | a, b, c       | a b         | b(a(b, c))                     | -
