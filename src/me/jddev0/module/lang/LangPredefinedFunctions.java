@@ -4197,6 +4197,42 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
+		funcs.put("combY", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(f, SCOPE_ID) -> {
+			FunctionPointerObject fFunc = f.getFunctionPointer();
+			
+			LangPredefinedFunctionObject anonFunc = combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(x, INNER_SCOPE_ID) -> {
+				FunctionPointerObject xFunc = x.getFunctionPointer();
+				
+				LangExternalFunctionObject func = (LangExternalFunctionObject)(argumentList, INNER_INNER_SCOPE_ID) -> {
+					List<DataObject> argsF = new LinkedList<>();
+					List<DataObject> argsX = new LinkedList<>();
+					argsX.add(x);
+					DataObject retX = interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_INNER_SCOPE_ID);
+					argsF.add(retX == null?new DataObject().setVoid():retX);
+					
+					List<DataObject> argsRetF = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+					DataObject retF = interpreter.callFunctionPointer(fFunc, f.getVariableName(), argsF, INNER_INNER_SCOPE_ID);
+					if(retF == null || retF.getType() != DataType.FUNCTION_POINTER)
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.FUNCTION_POINTER)
+								+ "\nThe implementation of the function provided to \"func.combY\" is incorrect!", INNER_INNER_SCOPE_ID);
+					FunctionPointerObject retFFunc = retF.getFunctionPointer();
+					
+					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argsRetF, INNER_INNER_SCOPE_ID);
+				};
+				
+				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+			});
+			
+			List<DataObject> argsFunc1 = new LinkedList<>();
+			DataObject retAnonFunc1 = anonFunc.callFunc(argsFunc1, SCOPE_ID);
+			FunctionPointerObject retAnonFunc1Func = retAnonFunc1.getFunctionPointer();
+			
+			List<DataObject> argsRetAnonFunc1 = new LinkedList<>();
+			List<DataObject> argsAnonFunc2 = new LinkedList<>();
+			argsRetAnonFunc1.add(anonFunc.callFunc(argsAnonFunc2, SCOPE_ID)); //Will always return a DataObject of type FUNCTION_POINTER
+			
+			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getVariableName(), argsRetAnonFunc1, SCOPE_ID);
+		}));
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("copyAfterFP", (argumentList, SCOPE_ID) -> {
