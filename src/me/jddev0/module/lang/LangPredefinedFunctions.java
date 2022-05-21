@@ -249,7 +249,7 @@ final class LangPredefinedFunctions {
 		
 		for(int i:functionPointerIndices) {
 			if(outerArgs.size() > i && outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 		}
 		
 		LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -267,7 +267,7 @@ final class LangPredefinedFunctions {
 			
 			for(int i:functionPointerIndices) {
 				if(args.size() > i && args.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			}
 			
 			return combinatorFunc.apply(args, INNER_SCOPE_ID);
@@ -2703,7 +2703,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -2718,7 +2718,7 @@ final class LangPredefinedFunctions {
 				DataObject a = args.get(0);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
@@ -2736,7 +2736,7 @@ final class LangPredefinedFunctions {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
 			if(args.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "ARRAY"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.ARRAY), SCOPE_ID);
 			
 			List<DataObject> argsA = new LinkedList<>();
 			for(DataObject ele:args.getArray())
@@ -2762,7 +2762,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -2777,7 +2777,7 @@ final class LangPredefinedFunctions {
 				DataObject a = args.get(0);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
@@ -2857,9 +2857,9 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			if(outerArgs.size() > 1 && outerArgs.get(1).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -2875,9 +2875,9 @@ final class LangPredefinedFunctions {
 				DataObject b = args.get(1);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				if(b.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
@@ -2901,7 +2901,7 @@ final class LangPredefinedFunctions {
 			FunctionPointerObject bFunc = b.getFunctionPointer();
 			
 			if(args.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "ARRAY"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", DataType.ARRAY), SCOPE_ID);
 			
 			List<DataObject> argsA = new LinkedList<>();
 			for(DataObject ele:args.getArray()) {
@@ -2933,9 +2933,9 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			if(outerArgs.size() > 1 && outerArgs.get(1).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -2951,9 +2951,9 @@ final class LangPredefinedFunctions {
 				DataObject b = args.get(1);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				if(b.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				FunctionPointerObject bFunc = b.getFunctionPointer();
@@ -3407,7 +3407,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3423,7 +3423,7 @@ final class LangPredefinedFunctions {
 				DataObject b = args.get(1);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
@@ -3432,7 +3432,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
@@ -3452,14 +3452,14 @@ final class LangPredefinedFunctions {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
 			if(args.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", "ARRAY"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", DataType.ARRAY), SCOPE_ID);
 			
 			List<DataObject> argsA = new LinkedList<>();
 			for(int i = 0;i < args.getArray().length;i++) {
 				DataObject n = args.getArray()[i];
 				
 				if(n.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3[" + i + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3[" + i + "] ", DataType.FUNCTION_POINTER), SCOPE_ID);
 				
 				FunctionPointerObject nFunc = n.getFunctionPointer();
 				
@@ -3495,7 +3495,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(outerArgs.size() > 0 && outerArgs.get(0).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 2 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3511,7 +3511,7 @@ final class LangPredefinedFunctions {
 				DataObject b = args.get(1);
 				
 				if(a.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 				
 				FunctionPointerObject aFunc = a.getFunctionPointer();
 				
@@ -3520,7 +3520,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
@@ -3552,7 +3552,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			for(int i = 1;i < outerArgs.size();i++)
 				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3571,7 +3571,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
@@ -3587,14 +3587,14 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combQV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {}, (Combinator2ArgFunction)(a, args, SCOPE_ID) -> {
 			if(args.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "ARRAY"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.ARRAY), SCOPE_ID);
 			
 			DataObject ret = a;
 			for(int i = 0;i < args.getArray().length;i++) {
 				DataObject n = args.getArray()[i];
 				
 				if(n.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2[" + i + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "2[" + i + "] ", DataType.FUNCTION_POINTER), SCOPE_ID);
 				
 				FunctionPointerObject nFunc = n.getFunctionPointer();
 				
@@ -3622,7 +3622,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			for(int i = 1;i < outerArgs.size();i++)
 				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3641,7 +3641,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
@@ -3767,7 +3767,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			for(int i = 0;i < outerArgs.size() - 1;i++)
 				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3786,7 +3786,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
@@ -3802,14 +3802,14 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("combTV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {}, (Combinator2ArgFunction)(args, z, SCOPE_ID) -> {
 			if(args.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "ARRAY"), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.ARRAY), SCOPE_ID);
 			
 			DataObject ret = z;
 			for(int i = 0;i < args.getArray().length;i++) {
 				DataObject n = args.getArray()[i];
 				
 				if(n.getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", DataType.FUNCTION_POINTER), SCOPE_ID);
 				
 				FunctionPointerObject nFunc = n.getFunctionPointer();
 				
@@ -3837,7 +3837,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> outerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			for(int i = 0;i < outerArgs.size() - 1;i++)
 				if(outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			final int minArgsLeft = 1 - outerArgs.size();
 			LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
@@ -3856,7 +3856,7 @@ final class LangPredefinedFunctions {
 					DataObject n = args.get(i);
 					
 					if(n.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", "FUNCTION_POINTER"), INNER_SCOPE_ID);
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), INNER_SCOPE_ID);
 					
 					FunctionPointerObject nFunc = n.getFunctionPointer();
 					
