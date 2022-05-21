@@ -102,6 +102,9 @@ lang.version = v1.0.0
 # TN: func.combTN(..., z)
 # TZ: func.combTZ(..., z)
 
+# Fixed-point combinator functions
+# Y : func.combY(f)
+
 # Combinator functions
 # Comb | #Args | Arguments     | Func args   | Execution                      | Comment
 # =====|=======|===============|=============|================================|===========================================================
@@ -222,3 +225,5 @@ lang.version = v1.0.0
 # X9   | 4     | a, b, c, d    | a b         | a(b(d, d), b(c, c))            | -
 # XA   | 4     | a, b, c, d    | a b         | a(b(c, d, c), b(d, c, d))      | -
 # XB   | 4     | a, b, c, d    | a b         | a(b(d, c, d), b(c, d, c))      | -
+# -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# Y    | 1     | f             |           f | (x -> f(x(x)))(x -> f(x(x)))   | -
