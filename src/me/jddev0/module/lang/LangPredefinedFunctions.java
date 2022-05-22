@@ -97,13 +97,6 @@ final class LangPredefinedFunctions {
 		return operation.apply(leftDataObject, rightDataObject);
 	}
 	
-	private DataObject unaryFromBooleanValueOperationHelper(List<DataObject> argumentList, Function<DataObject, Boolean> operation, final int SCOPE_ID) {
-		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-		if(argumentList.size() > 0) //Not 1 argument
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		
-		return new DataObject().setBoolean(operation.apply(dataObject));
-	}
 	private DataObject unaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, Function<DataObject, Boolean> operation, final int SCOPE_ID) {
 		DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 		if(argumentList.size() > 0) //Not 1 argument
