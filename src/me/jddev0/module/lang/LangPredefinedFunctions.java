@@ -4210,14 +4210,13 @@ final class LangPredefinedFunctions {
 					DataObject retX = interpreter.callFunctionPointer(xFunc, x.getVariableName(), argsX, INNER_INNER_SCOPE_ID);
 					argsF.add(retX == null?new DataObject().setVoid():retX);
 					
-					List<DataObject> argsRetF = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 					DataObject retF = interpreter.callFunctionPointer(fFunc, f.getVariableName(), argsF, INNER_INNER_SCOPE_ID);
 					if(retF == null || retF.getType() != DataType.FUNCTION_POINTER)
 						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.FUNCTION_POINTER)
 								+ "\nThe implementation of the function provided to \"func.combY\" is incorrect!", INNER_INNER_SCOPE_ID);
 					FunctionPointerObject retFFunc = retF.getFunctionPointer();
 					
-					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argsRetF, INNER_INNER_SCOPE_ID);
+					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argumentList, INNER_INNER_SCOPE_ID);
 				};
 				
 				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
