@@ -47,6 +47,7 @@ lang.version = v1.0.0
 # O : func.combO(a, b)
 # O2: func.combO2(a, b, c)
 # O3: func.combO3(a, b, c, d)
+# O4: func.combO4(a, b, c, d, e)
 # P : func.combP(a, b, c, d)
 # P3: func.combP3(a, b, c, d, e)
 # PX: func.combPX(a, b, c, d)
@@ -172,6 +173,7 @@ lang.version = v1.0.0
 # O    | 2     | a, b          | a b         | b(a(b))                        | -
 # O2   | 3     | a, b, c       | a b         | b(a(b, c))                     | -
 # O3   | 4     | a, b, c, d    | a b         | b(a(b, c, d))                  | -
+# O4   | 5     | a, b, c, d, e | a b         | b(a(b, c, d, e))               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # P    | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                  | -
 # P3   | 5     | a, b, c, d, e | a b c d     | a(b(e), c(e), d(e))            | -
