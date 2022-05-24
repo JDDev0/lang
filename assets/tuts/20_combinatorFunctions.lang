@@ -13,6 +13,7 @@ lang.version = v1.0.0
 # B2: func.combB2(a, b, c, d)
 # B3: func.combB3(a, b, c, d, e)
 # BX: func.combBX(a, b, c, d)
+# C1: func.combC1(a, b, c)
 # C : func.combC(a, b, c)
 # C3: func.combC3(a, b, c, d)
 # C4: func.combC4(a, b, c, d, e)
@@ -128,6 +129,7 @@ lang.version = v1.0.0
 # BX   | 4     | a, b, c, d    | a b         | a(b(c, d))                     | -
 # BZ   | 2+    | a, b, ...     | a b         | a(..., b(...[1]), b(...[0]))   | Same as BN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# C1   | 3     | a, b, c       | a           | a(c)                           | -
 # C    | 3     | a, b, c       | a           | a(c, b)                        | -
 # C3   | 4     | a, b, c, d    | a           | a(d, c, b)                     | -
 # C4   | 5     | a, b, c, d, e | a           | a(e, d, c, b)                  | -
