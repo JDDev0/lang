@@ -98,6 +98,18 @@ public final class LangUtils {
 	}
 	
 	/**
+	 * @return Returns a list of DataObjects where every argument is separated by an ARGUMENT_SEPARATOR
+	 */
+	public static List<DataObject> separateArgumentsWithArgumentSeparators(List<DataObject> argumentList) {
+		argumentList = new LinkedList<>(argumentList);
+		
+		for(int i = argumentList.size() - 1;i > 0;i--)
+			argumentList.add(i, new DataObject().setArgumentSeparator(", "));
+		
+		return argumentList;
+	}
+	
+	/**
 	 * @return Returns the index of the matching bracket (Escaped chars will be ignored (escape char: '\')) or -1 if no matching bracket was found
 	 */
 	public static int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {

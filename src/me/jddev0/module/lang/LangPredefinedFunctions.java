@@ -2742,8 +2742,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2752,10 +2752,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2764,12 +2763,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(e);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2781,8 +2778,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.addAll(args);
 			argsA.remove(0);
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2795,8 +2791,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			for(DataObject ele:args.getArray())
 				argsA.add(ele);
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2805,10 +2800,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2820,8 +2814,7 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			for(int i = args.size() - 1;i > 0;i--)
 				argsA.add(args.get(i));
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2860,8 +2853,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2877,13 +2870,12 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
 			List<DataObject> argsB3 = new LinkedList<>();
 			argsB3.add(e);
 			DataObject retB3 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB3, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB3 == null?new DataObject().setVoid():retB3);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2901,8 +2893,7 @@ final class LangPredefinedFunctions {
 				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 				argsA.add(retB == null?new DataObject().setVoid():retB);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2920,8 +2911,7 @@ final class LangPredefinedFunctions {
 				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 				argsA.add(retB == null?new DataObject().setVoid():retB);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2932,8 +2922,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
 			
@@ -2953,8 +2943,7 @@ final class LangPredefinedFunctions {
 				DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 				argsA.add(retB == null?new DataObject().setVoid():retB);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2971,8 +2960,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2981,10 +2970,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -2993,12 +2981,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(e);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3007,10 +2993,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3023,8 +3008,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(d);
 			DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retC == null?new DataObject().setVoid():retC);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3036,11 +3021,11 @@ final class LangPredefinedFunctions {
 			argsA.add(b);
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(d);
-			argsC.add(new DataObject().setArgumentSeparator(", "));
 			argsC.add(e);
+			argsC = LangUtils.separateArgumentsWithArgumentSeparators(argsC);
 			DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retC == null?new DataObject().setVoid():retC);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3052,11 +3037,11 @@ final class LangPredefinedFunctions {
 			argsA.add(c);
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(e);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3065,8 +3050,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(b);
-			argsC.add(new DataObject().setArgumentSeparator(", "));
 			argsC.add(a);
+			argsC = LangUtils.separateArgumentsWithArgumentSeparators(argsC);
 			
 			return interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
 		}));
@@ -3075,10 +3060,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsD = new LinkedList<>();
 			argsD.add(c);
-			argsD.add(new DataObject().setArgumentSeparator(", "));
 			argsD.add(b);
-			argsD.add(new DataObject().setArgumentSeparator(", "));
 			argsD.add(a);
+			argsD = LangUtils.separateArgumentsWithArgumentSeparators(argsD);
 			
 			return interpreter.callFunctionPointer(dFunc, d.getVariableName(), argsD, SCOPE_ID);
 		}));
@@ -3091,8 +3075,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3101,10 +3085,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3120,13 +3103,12 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
 			List<DataObject> argsB3 = new LinkedList<>();
 			argsB3.add(c);
 			DataObject retB3 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB3, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB3 == null?new DataObject().setVoid():retB3);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3135,10 +3117,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3152,11 +3133,11 @@ final class LangPredefinedFunctions {
 			argsA1.add(b);
 			List<DataObject> argsA2 = new LinkedList<>();
 			argsA2.add(d);
-			argsA2.add(new DataObject().setArgumentSeparator(", "));
 			argsA2.add(c);
+			argsA2 = LangUtils.separateArgumentsWithArgumentSeparators(argsA2);
 			DataObject retA2 = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA2, SCOPE_ID);
-			argsA1.add(new DataObject().setArgumentSeparator(", "));
 			argsA1.add(retA2 == null?new DataObject().setVoid():retA2);
+			argsA1 = LangUtils.separateArgumentsWithArgumentSeparators(argsA1);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA1, SCOPE_ID);
 		}));
@@ -3167,11 +3148,11 @@ final class LangPredefinedFunctions {
 			argsA1.add(b);
 			List<DataObject> argsA2 = new LinkedList<>();
 			argsA2.add(c);
-			argsA2.add(new DataObject().setArgumentSeparator(", "));
 			argsA2.add(d);
+			argsA2 = LangUtils.separateArgumentsWithArgumentSeparators(argsA2);
 			DataObject retA2 = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA2, SCOPE_ID);
-			argsA1.add(new DataObject().setArgumentSeparator(", "));
 			argsA1.add(retA2 == null?new DataObject().setVoid():retA2);
+			argsA1 = LangUtils.separateArgumentsWithArgumentSeparators(argsA1);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA1, SCOPE_ID);
 		}));
@@ -3212,8 +3193,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(b);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
 			
@@ -3226,10 +3207,9 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(b);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
 			
@@ -3242,12 +3222,10 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(b);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(e);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
 			
@@ -3266,8 +3244,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(a);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3276,10 +3254,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(a);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3288,12 +3265,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(a);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3302,14 +3277,11 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(a);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(e);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3332,8 +3304,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			DataObject retA = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 			argsB.add(retA == null?new DataObject().setVoid():retA);
 			
@@ -3346,10 +3318,9 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			DataObject retA = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 			argsB.add(retA == null?new DataObject().setVoid():retA);
 			
@@ -3362,12 +3333,10 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(e);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			DataObject retA = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 			argsB.add(retA == null?new DataObject().setVoid():retA);
 			
@@ -3386,8 +3355,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(d);
 			DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retC == null?new DataObject().setVoid():retC);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3405,13 +3374,12 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(e);
 			DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retC == null?new DataObject().setVoid():retC);
 			List<DataObject> argsD = new LinkedList<>();
 			argsD.add(e);
 			DataObject retD = interpreter.callFunctionPointer(dFunc, d.getVariableName(), argsD, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retD == null?new DataObject().setVoid():retD);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3432,8 +3400,7 @@ final class LangPredefinedFunctions {
 				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), argsN, SCOPE_ID);
 				argsA.add(retN == null?new DataObject().setVoid():retN);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3457,8 +3424,7 @@ final class LangPredefinedFunctions {
 				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), argsN, SCOPE_ID);
 				argsA.add(retN == null?new DataObject().setVoid():retN);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3475,8 +3441,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3497,8 +3463,7 @@ final class LangPredefinedFunctions {
 				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), argsN, SCOPE_ID);
 				argsA.add(retN == null?new DataObject().setVoid():retN);
 			}
-			for(int i = argsA.size() - 1;i > 0;i--)
-				argsA.add(i, new DataObject().setArgumentSeparator(", "));
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3586,8 +3551,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(a);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3596,10 +3561,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(a);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3608,12 +3572,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(e);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(a);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3622,8 +3584,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(a);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3636,8 +3598,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3650,8 +3612,8 @@ final class LangPredefinedFunctions {
 			argsB.add(c);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3668,10 +3630,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(a);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3680,12 +3641,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(a);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(e);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3732,10 +3691,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(a);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3769,8 +3727,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(e);
 			DataObject retC = interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retC == null?new DataObject().setVoid():retC);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3787,8 +3745,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsE = new LinkedList<>();
 			argsE.add(c);
 			DataObject retE = interpreter.callFunctionPointer(eFunc, e.getVariableName(), argsE, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retE == null?new DataObject().setVoid():retE);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3805,8 +3763,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsC = new LinkedList<>();
 			argsC.add(a);
-			argsC.add(new DataObject().setArgumentSeparator(", "));
 			argsC.add(b);
+			argsC = LangUtils.separateArgumentsWithArgumentSeparators(argsC);
 			
 			return interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
 		}));
@@ -3815,10 +3773,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsD = new LinkedList<>();
 			argsD.add(a);
-			argsD.add(new DataObject().setArgumentSeparator(", "));
 			argsD.add(b);
-			argsD.add(new DataObject().setArgumentSeparator(", "));
 			argsD.add(c);
+			argsD = LangUtils.separateArgumentsWithArgumentSeparators(argsD);
 			
 			return interpreter.callFunctionPointer(dFunc, d.getVariableName(), argsD, SCOPE_ID);
 		}));
@@ -3827,8 +3784,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3837,10 +3794,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3849,12 +3805,10 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(b);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3870,9 +3824,8 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(c);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
-			
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3881,8 +3834,8 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(a);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(a);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
@@ -3895,8 +3848,8 @@ final class LangPredefinedFunctions {
 			argsB.add(c);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3906,11 +3859,11 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3921,12 +3874,12 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(c);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3937,12 +3890,12 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(d);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3952,13 +3905,13 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(c);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(d);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(c);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3968,13 +3921,13 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsA = new LinkedList<>();
 			argsA.add(d);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
-			argsB.add(new DataObject().setArgumentSeparator(", "));
 			argsB.add(d);
+			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 			argsA.add(retB == null?new DataObject().setVoid():retB);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -3985,17 +3938,17 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB1 = new LinkedList<>();
 			argsB1.add(c);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(d);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
 			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
 			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(c);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -4006,17 +3959,17 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB1 = new LinkedList<>();
 			argsB1.add(c);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(c);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
 			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
 			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(d);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -4027,17 +3980,17 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB1 = new LinkedList<>();
 			argsB1.add(d);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(d);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
 			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
 			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(c);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(c);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -4048,21 +4001,19 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB1 = new LinkedList<>();
 			argsB1.add(c);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(d);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(c);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
 			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
 			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(d);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(c);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(d);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -4073,21 +4024,19 @@ final class LangPredefinedFunctions {
 			List<DataObject> argsA = new LinkedList<>();
 			List<DataObject> argsB1 = new LinkedList<>();
 			argsB1.add(d);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(c);
-			argsB1.add(new DataObject().setArgumentSeparator(", "));
 			argsB1.add(d);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
 			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
 			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
 			List<DataObject> argsB2 = new LinkedList<>();
 			argsB2.add(c);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(d);
-			argsB2.add(new DataObject().setArgumentSeparator(", "));
 			argsB2.add(c);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
 			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
-			argsA.add(new DataObject().setArgumentSeparator(", "));
 			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
@@ -4557,8 +4506,8 @@ final class LangPredefinedFunctions {
 			for(DataObject ele:arr) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(currentValueObject);
-				argumentListFuncCall.add(new DataObject().setArgumentSeparator(", "));
 				argumentListFuncCall.add(ele);
+				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
 				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
 			}
 			
@@ -4601,8 +4550,8 @@ final class LangPredefinedFunctions {
 			for(int i = 0;i < arr.length;i++) {
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(new DataObject().setInt(i));
-				argumentListFuncCall.add(new DataObject().setArgumentSeparator(", "));
 				argumentListFuncCall.add(arr[i]);
+				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
 				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
 			}
 			
@@ -4825,8 +4774,8 @@ final class LangPredefinedFunctions {
 					permutationArr[i] = arr[indices[i]];
 				List<DataObject> funcArgs = new LinkedList<>();
 				funcArgs.add(new DataObject().setArray(permutationArr));
-				funcArgs.add(new DataObject().setArgumentSeparator(", "));
 				funcArgs.add(new DataObject().setInt(permutationNumber++));
+				funcArgs = LangUtils.separateArgumentsWithArgumentSeparators(funcArgs);
 				
 				if(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), funcArgs, SCOPE_ID).getBoolean())
 					return null;

@@ -1904,14 +1904,9 @@ public final class LangInterpreter {
 							continue;
 						}
 						
-						DataObject[] arr = dataObject.getArray();
-						for(int i = 0;i < arr.length;i++) {
-							DataObject ele = arr[i];
-							
+						for(DataObject ele:dataObject.getArray())
 							argumentValueList.add(ele);
-							if(i != arr.length - 1)
-								argumentValueList.add(new DataObject().setArgumentSeparator(", "));
-						}
+						argumentValueList = LangUtils.separateArgumentsWithArgumentSeparators(argumentValueList);
 						
 						continue;
 					}
