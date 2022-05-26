@@ -98,7 +98,7 @@ public final class LangUtils {
 	}
 	
 	/**
-	 * @return Returns a list of DataObjects where every argument is separated by an ARGUMENT_SEPARATOR
+	 * @return Returns a list of DataObjects where all arguments are separated by an ARGUMENT_SEPARATOR
 	 */
 	public static List<DataObject> separateArgumentsWithArgumentSeparators(List<DataObject> argumentList) {
 		argumentList = new LinkedList<>(argumentList);
