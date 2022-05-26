@@ -911,8 +911,13 @@ public final class LangParser {
 		if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_TRANSLATION)) {
 			String[] tokens = line.split("=", 2);
 			
-			//The translation value for empty simple translation will be set to an empty text ""
-			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.TextValueNode(tokens[0]), parseSimpleTranslationValue(tokens[1]).convertToNode());
+			//The translation value for empty simple translation will be set to empty text ""
+			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.TextValueNode(tokens[0]), parseSimpleAssignmentValue(tokens[1]).convertToNode());
+		}else if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_ASSIGNMENT)) {
+			String[] tokens = line.split("=", 2);
+			
+			//The assignment value for empty simple assignments will be set to empty text ""
+			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.UnprocessedVariableNameNode(tokens[0]), parseSimpleAssignmentValue(tokens[1]).convertToNode());
 		}
 		
 		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
@@ -1646,7 +1651,7 @@ public final class LangParser {
 		return ast;
 	}
 	
-	private AbstractSyntaxTree parseSimpleTranslationValue(String translationValue) {
+	private AbstractSyntaxTree parseSimpleAssignmentValue(String translationValue) {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
 		

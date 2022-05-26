@@ -159,6 +159,10 @@ final class LangPatterns {
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile(
 		"(((\\$\\**|&|fp\\.)\\w+|(\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*|[^=]+ = .*)");
 	/**
+	 * RegEx: \$\[*\w+\]*=.{@literal *}
+	 */
+	public static final Pattern PARSING_SIMPLE_ASSIGNMENT = Pattern.compile("\\$\\[*\\w+\\]*=.*");
+	/**
 	 * RegEx: [\w\-\.\:]+=.{@literal *}
 	 */
 	public static final Pattern PARSING_SIMPLE_TRANSLATION = Pattern.compile("[\\w\\-\\.\\:]+=.*");
