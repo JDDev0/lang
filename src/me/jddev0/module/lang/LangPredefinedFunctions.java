@@ -4702,6 +4702,80 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
 		});
+		funcs.put("arrayPermutations", (argumentList, SCOPE_ID) -> {
+			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			
+			DataObject countObject = null;
+			if(argumentList.size() > 0)
+				countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			
+			if(argumentList.size() > 0) //Not 1 or 2 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			Number countNumber = arr.length;
+			if(countObject != null) {
+				countNumber = countObject.toNumber();
+				if(countNumber == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "number"), SCOPE_ID);
+			}
+			int count = countNumber.intValue();
+			
+			if(count < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be less than 0!", SCOPE_ID);
+			
+			if(count > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be greater than the array!", SCOPE_ID);
+			
+			if(arr.length == 0 || count == 0)
+				return new DataObject().setArray(new DataObject[0]);
+			
+			List<DataObject> permutations = new LinkedList<>();
+			int[] indices = new int[count];
+			int currentPermutationIndex = count - 1;
+			for(int i = 0;i < count;i++)
+				indices[i] = i;
+			
+			outer:
+			while(true) {
+				DataObject[] permutationArr = new DataObject[count];
+				for(int i = 0;i < count;i++)
+					permutationArr[i] = arr[indices[i]];
+				permutations.add(new DataObject().setArray(permutationArr));
+				
+				List<Integer> usedIndices = new LinkedList<>();
+				for(int i = 0;i < currentPermutationIndex;i++)
+					usedIndices.add(indices[i]);
+				
+				for(;currentPermutationIndex < count;currentPermutationIndex++) {
+					int index = indices[currentPermutationIndex] + 1;
+					while(usedIndices.contains(index))
+						index++;
+					
+					if(index == arr.length) {
+						if(!usedIndices.isEmpty())
+							usedIndices.remove(usedIndices.size() - 1);
+						
+						indices[currentPermutationIndex] = -1;
+						currentPermutationIndex -= 2; //Will be incremented in for loop
+						if(currentPermutationIndex < -1)
+							break outer;
+						
+						continue;
+					}
+					
+					indices[currentPermutationIndex] = index;
+					
+					usedIndices.add(index);
+				}
+				currentPermutationIndex = count - 1;
+			}
+			
+			return new DataObject().setArray(permutations.toArray(new DataObject[0]));
+		});
 		funcs.put("arrayDelete", (argumentList, SCOPE_ID) -> {
 			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 1 argument
