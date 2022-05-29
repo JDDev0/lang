@@ -3567,7 +3567,6 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> argsB = new LinkedList<>();
 			argsB.add(c);
-			argsB = LangUtils.separateArgumentsWithArgumentSeparators(argsB);
 			
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB, SCOPE_ID);
 		}));
