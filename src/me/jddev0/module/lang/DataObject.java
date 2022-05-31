@@ -408,7 +408,7 @@ public class DataObject {
 	DataObject setTypeConstraint(DataTypeConstraint typeConstraint) throws DataTypeConstraintException {
 		for(DataType type:this.typeConstraint.getNotAllowedTypes()) {
 			if(typeConstraint.isTypeAllowed(type))
-				throw new DataTypeConstraintException("New type constraint must not allow types which where not allowed previously");
+				throw new DataTypeConstraintException("New type constraint must not allow types which were not allowed previously");
 		}
 		
 		if(!typeConstraint.isTypeAllowed(type))
