@@ -3402,7 +3402,7 @@ public class DataObject {
 					int len = arr.length;
 					int index = dataObject.intValue;
 					if(index < 0)
-						index = len + index;
+						index += len;
 					
 					if(index < 0 || index >= len)
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
@@ -3416,7 +3416,7 @@ public class DataObject {
 					int len = txt.length();
 					int index = dataObject.intValue;
 					if(index < 0)
-						index = len + index;
+						index += len;
 					
 					if(index < 0 || index >= len)
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
@@ -3429,7 +3429,7 @@ public class DataObject {
 				if(dataObject.type == DataType.INT) {
 					int index = dataObject.intValue;
 					if(index < 0)
-						index = 1 + index;
+						index++;
 					
 					if(index != 0)
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
