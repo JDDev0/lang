@@ -4334,6 +4334,9 @@ final class LangPredefinedFunctions {
 			
 			DataObject[] arr = arrPointerObject.getArray();
 			if(index < 0)
+				index += arr.length;
+			
+			if(index < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 			else if(index >= arr.length)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
