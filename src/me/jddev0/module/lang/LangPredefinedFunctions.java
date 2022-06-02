@@ -1982,6 +1982,14 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
 		});
+		funcs.put("indexOf", (argumentList, SCOPE_ID) -> {
+			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject searchTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			if(argumentList.size() > 0) //Not 2 or 3 arguments
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
+		});
 		funcs.put("startsWith", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject startsWithTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
