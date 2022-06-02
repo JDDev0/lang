@@ -1900,7 +1900,7 @@ final class LangPredefinedFunctions {
 			int len = txt.length();
 			int index = indexNumber.intValue();
 			if(index < 0)
-				index = len + index;
+				index += len;
 			
 			if(index < 0 || index >= len)
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
