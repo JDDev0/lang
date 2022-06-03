@@ -1984,11 +1984,30 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("indexOf", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject searchTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			DataObject searchTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject fromIndexObject = null;
+			if(argumentList.size() > 0)
+				fromIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
 			if(argumentList.size() > 0) //Not 2 or 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
 			
-			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
+			if(fromIndexObject == null)
+				return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
+			
+			Number fromIndexNumber = fromIndexObject.toNumber();
+			if(fromIndexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			
+			String txt = textObject.getText();
+			int len = txt.length();
+			int fromIndex = fromIndexNumber.intValue();
+			if(fromIndex < 0)
+				fromIndex += len;
+			
+			if(fromIndex < 0 || fromIndex >= len)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText(), fromIndex));
 		});
 		funcs.put("startsWith", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
