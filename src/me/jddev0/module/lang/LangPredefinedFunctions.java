@@ -4304,10 +4304,7 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("arrayOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> elements = new LinkedList<>();
-			
-			while(argumentList.size() > 0)
-				elements.add(new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true)));
+			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			return new DataObject().setArray(elements.toArray(new DataObject[0]));
 		});
