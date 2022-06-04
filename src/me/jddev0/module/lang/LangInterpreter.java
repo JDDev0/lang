@@ -1754,8 +1754,9 @@ public final class LangInterpreter {
 				copyAfterFP.put(NEW_SCOPE_ID, new HashMap<String, String>());
 				
 				//Set arguments
-				DataObject lastDataObject = null;
+				DataObject lastDataObject = new DataObject().setVoid();
 				Iterator<VariableNameNode> parameterListIterator = parameterList.iterator();
+				boolean isLastDataObjectArgumentSeparator = argumentValueList.size() > 0 && argumentValueList.get(argumentValueList.size() - 1).getType() == DataType.ARGUMENT_SEPARATOR;
 				while(parameterListIterator.hasNext()) {
 					VariableNameNode parameter = parameterListIterator.next();
 					String variableName = parameter.getVariableName();
@@ -1789,7 +1790,7 @@ public final class LangInterpreter {
 						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
 						if(argumentValueList.size() > 0)
 							lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
-						else if(lastDataObject == null)
+						else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
 							lastDataObject = new DataObject().setVoid();
 						DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
 						if(old != null && old.isStaticData())
@@ -1806,7 +1807,7 @@ public final class LangInterpreter {
 					
 					if(argumentValueList.size() > 0)
 						lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
-					else if(lastDataObject == null)
+					else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
 						lastDataObject = new DataObject().setVoid();
 					
 					try {
