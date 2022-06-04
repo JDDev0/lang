@@ -980,10 +980,10 @@ public final class LangInterpreter {
 							interpretedNodes.add(argumentValue);
 							previousDataObject = argumentValue;
 						}
-						while(!interpretedNodes.isEmpty()) {
-							DataObject dataObject = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(interpretedNodes, true));
+						List<DataObject> errorList = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
+						for(DataObject dataObject:errorList) {
 							if(dataObject.getType() != DataType.ERROR) {
-								setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Variable with type other than ERROR in catch statement", SCOPE_ID);
+								setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Variable with type other than " + DataType.ERROR + " in catch statement", SCOPE_ID);
 								
 								continue;
 							}
