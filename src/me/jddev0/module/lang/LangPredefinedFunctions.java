@@ -245,7 +245,7 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 		}
 		
-		LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
+		LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 			List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 			
 			List<DataObject> args = new LinkedList<>();
@@ -268,7 +268,7 @@ final class LangPredefinedFunctions {
 		if(argumentCount > outerArgs.size())
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
 		else
-			return func.callFunc(new ArrayList<>(), SCOPE_ID);
+			return func.callFunc(interpreter, new ArrayList<>(), SCOPE_ID);
 	}
 	/**
 	 * @param minimalArgumentsAtEnd If true the last arguments will be used for minimalArgumentCount and functionPointerIndices
@@ -316,7 +316,7 @@ final class LangPredefinedFunctions {
 		
 		final int minArgsLeft = minimalArgumentCount - outerArgs.size();
 		
-		LangExternalFunctionObject func = (LangExternalFunctionObject)(innerArgumentList, INNER_SCOPE_ID) -> {
+		LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 			List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 			if(innerArgs.size() < minArgsLeft)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, minimalArgumentCount), INNER_SCOPE_ID);
@@ -4132,7 +4132,7 @@ final class LangPredefinedFunctions {
 			LangPredefinedFunctionObject anonFunc = combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(x, INNER_SCOPE_ID) -> {
 				FunctionPointerObject xFunc = x.getFunctionPointer();
 				
-				LangExternalFunctionObject func = (LangExternalFunctionObject)(argumentList, INNER_INNER_SCOPE_ID) -> {
+				LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, argumentList, INNER_INNER_SCOPE_ID) -> {
 					List<DataObject> argsF = new LinkedList<>();
 					List<DataObject> argsX = new LinkedList<>();
 					argsX.add(x);

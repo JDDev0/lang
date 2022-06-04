@@ -1857,7 +1857,7 @@ public final class LangInterpreter {
 				LangExternalFunctionObject externalFunction = fp.getExternalFunction();
 				if(externalFunction == null)
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
-				ret = externalFunction.callFunc(argumentValueList, SCOPE_ID);
+				ret = externalFunction.callFunc(this, argumentValueList, SCOPE_ID);
 				return ret == null?new DataObject().setVoid():ret;
 			
 			default:

@@ -11,5 +11,5 @@ import java.util.List;
  */
 @FunctionalInterface
 public interface LangExternalFunctionObject {
-	DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID);
+	DataObject callFunc(LangInterpreter interpreter, List<DataObject> argumentList, final int SCOPE_ID);
 }
