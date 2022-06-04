@@ -1772,9 +1772,7 @@ public final class LangInterpreter {
 								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
 						}else {
 							//Array varargs
-							List<DataObject> varArgsTmpList = new LinkedList<>();
-							while(argumentValueList.size() > 0)
-								varArgsTmpList.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true));
+							List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
 							
 							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
 							toArray(new DataObject[0])).setVariableName(variableName));
