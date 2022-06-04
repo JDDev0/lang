@@ -2,6 +2,7 @@ package me.jddev0.module.lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -1482,21 +1483,34 @@ public class DataObject {
 			case TEXT:
 				return new DataObject(txt + dataObject.getText());
 			case ARRAY:
-				if(dataObject.getType() == DataType.ARRAY) {
-					DataObject[] arrNew = new DataObject[arr.length + dataObject.arr.length];
-					for(int i = 0;i < arr.length;i++)
-						arrNew[i] = arr[i];
-					for(int i = 0;i < dataObject.arr.length;i++)
-						arrNew[arr.length + i] = dataObject.arr[i];
-					
-					return new DataObject().setArray(arrNew);
-				}
+				if(dataObject.getType() != DataType.ARRAY)
+					return null;
 				
-				return null;
+				DataObject[] arrNew = new DataObject[arr.length + dataObject.arr.length];
+				for(int i = 0;i < arr.length;i++)
+					arrNew[i] = arr[i];
+				for(int i = 0;i < dataObject.arr.length;i++)
+					arrNew[arr.length + i] = dataObject.arr[i];
+				
+				return new DataObject().setArray(arrNew);
+				
+			case FUNCTION_POINTER:
+				if(dataObject.getType() != DataType.FUNCTION_POINTER)
+					return null;
+				
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
+					FunctionPointerObject aFunc = getFunctionPointer();
+					FunctionPointerObject bFunc = dataObject.getFunctionPointer();
+					
+					List<DataObject> argsB = new LinkedList<>();
+					DataObject retA = interpreter.callFunctionPointer(aFunc, getVariableName(), args, SCOPE_ID);
+					argsB.add(retA == null?new DataObject().setVoid():retA);
+					
+					return interpreter.callFunctionPointer(bFunc, dataObject.getVariableName(), argsB, SCOPE_ID);
+				}));
 			
 			case ERROR:
 			case VAR_POINTER:
-			case FUNCTION_POINTER:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
