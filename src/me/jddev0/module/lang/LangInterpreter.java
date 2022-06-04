@@ -2043,7 +2043,6 @@ public final class LangInterpreter {
 	
 	private DataObject interpretArrayNode(ArrayNode node, final int SCOPE_ID) {
 		List<DataObject> interpretedNodes = new LinkedList<>();
-		List<DataObject> elements = new LinkedList<>();
 		
 		for(Node element:node.getChildren()) {
 			DataObject argumentValue = interpretNode(element, SCOPE_ID);
@@ -2051,9 +2050,8 @@ public final class LangInterpreter {
 				continue;
 			interpretedNodes.add(argumentValue);
 		}
-		while(!interpretedNodes.isEmpty())
-			elements.add(new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(interpretedNodes, true)));
 		
+		List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
 		return new DataObject().setArray(elements.toArray(new DataObject[0]));
 	}
 	
