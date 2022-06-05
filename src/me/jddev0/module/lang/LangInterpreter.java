@@ -1774,6 +1774,8 @@ public final class LangInterpreter {
 						}else {
 							//Array varargs
 							List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
+							if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
+								varArgsTmpList.add(new DataObject().setVoid());
 							
 							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
 							toArray(new DataObject[0])).setVariableName(variableName));
