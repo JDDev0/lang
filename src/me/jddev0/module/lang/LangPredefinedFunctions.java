@@ -4727,10 +4727,10 @@ final class LangPredefinedFunctions {
 			return dataObjects.size() == 0?null:dataObjects.get(LangInterpreter.RAN.nextInt(dataObjects.size()));
 		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArrays = new LinkedList<>();
+			List<DataObject> combinedArrays = new LinkedList<DataObject>();
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
-			while(argumentList.size() > 0) {
-				DataObject arrayPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			for(DataObject arrayPointerObject:combinedArgumentList) {
 				if(arrayPointerObject.getType() != DataType.ARRAY)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
 				
