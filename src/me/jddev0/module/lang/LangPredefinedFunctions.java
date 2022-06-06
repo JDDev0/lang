@@ -4732,7 +4732,7 @@ final class LangPredefinedFunctions {
 			return dataObjects.size() == 0?null:dataObjects.get(LangInterpreter.RAN.nextInt(dataObjects.size()));
 		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArrays = new LinkedList<DataObject>();
+			List<DataObject> combinedArrays = new LinkedList<>();
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			for(DataObject arrayPointerObject:combinedArgumentList) {
