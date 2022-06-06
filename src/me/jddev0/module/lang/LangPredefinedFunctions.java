@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -4337,35 +4338,35 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("arraySetAll", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			if(argumentList.size() == 0) //Not enough arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(argumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
+			
+			DataObject arrPointerObject = combinedArgumentList.remove(0);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
 			
 			DataObject[] arr = arrPointerObject.getArray();
-			DataObject valueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			if(argumentList.size() == 0) { //arraySetAll with one value
+			if(arr.length == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Array must not be empty", SCOPE_ID);
+			
+			if(combinedArgumentList.size() == 1) { //arraySetAll with one value
+				DataObject valueObject = combinedArgumentList.get(0);
 				for(int i = 0;i < arr.length;i++)
 					arr[i] = new DataObject(valueObject);
 				
 				return null;
 			}
 			
-			if(arr.length == 0) //Too many arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			if(combinedArgumentList.size() < arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "2 or (len + 1) arguments needed", SCOPE_ID);
+			if(combinedArgumentList.size() > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
 			
-			arr[0] = valueObject;
-			for(int i = 1;i < arr.length;i++) {
-				arr[i] = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
-				
-				if(argumentList.size() == 0 && i != arr.length - 1) //Not enough arguments
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			}
-			
-			if(argumentList.size() > 0) //Too many arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			Iterator<DataObject> combinedArgumentIterator = combinedArgumentList.iterator();
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(combinedArgumentIterator.next());
 			
 			return null;
 		});
