@@ -4723,7 +4723,7 @@ final class LangPredefinedFunctions {
 			
 			DataObject arrPointerObject = combinedArgumentList.get(0);
 			if(arrPointerObject.getType() == DataType.ARRAY) {
-				if(combinedArgumentList.size() > 1) //Not 1 argument
+				if(combinedArgumentList.size() > 1)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), SCOPE_ID);
 				
 				DataObject[] arr = arrPointerObject.getArray();
