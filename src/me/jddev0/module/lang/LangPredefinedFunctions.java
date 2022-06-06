@@ -4717,27 +4717,20 @@ final class LangPredefinedFunctions {
 			}));
 		});
 		funcs.put("randChoice", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() == 0)
+				return new DataObject().setVoid();
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
 			if(arrPointerObject.getType() == DataType.ARRAY) {
-				if(argumentList.size() > 0) //Not 1 argument
+				if(combinedArgumentList.size() > 1) //Not 1 argument
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), SCOPE_ID);
 				
 				DataObject[] arr = arrPointerObject.getArray();
 				return arr.length == 0?null:arr[LangInterpreter.RAN.nextInt(arr.length)];
 			}
 			
-			//No array Pointer
-			List<DataObject> dataObjects = new LinkedList<>();
-			dataObjects.add(arrPointerObject);
-			
-			//Remove argument separator object
-			if(argumentList.size() > 0)
-				argumentList.remove(0);
-			
-			while(argumentList.size() > 0)
-				dataObjects.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
-			
-			return dataObjects.size() == 0?null:dataObjects.get(LangInterpreter.RAN.nextInt(dataObjects.size()));
+			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(LangInterpreter.RAN.nextInt(combinedArgumentList.size()));
 		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArrays = new LinkedList<>();
