@@ -4821,15 +4821,18 @@ final class LangPredefinedFunctions {
 			return new DataObject().setArray(permutations.toArray(new DataObject[0]));
 		});
 		funcs.put("arrayPermutationsForEach", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject funcPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			DataObject countObject = null;
-			if(argumentList.size() > 0)
-				countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			
-			if(argumentList.size() > 0) //Not 2 or 3 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() == 3)
+				countObject = combinedArgumentList.get(2);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
