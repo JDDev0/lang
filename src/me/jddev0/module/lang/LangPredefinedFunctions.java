@@ -4751,14 +4751,17 @@ final class LangPredefinedFunctions {
 			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
 		});
 		funcs.put("arrayPermutations", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
 			
 			DataObject countObject = null;
-			if(argumentList.size() > 0)
-				countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			
-			if(argumentList.size() > 0) //Not 1 or 2 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			if(combinedArgumentList.size() == 2)
+				countObject = combinedArgumentList.get(1);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
