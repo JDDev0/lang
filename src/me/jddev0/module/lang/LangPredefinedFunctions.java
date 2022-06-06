@@ -4279,10 +4279,10 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
 			}
 			
-			Number lenghtNumber = lengthObject.toNumber();
-			if(lenghtNumber == null)
+			Number lengthNumber = lengthObject.toNumber();
+			if(lengthNumber == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, SCOPE_ID);
-			int length = lenghtNumber.intValue();
+			int length = lengthNumber.intValue();
 			
 			if(length < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
