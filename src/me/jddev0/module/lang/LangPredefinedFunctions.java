@@ -4339,7 +4339,7 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("arraySetAll", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(argumentList.size() < 2)
+			if(combinedArgumentList.size() < 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
 			
 			DataObject arrPointerObject = combinedArgumentList.remove(0);
