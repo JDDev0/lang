@@ -4404,15 +4404,8 @@ final class LangPredefinedFunctions {
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			StringBuilder builder = new StringBuilder();
 			
-			for(DataObject ele:arrPointerObject.getArray()) {
-				builder.append(ele.getText());
-				builder.append(", ");
-			}
-			if(builder.length() > 0) //Remove last ", " only if at least 1 element is in array
-				builder.delete(builder.length() - 2, builder.length()); //Remove leading ", "
-			return new DataObject(builder.toString());
+			return new DataObject(Arrays.stream(arrPointerObject.getArray()).map(DataObject::getText).collect(Collectors.joining(", ")));
 		});
 		funcs.put("arrayCountOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
