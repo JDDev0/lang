@@ -1810,9 +1810,13 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedCharacterFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("toValue", (argumentList, SCOPE_ID) -> {
-			DataObject charObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject charObject = combinedArgumentList.get(0);
 			
 			if(charObject.getType() != DataType.CHAR)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_CHAR, SCOPE_ID);
