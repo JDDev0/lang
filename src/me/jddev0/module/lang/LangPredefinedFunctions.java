@@ -948,12 +948,16 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("getErrorText", (argumentList, SCOPE_ID) -> new DataObject(interpreter.getAndClearErrnoErrorObject(SCOPE_ID).getErrorText()));
 		funcs.put("errorText", (argumentList, SCOPE_ID) -> {
-			DataObject errorObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
+			DataObject errorObject = combinedArgumentList.get(0);
+			
 			if(errorObject.getType() != DataType.ERROR)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.ERROR.name()), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.ERROR), SCOPE_ID);
 			
 			return new DataObject(errorObject.getError().getErrtxt());
 		});
