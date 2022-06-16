@@ -1395,10 +1395,13 @@ final class LangPredefinedFunctions {
 			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
 			
+			if(LangUtils.countDataObjects(argumentList) < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
 			DataObject logLevelObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
 			if(messageObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+				messageObject = new DataObject().setVoid();
 			
 			Number logLevelNumber = logLevelObject.toNumber();
 			if(logLevelNumber == null)
