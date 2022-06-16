@@ -62,6 +62,12 @@ public final class LangUtils {
 		
 		return combineDataObjects(argumentTmpList);
 	}
+	/**
+	 * @return Returns the the count of DataObjects in the with argument separated argumentList
+	 */
+	public static int countDataObjects(List<DataObject> argumentList) {
+		return (int)argumentList.stream().filter(dataObject -> dataObject.getType() == DataType.ARGUMENT_SEPARATOR).count() + 1;
+	}
 	
 	/**
 	 * @return Returns a list of DataObjects where every ARGUMENT_SEPARATOR is removed and arguments are combined into single values (A VOID value is used for empty arguments)
