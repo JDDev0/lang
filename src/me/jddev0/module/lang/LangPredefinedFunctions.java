@@ -1460,12 +1460,13 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("input", (argumentList, SCOPE_ID) -> {
-			Number maxCount = null;
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
-			if(!argumentList.isEmpty()) {
-				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-				if(argumentList.size() > 0) //Not 0 or 1 arguments
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "0 or 1"), SCOPE_ID);
+			Number maxCount = null;
+			if(combinedArgumentList.size() > 0) {
+				DataObject numberObject = combinedArgumentList.get(0);
 				maxCount = numberObject.toNumber();
 				if(maxCount == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
