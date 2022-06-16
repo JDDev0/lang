@@ -46,8 +46,9 @@ final class LangPredefinedFunctions {
 	//Return values for format sequence errors
 	private static final int FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE = -1;
 	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS = -2;
-	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND = -3;
-	private static final int FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS = -4;
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT = -3;
+	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND = -4;
+	private static final int FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS = -5;
 	
 	private final LangInterpreter interpreter;
 	
@@ -354,7 +355,7 @@ final class LangPredefinedFunctions {
 	}
 	
 	/**
-	 * @param argumentList The argument list of the function call without the format argument (= argument at index 0). Used data objects will be removed from the list
+	 * @param argumentList The argument list without argument separators of the function call without the format argument (= argument at index 0). Used data objects will be removed from the list
 	 * @param fullArgumentList The argument list of the function call where every argument are already combined to single values without argument separators with the format argument
 	 * (= argument at index 0). This list will not be modified and is used for value referencing by index
 	 * 
@@ -530,7 +531,9 @@ final class LangPredefinedFunctions {
 		
 		//Get size from arguments
 		if(sizeInArgument) {
-			DataObject dataObject = sizeArgumentIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(sizeArgumentIndex);
+			if(sizeArgumentIndex == null && argumentList.isEmpty())
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+			DataObject dataObject = sizeArgumentIndex == null?argumentList.remove(0):fullArgumentList.get(sizeArgumentIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
 				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
@@ -540,7 +543,9 @@ final class LangPredefinedFunctions {
 				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
 		}
 		if(decimalPlacesInArgument) {
-			DataObject dataObject = decimalPlacesCountIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(decimalPlacesCountIndex);
+			if(decimalPlacesCountIndex == null && argumentList.isEmpty())
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+			DataObject dataObject = decimalPlacesCountIndex == null?argumentList.remove(0):fullArgumentList.get(decimalPlacesCountIndex);
 			Number number = dataObject.toNumber();
 			if(number == null)
 				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
@@ -553,8 +558,8 @@ final class LangPredefinedFunctions {
 		//Format argument
 		String output = null;
 		if(formatType != 'n' && valueSpecifiedIndex == null && argumentList.isEmpty())
-			return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
-		DataObject dataObject = formatType == 'n'?null:(valueSpecifiedIndex == null?LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true):fullArgumentList.get(valueSpecifiedIndex));
+			return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+		DataObject dataObject = formatType == 'n'?null:(valueSpecifiedIndex == null?argumentList.remove(0):fullArgumentList.get(valueSpecifiedIndex));
 		switch(formatType) {
 			case 'd':
 				Number number = dataObject.toNumber();
@@ -707,7 +712,7 @@ final class LangPredefinedFunctions {
 	}
 	private DataObject formatText(String format, List<DataObject> argumentList, final int SCOPE_ID) {
 		StringBuilder builder = new StringBuilder();
-		List<DataObject> fullArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		List<DataObject> fullArgumentList = new LinkedList<>(argumentList);
 		fullArgumentList.add(0, new DataObject(format));
 		
 		int i = 0;
@@ -730,6 +735,8 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
 				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
 				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND)
 					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
 				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS)
@@ -1496,11 +1503,12 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("printf", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
-			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject out = formatText(formatObject.getText(), argumentList, SCOPE_ID);
+			DataObject formatObject = combinedArgumentList.remove(0);
+			DataObject out = formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 			if(out.getType() == DataType.ERROR)
 				return out;
 			
@@ -1524,11 +1532,12 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("errorf", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
-			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject out = formatText(formatObject.getText(), argumentList, SCOPE_ID);
+			DataObject formatObject = combinedArgumentList.remove(0);
+			DataObject out = formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 			if(out.getType() == DataType.ERROR)
 				return out;
 			
@@ -1989,11 +1998,12 @@ final class LangPredefinedFunctions {
 			return new DataObject(builder.toString());
 		});
 		funcs.put("format", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
-			DataObject formatObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			return formatText(formatObject.getText(), argumentList, SCOPE_ID);
+			DataObject formatObject = combinedArgumentList.remove(0);
+			return formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 		});
 		funcs.put("contains", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
