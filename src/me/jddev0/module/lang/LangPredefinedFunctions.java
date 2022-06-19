@@ -5253,13 +5253,15 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertStrictEquals", (argumentList, SCOPE_ID) -> {
-			DataObject actualValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject expectedValueObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject messageObject = null;
-			if(argumentList.size() > 0)
-				messageObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 or 3 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			DataObject actualValueObject = combinedArgumentList.get(0);
+			DataObject expectedValueObject = combinedArgumentList.get(1);
+			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
