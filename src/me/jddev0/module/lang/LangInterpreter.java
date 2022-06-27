@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1905,9 +1906,7 @@ public final class LangInterpreter {
 							continue;
 						}
 						
-						for(DataObject ele:dataObject.getArray())
-							argumentValueList.add(ele);
-						argumentValueList = LangUtils.separateArgumentsWithArgumentSeparators(argumentValueList);
+						argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(dataObject.getArray())));
 						
 						continue;
 					}
