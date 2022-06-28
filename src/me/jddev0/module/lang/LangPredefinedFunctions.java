@@ -246,12 +246,14 @@ final class LangPredefinedFunctions {
 			if(outerArgs.size() > i && outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
 		}
+		List<DataObject> outerArgsCopy = outerArgs.stream().map(DataObject::new).collect(Collectors.toList());
 		
 		LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 			List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+			innerArgs = innerArgs.stream().map(DataObject::new).collect(Collectors.toList());
 			
 			List<DataObject> args = new LinkedList<>();
-			args.addAll(outerArgs);
+			args.addAll(outerArgsCopy);
 			args.addAll(innerArgs);
 			
 			if(args.size() > argumentCount)
@@ -318,13 +320,16 @@ final class LangPredefinedFunctions {
 		
 		final int minArgsLeft = minimalArgumentCount - outerArgs.size();
 		
+		List<DataObject> outerArgsCopy = outerArgs.stream().map(DataObject::new).collect(Collectors.toList());
+		
 		LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 			List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+			innerArgs = innerArgs.stream().map(DataObject::new).collect(Collectors.toList());
 			if(innerArgs.size() < minArgsLeft)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, minimalArgumentCount), INNER_SCOPE_ID);
 			
 			List<DataObject> args = new LinkedList<>();
-			args.addAll(outerArgs);
+			args.addAll(outerArgsCopy);
 			args.addAll(innerArgs);
 			
 			for(int i:functionPointerIndices) {
