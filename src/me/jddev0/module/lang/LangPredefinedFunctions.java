@@ -5564,9 +5564,13 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNoReturn", (argumentList, SCOPE_ID) -> {
-			DataObject messageObject = null;
-			if(argumentList.size() > 0)
-				messageObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "0 or 1"), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "0 or 1"), SCOPE_ID);
+			
+			DataObject messageObject = combinedArgumentList.size() < 1?null:combinedArgumentList.get(0);
 			
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
