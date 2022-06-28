@@ -2052,7 +2052,7 @@ public final class LangInterpreter {
 			DataObject argumentValue = interpretNode(element, SCOPE_ID);
 			if(argumentValue == null)
 				continue;
-			interpretedNodes.add(argumentValue);
+			interpretedNodes.add(new DataObject(argumentValue));
 		}
 		
 		List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
