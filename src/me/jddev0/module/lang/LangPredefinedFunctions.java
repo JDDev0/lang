@@ -4374,6 +4374,7 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("arrayOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
 			
 			return new DataObject().setArray(elements.toArray(new DataObject[0]));
 		});
