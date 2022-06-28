@@ -1728,142 +1728,144 @@ public final class LangInterpreter {
 		copyAfterFP.remove(SCOPE_ID_FROM);
 	}
 	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) {
-		switch(fp.getFunctionPointerType()) {
-			case FunctionPointerObject.NORMAL:
-				List<VariableNameNode> parameterList = fp.getParameterList();
-				AbstractSyntaxTree functionBody = fp.getFunctionBody();
-				if(parameterList == null || functionBody == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
-				
-				//Update call stack
-				StackElement currentStackElement = getCurrentCallStackElement();
-				pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), functionName == null?fp.toString():functionName));
-				
-				final int NEW_SCOPE_ID = SCOPE_ID + 1;
-				
-				//Add variables and local variables
-				createDataMap(NEW_SCOPE_ID);
-				//Copies must not be final
-				data.get(SCOPE_ID).var.forEach((key, val) -> {
-					if(!val.isLangVar())
-						data.get(NEW_SCOPE_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
+		try {
+			//Update call stack
+			StackElement currentStackElement = getCurrentCallStackElement();
+			pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), functionName == null?fp.toString():functionName));
+			
+			switch(fp.getFunctionPointerType()) {
+				case FunctionPointerObject.NORMAL:
+					List<VariableNameNode> parameterList = fp.getParameterList();
+					AbstractSyntaxTree functionBody = fp.getFunctionBody();
+					if(parameterList == null || functionBody == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
 					
-					if(val.isStaticData()) //Static lang vars should also be copied
-						data.get(NEW_SCOPE_ID).var.put(key, val);
-				});
-				//Initialize copyAfterFP
-				copyAfterFP.put(NEW_SCOPE_ID, new HashMap<String, String>());
-				
-				//Set arguments
-				DataObject lastDataObject = new DataObject().setVoid();
-				Iterator<VariableNameNode> parameterListIterator = parameterList.iterator();
-				boolean isLastDataObjectArgumentSeparator = argumentValueList.size() > 0 && argumentValueList.get(argumentValueList.size() - 1).getType() == DataType.ARGUMENT_SEPARATOR;
-				while(parameterListIterator.hasNext()) {
-					VariableNameNode parameter = parameterListIterator.next();
-					String variableName = parameter.getVariableName();
-					if(!parameterListIterator.hasNext() && !LangPatterns.matches(variableName, LangPatterns.LANG_VAR) &&
-					LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
-						//Varargs (only the last parameter can be a varargs parameter)
-						variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
-						if(variableName.startsWith("$")) {
-							//Text varargs
-							DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
-							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
-							new DataObject().setVoid().getText()).setVariableName(variableName));
-							if(old != null && old.isStaticData())
-								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
-						}else {
-							//Array varargs
-							List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
-							if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
-								varArgsTmpList.add(new DataObject().setVoid());
+					final int NEW_SCOPE_ID = SCOPE_ID + 1;
+					
+					//Add variables and local variables
+					createDataMap(NEW_SCOPE_ID);
+					//Copies must not be final
+					data.get(SCOPE_ID).var.forEach((key, val) -> {
+						if(!val.isLangVar())
+							data.get(NEW_SCOPE_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
+						
+						if(val.isStaticData()) //Static lang vars should also be copied
+							data.get(NEW_SCOPE_ID).var.put(key, val);
+					});
+					//Initialize copyAfterFP
+					copyAfterFP.put(NEW_SCOPE_ID, new HashMap<String, String>());
+					
+					//Set arguments
+					DataObject lastDataObject = new DataObject().setVoid();
+					Iterator<VariableNameNode> parameterListIterator = parameterList.iterator();
+					boolean isLastDataObjectArgumentSeparator = argumentValueList.size() > 0 && argumentValueList.get(argumentValueList.size() - 1).getType() == DataType.ARGUMENT_SEPARATOR;
+					while(parameterListIterator.hasNext()) {
+						VariableNameNode parameter = parameterListIterator.next();
+						String variableName = parameter.getVariableName();
+						if(!parameterListIterator.hasNext() && !LangPatterns.matches(variableName, LangPatterns.LANG_VAR) &&
+						LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
+							//Varargs (only the last parameter can be a varargs parameter)
+							variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
+							if(variableName.startsWith("$")) {
+								//Text varargs
+								DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
+								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
+								new DataObject().setVoid().getText()).setVariableName(variableName));
+								if(old != null && old.isStaticData())
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+							}else {
+								//Array varargs
+								List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
+								if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
+									varArgsTmpList.add(new DataObject().setVoid());
+								
+								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
+								toArray(new DataObject[0])).setVariableName(variableName));
+								if(old != null && old.isStaticData())
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+							}
 							
-							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
-							toArray(new DataObject[0])).setVariableName(variableName));
-							if(old != null && old.isStaticData())
-								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+							break;
 						}
 						
-						break;
-					}
-					
-					if(LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR) && !LangPatterns.matches(variableName,
-					LangPatterns.FUNC_CALL_CALL_BY_PTR_LANG_VAR)) {
-						//Call by pointer
-						variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
+						if(LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR) && !LangPatterns.matches(variableName,
+						LangPatterns.FUNC_CALL_CALL_BY_PTR_LANG_VAR)) {
+							//Call by pointer
+							variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
+							if(argumentValueList.size() > 0)
+								lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
+							else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
+								lastDataObject = new DataObject().setVoid();
+							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
+							if(old != null && old.isStaticData())
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+							
+							continue;
+						}
+						
+						if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME) || LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
+							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", SCOPE_ID);
+							
+							continue;
+						}
+						
 						if(argumentValueList.size() > 0)
 							lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 						else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
 							lastDataObject = new DataObject().setVoid();
-						DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
-						if(old != null && old.isStaticData())
-							setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
 						
-						continue;
+						try {
+							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
+							if(old != null && old.isStaticData())
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+						}catch(DataTypeConstraintViolatedException e) {
+							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", SCOPE_ID);
+							
+							continue;
+						}
 					}
 					
-					if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME) || LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
-						setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", SCOPE_ID);
-						
-						continue;
-					}
+					//Call function
+					interpretAST(functionBody, NEW_SCOPE_ID);
 					
-					if(argumentValueList.size() > 0)
-						lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
-					else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
-						lastDataObject = new DataObject().setVoid();
+					//Add lang after call
+					data.get(SCOPE_ID).lang.putAll(data.get(NEW_SCOPE_ID).lang);
 					
-					try {
-						DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
-						if(old != null && old.isStaticData())
-							setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
-					}catch(DataTypeConstraintViolatedException e) {
-						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", SCOPE_ID);
-						
-						continue;
+					executeAndClearCopyAfterFP(SCOPE_ID, NEW_SCOPE_ID);
+					
+					//Remove data map
+					data.remove(NEW_SCOPE_ID);
+					
+					DataObject retTmp = getAndResetReturnValue(SCOPE_ID);
+					return retTmp == null?new DataObject().setVoid():retTmp;
+				
+				case FunctionPointerObject.PREDEFINED:
+					LangPredefinedFunctionObject function = fp.getPredefinedFunction();
+					if(function == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
+					
+					DataObject ret = function.callFunc(argumentValueList, SCOPE_ID);
+					if(function.isDeprecated()) {
+						String message = String.format("Use of deprecated function \"%s\", this function woll no longer be supported in \"%s\"!%s", functionName,
+						function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
+						function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
+						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, SCOPE_ID);
 					}
-				}
+					return ret == null?new DataObject().setVoid():ret;
 				
-				//Call function
-				interpretAST(functionBody, NEW_SCOPE_ID);
+				case FunctionPointerObject.EXTERNAL:
+					LangExternalFunctionObject externalFunction = fp.getExternalFunction();
+					if(externalFunction == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
+					ret = externalFunction.callFunc(this, argumentValueList, SCOPE_ID);
+					return ret == null?new DataObject().setVoid():ret;
 				
-				//Add lang after call
-				data.get(SCOPE_ID).lang.putAll(data.get(NEW_SCOPE_ID).lang);
-				
-				executeAndClearCopyAfterFP(SCOPE_ID, NEW_SCOPE_ID);
-				
-				//Remove data map
-				data.remove(NEW_SCOPE_ID);
-				
-				//Update call stack
-				popStackElement();
-				
-				DataObject retTmp = getAndResetReturnValue(SCOPE_ID);
-				return retTmp == null?new DataObject().setVoid():retTmp;
-			
-			case FunctionPointerObject.PREDEFINED:
-				LangPredefinedFunctionObject function = fp.getPredefinedFunction();
-				if(function == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
-				
-				DataObject ret = function.callFunc(argumentValueList, SCOPE_ID);
-				if(function.isDeprecated()) {
-					String message = String.format("Use of deprecated function \"%s\", this function woll no longer be supported in \"%s\"!%s", functionName,
-					function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
-					function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
-					setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, SCOPE_ID);
-				}
-				return ret == null?new DataObject().setVoid():ret;
-			
-			case FunctionPointerObject.EXTERNAL:
-				LangExternalFunctionObject externalFunction = fp.getExternalFunction();
-				if(externalFunction == null)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
-				ret = externalFunction.callFunc(this, argumentValueList, SCOPE_ID);
-				return ret == null?new DataObject().setVoid():ret;
-			
-			default:
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP type", SCOPE_ID);
+				default:
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP type", SCOPE_ID);
+			}
+		}finally {
+			//Update call stack
+			popStackElement();
 		}
 	}
 	private DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) {
