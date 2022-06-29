@@ -1605,6 +1605,8 @@ public final class LangInterpreter {
 			case '.':
 			case '(':
 			case ')':
+			case '[':
+			case ']':
 			case '{':
 			case '}':
 			case '=':
