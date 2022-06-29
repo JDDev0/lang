@@ -2484,10 +2484,11 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("addl", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
 			long sum = 0L;
 			
-			while(argumentList.size() > 0) {
-				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			for(DataObject numberObject:combinedArgumentList) {
 				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
