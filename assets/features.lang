@@ -641,6 +641,8 @@ lang.errorOutput = 1 # Reenable error ouput
 		# Used if a text in a function call contains a not equals amount of "(" and ")"
 		
 		# \.: .
+		# \[: [
+		# \]: ]
 		# \{: {
 		# \}: }
 		# \=: =
