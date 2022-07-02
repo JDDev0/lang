@@ -2405,10 +2405,11 @@ final class LangPredefinedFunctions {
 			}, SCOPE_ID);
 		});
 		funcs.put("muli", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
 			int prod = 1;
 			
-			while(argumentList.size() > 0) {
-				DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			for(DataObject numberObject:combinedArgumentList) {
 				Number number = numberObject.toNumber();
 				if(number == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
