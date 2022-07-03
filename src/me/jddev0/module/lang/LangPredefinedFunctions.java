@@ -2848,18 +2848,17 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("max", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
 			if(combinedArgumentList.size() < 1)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
-			DataObject min = combinedArgumentList.get(0);
+			DataObject max = combinedArgumentList.get(0);
 			for(int i = 1;i < combinedArgumentList.size();i++) {
 				DataObject dataObject = combinedArgumentList.get(i);
-				if(dataObject.isGreaterThan(min))
-					min = dataObject;
+				if(dataObject.isGreaterThan(max))
+					max = dataObject;
 			}
 			
-			return min;
+			return max;
 		});
 	}
 	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
