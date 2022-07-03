@@ -2846,12 +2846,14 @@ final class LangPredefinedFunctions {
 			return min;
 		});
 		funcs.put("max", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() == 0) //Not at least 1 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
-			DataObject min = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			while(argumentList.size() > 0) {
-				DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject min = combinedArgumentList.get(0);
+			for(int i = 1;i < combinedArgumentList.size();i++) {
+				DataObject dataObject = combinedArgumentList.get(i);
 				if(dataObject.isGreaterThan(min))
 					min = dataObject;
 			}
