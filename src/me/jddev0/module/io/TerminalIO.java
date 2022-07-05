@@ -123,10 +123,7 @@ public class TerminalIO {
 	 * @return Returns true for message level that are ok otherwise false.
 	 */
 	private boolean checkLevel(Level lvl) {
-		if(Level.USER.equals(lvl)) return true;
-		
-		if(lvl.getLevel() < getLevel()) return false;
-		else return true;
+		return Level.USER == lvl || lvl.getLevel() >= this.lvl;
 	}
 	
 	/**
