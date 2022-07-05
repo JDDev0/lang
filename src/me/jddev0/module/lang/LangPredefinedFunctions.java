@@ -1634,13 +1634,14 @@ final class LangPredefinedFunctions {
 			}
 		});
 		funcs.put("toNumberBase", (argumentList, SCOPE_ID) -> {
-			DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject baseObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
-			if(numberObject == null || baseObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			DataObject numberObject = combinedArgumentList.get(0);
+			DataObject baseObject = combinedArgumentList.get(1);
 			
 			String numberString = numberObject.getText();
 			Number base = baseObject.toNumber();
