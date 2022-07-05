@@ -222,11 +222,6 @@ public class TerminalIO {
 		}
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		close();
-	}
-	
 	/**
 	 * Level enum for TerminalIO
 	 * 
