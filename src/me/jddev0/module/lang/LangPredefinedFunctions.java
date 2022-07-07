@@ -781,10 +781,13 @@ final class LangPredefinedFunctions {
 		funcs.put("clearVar", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				DataObject pointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-				if(argumentList.size() > 0) //Not 1 argument
+				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+				if(combinedArgumentList.size() < 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+				if(combinedArgumentList.size() > 1)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 				
+				DataObject pointerObject = combinedArgumentList.get(0);
 				DataObject dereferencedVarPointer = null;
 				switch(pointerObject.getType()) {
 					case VAR_POINTER:
