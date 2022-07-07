@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import me.jddev0.module.io.TerminalIO;
@@ -29,6 +28,7 @@ import me.jddev0.module.lang.DataObject.DataTypeConstraintViolatedException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
+import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
 
 /**
@@ -1232,7 +1232,7 @@ public final class LangInterpreter {
 				case NOT_MATCHES:
 					try {
 						conditionOutput = LangRegEx.matches(leftSideOperand.getText(), rightSideOperand.getText());
-					}catch(PatternSyntaxException e) {
+					}catch(InvalidPaternSyntaxException e) {
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 					}
 					

@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import me.jddev0.module.io.TerminalIO.Level;
@@ -28,6 +27,7 @@ import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
+import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
 
 /**
@@ -1917,7 +1917,11 @@ final class LangPredefinedFunctions {
 			if(replacement == null) //Not 3 arguments
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (3 needed)", SCOPE_ID);
 			
-			return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement));
+			try {
+				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement));
+			}catch(InvalidPaternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
+			}
 		});
 		funcs.put("substring", (argumentList, SCOPE_ID) -> {
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
@@ -2125,7 +2129,7 @@ final class LangPredefinedFunctions {
 			
 			try {
 				return new DataObject().setBoolean(LangRegEx.matches(textObject.getText(), matchTextObject.getText()));
-			}catch(PatternSyntaxException e) {
+			}catch(InvalidPaternSyntaxException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 			}
 		});
@@ -2191,14 +2195,18 @@ final class LangPredefinedFunctions {
 			
 			String[] arrTmp;
 			
-			if(maxSplitCountObject == null) {
-				arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
-			}else {
-				Number maxSplitCount = maxSplitCountObject.toNumber();
-				if(maxSplitCount == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
+			try {
+				if(maxSplitCountObject == null) {
+					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
+				}else {
+					Number maxSplitCount = maxSplitCountObject.toNumber();
+					if(maxSplitCount == null)
+						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+					
+					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
+				}
+			}catch(InvalidPaternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
 			}
 			
 			String arrPtr;

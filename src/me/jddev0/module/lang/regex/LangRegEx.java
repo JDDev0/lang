@@ -1,5 +1,7 @@
 package me.jddev0.module.lang.regex;
 
+import java.util.regex.PatternSyntaxException;
+
 /**
  * Lang-Module<br>
  * Lang RegEx implementation
@@ -10,19 +12,35 @@ package me.jddev0.module.lang.regex;
 public final class LangRegEx {
 	private LangRegEx() {}
 	
-	public static boolean matches(String text, String regex) {
-		return text.matches(regex);
+	public static boolean matches(String text, String regex) throws InvalidPaternSyntaxException {
+		try {
+			return text.matches(regex);
+		}catch(PatternSyntaxException e) {
+			throw new InvalidPaternSyntaxException(e.getMessage());
+		}
 	}
 	
-	public static String[] split(String text, String regex) {
-		return text.split(regex);
+	public static String[] split(String text, String regex) throws InvalidPaternSyntaxException {
+		try {
+			return text.split(regex);
+		}catch(PatternSyntaxException e) {
+			throw new InvalidPaternSyntaxException(e.getMessage());
+		}
 	}
 	
-	public static String[] split(String text, String regex, int limit) {
-		return text.split(regex, limit);
+	public static String[] split(String text, String regex, int limit) throws InvalidPaternSyntaxException {
+		try {
+			return text.split(regex, limit);
+		}catch(PatternSyntaxException e) {
+			throw new InvalidPaternSyntaxException(e.getMessage());
+		}
 	}
 	
-	public static String replace(String text, String regex, String replacement) {
-		return text.replaceAll(regex, replacement);
+	public static String replace(String text, String regex, String replacement) throws InvalidPaternSyntaxException {
+		try {
+			return text.replaceAll(regex, replacement);
+		}catch(PatternSyntaxException e) {
+			throw new InvalidPaternSyntaxException(e.getMessage());
+		}
 	}
 }
