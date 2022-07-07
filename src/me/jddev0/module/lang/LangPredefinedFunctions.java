@@ -1920,7 +1920,7 @@ final class LangPredefinedFunctions {
 			try {
 				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement));
 			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 			}
 		});
 		funcs.put("substring", (argumentList, SCOPE_ID) -> {
@@ -2130,7 +2130,7 @@ final class LangPredefinedFunctions {
 			try {
 				return new DataObject().setBoolean(LangRegEx.matches(textObject.getText(), matchTextObject.getText()));
 			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 			}
 		});
 		funcs.put("repeatText", (argumentList, SCOPE_ID) -> {
@@ -2206,7 +2206,7 @@ final class LangPredefinedFunctions {
 					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
 				}
 			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 			}
 			
 			String arrPtr;

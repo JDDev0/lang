@@ -1233,7 +1233,7 @@ public final class LangInterpreter {
 					try {
 						conditionOutput = LangRegEx.matches(leftSideOperand.getText(), rightSideOperand.getText());
 					}catch(InvalidPaternSyntaxException e) {
-						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid RegEx expression: " + e.getMessage(), SCOPE_ID);
+						return setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 					}
 					
 					if(node.getOperator() == Operator.NOT_MATCHES)
@@ -2335,6 +2335,7 @@ public final class LangInterpreter {
 		NO_OCT_NUM            (39, "No octal number"),
 		NO_BASE_N_NUM         (40, "Number is not in base N"),
 		INVALID_NUMBER_BASE   (41, "Invalid number base"),
+		INVALID_REGEX_SYNTAX  (42, "Invalid RegEx syntax"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL  (-1, "A deprecated predefined function was called"),
