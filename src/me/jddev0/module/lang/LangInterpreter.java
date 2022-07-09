@@ -1848,7 +1848,7 @@ public final class LangInterpreter {
 					
 					DataObject ret = function.callFunc(argumentValueList, SCOPE_ID);
 					if(function.isDeprecated()) {
-						String message = String.format("Use of deprecated function \"%s\", this function woll no longer be supported in \"%s\"!%s", functionName,
+						String message = String.format("Use of deprecated function \"%s\". This function will no longer be supported in \"%s\"!%s", functionName,
 						function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
 						function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
 						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, SCOPE_ID);
