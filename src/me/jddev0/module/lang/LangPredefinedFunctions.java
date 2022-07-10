@@ -1205,7 +1205,11 @@ final class LangPredefinedFunctions {
 			return new DataObject().setBoolean(dataObject.isStaticData());
 		});
 		funcs.put("constrainVariableAllowedTypes", (argumentList, SCOPE_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject dataObject = combinedArgumentList.remove(0);
 			
 			if(dataObject.getType() != DataType.VAR_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.VAR_POINTER), SCOPE_ID);
@@ -1221,10 +1225,8 @@ final class LangPredefinedFunctions {
 			List<DataType> types = new LinkedList<>();
 			
 			int argumentIndex = 1;
-			while(argumentList.size() > 0) {
+			for(DataObject typeObject:combinedArgumentList) {
 				argumentIndex++;
-				
-				DataObject typeObject = new DataObject(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
 				
 				if(typeObject.getType() != DataType.TYPE)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, argumentIndex + " ", DataType.TYPE), SCOPE_ID);
