@@ -1380,11 +1380,14 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("isTerminalAvailable", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(interpreter.term != null));
 		funcs.put("isInstanceOf", (argumentList, SCOPE_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject dataTypeObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
+			DataObject dataObject = combinedArgumentList.get(0);
+			DataObject dataTypeObject = combinedArgumentList.get(1);
 			if(dataTypeObject.getType() != DataType.TYPE)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.TYPE), SCOPE_ID);
 			
