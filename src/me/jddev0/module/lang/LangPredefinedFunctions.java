@@ -1026,13 +1026,17 @@ final class LangPredefinedFunctions {
 		funcs.put("currentTimeMillis", (argumentList, SCOPE_ID) -> new DataObject().setLong(System.currentTimeMillis()));
 		funcs.put("currentUnixTime", (argumentList, SCOPE_ID) -> new DataObject().setLong(Instant.now().getEpochSecond()));
 		funcs.put("repeat", (argumentList, SCOPE_ID) -> {
-			DataObject loopFunctionObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject repeatCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
+			DataObject loopFunctionObject = combinedArgumentList.get(0);
 			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
+			
+			DataObject repeatCountObject = combinedArgumentList.get(1);
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			
