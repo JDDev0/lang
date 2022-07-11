@@ -1386,7 +1386,6 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
 			DataObject dataObject = combinedArgumentList.get(0);
-			
 			return new DataObject().setTypeValue(dataObject.getType());
 		});
 	}
