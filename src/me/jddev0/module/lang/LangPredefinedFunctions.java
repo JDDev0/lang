@@ -1213,10 +1213,13 @@ final class LangPredefinedFunctions {
 			return new DataObject(dataObject).setCopyStaticAndFinalModifiers(true).setStaticData(true);
 		});
 		funcs.put("isStatic", (argumentList, SCOPE_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 			
+			DataObject dataObject = combinedArgumentList.get(0);
 			return new DataObject().setBoolean(dataObject.isStaticData());
 		});
 		funcs.put("constrainVariableAllowedTypes", (argumentList, SCOPE_ID) -> {
