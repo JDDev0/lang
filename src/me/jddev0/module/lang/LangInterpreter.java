@@ -1594,6 +1594,8 @@ public final class LangInterpreter {
 				return new DataObject().setChar(' ');
 			case 'e':
 				return new DataObject("");
+			case 'E':
+				return new DataObject().setChar('\033');
 			case 'b':
 				return new DataObject().setChar('\b');
 			case 't':
