@@ -620,6 +620,8 @@ lang.errorOutput = 1 # Reenable error ouput
 		func.printTerminal(1, An empty text: "\e"!)
 		# Used for function calls where an empty text is needed instead of a VOID value
 		
+		# \E: Ascii ESC
+		func.printTerminal(1, An ESC: "\E"!)
 		
 		# \b: Form feed
 		func.printTerminal(1, A backspace: "\b"!)
