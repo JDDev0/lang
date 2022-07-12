@@ -2167,11 +2167,14 @@ final class LangPredefinedFunctions {
 			return new DataObject().setBoolean(textObject.getText().startsWith(startsWithTextObject.getText()));
 		});
 		funcs.put("endsWith", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject endsWithTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
+			DataObject textObject = combinedArgumentList.get(0);
+			DataObject endsWithTextObject = combinedArgumentList.get(1);
 			return new DataObject().setBoolean(textObject.getText().endsWith(endsWithTextObject.getText()));
 		});
 		funcs.put("matches", (argumentList, SCOPE_ID) -> {
