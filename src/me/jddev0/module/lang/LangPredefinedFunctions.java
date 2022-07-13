@@ -1973,17 +1973,15 @@ final class LangPredefinedFunctions {
 			}
 		});
 		funcs.put("substring", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject startIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject endIndexObject;
-			//3rd argument is optional
-			if(argumentList.isEmpty())
-				endIndexObject = null;
-			else
-				endIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			
-			if(argumentList.size() > 0) //Not 2 or 3 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			DataObject textObject = combinedArgumentList.get(0);
+			DataObject startIndexObject = combinedArgumentList.get(1);
+			DataObject endIndexObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(2);
 			
 			Number startIndex = startIndexObject.toNumber();
 			if(startIndex == null)
@@ -2141,6 +2139,7 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			DataObject searchTextObject = combinedArgumentList.get(1);
 			DataObject toIndexObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(2);
+			
 			if(toIndexObject == null)
 				return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText()));
 			
