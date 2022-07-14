@@ -2060,12 +2060,15 @@ final class LangPredefinedFunctions {
 			return new DataObject(builder.toString());
 		});
 		funcs.put("rpad", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject paddingTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject lenObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 3 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), SCOPE_ID);
 			
+			DataObject textObject = combinedArgumentList.get(0);
+			DataObject paddingTextObject = combinedArgumentList.get(1);
+			DataObject lenObject = combinedArgumentList.get(2);
 			Number lenNum = lenObject.toNumber();
 			if(lenNum == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
