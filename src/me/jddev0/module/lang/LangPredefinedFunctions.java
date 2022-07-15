@@ -2245,21 +2245,18 @@ final class LangPredefinedFunctions {
 			return new DataObject(Arrays.stream(arr).map(DataObject::getText).collect(Collectors.joining(text)));
 		});
 		funcs.put("split", (argumentList, SCOPE_ID) -> {
-			DataObject arrPointerObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject maxSplitCountObject;
-			//4th argument is optional
-			if(argumentList.isEmpty())
-				maxSplitCountObject = null;
-			else
-				maxSplitCountObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			
-			if(argumentList.size() > 0) //Not 3 or 4 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "3 or 4"), SCOPE_ID);
+			if(combinedArgumentList.size() > 4)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "3 or 4"), SCOPE_ID);
 			
-			String[] arrTmp;
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject textObject = combinedArgumentList.get(1);
+			DataObject regexObject = combinedArgumentList.get(2);
+			DataObject maxSplitCountObject = combinedArgumentList.size() < 4?null:combinedArgumentList.get(3);
 			
+			String[] arrTmp;
 			try {
 				if(maxSplitCountObject == null) {
 					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
