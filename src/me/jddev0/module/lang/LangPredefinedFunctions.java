@@ -1981,7 +1981,7 @@ final class LangPredefinedFunctions {
 			
 			DataObject textObject = combinedArgumentList.get(0);
 			DataObject startIndexObject = combinedArgumentList.get(1);
-			DataObject endIndexObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(2);
+			DataObject endIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
 			Number startIndex = startIndexObject.toNumber();
 			if(startIndex == null)
