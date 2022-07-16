@@ -471,9 +471,11 @@ public class LangShellWindow extends JDialog {
 			return null;
 		});
 		lii.addPredefinedFunction("printDebug", (argumentList, SCOPE_ID) -> {
-			DataObject dataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 1 argument
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() != 1)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			DataObject dataObject = combinedArgumentList.get(0);
 			
 			StringBuilder builder = new StringBuilder();
 			builder.append("Debug[");
