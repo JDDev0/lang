@@ -2109,13 +2109,15 @@ final class LangPredefinedFunctions {
 			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
 		});
 		funcs.put("indexOf", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject searchTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject fromIndexObject = null;
-			if(argumentList.size() > 0)
-				fromIndexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 or 3 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			DataObject textObject = combinedArgumentList.get(0);
+			DataObject searchTextObject = combinedArgumentList.get(1);
+			DataObject fromIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
 			if(fromIndexObject == null)
 				return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
