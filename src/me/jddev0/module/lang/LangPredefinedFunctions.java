@@ -107,11 +107,14 @@ final class LangPredefinedFunctions {
 		return new DataObject().setBoolean(!operation.apply(dataObject));
 	}
 	private DataObject binaryFromBooleanValueOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
-		DataObject leftDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-		DataObject rightDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-		if(argumentList.size() > 0) //Not 2 arguments
+		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		if(combinedArgumentList.size() < 2)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+		if(combinedArgumentList.size() > 2)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 		
+		DataObject leftDataObject = combinedArgumentList.get(0);
+		DataObject rightDataObject = combinedArgumentList.get(1);
 		return new DataObject().setBoolean(operation.apply(leftDataObject, rightDataObject));
 	}
 	private DataObject binaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
