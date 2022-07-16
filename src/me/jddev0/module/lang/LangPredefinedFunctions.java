@@ -5754,7 +5754,13 @@ final class LangPredefinedFunctions {
 	}
 	
 	private DataObject executeLinkerFunction(List<DataObject> argumentList, Consumer<Integer> function, int SCOPE_ID) {
-		DataObject langFileNameObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		if(combinedArgumentList.size() < 1)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		if(combinedArgumentList.size() > 1)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		
+		DataObject langFileNameObject = combinedArgumentList.get(0);
 		if(langFileNameObject.getType() != DataType.TEXT)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 		
