@@ -465,6 +465,9 @@ public class LangShellWindow extends JDialog {
 		
 		//Add debug functions
 		lii.addPredefinedFunction("printHelp", (argumentList, SCOPE_ID) -> {
+			if(argumentList.size() > 0)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
 			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 			"func.printDebug(value) # Prints debug information about the provided DataObject", LangShellWindow.class);
 			
