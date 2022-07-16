@@ -141,11 +141,14 @@ final class LangPredefinedFunctions {
 		return operation.apply(number);
 	}
 	private DataObject binaryMathOperationHelper(List<DataObject> argumentList, BiFunction<Number, Number, DataObject> operation, final int SCOPE_ID) {
-		DataObject leftNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-		DataObject rightNumberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-		if(argumentList.size() > 0) //Not 2 arguments
+		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		if(combinedArgumentList.size() < 2)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+		if(combinedArgumentList.size() > 2)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 		
+		DataObject leftNumberObject = combinedArgumentList.get(0);
+		DataObject rightNumberObject = combinedArgumentList.get(1);
 		Number leftNumber = leftNumberObject.toNumber();
 		if(leftNumber == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Left operand is no number", SCOPE_ID);
