@@ -139,10 +139,13 @@ final class LangPredefinedFunctions {
 	}
 	
 	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int SCOPE_ID) {
-		DataObject numberObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-		if(argumentList.size() > 0) //Not 1 argument
+		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+		if(combinedArgumentList.size() < 1)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+		if(combinedArgumentList.size() > 1)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 		
+		DataObject numberObject = combinedArgumentList.get(0);
 		Number number = numberObject.toNumber();
 		if(number == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
