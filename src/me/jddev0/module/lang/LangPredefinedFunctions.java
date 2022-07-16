@@ -1960,14 +1960,17 @@ final class LangPredefinedFunctions {
 		funcs.put("toLower", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
 		funcs.put("trim", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).trim()));
 		funcs.put("replace", (argumentList, SCOPE_ID) -> {
+			if(LangUtils.countDataObjects(argumentList) < 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			
 			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
 			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			String replacement = getArgumentListAsString(argumentList, false);
-			if(replacement == null) //Not 3 arguments
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (3 needed)", SCOPE_ID);
+			DataObject replacement = LangUtils.combineDataObjects(argumentList);
+			if(replacement == null)
+				replacement = new DataObject().setVoid();
 			
 			try {
-				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement));
+				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement.getText()));
 			}catch(InvalidPaternSyntaxException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 			}
