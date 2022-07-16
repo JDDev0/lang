@@ -2101,11 +2101,14 @@ final class LangPredefinedFunctions {
 			return formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 		});
 		funcs.put("contains", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject containTextObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, false);
-			if(argumentList.size() > 0) //Not 2 arguments
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
+			DataObject textObject = combinedArgumentList.get(0);
+			DataObject containTextObject = combinedArgumentList.get(1);
 			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
 		});
 		funcs.put("indexOf", (argumentList, SCOPE_ID) -> {
