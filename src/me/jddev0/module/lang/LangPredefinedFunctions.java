@@ -41,7 +41,7 @@ final class LangPredefinedFunctions {
 	//Error string formats
 	private static final String TOO_MANY_ARGUMENTS_FORMAT = "Too many arguments (%s needed)";
 	private static final String NOT_ENOUGH_ARGUMENTS_FORMAT = "Not enough arguments (%s needed)";
-	private static final String ARGUMENT_TYPE_FORMAT = "Argument %smust be from type %s";
+	private static final String ARGUMENT_TYPE_FORMAT = "Argument %smust be of type %s";
 	
 	//Return values for format sequence errors
 	private static final int FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE = -1;
