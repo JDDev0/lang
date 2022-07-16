@@ -937,6 +937,9 @@ final class LangPredefinedFunctions {
 		funcs.put("clearAllArrays", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				if(argumentList.size() > 0)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+				
 				new HashSet<>(interpreter.data.get(SCOPE_ID).var.entrySet()).forEach(entry -> {
 					if(entry.getValue().getType() == DataType.ARRAY)
 						interpreter.data.get(SCOPE_ID).var.remove(entry.getKey());
