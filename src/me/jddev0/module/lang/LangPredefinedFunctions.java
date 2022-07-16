@@ -2124,7 +2124,6 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			DataObject searchTextObject = combinedArgumentList.get(1);
 			DataObject fromIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
 			if(fromIndexObject == null)
 				return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
 			
@@ -2153,7 +2152,6 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			DataObject searchTextObject = combinedArgumentList.get(1);
 			DataObject toIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
 			if(toIndexObject == null)
 				return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText()));
 			
