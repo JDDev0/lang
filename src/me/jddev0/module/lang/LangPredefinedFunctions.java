@@ -2207,12 +2207,13 @@ final class LangPredefinedFunctions {
 			}
 		});
 		funcs.put("repeatText", (argumentList, SCOPE_ID) -> {
+			if(LangUtils.countDataObjects(argumentList) < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
 			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			
-			if(argumentList.size() == 0) //Not at least 2 argument
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
+			if(textObject == null)
+				textObject = new DataObject().setVoid();
 			
 			Number count = countObject.toNumber();
 			if(count == null)
