@@ -64,15 +64,6 @@ final class LangPredefinedFunctions {
 		return dataObject.getText();
 	}
 	
-	private List<DataObject> getAllArguments(List<DataObject> argumentList) {
-		List<DataObject> arguments = new LinkedList<>();
-		
-		while(!argumentList.isEmpty())
-			arguments.add(LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true));
-		
-		return arguments;
-	}
-	
 	private DataObject throwErrorOnNullOrErrorTypeHelper(DataObject dataObject, final int SCOPE_ID) {
 		if(dataObject == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
@@ -5766,18 +5757,12 @@ final class LangPredefinedFunctions {
 		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 		if(combinedArgumentList.size() < 1)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		if(combinedArgumentList.size() > 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 		
-		DataObject langFileNameObject = combinedArgumentList.get(0);
+		DataObject langFileNameObject = combinedArgumentList.remove(0);
 		if(langFileNameObject.getType() != DataType.TEXT)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 		
-		List<DataObject> langArgsList = getAllArguments(argumentList);
-		String[] langArgs = new String[langArgsList.size()];
-		for(int i = 0;i < langArgsList.size();i++)
-			langArgs[i] = langArgsList.get(i).getText();
-		
+		String[] langArgs = combinedArgumentList.stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
 		String langFileName = langFileNameObject.getText();
 		if(!langFileName.endsWith(".lang"))
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, SCOPE_ID);
