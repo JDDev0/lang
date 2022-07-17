@@ -2537,6 +2537,12 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setInt(LangInterpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt()));
 		});
+		funcs.put("randi", (argumentList, SCOPE_ID) -> {
+			if(argumentList.size() > 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			
+			return new DataObject().setInt(LangInterpreter.RAN.nextInt());
+		});
 		funcs.put("inci", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setInt(number.intValue() + 1);
