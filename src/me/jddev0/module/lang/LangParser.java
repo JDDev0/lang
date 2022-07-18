@@ -911,7 +911,7 @@ public final class LangParser {
 		if(LangPatterns.matches(line, LangPatterns.PARSING_PARSER_FLAG)) {
 			String[] tokens = line.split("=", 2);
 			
-			parserParserFlags(tokens[0].trim(), tokens[1].trim());
+			parseParserFlags(tokens[0].trim(), tokens[1].trim());
 		}
 		
 		if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_TRANSLATION)) {
@@ -1393,7 +1393,7 @@ public final class LangParser {
 	/**
 	 * @return true if the parser flag was valid else false
 	 */
-	private boolean parserParserFlags(String parserFlag, String value) {
+	private boolean parseParserFlags(String parserFlag, String value) {
 		//String[] tokens = LangPatterns.GENERAL_DOT.split(parserFlag);
 		
 		return false;
