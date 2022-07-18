@@ -908,6 +908,12 @@ public final class LangParser {
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {
+		if(LangPatterns.matches(line, LangPatterns.PARSING_PARSER_FLAG)) {
+			String[] tokens = line.split("=", 2);
+			
+			parserParserFlags(tokens[0].trim(), tokens[1].trim());
+		}
+		
 		if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_TRANSLATION)) {
 			String[] tokens = line.split("=", 2);
 			
@@ -1384,6 +1390,14 @@ public final class LangParser {
 		return ast;
 	}
 	
+	/**
+	 * @return true if the parser flag was valid else false
+	 */
+	private boolean parserParserFlags(String parserFlag, String value) {
+		//String[] tokens = LangPatterns.GENERAL_DOT.split(parserFlag);
+		
+		return false;
+	}
 	private AbstractSyntaxTree parseTranslationKey(String translationKey) throws IOException {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();

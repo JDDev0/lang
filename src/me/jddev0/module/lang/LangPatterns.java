@@ -12,11 +12,15 @@ import java.util.regex.Pattern;
 final class LangPatterns {
 	//General patterns
 	/**
-	 * RegEx: (\$|&)LANG_.*
+	 * RegEx: \.
+	 */
+	public static final Pattern GENERAL_DOT = Pattern.compile("\\.");
+	/**
+	 * RegEx: (\$|&)LANG_.{@literal *}
 	 */
 	public static final Pattern LANG_VAR = Pattern.compile("(\\$|&)LANG_.*");
 	/**
-	 * RegEx: &LANG_.*
+	 * RegEx: &LANG_.{@literal *}
 	 */
 	public static final Pattern LANG_VAR_ARRAY = Pattern.compile("&LANG_.*");
 	/**
@@ -141,6 +145,10 @@ final class LangPatterns {
 	public static final Pattern PARSING_STARTS_WITH_ARRAY_UNPACKING = Pattern.compile("&\\w+\\.\\.\\..*");
 	
 	//LangParser assignment specific
+	/**
+	 * RegEx: parser\.\w+(\.\w+)* ?= ?.{@literal *}
+	 */
+	public static final Pattern PARSING_PARSER_FLAG = Pattern.compile("parser\\.\\w+(\\.\\w+)* ?= ?.*");
 	/**
 	 * RegEx: "  [^\\= ]{0,3}= "
 	 */
