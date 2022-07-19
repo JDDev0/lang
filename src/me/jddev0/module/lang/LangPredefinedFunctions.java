@@ -2535,37 +2535,37 @@ final class LangPredefinedFunctions {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setInt(LangInterpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt()));
+			return new DataObject().setInt(interpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt()));
 		});
 		funcs.put("randi", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setInt(LangInterpreter.RAN.nextInt());
+			return new DataObject().setInt(interpreter.RAN.nextInt());
 		});
 		funcs.put("randl", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setLong(LangInterpreter.RAN.nextLong());
+			return new DataObject().setLong(interpreter.RAN.nextLong());
 		});
 		funcs.put("randf", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setFloat(LangInterpreter.RAN.nextFloat());
+			return new DataObject().setFloat(interpreter.RAN.nextFloat());
 		});
 		funcs.put("randd", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setDouble(LangInterpreter.RAN.nextDouble());
+			return new DataObject().setDouble(interpreter.RAN.nextDouble());
 		});
 		funcs.put("randb", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
-			return new DataObject().setBoolean(LangInterpreter.RAN.nextBoolean());
+			return new DataObject().setBoolean(interpreter.RAN.nextBoolean());
 		});
 		funcs.put("randRange", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -2583,7 +2583,7 @@ final class LangPredefinedFunctions {
 			if(bound <= 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Bound must be positive", SCOPE_ID);
 			
-			return new DataObject().setInt(LangInterpreter.RAN.nextInt(bound));
+			return new DataObject().setInt(interpreter.RAN.nextInt(bound));
 		});
 		funcs.put("inci", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
@@ -5084,10 +5084,10 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), SCOPE_ID);
 				
 				DataObject[] arr = arrPointerObject.getArray();
-				return arr.length == 0?null:arr[LangInterpreter.RAN.nextInt(arr.length)];
+				return arr.length == 0?null:arr[interpreter.RAN.nextInt(arr.length)];
 			}
 			
-			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(LangInterpreter.RAN.nextInt(combinedArgumentList.size()));
+			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(interpreter.RAN.nextInt(combinedArgumentList.size()));
 		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArrays = new LinkedList<>();

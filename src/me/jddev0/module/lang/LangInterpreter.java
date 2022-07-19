@@ -40,7 +40,6 @@ import me.jddev0.module.lang.regex.LangRegEx;
  */
 public final class LangInterpreter {
 	static final String VERSION = "v1.0.0";
-	static final Random RAN = new Random();
 	
 	final LangParser parser = new LangParser();
 	
@@ -48,6 +47,7 @@ public final class LangInterpreter {
 	
 	final TerminalIO term;
 	final LangPlatformAPI langPlatformAPI;
+	final Random RAN = new Random();
 	
 	//Lang tests
 	final LangTest langTestStore = new LangTest();
