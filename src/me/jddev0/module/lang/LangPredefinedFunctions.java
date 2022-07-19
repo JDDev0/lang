@@ -2567,6 +2567,24 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setBoolean(LangInterpreter.RAN.nextBoolean());
 		});
+		funcs.put("randRange", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject boundObject = combinedArgumentList.get(0);
+			Number boundNumber = boundObject.toNumber();
+			if(boundNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			
+			int bound = boundNumber.intValue();
+			if(bound <= 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Bound must be positive", SCOPE_ID);
+			
+			return new DataObject().setInt(LangInterpreter.RAN.nextInt(bound));
+		});
 		funcs.put("inci", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setInt(number.intValue() + 1);
