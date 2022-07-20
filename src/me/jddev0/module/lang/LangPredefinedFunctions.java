@@ -2585,6 +2585,22 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setInt(interpreter.RAN.nextInt(bound));
 		});
+		funcs.put("setSeed", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject seedObject = combinedArgumentList.get(0);
+			Number seedNumber = seedObject.toNumber();
+			if(seedNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			
+			interpreter.RAN.setSeed(seedNumber.longValue());
+			
+			return null;
+		});
 		funcs.put("inci", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setInt(number.intValue() + 1);
