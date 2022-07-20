@@ -3064,6 +3064,40 @@ final class LangPredefinedFunctions {
 				return new DataObject().setLong((long)Math.floor(number.doubleValue()));
 			}, SCOPE_ID);
 		});
+		funcs.put("abs", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject numberObject = combinedArgumentList.get(0);
+			numberObject = numberObject.convertToNumberAndCreateNewDataObject();
+			switch(numberObject.getType()) {
+				case INT:
+					return new DataObject().setInt(Math.abs(numberObject.getInt()));
+				case LONG:
+					return new DataObject().setLong(Math.abs(numberObject.getLong()));
+				case FLOAT:
+					return new DataObject().setFloat(Math.abs(numberObject.getFloat()));
+				case DOUBLE:
+					return new DataObject().setDouble(Math.abs(numberObject.getDouble()));
+				
+				case CHAR:
+				case TEXT:
+				case ARRAY:
+				case ERROR:
+				case VAR_POINTER:
+				case FUNCTION_POINTER:
+				case NULL:
+				case VOID:
+				case ARGUMENT_SEPARATOR:
+				case TYPE:
+					break;
+			}
+			
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument must be a number", SCOPE_ID);
+		});
 		funcs.put("min", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
