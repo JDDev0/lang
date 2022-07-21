@@ -4767,6 +4767,30 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject(Arrays.stream(arrPointerObject.getArray()).map(DataObject::getText).collect(Collectors.joining(", ")));
 		});
+		funcs.put("arrayRead", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
+			
+			DataObject arrPointerObject = combinedArgumentList.remove(0);
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			if(combinedArgumentList.size() < arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
+			if(combinedArgumentList.size() > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
+			
+			for(int i = 0;i < combinedArgumentList.size();i++)
+				if(combinedArgumentList.get(i).getType() != DataType.VAR_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.VAR_POINTER), SCOPE_ID);
+			
+			for(int i = 0;i < combinedArgumentList.size();i++)
+				combinedArgumentList.get(i).getVarPointer().getVar().setData(arr[i]);
+			
+			return null;
+		});
 		funcs.put("arrayCountOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
