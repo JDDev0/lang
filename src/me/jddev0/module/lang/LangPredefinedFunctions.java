@@ -4714,7 +4714,7 @@ final class LangPredefinedFunctions {
 			}
 			
 			if(combinedArgumentList.size() < arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "2 or (len + 1) arguments needed", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
 			if(combinedArgumentList.size() > arr.length)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
 			
