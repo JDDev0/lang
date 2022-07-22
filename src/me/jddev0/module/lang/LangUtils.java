@@ -62,6 +62,7 @@ public final class LangUtils {
 		
 		return combineDataObjects(argumentTmpList);
 	}
+	
 	/**
 	 * @return Returns the the count of DataObjects in the with argument separated argumentList (Will return 1 for an empty list)
 	 */
