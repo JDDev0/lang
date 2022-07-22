@@ -101,8 +101,10 @@ public class DataObject {
 		this.typeValue = dataObject.typeValue;
 		
 		if(dataObject.copyStaticAndFinalModifiers) {
-			this.finalData = dataObject.finalData;
-			this.staticData = dataObject.staticData;
+			if(dataObject.finalData)
+				this.finalData = true;
+			if(dataObject.staticData)
+				this.staticData = true;
 		}
 	}
 	
