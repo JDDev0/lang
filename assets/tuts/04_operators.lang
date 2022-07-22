@@ -349,7 +349,7 @@ func.println($a)
 $a **= 8 # Power assignment
 func.println($a)
 
-$a = func.int($a) # Convert $a to integer
+$a = func.int($a) # Convert $a to INT
 
 $a %= 250 # Modulo assignment
 func.println($a)
