@@ -165,8 +165,11 @@ fp.printCastAndTypes = (fp.conversionFunc, $[value]) -> {
 # func.text(any) # Casts the provided value to a text value (No implicit casts will be executed)
 fp.printCastAndTypes(func.text, abc)
 fp.printCastAndTypes(func.text, {{{80}}})
+fp.printCastAndTypes(func.text, {{{0080}}})
 fp.printCastAndTypes(func.text, {{{80.4}}})
+fp.printCastAndTypes(func.text, {{{0080.4}}})
 fp.printCastAndTypes(func.text, {{{1.8e4}}})
+fp.printCastAndTypes(func.text, {{{001.8e4}}})
 fp.printCastAndTypes(func.text, {{{1.8E4}}})
 fp.printCastAndTypes(func.text, {{{NaN}}})
 fp.printCastAndTypes(func.text, func.arrayOf())
@@ -199,8 +202,11 @@ func.println()
 # func.char(any) # Casts the provided value to a char value (No implicit casts will be executed)
 fp.printCastAndTypes(func.char, abc) # Error
 fp.printCastAndTypes(func.char, {{{80}}}) # Error
+fp.printCastAndTypes(func.char, {{{0080}}}) # Error
 fp.printCastAndTypes(func.char, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.char, {{{0080.4}}}) # Error
 fp.printCastAndTypes(func.char, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.char, {{{001.8e4}}}) # Error
 fp.printCastAndTypes(func.char, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.char, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.char, func.arrayOf()) # Error
@@ -233,8 +239,11 @@ func.println()
 # func.int(any) # Casts the provided value to an int value (No implicit casts will be executed)
 fp.printCastAndTypes(func.int, abc) # Error
 fp.printCastAndTypes(func.int, {{{80}}})
+fp.printCastAndTypes(func.int, {{{0080}}})
 fp.printCastAndTypes(func.int, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.int, {{{0080.4}}}) # Error
 fp.printCastAndTypes(func.int, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.int, {{{001.8e4}}}) # Error
 fp.printCastAndTypes(func.int, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.int, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.int, func.arrayOf())
@@ -267,10 +276,13 @@ func.println()
 # func.long(any) # Casts the provided value to a long value (No implicit casts will be executed)
 fp.printCastAndTypes(func.long, abc) # Error
 fp.printCastAndTypes(func.long, {{{80}}})
+fp.printCastAndTypes(func.long, {{{0080}}})
 fp.printCastAndTypes(func.long, {{{80.4}}}) # Error
-fp.printCastAndTypes(func.long, {{{NaN}}}) # Error
+fp.printCastAndTypes(func.long, {{{0080.4}}}) # Error
 fp.printCastAndTypes(func.long, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.long, {{{001.8e4}}}) # Error
 fp.printCastAndTypes(func.long, {{{1.8E4}}}) # Error
+fp.printCastAndTypes(func.long, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.long, func.arrayOf())
 fp.printCastAndTypes(func.long, func.arrayOf(1, abc, test, 0))
 fp.printCastAndTypes(func.long, $ptr) # Error
@@ -301,8 +313,11 @@ func.println()
 # func.float(any) # Casts the provided value to a float value (No implicit casts will be executed)
 fp.printCastAndTypes(func.float, abc) # Error
 fp.printCastAndTypes(func.float, {{{80}}})
+fp.printCastAndTypes(func.float, {{{0080}}})
 fp.printCastAndTypes(func.float, {{{80.4}}})
+fp.printCastAndTypes(func.float, {{{0080.4}}})
 fp.printCastAndTypes(func.float, {{{1.8e4}}})
+fp.printCastAndTypes(func.float, {{{001.8e4}}})
 fp.printCastAndTypes(func.float, {{{1.8E4}}})
 fp.printCastAndTypes(func.float, {{{NaN}}})
 fp.printCastAndTypes(func.float, func.arrayOf())
@@ -335,8 +350,11 @@ func.println()
 # func.double(any) # Casts the provided value to a double value (No implicit casts will be executed)
 fp.printCastAndTypes(func.double, abc) # Error
 fp.printCastAndTypes(func.double, {{{80}}})
+fp.printCastAndTypes(func.double, {{{0080}}})
 fp.printCastAndTypes(func.double, {{{80.4}}})
+fp.printCastAndTypes(func.double, {{{0080.4}}})
 fp.printCastAndTypes(func.double, {{{1.8e4}}})
+fp.printCastAndTypes(func.double, {{{001.8e4}}})
 fp.printCastAndTypes(func.double, {{{1.8E4}}})
 fp.printCastAndTypes(func.double, {{{NaN}}})
 fp.printCastAndTypes(func.double, func.arrayOf())
@@ -369,8 +387,11 @@ func.println()
 # func.array(any) # Casts the provided value to an array value (No implicit casts will be executed)
 fp.printCastAndTypes(func.array, abc) # Error
 fp.printCastAndTypes(func.array, {{{80}}}) # Error
+fp.printCastAndTypes(func.array, {{{0080}}}) # Error
 fp.printCastAndTypes(func.array, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.array, {{{0080.4}}}) # Error
 fp.printCastAndTypes(func.array, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.array, {{{001.8e4}}}) # Error
 fp.printCastAndTypes(func.array, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.array, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.array, func.arrayOf())
@@ -403,8 +424,11 @@ func.println()
 # func.bool(any) # Casts the provided value to a bool value (No implicit casts will be executed)
 fp.printCastAndTypes(func.bool, abc)
 fp.printCastAndTypes(func.bool, {{{80}}})
+fp.printCastAndTypes(func.bool, {{{0080}}})
 fp.printCastAndTypes(func.bool, {{{80.4}}})
+fp.printCastAndTypes(func.bool, {{{0080.4}}})
 fp.printCastAndTypes(func.bool, {{{1.8e4}}})
+fp.printCastAndTypes(func.bool, {{{001.8e4}}})
 fp.printCastAndTypes(func.bool, {{{1.8E4}}})
 fp.printCastAndTypes(func.bool, {{{NaN}}})
 fp.printCastAndTypes(func.bool, func.arrayOf())
@@ -437,8 +461,11 @@ func.println()
 # func.number(any) # Casts the provided value to a number value (No implicit casts will be executed)
 fp.printCastAndTypes(func.number, abc) # Error
 fp.printCastAndTypes(func.number, {{{80}}})
+fp.printCastAndTypes(func.number, {{{0080}}})
 fp.printCastAndTypes(func.number, {{{80.4}}})
+fp.printCastAndTypes(func.number, {{{0080.4}}})
 fp.printCastAndTypes(func.number, {{{1.8e4}}})
+fp.printCastAndTypes(func.number, {{{001.8e4}}})
 fp.printCastAndTypes(func.number, {{{1.8E4}}})
 fp.printCastAndTypes(func.number, {{{NaN}}})
 fp.printCastAndTypes(func.number, func.arrayOf())
