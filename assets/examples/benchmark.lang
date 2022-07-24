@@ -2,6 +2,10 @@ lang.name = Benchmark
 lang.version = v1.0.0
 
 fp.benchmark = ($runs, fp.func) -> {
+	if(fp.func == null) {
+		return Not available
+	}
+	
 	$time = 0
 	repeat(null, $runs) {
 		$start = func.currentTimeMillis()
@@ -13,61 +17,81 @@ fp.benchmark = ($runs, fp.func) -> {
 	return func.divd($time, $runs)
 }
 
-func.println(Enter 0 for "Normal functions benchmark" and 1 for "One-line functions benchmark")
-$input = func.input()
+$i
+repeat($[i], 2) {
+	lang.rawVariableNames = $i
+	
+	func.println(RawVariables: $i)
+	
+	$j
+	repeat($[j], 2) {
+		if($j) {
+			# Normal functions
+			
+			fp.empty = () -> {
+			}
+			fp.addFunc = () -> {
+				parser.op(func.rand() + func.rand())
+			}
+			fp.execFP = () -> {
+				fp.test = () -> {
+					test = test
+				}
+				fp.test()
+			}
+			fp.arrayCreation = () -> {
+				&a = func.arrayMake(100)
+				func.arraySetAll(&a, 42)
+			}
+			fp.linker = () -> {
+				linker.link(items.lang)
+			}
+			fp.bindLib = () -> {
+				linker.bindLibrary(items.lang)
+			}
+			fp.loopFunc = () -> {
+				$i = 0
+				
+				while($i < 1000) {
+					$i += 1
+				}
+			}
+			fp.sleepFunc = () -> {
+				func.sleep(1)
+			}
 
-if(!func.toNumber($input)) {
-	# Normal functions
-	fp.empty = () -> {
-	}
-	fp.add = () -> {
-		func.addi(func.rand(), func.rand())
-	}
-	fp.execFP = () -> {
-		fp.test = () -> {
-			test = test
+			func.println(\s          Normal functions           \s)
+		}else {
+			# One-line functions
+			
+			fp.empty = () -> {
+			}
+			fp.addFunc = () -> parser.op(func.rand() + func.rand())
+			fp.execFP = () -> {
+				fp.test = () -> test = test
+				fp.test()
+			}
+			fp.arrayCreation = null
+			fp.linker = () -> linker.link(items.lang)
+			fp.bindLib = () -> linker.bindLibrary(items.lang)
+			fp.loopFunc = null
+			fp.sleepFunc = () -> func.sleep(1)
+
+			func.println(\s         One-line functions          \s)
 		}
-		fp.test()
-	}
-	fp.arrayCreation = () -> {
-		func.arrayMake(&a, 100)
-		func.arraySetAll(&a, 42)
-	}
-	fp.linker = () -> {
-		linker.link(items.lang)
-	}
-	fp.bindLib = () -> {
-		linker.bindLibrary(items.lang)
-	}
-	fp.sleep = () -> {
-		func.sleep(1)
-	}
 
-	func.println(\s          Normal functions           \s)
-}else {
-	# One-line functions
-	fp.empty = () -> {
+		func.println(\s      Test        |       Time       \s)
+		func.println(-------------------|-------------------)
+		func.println(Empty              | fp.benchmark(1000, fp.empty) ms)
+		func.println(Add                | fp.benchmark(1000, fp.addFunc) ms)
+		func.println(Execute FP         | fp.benchmark(1000, fp.execFP) ms)
+		func.println(Array Creation     | fp.benchmark(1000, fp.arrayCreation) ms)
+		func.println(Linker             | fp.benchmark(1000, fp.linker) ms)
+		func.println(Bind Library       | fp.benchmark(1000, fp.bindLib) ms)
+		func.println(Loop               | fp.benchmark(1000, fp.loopFunc) ms)
+		func.println(Sleep (Should be 1)| fp.benchmark(1000, fp.sleepFunc) ms)
+		func.println(---------------------------------------)
+		func.println()
+		func.println()
 	}
-	fp.add = () -> func.addi(func.rand(), func.rand())
-	fp.execFP = () -> {
-		fp.test = () -> test = test
-		fp.test()
-	}
-	fp.arrayCreation = () -> func.arrayMake(&a, 100) func.arraySetAll(&a, 42)
-	fp.linker = () -> linker.link(items.lang)
-	fp.bindLib = () -> linker.bindLibrary(items.lang)
-	fp.sleep = () -> func.sleep(1)
-
-	func.println(\s         One-line functions          \s)
 }
-
-func.println(\s      Test        |       Time       \s)
-func.println(-------------------|-------------------)
-func.println(Empty              | fp.benchmark(1000, fp.empty) ms)
-func.println(Add                | fp.benchmark(1000, fp.add) ms)
-func.println(Execute FP         | fp.benchmark(1000, fp.execFP) ms)
-func.println(Array creation     | fp.benchmark(1000, fp.arrayCreation) ms)
-func.println(Linker             | fp.benchmark(1000, fp.linker) ms)
-func.println(Bind Library       | fp.benchmark(1000, fp.bindLib) ms)
-func.println(Sleep (Should be 1)| fp.benchmark(1000, fp.sleep) ms)
-func.println(---------------------------------------)
