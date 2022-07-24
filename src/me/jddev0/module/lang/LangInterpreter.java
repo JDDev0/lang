@@ -2262,6 +2262,9 @@ public final class LangInterpreter {
 		 * Will enable langTest unit tests (Can not be disabled if enabled once)
 		 */
 		boolean langTest = false;
+		/**
+		 * Will disable variable name processing which makes the interpreter faster
+		 */
 		boolean rawVariableNames = false;
 		
 		public static enum ErrorOutputFlag {
