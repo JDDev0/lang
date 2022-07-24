@@ -394,6 +394,9 @@ public final class LangInterpreter {
 	private Node processUnprocessedVariableNameNode(UnprocessedVariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
+		if(executionFlags.rawVariableNames)
+			return new VariableNameNode(variableName);
+		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
 			return convertVariableNameToVariableNameNodeOrComposition(variableName, data.get(SCOPE_ID).var.keySet(), "", variableName.startsWith("$"));
 		
@@ -1355,6 +1358,15 @@ public final class LangInterpreter {
 				
 				executionFlags.langTest = langTestNewValue;
 				break;
+			case "lang.rawVariableNames":
+				number = value.toNumber();
+				if(number == null) {
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid Data Type for the lang.rawVariableNames flag!", SCOPE_ID);
+					
+					return;
+				}
+				executionFlags.rawVariableNames = number.intValue() != 0;
+				break;
 			default:
 				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither lang data nor an execution flag", SCOPE_ID);
 		}
@@ -2250,6 +2262,7 @@ public final class LangInterpreter {
 		 * Will enable langTest unit tests (Can not be disabled if enabled once)
 		 */
 		boolean langTest = false;
+		boolean rawVariableNames = false;
 		
 		public static enum ErrorOutputFlag {
 			NOTHING, ALL, ERROR_ONLY;
