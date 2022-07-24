@@ -338,13 +338,21 @@ public final class LangInterpreter {
 					int indexOpeningBracket = modifiedVariableName.indexOf("[");
 					int indexMatchingBracket = LangUtils.getIndexOfMatchingBracket(modifiedVariableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 					if(indexMatchingBracket != -1) {
+						//Remove all "[" "]" pairs
+						int currentIndex = indexOpeningBracket;
+						int currentIndexMatchingBracket = indexMatchingBracket;
+						//"&" both "++" and "--" must be executed
+						while(modifiedVariableName.charAt(++currentIndex) == '[' & modifiedVariableName.charAt(--currentIndexMatchingBracket) == ']');
+						
 						if(indexMatchingBracket != modifiedVariableName.length() - 1) {
 							text = modifiedVariableName.substring(indexMatchingBracket + 1);
 							modifiedVariableName = modifiedVariableName.substring(0, indexMatchingBracket + 1);
 						}
 						
-						returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName.substring(0, indexOpeningBracket) +
-						modifiedVariableName.substring(indexOpeningBracket + 1, indexMatchingBracket), variableNames, "", supportsPointerDereferencingAndReferencing);
+						if(modifiedVariableName.indexOf('[', currentIndex) == -1) {
+							returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName.substring(0, indexOpeningBracket) +
+							modifiedVariableName.substring(currentIndex, currentIndexMatchingBracket + 1), variableNames, "", supportsPointerDereferencingAndReferencing);
+						}
 					}
 				}
 				
