@@ -311,10 +311,7 @@ public final class LangInterpreter {
 		Optional<String> optionalReturnedVariableName = variableNames.stream().filter(varName -> {
 			return variableName.startsWith(varName);
 		}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $abcd and $abc and $ab)
-			if(s0.length() == s1.length())
-				return 0;
-			
-			return (s0.length() < s1.length())?1:-1;
+			return s0.length() < s1.length()?1:(s0.length() == s1.length()?0:-1);
 		}).findFirst();
 		
 		if(!optionalReturnedVariableName.isPresent()) {
