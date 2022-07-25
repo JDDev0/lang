@@ -1542,7 +1542,8 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(LangPatterns.matches(variableName, LangPatterns.LANG_VAR) || LangPatterns.matches(variableName, LangPatterns.LANG_VAR_POINTER_REDIRECTION)) {
+		//Replacement for LANG_VAR and LANG_VAR_POINTER_REDIRECTION match
+		if((variableName.charAt(0) == '$' || variableName.charAt(0) == '&') && (variableName.startsWith("LANG_",  1) || variableName.contains("[LANG_"))) {
 			if(flags != null && flags.length == 2)
 				flags[0] = true;
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
