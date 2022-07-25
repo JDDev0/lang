@@ -1386,7 +1386,7 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
-					if(LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL) || LangPatterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE)) {
+					if(LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE)) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
