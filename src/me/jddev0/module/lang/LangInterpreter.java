@@ -1386,7 +1386,7 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
-					if(LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE)) {
+					if(isVarNameFull(variableName) || isVarNamePtrAndDereference(variableName)) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
@@ -1542,8 +1542,7 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		//Replacement for LANG_VAR and LANG_VAR_POINTER_REDIRECTION match
-		if((variableName.charAt(0) == '$' || variableName.charAt(0) == '&') && (variableName.startsWith("LANG_",  1) || variableName.contains("[LANG_"))) {
+		if(isLangVarOrLangVarPointerRedirection(variableName)) {
 			if(flags != null && flags.length == 2)
 				flags[0] = true;
 			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
@@ -1562,7 +1561,7 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
-		if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE))
+		if(!isVarNameFullWithFuncs(variableName) && !isVarNamePtrAndDereference(variableName))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
@@ -1710,12 +1709,12 @@ public final class LangInterpreter {
 					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
 						DataObject dataTo = data.get(SCOPE_ID_TO).var.get(to);
 						//LANG and final vars can't be change
-						if(LangPatterns.matches(to, LangPatterns.LANG_VAR) || (dataTo != null && (dataTo.isFinalData() || dataTo.isLangVar()))) {
+						if(isLangVar(to) || (dataTo != null && (dataTo.isFinalData() || dataTo.isLangVar()))) {
 							setErrno(InterpretingError.FINAL_VAR_CHANGE, "during copy after FP execution", SCOPE_ID_TO);
 							return;
 						}
 						
-						if(!LangPatterns.matches(to, LangPatterns.VAR_NAME) && !LangPatterns.matches(to, LangPatterns.VAR_NAME_PTR)) {
+						if(!isVarName(to) && !isVarNamePtr(to)) {
 							setErrno(InterpretingError.INVALID_PTR, "during copy after FP execution", SCOPE_ID_TO);
 							return;
 						}
@@ -1784,8 +1783,7 @@ public final class LangInterpreter {
 					while(parameterListIterator.hasNext()) {
 						VariableNameNode parameter = parameterListIterator.next();
 						String variableName = parameter.getVariableName();
-						if(!parameterListIterator.hasNext() && !LangPatterns.matches(variableName, LangPatterns.LANG_VAR) &&
-						LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
+						if(!parameterListIterator.hasNext() && !isLangVar(variableName) && isFuncCallVarArgs(variableName)) {
 							//Varargs (only the last parameter can be a varargs parameter)
 							variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 							if(variableName.startsWith("$")) {
@@ -1810,8 +1808,7 @@ public final class LangInterpreter {
 							break;
 						}
 						
-						if(LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR) && !LangPatterns.matches(variableName,
-						LangPatterns.FUNC_CALL_CALL_BY_PTR_LANG_VAR)) {
+						if(isFuncCallCallByPtr(variableName) && !isFuncCallCallByPtrLangVar(variableName)) {
 							//Call by pointer
 							variableName = "$" + variableName.substring(2, variableName.length() - 1); //Remove '[' and ']' from variable name
 							if(argumentValueList.size() > 0)
@@ -1825,7 +1822,7 @@ public final class LangInterpreter {
 							continue;
 						}
 						
-						if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME) || LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
+						if(!isVarName(variableName) || isLangVar(variableName)) {
 							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", SCOPE_ID);
 							
 							continue;
@@ -1958,7 +1955,7 @@ public final class LangInterpreter {
 	private DataObject interpretFunctionCallNode(FunctionCallNode node, final int SCOPE_ID) {
 		String functionName = node.getFunctionName();
 		FunctionPointerObject fp;
-		if(LangPatterns.matches(functionName, LangPatterns.FUNC_NAME)) {
+		if(isFuncName(functionName)) {
 			final boolean isLinkerFunction;
 			if(functionName.startsWith("func.")) {
 				isLinkerFunction = false;
@@ -1981,7 +1978,7 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Predfined, linker, or external function was not found", SCOPE_ID);
 			
 			fp = new FunctionPointerObject(ret.get().getValue());
-		}else if(LangPatterns.matches(functionName, LangPatterns.VAR_NAME_FUNC_PTR)) {
+		}else if(isVarNameFuncPtr(functionName)) {
 			DataObject ret = data.get(SCOPE_ID).var.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
 				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer was not found or is invalid", SCOPE_ID);
@@ -2046,14 +2043,13 @@ public final class LangInterpreter {
 				
 				VariableNameNode parameter = (VariableNameNode)child;
 				String variableName = parameter.getVariableName();
-				if(!childrenIterator.hasNext() && !LangPatterns.matches(variableName, LangPatterns.LANG_VAR) && LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_VAR_ARGS)) {
+				if(!childrenIterator.hasNext() && !isLangVar(variableName) && isFuncCallVarArgs(variableName)) {
 					//Varargs (only the last parameter can be a varargs parameter)
 					parameterList.add(parameter);
 					break;
 				}
 				
-				if((!LangPatterns.matches(variableName, LangPatterns.VAR_NAME) && !LangPatterns.matches(variableName, LangPatterns.FUNC_CALL_CALL_BY_PTR)) ||
-				LangPatterns.matches(variableName, LangPatterns.LANG_VAR)) {
+				if((!isVarName(variableName) && !isFuncCallCallByPtr(variableName)) || isLangVar(variableName)) {
 					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter: \"" + variableName + "\"", SCOPE_ID);
 					
 					continue;
@@ -2079,6 +2075,278 @@ public final class LangInterpreter {
 		
 		List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
 		return new DataObject().setArray(elements.toArray(new DataObject[0]));
+	}
+	
+	/**
+	 * LangPatterns: LANG_VAR ((\$|&)LANG_.*)
+	 */
+	private boolean isLangVar(String token) {
+		char firstChar = token.charAt(0);
+		return (firstChar == '$' || firstChar == '&') && token.startsWith("LANG_",  1);
+	}
+	
+	/**
+	 * LangPatterns: LANG_VAR ((\$|&)LANG_.*) || LANG_VAR_POINTER_REDIRECTION (\$\[+LANG_.*\]+)
+	 */
+	private boolean isLangVarOrLangVarPointerRedirection(String token) {
+		char firstChar = token.charAt(0);
+		return (firstChar == '$' || firstChar == '&') && (token.startsWith("LANG_",  1) || token.contains("[LANG_"));
+	}
+	
+	/**
+	 * LangPatterns: FUNC_CALL_VAR_ARGS ((\$|&)\w+\.\.\.)
+	 */
+	private boolean isFuncCallVarArgs(String token) {
+		char firstChar = token.charAt(0);
+		if(!((firstChar == '$' || firstChar == '&') && token.endsWith("...")))
+			return false;
+		
+		boolean hasVarName = false;
+		for(int i = 1;i < token.length() - 3;i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: FUNC_CALL_CALL_BY_PTR (\$\[\w+\])
+	 */
+	private boolean isFuncCallCallByPtr(String token) {
+		if(!(token.startsWith("$[") && token.endsWith("]")))
+			return false;
+		
+		boolean hasVarName = false;
+		for(int i = 2;i < token.length() - 1;i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: FUNC_CALL_CALL_BY_PTR_LANG_VAR (\$\[LANG_.*\])
+	 */
+	private boolean isFuncCallCallByPtrLangVar(String token) {
+		return token.startsWith("$[LANG_") && token.endsWith("]");
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME ((\$|&|fp\.)\w+)
+	 */
+	private boolean isVarName(String token) {
+		boolean funcPtr = token.startsWith("fp.");
+		
+		char firstChar = token.charAt(0);
+		if(!(funcPtr || firstChar == '$' || firstChar == '&'))
+			return false;
+		
+		boolean hasVarName = false;
+		for(int i = funcPtr?3:1;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME_PTR (\$\[+\w+\]+)
+	 */
+	private boolean isVarNamePtr(String token) {
+		if(token.charAt(0) != '$')
+			return false;
+		
+		int i = 1;
+		boolean hasNoBracketOpening = true;
+		for(;i < token.length();i++) {
+			if(token.charAt(i) == '[')
+				hasNoBracketOpening = false;
+			else
+				break;
+		}
+		
+		if(hasNoBracketOpening)
+			return false;
+		
+		boolean hasNoVarName = true;
+		for(;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasNoVarName = false;
+			else
+				break;
+		}
+		
+		if(hasNoVarName)
+			return false;
+		
+		boolean hasBracketClosing = false;
+		for(;i < token.length();i++)
+			if(token.charAt(i) == ']')
+				hasBracketClosing = true;
+			else
+				return false;
+		
+		return hasBracketClosing;
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME_FULL ((\$\**|&|fp\.)\w+)
+	 */
+	private boolean isVarNameFull(String token) {
+		boolean funcPtr = token.startsWith("fp.");
+		char firstChar = token.charAt(0);
+		boolean normalVar = firstChar == '$';
+		
+		if(!(funcPtr || normalVar || firstChar == '&'))
+			return false;
+		
+		int i = funcPtr?3:1;
+		
+		if(normalVar)
+			for(;i < token.length();i++)
+				if(token.charAt(i) != '*')
+					break;
+		
+		boolean hasVarName = false;
+		for(;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME_FULL_WITH_FUNCS ((\$\**|&|fp\.|func\.|linker\.)\w+)
+	 */
+	private boolean isVarNameFullWithFuncs(String token) {
+		boolean funcPtr = token.startsWith("fp.");
+		boolean func = token.startsWith("func.");
+		boolean linker = token.startsWith("linker.");
+		char firstChar = token.charAt(0);
+		boolean normalVar = firstChar == '$';
+		
+		if(!(funcPtr || func || linker || normalVar || firstChar == '&'))
+			return false;
+		
+		int i = funcPtr?3:(func?5:(linker?7:1));
+		
+		if(normalVar)
+			for(;i < token.length();i++)
+				if(token.charAt(i) != '*')
+					break;
+		
+		boolean hasVarName = false;
+		for(;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME_PTR_AND_DEREFERENCE (\$\**\[+\w+\]+)
+	 */
+	private boolean isVarNamePtrAndDereference(String token) {
+		if(token.charAt(0) != '$')
+			return false;
+		
+		int i = 1;
+		for(;i < token.length();i++)
+			if(token.charAt(i) != '*')
+				break;
+		
+		boolean hasNoBracketOpening = true;
+		for(;i < token.length();i++) {
+			if(token.charAt(i) == '[')
+				hasNoBracketOpening = false;
+			else
+				break;
+		}
+		
+		if(hasNoBracketOpening)
+			return false;
+		
+		boolean hasNoVarName = true;
+		for(;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasNoVarName = false;
+			else
+				break;
+		}
+		
+		if(hasNoVarName)
+			return false;
+		
+		boolean hasBracketClosing = false;
+		for(;i < token.length();i++)
+			if(token.charAt(i) == ']')
+				hasBracketClosing = true;
+			else
+				return false;
+		
+		return hasBracketClosing;
+	}
+	
+	/**
+	 * LangPatterns: FUNC_NAME ((func\.|linker\.)\w+)
+	 */
+	private boolean isFuncName(String token) {
+		boolean func = token.startsWith("func.");
+		
+		if(!(func || token.startsWith("linker.")))
+			return false;
+		
+		boolean hasVarName = false;
+		for(int i = func?5:7;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
+	}
+	
+	/**
+	 * LangPatterns: VAR_NAME_FUNC_PTR (fp\.\w+)
+	 */
+	private boolean isVarNameFuncPtr(String token) {
+		if(!token.startsWith("fp."))
+			return false;
+		
+		boolean hasVarName = false;
+		for(int i = 3;i < token.length();i++) {
+			char c = token.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				hasVarName = true;
+			else
+				return false;
+		}
+		
+		return hasVarName;
 	}
 	
 	void createDataMap(final int SCOPE_ID) {
