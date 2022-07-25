@@ -1562,7 +1562,7 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
-		if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && !LangPatterns.matches(variableName, LangPatterns.VAR_NAME_PTR_AND_DEREFERENCE))
+		if(!LangPatterns.matches(variableName, LangPatterns.VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))

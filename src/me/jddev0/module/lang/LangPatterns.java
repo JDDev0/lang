@@ -48,6 +48,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
 	/**
+	 * RegEx: ((\$\**|&|fp\.|func\.|linker\.)\w+|\$\**\[+\w+\]+)
+	 */
+	public static final Pattern VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
+	/**
 	 * RegEx: fp\.\w+
 	 */
 	public static final Pattern VAR_NAME_FUNC_PTR = Pattern.compile("fp\\.\\w+");
