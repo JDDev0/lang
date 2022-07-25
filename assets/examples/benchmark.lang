@@ -3,7 +3,7 @@ lang.version = v1.0.0
 
 fp.benchmark = ($runs, fp.func) -> {
 	if(fp.func == null) {
-		return Not available
+		return n/a
 	}
 	
 	$time = 0
