@@ -424,8 +424,11 @@ func.println(func.repeatText(5, 2,test))
 func.println(\n)
 
 # Math functions
-# func.rand() # Will return a int value between 0 and $LANG_RAND_MAX
+# func.rand() # Will return an INT value between 0 (inclusive) and $LANG_RAND_MAX (exclusive)
 func.println(func.rand())
+
+# func.randi() # Will return an INT value between $LANG_INT_MIN (inclusive) and $LANG_INT_MAX (exclusive)
+func.println(func.randi())
 
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
