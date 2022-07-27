@@ -433,6 +433,9 @@ func.println(func.randi())
 # func.randl() # Will return a LONG value between $LANG_LONG_MIN (inclusive) and $LANG_LONG_MAX (exclusive)
 func.println(func.randl())
 
+# func.randf() # Will return a FLOAT value between 0.0 (inclusive) and 1.0 (exclusive)
+func.println(func.randf())
+
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
 $incl = func.incl(-10)
