@@ -439,6 +439,9 @@ func.println(func.randf())
 # func.randd() # Will return a DOUBLE value between 0.0 (inclusive) and 1.0 (exclusive)
 func.println(func.randd())
 
+# func.randb() # Will return a bool value (0 or 1)
+func.println(func.randb())
+
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
 $incl = func.incl(-10)
