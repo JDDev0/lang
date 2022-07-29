@@ -447,6 +447,18 @@ func.println(func.randRange(4))
 func.println(func.randRange(10))
 func.println(func.randRange(20))
 
+# func.setSeed($seed) # Will set the seed of the RNG for this executor instance (Affects: func.rand(), func.rand_(), func.randRange(), func.randChoice())
+func.setSeed(42)
+func.println(func.randRange(10))
+func.println(func.randRange(10))
+func.println(func.randRange(10))
+
+# Will output the same as above
+func.setSeed(42)
+func.println(func.randRange(10))
+func.println(func.randRange(10))
+func.println(func.randRange(10))
+
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
 $incl = func.incl(-10)
