@@ -442,6 +442,11 @@ func.println(func.randd())
 # func.randb() # Will return a bool value (0 or 1)
 func.println(func.randb())
 
+# func.randRange($range) # Will return an INT value between 0 (inclusive) and $range (exclusive)
+func.println(func.randRange(4))
+func.println(func.randRange(10))
+func.println(func.randRange(20))
+
 # func.inc[i/l/f/d](int/long/float/double) # Will add 1
 $inci = func.inci(49)
 $incl = func.incl(-10)
