@@ -194,7 +194,7 @@ func.println(func.arrayGetAll(&testArray))
 
 func.println()
 
-# Map the array to a single value
+# Map arrays to a single value
 # func.arrayMapToOne(arrPtr, value, funcPtr) # funcPtr call for the first element: funcPtr(value, currentElement)
                                              # funcPtr call for every other element: funcPtr(previousReturnedValue, currentElement)
                                              # Value will be returned for arrays of size 0
@@ -204,6 +204,23 @@ func.println()
 $sum = func.arrayMapToOne(&testArray, 0, func.add) # Will return the sum of all elements
 $prod = func.arrayMapToOne(&testArray, 1, func.mul) # Will return the product of all elements
 func.println(Sum of func.arrayGetAll(&testArray): $sum\nProduct of func.arrayGetAll(&testArray): $prod)
+
+func.println(func.arrayMapToOne(func.arrayOf(), Empty, func.print)) # func.print will not be called
+
+# func.arrayMapToOne(arrPtr, funcPtr) # funcPtr call for the first two elements: funcPtr(firstElement, secondElement)
+                                      # funcPtr call for every other element: funcPtr(previousReturnedValue, currentElement)
+                                      # VOID will be returned for empty arrays
+                                      # First element will be returned for arrays of size 1
+
+func.println()
+
+&testArray = func.arrayOf(10, 24, 4, 42, -1)
+$sum = func.arrayMapToOne(&testArray, func.add)
+$prod = func.arrayMapToOne(&testArray, func.mul)
+func.println(Sum of func.arrayGetAll(&testArray): $sum\nProduct of func.arrayGetAll(&testArray): $prod)
+
+func.println(func.typeOf(func.arrayMapToOne(func.arrayOf(), func.print))) # func.print will not be called and VOID will be returned
+func.println(func.arrayMapToOne(func.arrayOf(Empty), func.print)) # func.print will not be called
 
 func.println()
 
