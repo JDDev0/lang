@@ -941,7 +941,7 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 				
 				new HashSet<>(interpreter.data.get(SCOPE_ID).var.entrySet()).forEach(entry -> {
-					if(entry.getValue().getType() == DataType.ARRAY)
+					if(entry.getValue().getType() == DataType.ARRAY && !entry.getValue().isLangVar())
 						interpreter.data.get(SCOPE_ID).var.remove(entry.getKey());
 				});
 				return null;
