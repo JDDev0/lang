@@ -5026,14 +5026,14 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("arrayMapToOne", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
 			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
 			
 			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject currentValueObject = combinedArgumentList.get(1);
-			DataObject funcPointerObject = combinedArgumentList.get(2);
+			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
+			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
@@ -5043,6 +5043,12 @@ final class LangPredefinedFunctions {
 			
 			DataObject[] arr = arrPointerObject.getArray();
 			for(DataObject ele:arr) {
+				if(currentValueObject == null) { //Set first element as currentValue if non was provided
+					currentValueObject = ele;
+					
+					continue;
+				}
+				
 				List<DataObject> argumentListFuncCall = new ArrayList<>();
 				argumentListFuncCall.add(currentValueObject);
 				argumentListFuncCall.add(ele);
