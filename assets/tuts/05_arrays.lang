@@ -196,12 +196,13 @@ func.println()
 
 # Map the array to a single value
 # func.arrayMapToOne(arrPtr, value, funcPtr) # funcPtr call for the first element: funcPtr(value, currentElement)
-                                             # funcPtr call for other every element: funcPtr(previousReturnedValue, currentElement)
-# FuncPtr [See: 05_functionPointer.lang]
+                                             # funcPtr call for every other element: funcPtr(previousReturnedValue, currentElement)
+                                             # Value will be returned for arrays of size 0
+# FuncPtr [See: 06_functionPointer.lang]
 
 &testArray = func.arrayOf(1, 2, 3, 4, 42, -1)
-$sum = func.arrayMapToOne(&testArray, 0, func.addi) # Will return the sum of all elements
-$prod = func.arrayMapToOne(&testArray, 1, func.muli) # Will return the product of all elements
+$sum = func.arrayMapToOne(&testArray, 0, func.add) # Will return the sum of all elements
+$prod = func.arrayMapToOne(&testArray, 1, func.mul) # Will return the product of all elements
 func.println(Sum of func.arrayGetAll(&testArray): $sum\nProduct of func.arrayGetAll(&testArray): $prod)
 
 func.println()
