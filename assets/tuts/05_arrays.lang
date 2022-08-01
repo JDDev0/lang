@@ -192,6 +192,12 @@ func.println(func.arrayGetAll(&testArray))
 func.arrayMap(&testArray, func.toChar)
 func.println(func.arrayGetAll(&testArray))
 
+# func.arrayMapToNew(arrPtr, funcPtr) # Same as "func.arrayMap()" but returns a new array without modifing the original
+&testArray = func.arrayOf(A, B, C, D, E, F, G)
+&mappedArray = func.arrayMapToNew(&testArray, func.toValue)
+func.println(Mapped: &mappedArray)
+func.println(Original: &testArray)
+
 func.println()
 
 # Map arrays to a single value
