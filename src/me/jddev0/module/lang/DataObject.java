@@ -1500,9 +1500,9 @@ public class DataObject {
 				if(dataObject.getType() != DataType.FUNCTION_POINTER)
 					return null;
 				
+				final FunctionPointerObject aFunc = getFunctionPointer();
+				final FunctionPointerObject bFunc = dataObject.getFunctionPointer();
 				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
-					FunctionPointerObject aFunc = getFunctionPointer();
-					FunctionPointerObject bFunc = dataObject.getFunctionPointer();
 					
 					List<DataObject> argsB = new LinkedList<>();
 					DataObject retA = interpreter.callFunctionPointer(aFunc, getVariableName(), args, SCOPE_ID);
