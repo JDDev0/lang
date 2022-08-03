@@ -1978,6 +1978,8 @@ public final class LangParser {
 				return parseCondition(parameterList);
 			case "math":
 				return parseMathExpr(parameterList);
+			case "norm":
+				return parseToken(parameterList, null).convertToNode();
 			case "op":
 				return parseOperationExpr(parameterList);
 		}
