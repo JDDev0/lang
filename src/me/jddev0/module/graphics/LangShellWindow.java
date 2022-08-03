@@ -94,7 +94,7 @@ public class LangShellWindow extends JDialog {
 	private final List<String> langDataAndExecutionFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "name = ", "test = ", "rawVariableNames = ", "version = ");
 	private final List<String> controlFlowStatements = Arrays.asList("break", "catch", "continue", "elif(", "else", "endif", "endloop", "endtry", "finally", "foreach(", "if(", "loop", "nontry",
 			"repeat(", "softtry", "try", "until(", "while(");
-	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "op(");
+	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "norm(", "op(");
 	
 	public LangShellWindow(Frame owner, TerminalIO term) {
 		this(owner, term, 12);
