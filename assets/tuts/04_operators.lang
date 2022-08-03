@@ -53,8 +53,10 @@ lang.version = v1.0.0
 # opr1 || opr2        - Or
 
 # Assignments
+# opr1=opr2           - Simple assignment
+# opr1=opr2           - Simple translation
 # opr1 = opr2         - Normal assignment
-# opr1 = opr2         - Translation
+# opr1 = opr2         - Normal translation
 # opr1 ?= opr2        - Set condition assignment       (Is equivalent to "opr1 = parser.con(opr2)")
 # opr1 := opr2        - Set math assignment            (Is equivalent to "opr1 = parser.math(opr2)")
 # opr1 $= opr2        - Set operation assignment       (Is equivalent to "opr1 = parser.op(opr2)")
