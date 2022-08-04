@@ -2583,7 +2583,7 @@ public final class LangInterpreter {
 	}
 	
 	public static enum InterpretingError {
-		NO_ERROR              ( 0, "No Error"),
+		NO_ERROR               ( 0, "No Error"),
 		
 		//ERRORS
 		FINAL_VAR_CHANGE       ( 1, "LANG or final vars must not be changed"),
