@@ -1188,11 +1188,11 @@ final class LangPredefinedFunctions {
 			if(translationKeyObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
 			
-			String langValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
-			if(langValue == null)
+			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			if(translationValue == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
 			
-			return new DataObject(langValue);
+			return new DataObject(translationValue);
 		});
 		funcs.put("makeFinal", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
