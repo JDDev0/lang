@@ -1,8 +1,10 @@
 package me.jddev0.module.lang;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import me.jddev0.module.lang.DataObject.DataType;
@@ -184,5 +186,223 @@ public final class LangUtils {
 				return (index - i) % 2 == 0;
 		
 		return index % 2 == 1;
+	}
+	
+	/**
+	 * @return Will return a formatted template translation ("{" can be escaped with "{{")
+	 */
+	public static String formatTranslationTemplate(String translationValue, Map<String, String> templateMap) throws InvalidTranslationTemplateSyntaxException {
+		StringBuilder builder = new StringBuilder();
+		
+		int i;
+		int startIndex = 0;
+		do {
+			i = translationValue.indexOf('{', startIndex);
+			
+			if(i == -1) {
+				builder.append(translationValue.substring(startIndex));
+				
+				break;
+			}else {
+				builder.append(translationValue.substring(startIndex, i));
+				startIndex = i;
+			}
+			
+			if(translationValue.charAt(i) == '{' && i < translationValue.length() - 1 && translationValue.charAt(i + 1) == '{') {
+				builder.append(translationValue.substring(startIndex, i + 1)); //Ignore second '{'
+				startIndex = i + 2;
+				
+				continue;
+			}
+			
+			int matchingBracketIndex = translationValue.indexOf('}', i);
+			if(matchingBracketIndex == -1)
+				throw new InvalidTranslationTemplateSyntaxException("Template closing bracket is missing");
+			
+			startIndex = matchingBracketIndex + 1;
+			
+			String templateName = translationValue.substring(i + 1, matchingBracketIndex);
+			if(!templateMap.containsKey(templateName))
+				throw new InvalidTranslationTemplateSyntaxException("Template with the name \"" + templateName + "\" was not defined");
+			
+			builder.append(templateMap.get(templateName));
+		}while(i < translationValue.length());
+		
+		return builder.toString();
+	}
+
+	/**
+	 * @return Will return a formatted translation with the correct pluralization (";" can be escaped with ";;" and "{" can be escaped with "{{")
+	 */
+	public static String formatTranslationTemplatePluralization(String translationValue, int count) throws InvalidTranslationTemplateSyntaxException, NumberFormatException {
+		return formatTranslationTemplatePluralization(translationValue, count, new HashMap<>());
+	}
+	
+	/**
+	 * @return Will return a formatted translation with the correct pluralization and additional template values [the count template value will be overridden]
+	 * (";" can be escaped with ";;" and "{" can be escaped with "{{")
+	 */
+	public static String formatTranslationTemplatePluralization(String translationValue, int count, Map<String, String> templateMap) throws InvalidTranslationTemplateSyntaxException,
+	NumberFormatException {
+		List<String> templateTokens = new LinkedList<>();
+		
+		int startIndex = 0;
+		int i = 0;
+		while(i < translationValue.length()) {
+			if(i == translationValue.length() - 1) {
+				templateTokens.add(translationValue.substring(startIndex, i + 1).replace(";;", ";")); //Ignore second ";"s
+				
+				break;
+			}
+			
+			if(translationValue.charAt(i) == ';') {
+				if(translationValue.charAt(i + 1) == ';') {
+					i += 2; //Skip two ';'
+					
+					continue;
+				}
+				
+				templateTokens.add(translationValue.substring(startIndex, i + 1).replace(";;", ";")); //Ignore second ";"s
+				startIndex = i + 1;
+			}
+			
+			i++;
+		}
+		
+		List<TranslationPluralizationTemplate> templates = new LinkedList<>();
+		for(i = 0;i < templateTokens.size();i++) {
+			String templateToken = templateTokens.get(i);
+			if(templateToken.charAt(templateToken.length() - 1) == ';')
+				templateToken = templateToken.substring(0, templateToken.length() - 1);
+			else if(i != templateTokens.size() - 1)
+				throw new InvalidTranslationTemplateSyntaxException("Pluralization template token must end with \";\"");
+			
+			if(templateToken.charAt(0) != '[')
+				throw new InvalidTranslationTemplateSyntaxException("Pluralization template token must start with \"[\"");
+			
+			int matchingBracketIndex = templateToken.indexOf(']');
+			if(matchingBracketIndex == -1)
+				throw new InvalidTranslationTemplateSyntaxException("Count range closing bracket is missing");
+			
+			String rawCountValues = templateToken.substring(1, matchingBracketIndex); //Ignore '[' and ']'
+			String rawTranslationValue = templateToken.substring(matchingBracketIndex + 1);
+			
+			List<TranslationPluralizationTemplate.CountRange> countValues = new LinkedList<>();
+			startIndex = 0;
+			for(int j = 0;j < rawCountValues.length();j++) {
+				char c = rawCountValues.charAt(j);
+				if((c >= '0' && c <= '9') || c == '-' || c == '+') {
+					if(j < rawCountValues.length() - 1)
+						continue;
+				}else if(c != ',') {
+					throw new InvalidTranslationTemplateSyntaxException("Invalid token in count range");
+				}
+				
+				String rawCountValue = rawCountValues.substring(startIndex, j < rawCountValues.length() - 1?j:(j + 1));
+				startIndex = j + 1;
+				
+				int startCount = -2;
+				int endCount = -2;
+				int numberStartIndex = 0;
+				for(int k = 0;k < rawCountValue.length();k++) {
+					c = rawCountValue.charAt(k);
+					if(c >= '0' && c <= '9') {
+						if(k == rawCountValue.length() - 1) {
+							String numberCount = rawCountValue.substring(numberStartIndex, k + 1);
+							
+							if(startCount == -2) {
+								startCount = Integer.parseInt(numberCount);
+								endCount = startCount;
+							}else if(endCount == -2) {
+								endCount = Integer.parseInt(numberCount);
+							}else {
+								throw new InvalidTranslationTemplateSyntaxException("Too many value in range inside a count range");
+							}
+						}
+						
+						continue;
+					}
+					
+					if(c == '-') {
+						if(numberStartIndex != 0)
+							throw new InvalidTranslationTemplateSyntaxException("Invalid character \"-\" can not be used twice in a range inside a count range");
+						
+						String numberStartCount = rawCountValue.substring(numberStartIndex, k);
+						numberStartIndex = k + 1;
+						
+						startCount = Integer.parseInt(numberStartCount);
+					}else if(c == '+') {
+						if(startCount != -2 || endCount != -2 || k < rawCountValue.length() - 1)
+							throw new InvalidTranslationTemplateSyntaxException("Invalid character \"+\" can not be used twice or with multiple values in count range");
+						
+						String numberStartCount = rawCountValue.substring(numberStartIndex, k);
+						startCount = Integer.parseInt(numberStartCount);
+						
+						endCount = -1;
+					}
+				}
+				
+				if(startCount == -2 || endCount == -2)
+					throw new InvalidTranslationTemplateSyntaxException("Empty count range sequence");
+				
+				countValues.add(new TranslationPluralizationTemplate.CountRange(startCount, endCount));
+			}
+			
+			templates.add(new TranslationPluralizationTemplate(countValues, rawTranslationValue));
+		}
+		
+		for(TranslationPluralizationTemplate template:templates) {
+			for(TranslationPluralizationTemplate.CountRange countRange:template.getCountValues()) {
+				if(countRange.isCountInRange(count)) {
+					templateMap = new HashMap<>(templateMap);
+					templateMap.put("count", count + "");
+					
+					return formatTranslationTemplate(template.getRawTranslationValue(), templateMap);
+				}
+			}
+		}
+		
+		throw new InvalidTranslationTemplateSyntaxException("No pluralization for count \"" + count + "\" was defined");
+	}
+	private static class TranslationPluralizationTemplate {
+		private final List<CountRange> countValues;
+		private final String rawTranslationValue;
+		
+		private TranslationPluralizationTemplate(List<CountRange> countValues, String rawTranslationValue) {
+			this.countValues = countValues;
+			this.rawTranslationValue = rawTranslationValue;
+		}
+		
+		private List<CountRange> getCountValues() {
+			return countValues;
+		}
+		
+		private String getRawTranslationValue() {
+			return rawTranslationValue;
+		}
+		
+		private static class CountRange {
+			private final int startCount;
+			/**
+			 * If -1: All values >= startCount
+			 */
+			private final int endCount;
+			
+			private CountRange(int startCount, int endCount) {
+				this.startCount = startCount;
+				this.endCount = endCount;
+			}
+			
+			private boolean isCountInRange(int count) {
+				return count == startCount || (count > startCount && (endCount == -1 || count <= endCount));
+			}
+		}
+	}
+	public static class InvalidTranslationTemplateSyntaxException extends RuntimeException {
+		private static final long serialVersionUID = -608364324824905715L;
+		
+		public InvalidTranslationTemplateSyntaxException(String message) {
+			super(message);
+		}
 	}
 }
