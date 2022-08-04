@@ -27,6 +27,7 @@ import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
+import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
 
@@ -1193,6 +1194,31 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
 			
 			return new DataObject(translationValue);
+		});
+		funcs.put("getTranslationValueTemplatePluralization", (argumentList, SCOPE_ID) -> {
+			if(LangUtils.countDataObjects(argumentList) < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject translationKeyObject = LangUtils.combineDataObjects(argumentList);
+			
+			Number count = countObject.toNumber();
+			if(count == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
+			
+			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			if(translationValue == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+			
+			try {
+				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
+			}catch(InvalidTranslationTemplateSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
 		});
 		funcs.put("makeFinal", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
