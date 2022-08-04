@@ -2184,6 +2184,29 @@ final class LangPredefinedFunctions {
 			DataObject formatObject = combinedArgumentList.remove(0);
 			return formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 		});
+		funcs.put("formatTranslationTemplatePluralization", (argumentList, SCOPE_ID) -> {
+			if(LangUtils.countDataObjects(argumentList) < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
+			DataObject translationValueObject = LangUtils.combineDataObjects(argumentList);
+			
+			Number count = countObject.toNumber();
+			if(count == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
+			
+			String translationValue = translationValueObject.getText();
+			
+			try {
+				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
+			}catch(InvalidTranslationTemplateSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+		});
 		funcs.put("contains", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
