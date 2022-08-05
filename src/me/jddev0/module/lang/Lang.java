@@ -32,8 +32,8 @@ public final class Lang {
 	private Lang() {}
 	
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return key;</code>
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
 	 */
 	private static String formatTranslation(String translationKey, String translationValue, Object... args) {
 		if(translationValue == null)
@@ -47,19 +47,19 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return null;</code>
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return null;</code>
 	 */
-	private static String getRawTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws IOException {
-		return getTranslationMap(langFile, false, null, langPlatformAPI).get(key);
+	private static String getRawTranslation(String langFile, String translationKey, LangPlatformAPI langPlatformAPI) throws IOException {
+		return getTranslationMap(langFile, false, null, langPlatformAPI).get(translationKey);
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> from the cache<br>
-	 * If key wasn't found -> <code>return null;</code>
+	 * @return Returns translation <b>translationKey</b> from the cache<br>
+	 * If translationKey wasn't found -> <code>return null;</code>
 	 */
-	private static String getCachedRawTranslation(String key) {
-		return getCachedTranslationMap().get(key);
+	private static String getCachedRawTranslation(String translationKey) {
+		return getCachedTranslationMap().get(translationKey);
 	}
 	
 	/**
@@ -179,19 +179,19 @@ public final class Lang {
 	
 	/**
 	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return key;</code>
+	 * If translationKey wasn't found -> <code>return key;</code>
 	 */
-	public static String getTranslation(String langFile, String key, LangPlatformAPI langPlatformAPI) throws IOException {
-		Map<String, String> translationMap = getTranslationMap(langFile, false, null, langPlatformAPI);
-		return translationMap.get(key) == null?key:translationMap.get(key);
+	public static String getTranslation(String langFile, String translationKey, LangPlatformAPI langPlatformAPI) throws IOException {
+		String translationValue = getRawTranslation(langFile, translationKey, langPlatformAPI);
+		return translationValue == null?translationKey:translationValue;
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If key wasn't found -> <code>return key;</code>
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
 	 */
-	public static String getTranslationFormat(String langFile, String key, LangPlatformAPI langPlatformAPI, Object... args) throws IOException {
-		return formatTranslation(key, getRawTranslation(langFile, key, langPlatformAPI), args);
+	public static String getTranslationFormat(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, Object... args) throws IOException {
+		return formatTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), args);
 	}
 	
 	/**
@@ -232,19 +232,19 @@ public final class Lang {
 	
 	/**
 	 * @return Returns translation <b>key</b> from the cache<br>
-	 * If key wasn't found -> <code>return key;</code>
+	 * If translationKey wasn't found -> <code>return key;</code>
 	 */
-	public static String getCachedTranslation(String key) {
-		Map<String, String> translationMap = getCachedTranslationMap();
-		return translationMap.get(key) == null?key:translationMap.get(key);
+	public static String getCachedTranslation(String translationKey) {
+		String translationValue = getCachedRawTranslation(translationKey);
+		return translationValue == null?translationKey:translationValue;
 	}
 	
 	/**
 	 * @return Returns translation <b>key</b> from the cache<br>
-	 * If key wasn't found -> <code>return key;</code>
+	 * If translationKey wasn't found -> <code>return key;</code>
 	 */
-	public static String getCachedTranslationFormat(String key, Object... args) {
-		return formatTranslation(key, getCachedRawTranslation(key), args);
+	public static String getCachedTranslationFormat(String translationKey, Object... args) {
+		return formatTranslation(translationKey, getCachedRawTranslation(translationKey), args);
 	}
 	
 	/**
