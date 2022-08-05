@@ -20,7 +20,13 @@ import me.jddev0.module.io.TerminalIO;
  */
 public final class Lang {
 	//Lang cache
-	private final static Map<String, String> LANG_CACHE = new HashMap<>(); //translation key = translation value
+	/**
+	 * Content: translation key = translation value
+	 */
+	private final static Map<String, String> LANG_CACHE = new HashMap<>();
+	/**
+	 * The name of the lang file which was cached previously
+	 */
 	private static String lastCachedLangFileName;
 	
 	private Lang() {}
