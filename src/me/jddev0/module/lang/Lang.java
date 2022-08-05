@@ -48,6 +48,51 @@ public final class Lang {
 	
 	/**
 	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	private static String formatTemplateTranslation(String translationKey, String translationValue, Map<String, String> templateMap) {
+		if(translationValue == null)
+			return translationKey;
+		
+		try {
+			return LangUtils.formatTranslationTemplate(translationValue, templateMap);
+		}catch(Exception e) {
+			return translationValue;
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	private static String formatPluralizationTemplateTranslation(String translationKey, String translationValue, int count) {
+		if(translationValue == null)
+			return translationKey;
+		
+		try {
+			return LangUtils.formatTranslationTemplatePluralization(translationValue, count);
+		}catch(Exception e) {
+			return translationValue;
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	private static String formatPluralizationTemplateTranslation(String translationKey, String translationValue, int count, Map<String, String> templateMap) {
+		if(translationValue == null)
+			return translationKey;
+		
+		try {
+			return LangUtils.formatTranslationTemplatePluralization(translationValue, count, templateMap);
+		}catch(Exception e) {
+			return translationValue;
+		}
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
 	 * If translationKey wasn't found -> <code>return null;</code>
 	 */
 	private static String getRawTranslation(String langFile, String translationKey, LangPlatformAPI langPlatformAPI) throws IOException {
@@ -195,6 +240,30 @@ public final class Lang {
 	}
 	
 	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslationTemplate(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, Map<String, String> templateMap) throws IOException {
+		return formatTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), templateMap);
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslationTemplatePluralization(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, int count) throws IOException {
+		return formatPluralizationTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), count);
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getTranslationTemplatePluralization(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, int count, Map<String, String> templateMap) throws IOException {
+		return formatPluralizationTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), count, templateMap);
+	}
+	
+	/**
 	 * @return Returns language name of <b>langFile</b><br>
 	 */
 	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
@@ -245,6 +314,30 @@ public final class Lang {
 	 */
 	public static String getCachedTranslationFormat(String translationKey, Object... args) {
 		return formatTranslation(translationKey, getCachedRawTranslation(translationKey), args);
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getCachedTranslationTemplate(String translationKey, Map<String, String> templateMap) {
+		return formatTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), templateMap);
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getCachedTranslationTemplatePluralization(String translationKey, int count) {
+		return formatPluralizationTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), count);
+	}
+	
+	/**
+	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
+	 * If translationKey wasn't found -> <code>return key;</code>
+	 */
+	public static String getCachedTranslationTemplatePluralization(String translationKey, int count, Map<String, String> templateMap) {
+		return formatPluralizationTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), count, templateMap);
 	}
 	
 	/**
