@@ -19,7 +19,7 @@ import me.jddev0.module.io.TerminalIO;
  * @version v1.0.0
  */
 public final class Lang {
-	//Lang cache
+	//lang translation cache
 	/**
 	 * Content: translation key = translation value
 	 */
@@ -102,7 +102,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang cache<br>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache<br>
 	 * Null will be returned if the translationKey does not exist
 	 */
 	private static String getCachedRawTranslation(String translationKey) {
@@ -225,8 +225,8 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b><br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getTranslation(String langFile, String translationKey, LangPlatformAPI langPlatformAPI) throws IOException {
 		String translationValue = getRawTranslation(langFile, translationKey, langPlatformAPI);
@@ -234,46 +234,49 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b> formatted with {@link String#format(String, Object...) String.format(String, Object...)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getTranslationFormat(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, Object... args) throws IOException {
 		return formatTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), args);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b> formatted with
+	 * {@link LangUtils#formatTranslationTemplate(String, Map) LangUtils.formatTranslationTemplate(String, Map)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getTranslationTemplate(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, Map<String, String> templateMap) throws IOException {
 		return formatTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), templateMap);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b> formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int) LangUtils.formatTranslationTemplatePluralization(String, int)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getTranslationTemplatePluralization(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, int count) throws IOException {
 		return formatPluralizationTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), count);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b> formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int, Map) LangUtils.formatTranslationTemplatePluralization(String, int, Map)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getTranslationTemplatePluralization(String langFile, String translationKey, LangPlatformAPI langPlatformAPI, int count, Map<String, String> templateMap) throws IOException {
 		return formatPluralizationTemplateTranslation(translationKey, getRawTranslation(langFile, translationKey, langPlatformAPI), count, templateMap);
 	}
 	
 	/**
-	 * @return Returns language name of <b>langFile</b><br>
+	 * @return Returns the lang file's of <b>langFile</b><br>
 	 */
 	public static String getLangName(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
 		return getTranslation(langFile, "lang.name", langPlatformAPI);
 	}
 	
 	/**
-	 * @return Returns language version of <b>langFile</b><br>
+	 * @return Returns the lang file's of <b>langFile</b><br>
 	 */
 	public static String getLangVersion(String langFile, LangPlatformAPI langPlatformAPI) throws IOException {
 		return getTranslation(langFile, "lang.version", langPlatformAPI);
@@ -302,8 +305,8 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> from the cache<br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslation(String translationKey) {
 		String translationValue = getCachedRawTranslation(translationKey);
@@ -311,53 +314,56 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>key</b> from the cache<br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with {@link String#format(String, Object...) String.format(String, Object...)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslationFormat(String translationKey, Object... args) {
 		return formatTranslation(translationKey, getCachedRawTranslation(translationKey), args);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * {@link LangUtils#formatTranslationTemplate(String, Map) LangUtils.formatTranslationTemplate(String, Map)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslationTemplate(String translationKey, Map<String, String> templateMap) {
 		return formatTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), templateMap);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int) LangUtils.formatTranslationTemplatePluralization(String, int)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslationTemplatePluralization(String translationKey, int count) {
 		return formatPluralizationTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), count);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int, Map) LangUtils.formatTranslationTemplatePluralization(String, int, Map)}<br>
+	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslationTemplatePluralization(String translationKey, int count, Map<String, String> templateMap) {
 		return formatPluralizationTemplateTranslation(translationKey, getCachedRawTranslation(translationKey), count, templateMap);
 	}
 	
 	/**
-	 * @return Returns language name from cache<br>
+	 * @return Returns the lang file's name from the lang translation cache<br>
 	 */
 	public static String getCachedLangName() {
 		return getCachedTranslation("lang.name");
 	}
 	
 	/**
-	 * @return Returns language version from cache<br>
+	 * @return Returns the lang file's version from the lang translation cache<br>
 	 */
 	public static String getCachedLangVersion() {
 		return getCachedTranslation("lang.version");
 	}
 	
 	/**
-	 * Writes all translations from cache to <b>langFile</b>
+	 * Writes all translations from the lang translation cache to <b>langFile</b>
 	 * 
 	 * @return Returns true if successful, false otherwise
 	 */
@@ -375,6 +381,10 @@ public final class Lang {
 		}
 	}
 	
+	/**
+	 * Will execute the lang file
+	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
 	TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		if(writeToCache)
@@ -397,18 +407,38 @@ public final class Lang {
 		
 		return new LangInterpreter.LangInterpreterInterface(interpreter);
 	}
+	/**
+	 * Will execute the lang file without lang args
+	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null);
 	}
+	/**
+	 * Will execute the lang file without the use of the lang translation cache
+	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI, langArgs);
 	}
+	/**
+	 * Will execute the lang file without lang args and the use of the lang translation cache
+	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI);
 	}
+	/**
+	 * Will create a new lang interpreter without the use of the lang translation cache
+	 * @return The LII for the lang interpreter which was created
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
 		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI, langArgs));
 	}
+	/**
+	 * Will create a new lang interpreter without lang args and the use of the lang translation cache
+	 * @return The LII for the lang interpreter which was created
+	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
 		return createInterpreterInterface(term, langPlatformAPI, null);
 	}
