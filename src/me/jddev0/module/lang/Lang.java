@@ -19,7 +19,7 @@ import me.jddev0.module.io.TerminalIO;
  * @version v1.0.0
  */
 public final class Lang {
-	//lang translation cache
+	//Lang translation cache
 	/**
 	 * Content: translation key = translation value
 	 */
