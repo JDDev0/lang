@@ -32,8 +32,8 @@ public final class Lang {
 	private Lang() {}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> formatted with {@link String#format(String, Object...) String.format(String, Object...)}<br>
+	 * The translationKey will be returned if translationValue = null
 	 */
 	private static String formatTranslation(String translationKey, String translationValue, Object... args) {
 		if(translationValue == null)
@@ -47,8 +47,8 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> formatted with {@link LangUtils#formatTranslationTemplate(String, Map) LangUtils.formatTranslationTemplate(String, Map)}<br>
+	 * The translationKey will be returned if translationValue = null
 	 */
 	private static String formatTemplateTranslation(String translationKey, String translationValue, Map<String, String> templateMap) {
 		if(translationValue == null)
@@ -62,8 +62,9 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int) LangUtils.formatTranslationTemplatePluralization(String, int)}<br>
+	 * The translationKey will be returned if translationValue = null
 	 */
 	private static String formatPluralizationTemplateTranslation(String translationKey, String translationValue, int count) {
 		if(translationValue == null)
@@ -77,8 +78,9 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return key;</code>
+	 * @return Returns the <b>translationValue</b> formatted with
+	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int, Map) LangUtils.formatTranslationTemplatePluralization(String, int, Map)}<br>
+	 * The translationKey will be returned if translationValue = null
 	 */
 	private static String formatPluralizationTemplateTranslation(String translationKey, String translationValue, int count, Map<String, String> templateMap) {
 		if(translationValue == null)
@@ -92,23 +94,23 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> of <b>langFile</b><br>
-	 * If translationKey wasn't found -> <code>return null;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> of <b>langFile</b><br>
+	 * Null will be returned if the translationKey does not exist
 	 */
 	private static String getRawTranslation(String langFile, String translationKey, LangPlatformAPI langPlatformAPI) throws IOException {
 		return getTranslationMap(langFile, false, null, langPlatformAPI).get(translationKey);
 	}
 	
 	/**
-	 * @return Returns translation <b>translationKey</b> from the cache<br>
-	 * If translationKey wasn't found -> <code>return null;</code>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang cache<br>
+	 * Null will be returned if the translationKey does not exist
 	 */
 	private static String getCachedRawTranslation(String translationKey) {
 		return getCachedTranslationMap().get(translationKey);
 	}
 	
 	/**
-	 * @return Returns all available lang files
+	 * @return Returns all available lang files in the folder <b>langPath</b>
 	 */
 	public static List<String> getLangFiles(String langPath, LangPlatformAPI langPlatformAPI) {
 		return langPlatformAPI.getLangFiles(langPath);
