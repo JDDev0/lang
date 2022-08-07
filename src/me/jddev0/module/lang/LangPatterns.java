@@ -144,6 +144,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY = Pattern.compile("(.*[fFdD])|(0[xX].*)");
 	/**
+	 * RegEx: (.*[fFdD])|(0[xX].*)|(\s.*|.*\s)
+	 */
+	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES = Pattern.compile("(.*[fFdD])|(0[xX].*)|(\\s.*|.*\\s)");
+	/**
 	 * RegEx: \W.{@literal *}
 	 */
 	public static final Pattern PARSING_STARTS_WITH_NON_WORD_CHAR = Pattern.compile("\\W.*");
