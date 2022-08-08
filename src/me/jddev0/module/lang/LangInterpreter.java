@@ -2792,8 +2792,8 @@ public final class LangInterpreter {
 		}
 		/**
 		 * Can be called in another thread<br>
-		 * Any execution method previously called which are still running or any future call of execution methods if the stop flag is set will throw a
-		 * {@link me.jddev0.module.lang.LangInterpreter.StoppedException StoppedException} exception
+		 * Any execution method which was previously called and are still running and any future call of execution methods will throw a
+		 * {@link me.jddev0.module.lang.LangInterpreter.StoppedException StoppedException} exception if the stop flag is set
 		 */
 		public void stop() {
 			interpreter.executionState.forceStopExecutionFlag = true;
