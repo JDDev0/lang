@@ -2842,6 +2842,9 @@ public final class LangInterpreter {
 		}
 	}
 	
+	/**
+	 * Exception which will be thrown if {@link LangInterpreter#forceStop() forceStop()} or {@link LangInterpreter.LangInterpreterInterface#stop() stop()} is called
+	 */
 	public static class StoppedException extends RuntimeException {
 		private static final long serialVersionUID = 3184689513001702458L;
 		
