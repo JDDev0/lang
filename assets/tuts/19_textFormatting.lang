@@ -121,3 +121,13 @@ func.printf(%s%[1]f%n, abc)
 func.printf(%*[1].*[2].2f%n, 42.2, 2)
 func.printf(%5.*[x]f%n, 2, 3)
 func.printf(%5.*[-1]f%n, 2, 3)
+
+# Template translations
+# - Template variables: {varName}
+#   - Will be replaced with an acutal value if translation was requested as template translation
+#   - "{" can be escaped with "{{"
+example.trans.0 = You are in world {world}!
+example.trans.1 = You are in world {world} as player {player}! # Multiple templates can be used (A template can be used more then once)
+example.trans.2 = You are in world {{world}! # Will be escaped as text: {world}
+# Provided template values will be ignored if not used
+# If a undefined template value is used, an error will be thrown
