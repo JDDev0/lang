@@ -464,7 +464,7 @@ final class LangPredefinedFunctions {
 			}
 			sizeArgumentIndex = Integer.parseInt(number);
 			if(sizeArgumentIndex >= fullArgumentList.size())
-				return  FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
+				return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
 		}
 		Integer size = null;
 		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
@@ -504,12 +504,16 @@ final class LangPredefinedFunctions {
 				if(decimalPlacesCountIndex >= fullArgumentList.size())
 					return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
 			}
-			if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
+			if(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
 				String number = "";
 				while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
 					number += fullFormat.charAt(0);
 					fullFormat = fullFormat.substring(1);
 				}
+				boolean leadingZero = number.charAt(0) == '0';
+				if(leadingZero && number.length() > 1)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
 				decimalPlacesCount = Integer.parseInt(number);
 			}
 		}
