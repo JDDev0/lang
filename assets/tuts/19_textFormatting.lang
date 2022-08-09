@@ -131,3 +131,4 @@ example.trans.1 = You are in world {world} as player {player}! # Multiple templa
 example.trans.2 = You are in world {{world}! # Will be escaped as text: {world}
 # Provided template values will be ignored if not used
 # If a undefined template value is used, an error will be thrown
+# Template translations can not yet be used inside lang
