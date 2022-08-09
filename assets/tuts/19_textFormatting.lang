@@ -122,6 +122,9 @@ func.printf(%*[1].*[2].2f%n, 42.2, 2)
 func.printf(%5.*[x]f%n, 2, 3)
 func.printf(%5.*[-1]f%n, 2, 3)
 
+func.println()
+func.println()
+
 # Template translations
 # - Template variables: {varName}
 #   - Will be replaced with an acutal value if translation was requested as template translation
@@ -132,3 +135,58 @@ example.trans.2 = You are in world {{world}! # Will be escaped as text: {world}
 # Provided template values will be ignored if not used
 # If a undefined template value is used, an error will be thrown
 # Template translations can not yet be used inside lang
+
+func.println()
+func.println()
+
+# Pluralization template translations
+# - Templates for translations with different pluralizations
+# - The template variable {count} can be used to access the count value
+# - A Pluralization template consists of pluralization tokens which are seperated by ";" - the ";" of the last token can be dropped:
+#   - [<count values>]<Translation>
+#   - Count values:
+#     - A comma (",") seperated lists of count ranges:
+#       - A count range can either be a single number (e.g.: 0, 1, 2, ...) or a range (e.g. 0-10, 2-4, ...) or a infinte range (e.g. 0+, 1+, 20+, ...)
+#       - Counts are not allowed to be less then 0
+#     - If the provided count was not defined by any pluralization token, an error will be thrown
+#     - If the provided count was defined more then once, the first token including the count will be returned
+#  - Pluralization templates can be requested and used with "func.getTranslationValueTemplatePluralization($count, $translationKey)" and "func.formatTranslationTemplatePluralization($count, $text)"
+plural.example.0 = [0+]{count}x orange
+func.println(func.getTranslationValueTemplatePluralization(0, plural.example.0))
+func.println(func.getTranslationValueTemplatePluralization(1, plural.example.0))
+func.println(func.getTranslationValueTemplatePluralization(2, plural.example.0))
+func.println(func.getTranslationValueTemplatePluralization(10, plural.example.0))
+
+func.println()
+
+plural.example.1 = [0,2+]{count} oranges;[1]1 orange
+func.println(func.getTranslationValueTemplatePluralization(0, plural.example.1))
+func.println(func.getTranslationValueTemplatePluralization(1, plural.example.1))
+func.println(func.getTranslationValueTemplatePluralization(2, plural.example.1))
+func.println(func.getTranslationValueTemplatePluralization(3, plural.example.1))
+func.println(func.getTranslationValueTemplatePluralization(10, plural.example.1))
+
+func.println()
+
+plural.example.2 = [1]1 orange;[3]{count}x orange;[2-5]{count} oranges
+func.println(func.getTranslationValueTemplatePluralization(0, plural.example.2)) # Error
+func.println(func.getTranslationValueTemplatePluralization(1, plural.example.2))
+func.println(func.getTranslationValueTemplatePluralization(2, plural.example.2))
+func.println(func.getTranslationValueTemplatePluralization(3, plural.example.2)) # Will print "3x orange"
+func.println(func.getTranslationValueTemplatePluralization(10, plural.example.2)) # Error
+
+func.println()
+
+plural.example.3 = {count} oranges
+func.println(func.getTranslationValueTemplatePluralization(0, plural.example.3)) # Error (Invalid format)
+
+func.println()
+
+# If any (pluralization) template translation was loaded without template functions, the whole translation will be returned as text as is
+func.printf(%t%n, example.trans.0)
+func.printf(%t%n, example.trans.1)
+func.printf(%t%n, example.trans.2)
+func.printf(%t%n, plural.example.0)
+func.printf(%t%n, plural.example.1)
+func.printf(%t%n, plural.example.2)
+func.printf(%t%n, plural.example.3)
