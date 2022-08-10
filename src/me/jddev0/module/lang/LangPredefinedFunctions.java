@@ -50,6 +50,7 @@ final class LangPredefinedFunctions {
 	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT = -3;
 	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND = -4;
 	private static final int FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS = -5;
+	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE = -6;
 	
 	private final LangInterpreter interpreter;
 	
@@ -535,7 +536,6 @@ final class LangPredefinedFunctions {
 				//Fall-trough
 			case 'c':
 			case 's':
-			case 't':
 			case '?':
 				if(forceSign || signSpace || leadingZeros)
 					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
@@ -548,7 +548,10 @@ final class LangPredefinedFunctions {
 				if(decimalPlaces)
 					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				break;
-			
+				
+			case 't':
+				if(forceSign || signSpace || leadingZeros)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 		}
 		
 		//Get size from arguments
@@ -684,9 +687,18 @@ final class LangPredefinedFunctions {
 				
 			case 't':
 				String translationKey = dataObject.getText();
+				
 				output = interpreter.getData().get(SCOPE_ID).lang.get(translationKey);
 				if(output == null)
 					return FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND;
+				
+				if(decimalPlacesCount != null) {
+					try {
+						output = LangUtils.formatTranslationTemplatePluralization(output, decimalPlacesCount.intValue());
+					}catch(NumberFormatException|InvalidTranslationTemplateSyntaxException e) {
+						return FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE;
+					}
+				}
 				
 				break;
 				
@@ -763,6 +775,8 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
 				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS)
 					return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, SCOPE_ID);
 				
 				i += charCountUsed;
 				
