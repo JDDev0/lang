@@ -141,8 +141,8 @@ func.println()
 
 # Pluralization template translations
 # - Templates for translations with different pluralizations
-# - The template variable {count} can be used to access the count value
-# - A Pluralization template consists of pluralization tokens which are seperated by ";" - the ";" of the last token can be dropped:
+# - The template variable {count} can be used to access the count value ("{" can be escaped with "{{")
+# - A Pluralization template consists of pluralization tokens which are seperated by ";" (";" can be escaped with ";;") - the ";" of the last token can be dropped:
 #   - [<count values>]<Translation>
 #   - Count values:
 #     - A comma (",") seperated lists of count ranges:
@@ -179,6 +179,13 @@ func.println()
 
 plural.example.3 = {count} oranges
 func.println(func.getTranslationValueTemplatePluralization(0, plural.example.3)) # Error (Invalid format)
+
+func.println()
+
+plural.example.4 = [0]Value with ";;";[1+]Other values ({{count}: {count})
+func.println(func.getTranslationValueTemplatePluralization(0, plural.example.4))
+func.println(func.getTranslationValueTemplatePluralization(1, plural.example.4))
+func.println(func.getTranslationValueTemplatePluralization(20, plural.example.4))
 
 func.println()
 
