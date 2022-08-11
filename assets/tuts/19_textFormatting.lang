@@ -192,6 +192,26 @@ func.println(func.getTranslationValueTemplatePluralization(20, plural.example.4)
 
 func.println()
 
+# %t with pluralization template translations
+func.printf(%.0t%n, plural.example.0)
+func.printf(%.1t%n, plural.example.0)
+func.printf(%.25t%n, plural.example.0)
+func.println(---)
+func.printf(%.*t%n, 0, plural.example.1)
+func.printf(%.*t%n, 1, plural.example.1)
+func.printf(%.*t%n, 2, plural.example.1)
+func.printf(%.*t%n, 5, plural.example.1)
+func.println(---)
+func.printf(%.*[2]t%n, plural.example.2, 0) # Error
+func.printf(%.*[2]t%n, plural.example.2, 1)
+func.printf(%.*[2]t%n, plural.example.2, 3)
+func.printf(%.*[2]t%n, plural.example.2, 5)
+func.println(---)
+func.printf(|%20.0t|%n, plural.example.1)
+func.printf(|%-20.1t|%n, plural.example.1)
+
+func.println()
+
 # If any (pluralization) template translation was loaded without template functions, the whole translation will be returned as text as is
 func.printf(%t%n, example.trans.0)
 func.printf(%t%n, example.trans.1)
