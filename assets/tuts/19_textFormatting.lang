@@ -113,6 +113,8 @@ func.printf(Test %*s, -2, test)
 func.printf(Test %*.*f, 2, -1, 42)
 func.printf(Test %*.*f, -2, 1, 42)
 func.printf(Test %*.*f, -2, -1, 42)
+func.printf(Test %.00f%n, 20.2367) # No digits allowed after ".0"
+func.printf(Test %.01f%n, 20.2367) # No digits allowed after ".0"
 func.printf(Test %+ d, 42)
 func.printf(%c%n, {{{t}}})
 func.printf(%[1]n, test)
