@@ -59,6 +59,7 @@ func.printf(Floating point numbers: %-*.*f $%n, 10, 2, 20.2567)
 func.printf(Floating point numbers: %-+10.*f $%n, 2, 20.2367) # "+" must be behind "-"
 func.printf(Floating point numbers: %0*.2f $%n, 10, 20.2567)
 func.printf(Floating point numbers: %+010.2f $%n, 20.2367)
+func.printf(Floating point number (Rounded to 0 decimal places): %+010.0f%n, 20.2367)
 func.printf(Numbers: %+07.2f%n%9c%+07.2f%n%9c%+07.2f%n%9c%+07.2f%n, 20.2367, \s, -42.1, \s, 42.2, \s, -900.2)
 func.printf(Numbers: % 07.2f%n%9c% 07.2f%n%9c% 07.2f%n%9c% 07.2f%n, 20.2367, \s, -42.1, \s, 42.2, \s, -900.2)
 func.println(func.format(%c, 65)) # A
