@@ -1597,11 +1597,20 @@ public class DataObject {
 			case CHAR:
 				return new DataObject().setChar((char)(charValue - 1));
 			
+			case FUNCTION_POINTER:
+				final FunctionPointerObject func = getFunctionPointer();
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
+					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					
+					List<DataObject> argsFunc = new LinkedList<>();
+					argsFunc.add(new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0])));
+					return interpreter.callFunctionPointer(func, getVariableName(), argsFunc, SCOPE_ID);
+				}));
+			
 			case TEXT:
 			case ARRAY:
 			case ERROR:
 			case VAR_POINTER:
-			case FUNCTION_POINTER:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
