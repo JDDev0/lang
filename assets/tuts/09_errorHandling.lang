@@ -82,6 +82,8 @@ func.println(Error code: $LANG_ERRNO)
 #        39: NO_OCT_NUM
 #        40: NO_BASE_N_NUM
 #        41: INVALID_NUMBER_BASE
+#    RegEx errors:
+#        42: INVALID_REGEX_SYNTAX
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
