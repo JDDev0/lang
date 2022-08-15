@@ -2223,7 +2223,20 @@ public class DataObject {
 						return new DataObject().setVoid();
 					}));
 				
-				return null;
+				final FunctionPointerObject func = getFunctionPointer();
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
+					DataObject retN = interpreter.callFunctionPointer(func, getVariableName(), args, SCOPE_ID);
+					DataObject ret = retN == null?new DataObject().setVoid():retN;
+					
+					for(int i = 1;i < count;i++) {
+						args = new LinkedList<>();
+						args.add(ret);
+						retN = interpreter.callFunctionPointer(func, getVariableName(), args, SCOPE_ID);
+						ret = retN == null?new DataObject().setVoid():retN;
+					}
+					
+					return ret;
+				}));
 			
 			case TEXT:
 			case CHAR:
