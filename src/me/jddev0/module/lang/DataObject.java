@@ -2210,12 +2210,26 @@ public class DataObject {
 				}
 				return null;
 			
+			case FUNCTION_POINTER:
+				if(dataObject.getType() != DataType.INT)
+					return null;
+				
+				final int count = dataObject.getInt();
+				if(count < 0)
+					return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Number must not be less than 0!"));
+				
+				if(count == 0)
+					return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
+						return new DataObject().setVoid();
+					}));
+				
+				return null;
+			
 			case TEXT:
 			case CHAR:
 			case ARRAY:
 			case ERROR:
 			case VAR_POINTER:
-			case FUNCTION_POINTER:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
