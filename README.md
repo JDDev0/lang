@@ -15,7 +15,7 @@ This project makes simple translation files Turing complete
 
 You can also run "java -jar Lang.jar -**command** **args**" in a terminal or console.<br>
 If "-e CODE" is used in Linux single quotes should be used for the CODE argument to prevent the shell from parsing $-shell variables and to enable multiline code execution (e.g. "java -jar Lang.jar -e '$a = test<br>
-func.println($a)'<br>
+func.println($a)')<br>
 
 ### Breaking changes
 
