@@ -25,7 +25,7 @@ public class Startup {
 	private static LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public static void main(String[] args) {
-		if(args.length > 0 && (!args[0].startsWith("-") || args[0].startsWith("--") || args[0].startsWith("-h"))) {
+		if(args.length > 0 && (!args[0].startsWith("-") || args[0].equals("-e") || args[0].startsWith("--") || args[0].startsWith("-h"))) {
 			if(args[0].startsWith("-h")) {
 				printHelp();
 				return;
@@ -39,12 +39,20 @@ public class Startup {
 				return;
 			}
 			
-			String langFile = args[0];
+			boolean langFileExecution = !args[0].equals("-e");
+			if(!langFileExecution && args.length < 2) {
+				System.err.println("CODE argument for \"-e\" is missing");
+				
+				printHelp();
+				return;
+			}
+			
+			int executionArgsStartIndex = langFileExecution?1:2;
 			boolean printTranslations = false;
 			boolean printReturnedValue = false;
 			String[] langArgs = null;
 			
-			for(int i = 1;i < args.length;i++) {
+			for(int i = executionArgsStartIndex;i < args.length;i++) {
 				String arg = args[i];
 				if(arg.equals("-printTranslations")) {
 					printTranslations = true;
@@ -61,7 +69,11 @@ public class Startup {
 				}
 			}
 			
-			executeLangFile(langFile, printTranslations, printReturnedValue, langArgs);
+			if(langFileExecution)
+				executeLangFile(args[0], printTranslations, printReturnedValue, langArgs);
+			else
+				executeLangCode(args[1], printTranslations, printReturnedValue, langArgs);
+			
 			return;
 		}
 		
@@ -202,8 +214,12 @@ public class Startup {
 	}
 	
 	private static void printHelp() {
-		System.out.println("Usage: lang COMMAND [ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
+		System.out.println("Usage: lang COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
 		System.out.println("Interprets a Lang file");
+		System.out.println();
+		System.out.println("IN-LINE CODE");
+		System.out.println("------------");
+		System.out.println("    -e CODE                 Executes CODE without the Lang Terminal directly in the OS shell");
 		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
@@ -225,6 +241,16 @@ public class Startup {
 		System.out.println("    -langArgs               Indicates the start of the lang arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
+	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
+		try {
+			LangInterpreterInterface lii = Lang.createInterpreterInterface(null, langPlatformAPI, langArgs);
+			lii.exec(0, langCode);
+			printPostExecutionOutput(lii, printTranslations, printReturnedValue);
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
 		File lang = new File(langFile);
 		if(!lang.exists()) {
@@ -235,27 +261,31 @@ public class Startup {
 		
 		try {
 			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, null, langPlatformAPI, langArgs);
-			Map<String, String> translations = lii.getTranslationMap(0);
-			if(printTranslations) {
-				System.out.println("-------------- Translations --------------");
-				translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
-			}
-			if(printReturnedValue) {
-				boolean isThrowValue = lii.isReturnedValueThrowValue();
-				DataObject retValue = lii.getAndResetReturnValue();
-				if(isThrowValue) {
-					System.out.println("------------- Throwed value --------------");
-					System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrtxt());
-				}else {
-					System.out.println("------------- Returned Value -------------");
-					if(retValue == null)
-						System.out.println("No returned value");
-					else
-						System.out.printf("Returned Value: \"%s\"\n", retValue.getText());
-				}
-			}
+			printPostExecutionOutput(lii, printTranslations, printReturnedValue);
 		}catch(IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private static void printPostExecutionOutput(LangInterpreterInterface lii, boolean printTranslations, boolean printReturnedValue) {
+		Map<String, String> translations = lii.getTranslationMap(0);
+		if(printTranslations) {
+			System.out.println("-------------- Translations --------------");
+			translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
+		}
+		if(printReturnedValue) {
+			boolean isThrowValue = lii.isReturnedValueThrowValue();
+			DataObject retValue = lii.getAndResetReturnValue();
+			if(isThrowValue) {
+				System.out.println("------------- Throwed value --------------");
+				System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrtxt());
+			}else {
+				System.out.println("------------- Returned Value -------------");
+				if(retValue == null)
+					System.out.println("No returned value");
+				else
+					System.out.printf("Returned Value: \"%s\"\n", retValue.getText());
+			}
 		}
 	}
 }
