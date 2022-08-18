@@ -236,9 +236,9 @@ public class Startup {
 		System.out.println();
 		System.out.println("EXECUTION_ARGs");
 		System.out.println("--------------");
-		System.out.println("    -printTranslations      Prints all Translations after execution of Lang file finished to standard output");
-		System.out.println("    -printReturnedValue     Prints the returned value of the lang file if any");
-		System.out.println("    -langArgs               Indicates the start of the lang arguments (Everything after this argument will be interpreted as langArgs)");
+		System.out.println("    -printTranslations      Prints all Translations after the execution of the Lang file finished to standard output");
+		System.out.println("    -printReturnedValue     Prints the returned or thrown value of the lang file if any");
+		System.out.println("    -langArgs               Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
 	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
