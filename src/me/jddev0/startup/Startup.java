@@ -217,10 +217,6 @@ public class Startup {
 		System.out.println("Usage: lang COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
 		System.out.println("Interprets a Lang file");
 		System.out.println();
-		System.out.println("IN-LINE CODE");
-		System.out.println("------------");
-		System.out.println("    -e CODE                 Executes CODE without the Lang Terminal directly in the OS shell");
-		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
 		System.out.println("    -executeLang -FILE      Executes a Lang file in the \"TermIO-Control\" window");
@@ -233,6 +229,10 @@ public class Startup {
 		System.out.println("    -commands               Lists all \"TermIO-Control\" window commands");
 		System.out.println("");
 		System.out.println("    -h, --help              Prints this help page");
+		System.out.println();
+		System.out.println("IN-LINE CODE");
+		System.out.println("------------");
+		System.out.println("    -e CODE                 Executes CODE without the Lang Terminal directly in the OS shell");
 		System.out.println();
 		System.out.println("EXECUTION_ARGs");
 		System.out.println("--------------");
