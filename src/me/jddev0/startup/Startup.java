@@ -215,7 +215,7 @@ public class Startup {
 	
 	private static void printHelp() {
 		System.out.println("Usage: lang COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
-		System.out.println("Interprets a Lang file");
+		System.out.println("Interprets Lang code & files");
 		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
