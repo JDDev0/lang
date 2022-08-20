@@ -28,6 +28,7 @@ public class Startup {
 		if(args.length > 0 && (!args[0].startsWith("-") || args[0].equals("-e") || args[0].startsWith("--") || args[0].startsWith("-h"))) {
 			if(args[0].startsWith("-h")) {
 				printHelp();
+				
 				return;
 			}
 			
@@ -36,6 +37,10 @@ public class Startup {
 					System.err.printf("Unknown COMMAND \"%s\"\n", args[0]);
 				
 				printHelp();
+				
+				if(!args[0].equals("--help"))
+					System.exit(1);
+				
 				return;
 			}
 			
@@ -44,6 +49,8 @@ public class Startup {
 				System.err.println("CODE argument for \"-e\" is missing");
 				
 				printHelp();
+				
+				System.exit(1);
 				return;
 			}
 			
@@ -65,6 +72,8 @@ public class Startup {
 					System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
 					
 					printHelp();
+					
+					System.exit(1);
 					return;
 				}
 			}
@@ -190,7 +199,7 @@ public class Startup {
 				
 				printHelp();
 				
-				System.exit(0);
+				System.exit(1);
 				return;
 			}
 			String command = args[0].substring(1);
@@ -202,7 +211,7 @@ public class Startup {
 				
 				printHelp();
 				
-				System.exit(0);
+				System.exit(1);
 				return;
 			}
 			commandFunction.action(commandArgs);
