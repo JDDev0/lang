@@ -52,6 +52,20 @@ func.println($ele)
 $ele = func.randChoice(&arr) # Will return a random element of the array &arr
 func.println($ele)
 
+func.println()
+
+# Fill an array from an index
+# func.arrayFillFrom(&arr, $startIndex, $value) # $startIndex [inclusive] - len(&arr) [exclusive]
+&arrFill = func.arrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
+func.println(&arrFill)
+func.arrayFillFrom(&arrFill, 7, 42)
+func.println(&arrFill)
+func.arrayFillFrom(&arrFill, 2, 20)
+func.println(&arrFill)
+func.arrayFillFrom(&arrFill, 0, 12)
+func.println(&arrFill)
+func.println()
+
 # Get count of an element in an array
 # func.arrayCountOf(arrPtr, ele) # Will return the count of the element (strict equals)
 $count = func.arrayCountOf(&arr, value1) # Will return 1
