@@ -214,6 +214,12 @@ func.println(parser.op(long(2) ||| test))
 func.println(parser.op(2.0 ||| test))
 func.println(parser.op(double(2.0) ||| test))
 func.println(parser.op(text1 ||| test))
+func.println(---)
+func.println(parser.op([1,2] ||| []))
+func.println(parser.op([1,2] ||| [3]))
+func.println(parser.op([] ||| [1,2,3]))
+func.println(parser.op([1,2] ||| 1)) # Exception
+func.println(parser.op([1,2] ||| test)) # Exception
 
 # Spaceship operator
 # $a <=> $b:
