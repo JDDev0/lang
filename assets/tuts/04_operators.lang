@@ -200,6 +200,21 @@ func.println(parser.math(4 + parser.con(abc && parser.op(1 + 3 === 4))))
 # 4 ADD 1
 # 5
 
+# Concat operator
+# $a ||| $b
+#   if $a is instance of number or is TEXT: concat as text value: "$a$b"
+#   if $a and $b are ARRAYs: Concat arrays: [$a..., $b...]
+#   if $a and $b are FUNCTION_POINTERs: Concat function pointers: FP: (&args...) -> $b($a(&args...))
+#   otherwise: Not defined
+func.println()
+func.println(parser.op(1 ||| test))
+func.println(parser.op(1 ||| 42))
+func.println(parser.op(1 ||| [1,2]))
+func.println(parser.op(long(2) ||| test))
+func.println(parser.op(2.0 ||| test))
+func.println(parser.op(double(2.0) ||| test))
+func.println(parser.op(text1 ||| test))
+
 # Spaceship operator
 # $a <=> $b:
 #   if $a < $b:  -1
