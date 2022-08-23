@@ -73,9 +73,9 @@ lang.version = v1.0.0
 # opr1 >>>= opr2      - Right shift zero assignment    (Is equivalent to "opr1 = parser.op((opr1) >>> (opr2))")
 # opr1 <<= opr2       - Left shift assignment          (Is equivalent to "opr1 = parser.op((opr1) << (opr2))")
 # opr1 &= opr2        - Bitwise and assignment         (Is equivalent to "opr1 = parser.op((opr1) & (opr2))")
+# opr1 ^= opr2        - Bitwise xor assignment         (Is equivalent to "opr1 = parser.op((opr1) ^ (opr2))")
 # opr1 |= opr2        - Bitwise or assignment          (Is equivalent to "opr1 = parser.op((opr1) | (opr2))")
 # opr1 |||= opr2      - Concat assignment              (Is equivalent to "opr1 = parser.op((opr1) ||| (opr2))")
-# opr1 ^= opr2        - Bitwise xor assignment         (Is equivalent to "opr1 = parser.op((opr1) ^ (opr2))")
 # opr1 ?:= opr2       - Elvis assignment               (Is equivalent to "opr1 = parser.op((opr1) ?: (opr2))")
 # opr1 ??= opr2       - Null coalescing assignment     (Is equivalent to "opr1 = parser.op((opr1) ?? (opr2))")
 
