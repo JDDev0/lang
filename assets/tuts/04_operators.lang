@@ -397,6 +397,12 @@ func.println($a)
 
 func.println()
 
+$a = text
+$a |||= -42 # Concat assignment operator
+func.println($a)
+
+func.println()
+
 # Evaluation order
 # Function pointer is only for output, Function pointers: See [05_functionPointer.lang]
 fp.printAndRet = ($name, $num) -> {
