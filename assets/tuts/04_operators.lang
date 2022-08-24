@@ -401,6 +401,10 @@ $a = text
 $a |||= -42 # Concat assignment operator
 func.println($a)
 
+&a $= [1, 2, 3]
+&a |||= [4, 5]
+func.println(&a) # [1, 2, 3, 4, 5]
+
 func.println()
 
 # Evaluation order
