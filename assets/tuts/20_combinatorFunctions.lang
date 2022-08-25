@@ -241,3 +241,25 @@ lang.version = v1.0.0
 # XB   | 4     | a, b, c, d    | a b         | a(b(d, c, d), b(c, d, c))      | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # Y    | 1     | f             |           f | (x -> f(x(x)))(x -> f(x(x)))   | -
+
+# Examples
+# Y
+# Y-1: Factorial function
+fp.fac = (fp.func) -> {
+	fp.retFunc = (fp.func, $n) -> {
+		return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1)))
+	}
+	
+	return func.combAN(fp.retFunc, fp.func)
+}
+
+# Apply the Y combinator
+fp.facY = func.combY(fp.fac)
+
+# Use function (All values from 0 to 20)
+$i $= long(0)
+until($i > 20) {
+	func.println(fp.facY($i))
+	
+	$i += 1
+}
