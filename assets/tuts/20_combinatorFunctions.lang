@@ -244,7 +244,13 @@ lang.version = v1.0.0
 
 # Examples
 # Y
+func.println(Examples  Y)
+func.println(===========)
+func.println()
+
 # Y-1: Factorial function
+func.println(Example  Y-1: Factorial function)
+func.println(--------------------------------)
 fp.fac = (fp.func) -> {
 	fp.retFunc = (fp.func, $n) -> {
 		return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1)))
@@ -260,6 +266,30 @@ fp.facY = func.combY(fp.fac)
 $i $= long(0)
 until($i > 20) {
 	func.println(fp.facY($i))
+	
+	$i += 1
+}
+
+func.println()
+
+# Y-2: Fibonacci function
+func.println(Example  Y-2: Fibonacci function)
+func.println(--------------------------------)
+fp.fib = (fp.func) -> {
+	fp.retFunc = (fp.func, $x) -> {
+		return parser.op($x < 2?1:fp.func(parser.op($x - 2)) + fp.func(parser.op($x - 1)))
+	}
+	
+	return func.combAN(fp.retFunc, fp.func)
+}
+
+# Apply the Y combinator
+fp.fibY = func.combY(fp.fib)
+
+# Use function (All values from 0 to 20)
+$i $= long(0)
+until($i > 20) {
+	func.println(fp.fibY($i))
 	
 	$i += 1
 }
