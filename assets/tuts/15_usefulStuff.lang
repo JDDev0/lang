@@ -368,3 +368,16 @@ func.println()
 		}
 	}
 }
+
+# Y combinator function without "func.combY()"
+{
+	fp.combY = (fp.f) -> {
+		fp.func = (fp.f, fp.x) -> {
+			fp.callFunc = (fp.f, fp.x, &args...) -> return fp.f(fp.x(fp.x))(&args...)
+			
+			return func.combAN(fp.callFunc, fp.f, fp.x)
+		}
+		
+		return func.combM(func.combA2(fp.func, fp.f))
+	}
+}
