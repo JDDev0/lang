@@ -380,4 +380,24 @@ func.println()
 		
 		return func.combM(func.combA2(fp.func, fp.f))
 	}
+	
+	# Factorial function
+	fp.fac = (fp.func) -> {
+		fp.retFunc = (fp.func, $n) -> {
+			return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1)))
+		}
+		
+		return func.combAN(fp.retFunc, fp.func)
+	}
+	
+	# Apply Y combinator
+	fp.facY = fp.combY(fp.fac)
+
+	# Use function (All values from 0 to 20)
+	$i $= long(0)
+	until($i > 20) {
+		func.println(fp.facY($i))
+		
+		$i += 1
+	}
 }
