@@ -386,13 +386,15 @@ public final class Lang {
 	 * @return The LII for the lang interpreter which was used to execute the lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
-	TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
+	TerminalIO term, LangPlatformAPI langPlatformAPI, LangInterpreter.ExecutionFlags.ErrorOutputFlag errorOutput, String[] langArgs) throws IOException {
 		if(writeToCache)
 			clearCache();
 		
 		String pathLangFile = langPlatformAPI.getLangPath(langFile);
 		
 		LangInterpreter interpreter = new LangInterpreter(pathLangFile, langPlatformAPI.getLangFileName(langFile), term, langPlatformAPI, langArgs);
+		if(errorOutput != null)
+			interpreter.executionFlags.errorOutput = errorOutput;
 		
 		try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
 			interpreter.interpretLines(reader);
@@ -408,35 +410,43 @@ public final class Lang {
 		return new LangInterpreter.LangInterpreterInterface(interpreter);
 	}
 	/**
-	 * Will execute the lang file without lang args
+	 * Will execute the lang file without warnings output
+	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 */
+	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
+	TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
+		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null, langArgs);
+	}
+	/**
+	 * Will execute the lang file without warnings output and lang args
 	 * @return The LII for the lang interpreter which was used to execute the lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null);
 	}
 	/**
-	 * Will execute the lang file without the use of the lang translation cache
+	 * Will execute the lang file without warnings output and the use of the lang translation cache
 	 * @return The LII for the lang interpreter which was used to execute the lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI, langArgs);
 	}
 	/**
-	 * Will execute the lang file without lang args and the use of the lang translation cache
+	 * Will execute the lang file without warnings output, lang args, and the use of the lang translation cache
 	 * @return The LII for the lang interpreter which was used to execute the lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI);
 	}
 	/**
-	 * Will create a new lang interpreter without the use of the lang translation cache
+	 * Will create a new lang interpreter without warnings output and the use of the lang translation cache
 	 * @return The LII for the lang interpreter which was created
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
 		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI, langArgs));
 	}
 	/**
-	 * Will create a new lang interpreter without lang args and the use of the lang translation cache
+	 * Will create a new lang interpreter without warnings output, lang args, and the use of the lang translation cache
 	 * @return The LII for the lang interpreter which was created
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, LangPlatformAPI langPlatformAPI) {
