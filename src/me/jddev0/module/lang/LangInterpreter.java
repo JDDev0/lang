@@ -2805,6 +2805,13 @@ public final class LangInterpreter {
 			interpreter.executionState.forceStopExecutionFlag = false;
 		}
 		
+		public void setErrorOutputFlag(ExecutionFlags.ErrorOutputFlag errorOutput) {
+			if(errorOutput == null)
+				throw new NullPointerException();
+			
+			interpreter.executionFlags.errorOutput = errorOutput;
+		}
+		
 		public StackElement getCurrentCallStackElement() {
 			return interpreter.getCurrentCallStackElement();
 		}
