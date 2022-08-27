@@ -2526,7 +2526,7 @@ public final class LangInterpreter {
 		/**
 		 * Will print all errors and warnings in the terminal or to standard error if no terminal is available
 		 */
-		ErrorOutputFlag errorOutput = ErrorOutputFlag.ALL;
+		ErrorOutputFlag errorOutput = ErrorOutputFlag.ERROR_ONLY;
 		/**
 		 * Will enable langTest unit tests (Can not be disabled if enabled once)
 		 */
