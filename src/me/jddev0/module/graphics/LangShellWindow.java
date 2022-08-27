@@ -462,6 +462,8 @@ public class LangShellWindow extends JDialog {
 		}, true));
 		
 		lii = Lang.createInterpreterInterface(term, langPlatformAPI, langArgs);
+		//Change the "errorOutput" flag to ALL
+		lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
 		
 		//Add debug functions
 		lii.addPredefinedFunction("printHelp", (argumentList, SCOPE_ID) -> {
