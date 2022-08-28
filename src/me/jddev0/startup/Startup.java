@@ -16,6 +16,7 @@ import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
+import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
 import me.jddev0.module.lang.LangParser;
 import me.jddev0.module.lang.LangPlatformAPI;
@@ -57,6 +58,7 @@ public class Startup {
 			int executionArgsStartIndex = langFileExecution?1:2;
 			boolean printTranslations = false;
 			boolean printReturnedValue = false;
+			boolean warnings = false;
 			String[] langArgs = null;
 			
 			for(int i = executionArgsStartIndex;i < args.length;i++) {
@@ -65,6 +67,8 @@ public class Startup {
 					printTranslations = true;
 				}else if(arg.equals("-printReturnedValue")) {
 					printReturnedValue = true;
+				}else if(arg.equals("-warnings")) {
+					warnings = true;
 				}else if(arg.equals("-langArgs")) {
 					langArgs = Arrays.copyOfRange(args, i + 1, args.length);
 					break;
@@ -79,9 +83,9 @@ public class Startup {
 			}
 			
 			if(langFileExecution)
-				executeLangFile(args[0], printTranslations, printReturnedValue, langArgs);
+				executeLangFile(args[0], printTranslations, printReturnedValue, warnings, langArgs);
 			else
-				executeLangCode(args[1], printTranslations, printReturnedValue, langArgs);
+				executeLangCode(args[1], printTranslations, printReturnedValue, warnings, langArgs);
 			
 			return;
 		}
@@ -253,9 +257,12 @@ public class Startup {
 		System.out.println("    -langArgs               Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
-	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
+	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, boolean warnings, String[] langArgs) {
 		try {
 			LangInterpreterInterface lii = Lang.createInterpreterInterface(null, langPlatformAPI, langArgs);
+			if(warnings)
+				lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
+			
 			lii.exec(0, langCode);
 			printPostExecutionOutput(lii, printTranslations, printReturnedValue);
 		}catch(IOException e) {
@@ -263,7 +270,7 @@ public class Startup {
 		}
 	}
 	
-	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue, String[] langArgs) {
+	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue, boolean warnings, String[] langArgs) {
 		File lang = new File(langFile);
 		if(!lang.exists()) {
 			System.err.printf("The lang file %s wasn't found!\n", langFile);
@@ -271,8 +278,9 @@ public class Startup {
 			return;
 		}
 		
+		LangInterpreter.ExecutionFlags.ErrorOutputFlag errorOutput = warnings?LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL:null;
 		try {
-			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, null, langPlatformAPI, langArgs);
+			LangInterpreterInterface lii = Lang.createInterpreterInterface(langFile, false, null, langPlatformAPI, errorOutput, langArgs);
 			printPostExecutionOutput(lii, printTranslations, printReturnedValue);
 		}catch(IOException e) {
 			e.printStackTrace();
