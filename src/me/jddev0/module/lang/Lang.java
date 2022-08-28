@@ -402,6 +402,7 @@ public final class Lang {
 		
 		if(writeToCache) {
 			synchronized(LANG_CACHE) {
+				LANG_CACHE.clear();
 				LANG_CACHE.putAll(interpreter.getData().get(0).lang);
 				lastCachedLangFileName = langFile;
 			}
