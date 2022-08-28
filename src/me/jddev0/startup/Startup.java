@@ -254,6 +254,7 @@ public class Startup {
 		System.out.println("--------------");
 		System.out.println("    -printTranslations      Prints all Translations after the execution of the Lang file finished to standard output");
 		System.out.println("    -printReturnedValue     Prints the returned or thrown value of the lang file if any");
+		System.out.println("    -warnings               Enables the output of warnings which occur");
 		System.out.println("    -langArgs               Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
