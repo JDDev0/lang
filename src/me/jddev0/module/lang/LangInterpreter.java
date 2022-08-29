@@ -76,6 +76,7 @@ public final class LangInterpreter {
 		predefinedFunctions.addPredefinedFunctions(funcs);
 		predefinedFunctions.addLinkerFunctions(funcs);
 	}
+	final LangOperators operators = new LangOperators(this);
 	
 	/**
 	 * @param term can be null
@@ -1048,7 +1049,7 @@ public final class LangInterpreter {
 				case NON:
 					return leftSideOperand;
 				case LEN:
-					output = leftSideOperand.opLen();
+					output = operators.opLen(leftSideOperand, SCOPE_ID);
 					break;
 				case DEEP_COPY:
 					output = leftSideOperand.opDeepCopy();
