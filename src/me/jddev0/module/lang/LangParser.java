@@ -385,7 +385,7 @@ public final class LangParser {
 						break;
 					}
 					
-					//Add as value if nothing is behind opeator
+					//Add as value if nothing is behind operator
 					if(token.length() == 2) {
 						if(whitespaces.length() > 0) {
 							builder.append(whitespaces.toString());
