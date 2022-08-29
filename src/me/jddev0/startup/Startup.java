@@ -103,17 +103,26 @@ public class Startup {
 				return;
 			}
 			
-			File lang = new File(input[0]);
+			boolean warnings = input[0].equals("warnings");
+			if(warnings && input.length < 2) {
+				term.logf(Level.ERROR, "To few arguments for -warnings option: %d/2+!\n", Startup.class, input.length);
+				
+				return;
+			}
+			LangInterpreter.ExecutionFlags.ErrorOutputFlag errorOutput = warnings?LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL:null;
+			
+			int langFileIndex = warnings?1:0;
+			File lang = new File(input[langFileIndex]);
 			if(!lang.exists()) {
 				term.logf(Level.ERROR, "The lang file %s wasn't found!\n", Startup.class, input[0]);
 				
 				return;
 			}
 			
-			String[] langArgs = Arrays.copyOfRange(input, 1, input.length);
+			String[] langArgs = Arrays.copyOfRange(input, langFileIndex + 1, input.length);
 			try {
 				term.logln(Level.DEBUG, "------------- Start of Lang --------------", Startup.class);
-				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[0], term, langPlatformAPI, langArgs);
+				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[langFileIndex], false, term, langPlatformAPI, errorOutput, langArgs);
 				Map<String, String> translations = lii.getTranslationMap(0);
 				term.logln(Level.DEBUG, "-------------- Translations --------------", Startup.class);
 				translations.forEach((key, value) -> {
@@ -235,27 +244,28 @@ public class Startup {
 		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
-		System.out.println("    -executeLang -FILE      Executes a Lang file in the \"TermIO-Control\" window");
-		System.out.println("    -printAST -FILE         Prints the AST of a Lang file to standard output");
-		System.out.println("    -startShell             Opens the \"LangShell\" window");
-		System.out.println("    -toogle4k               Changes the fontSize");
-		System.out.println("    -printHelp              Prints this help page");
-		System.out.println("    -clear                  Clears the output of the \"TermIO-Control\" window");
-		System.out.println("    -exit                   Exits the \"TermIO-Control\" window");
-		System.out.println("    -commands               Lists all \"TermIO-Control\" window commands");
+		System.out.println("    -executeLang -FILE                Executes a Lang file in the \"TermIO-Control\" window");
+		System.out.println("    -executeLang -warnings -FILE      Executes a Lang file in the \"TermIO-Control\" window with warnings output");
+		System.out.println("    -printAST -FILE                   Prints the AST of a Lang file to standard output");
+		System.out.println("    -startShell                       Opens the \"LangShell\" window");
+		System.out.println("    -toogle4k                         Changes the fontSize");
+		System.out.println("    -printHelp                        Prints this help page");
+		System.out.println("    -clear                            Clears the output of the \"TermIO-Control\" window");
+		System.out.println("    -exit                             Exits the \"TermIO-Control\" window");
+		System.out.println("    -commands                         Lists all \"TermIO-Control\" window commands");
 		System.out.println("");
-		System.out.println("    -h, --help              Prints this help page");
+		System.out.println("    -h, --help                        Prints this help page");
 		System.out.println();
 		System.out.println("IN-LINE CODE");
 		System.out.println("------------");
-		System.out.println("    -e CODE                 Executes CODE without the Lang Terminal directly in the OS shell");
+		System.out.println("    -e CODE                           Executes CODE without the Lang Terminal directly in the OS shell");
 		System.out.println();
 		System.out.println("EXECUTION_ARGs");
 		System.out.println("--------------");
-		System.out.println("    -printTranslations      Prints all Translations after the execution of the Lang file finished to standard output");
-		System.out.println("    -printReturnedValue     Prints the returned or thrown value of the lang file if any");
-		System.out.println("    -warnings               Enables the output of warnings which occur");
-		System.out.println("    -langArgs               Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
+		System.out.println("    -printTranslations                Prints all Translations after the execution of the Lang file finished to standard output");
+		System.out.println("    -printReturnedValue               Prints the returned or thrown value of the lang file if any");
+		System.out.println("    -warnings                         Enables the output of warnings which occur");
+		System.out.println("    -langArgs                         Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
 	}
 	
 	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, boolean warnings, String[] langArgs) {
