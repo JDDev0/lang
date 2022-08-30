@@ -2552,13 +2552,14 @@ final class LangPredefinedFunctions {
 				opLen(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("deepCopy", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
 				opDeepCopy(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opConcat, SCOPE_ID), SCOPE_ID));
+		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
+				opConcat(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSpaceship, SCOPE_ID), SCOPE_ID));
-		funcs.put("elvis", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {
-			return dataObject1.getBoolean()?dataObject1:dataObject2;
+		funcs.put("elvis", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
+			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID), SCOPE_ID));
-		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {
-			return (dataObject1.getType() != DataType.NULL && dataObject1.getType() != DataType.VOID)?dataObject1:dataObject2;
+		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
+			return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID), SCOPE_ID));
 		
 		//Math operator functions
@@ -2586,10 +2587,10 @@ final class LangPredefinedFunctions {
 		
 		//Condition operator functions
 		funcs.put("conNot", (argumentList, SCOPE_ID) -> unaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::toBoolean, SCOPE_ID));
-		funcs.put("conAnd", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (dataObject1, dataObject2) ->
-				dataObject1.toBoolean() && dataObject2.toBoolean(), SCOPE_ID));
-		funcs.put("conOr", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (dataObject1, dataObject2) ->
-		dataObject1.toBoolean() || dataObject2.toBoolean(), SCOPE_ID));
+		funcs.put("conAnd", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (leftSideOperand, rightSideOperand) ->
+			leftSideOperand.toBoolean() && rightSideOperand.toBoolean(), SCOPE_ID));
+		funcs.put("conOr", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (leftSideOperand, rightSideOperand) ->
+			leftSideOperand.toBoolean() || rightSideOperand.toBoolean(), SCOPE_ID));
 		funcs.put("conEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
 		funcs.put("conNotEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
 		funcs.put("conStrictEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isStrictEquals, SCOPE_ID));
