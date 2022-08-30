@@ -2548,9 +2548,10 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//General operator functions
-		funcs.put("len", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, leftOperand -> interpreter.operators.
-				opLen(leftOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("deepCopy", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDeepCopy, SCOPE_ID), SCOPE_ID));
+		funcs.put("len", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
+				opLen(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+		funcs.put("deepCopy", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
+				opDeepCopy(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opConcat, SCOPE_ID), SCOPE_ID));
 		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSpaceship, SCOPE_ID), SCOPE_ID));
 		funcs.put("elvis", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (dataObject1, dataObject2) -> {

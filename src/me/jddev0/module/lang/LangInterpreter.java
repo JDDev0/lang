@@ -1052,7 +1052,7 @@ public final class LangInterpreter {
 					output = operators.opLen(leftSideOperand, SCOPE_ID);
 					break;
 				case DEEP_COPY:
-					output = leftSideOperand.opDeepCopy();
+					output = operators.opDeepCopy(leftSideOperand, SCOPE_ID);
 					break;
 				
 				//Binary

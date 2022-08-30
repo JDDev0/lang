@@ -44,4 +44,37 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "^"
+	 */
+	public DataObject opDeepCopy(DataObject operand, final int SCOPE_ID) {
+		switch(operand.getType()) {
+			case ARRAY:
+				DataObject[] arrCopy = new DataObject[operand.getArray().length];
+				for(int i = 0;i < operand.getArray().length;i++) {
+					arrCopy[i] = opDeepCopy(operand.getArray()[i], SCOPE_ID);
+					if(arrCopy[i] == null)
+						return null;
+				}
+				
+				return new DataObject().setArray(arrCopy);
+			
+			case TEXT:
+			case CHAR:
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return new DataObject(operand);
+		}
+		
+		return null;
+	}
 }
