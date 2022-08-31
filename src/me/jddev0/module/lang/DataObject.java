@@ -1402,21 +1402,6 @@ public class DataObject {
 		return isGreaterThan(other) || isEquals(other);
 	}
 	
-	//General operation functions
-	/**
-	 * For "&lt;=&gt;"
-	 */
-	public DataObject opSpaceship(DataObject other) {
-		if(isLessThan(other))
-			return new DataObject().setInt(-1);
-		if(isEquals(other))
-			return new DataObject().setInt(0);
-		if(isGreaterThan(other))
-			return new DataObject().setInt(1);
-		
-		return new DataObject().setNull();
-	}
-	
 	//Math operation functions
 	/**
 	 * For "▲"

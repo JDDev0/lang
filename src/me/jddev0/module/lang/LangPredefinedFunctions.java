@@ -2554,7 +2554,8 @@ final class LangPredefinedFunctions {
 				opDeepCopy(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
 				opConcat(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSpaceship, SCOPE_ID), SCOPE_ID));
+		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
+				opSpaceship(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("elvis", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID), SCOPE_ID));

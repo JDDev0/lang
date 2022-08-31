@@ -1060,7 +1060,7 @@ public final class LangInterpreter {
 					output = operators.opConcat(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case SPACESHIP:
-					output = leftSideOperand.opSpaceship(rightSideOperand);
+					output = operators.opSpaceship(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case ELVIS:
 					if(leftSideOperand.getBoolean())

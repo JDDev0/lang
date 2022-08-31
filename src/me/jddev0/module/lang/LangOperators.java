@@ -137,4 +137,18 @@ final class LangOperators {
 		
 		return null;
 	}
+	
+	/**
+	 * For "&lt;=&gt;"
+	 */
+	public DataObject opSpaceship(DataObject lettSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(lettSideOperand.isLessThan(rightSideOperand))
+			return new DataObject().setInt(-1);
+		if(lettSideOperand.isEquals(rightSideOperand))
+			return new DataObject().setInt(0);
+		if(lettSideOperand.isGreaterThan(rightSideOperand))
+			return new DataObject().setInt(1);
+		
+		return new DataObject().setNull();
+	}
 }
