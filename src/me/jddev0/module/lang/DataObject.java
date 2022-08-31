@@ -1404,54 +1404,6 @@ public class DataObject {
 	
 	//Math operation functions
 	/**
-	 * For "▲"
-	 */
-	public DataObject opInc() {
-		switch(type) {
-			case INT:
-				return new DataObject().setInt(intValue + 1);
-			case LONG:
-				return new DataObject().setLong(longValue + 1);
-			case FLOAT:
-				return new DataObject().setFloat(floatValue + 1.f);
-			case DOUBLE:
-				return new DataObject().setDouble(doubleValue + 1.d);
-			case CHAR:
-				return new DataObject().setChar((char)(charValue + 1));
-			
-			case FUNCTION_POINTER:
-				final FunctionPointerObject func = getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
-					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					if(combinedArgumentList.size() < 1)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", 1), SCOPE_ID);
-					if(combinedArgumentList.size() > 1)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Too many arguments (%s needed)", 1), SCOPE_ID);
-					
-					DataObject arrPointerObject = combinedArgumentList.get(0);
-					
-					if(arrPointerObject.getType() != DataType.ARRAY)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-					
-					List<DataObject> argsFunc = new LinkedList<>(Arrays.asList(arrPointerObject.getArray()));
-					argsFunc = LangUtils.separateArgumentsWithArgumentSeparators(argsFunc);
-					return interpreter.callFunctionPointer(func, getVariableName(), argsFunc, SCOPE_ID);
-				}));
-			
-			case TEXT:
-			case ARRAY:
-			case ERROR:
-			case VAR_POINTER:
-			case NULL:
-			case VOID:
-			case ARGUMENT_SEPARATOR:
-			case TYPE:
-				return null;
-		}
-		
-		return null;
-	}
-	/**
 	 * For "▼"
 	 */
 	public DataObject opDec() {

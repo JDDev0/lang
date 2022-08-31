@@ -1117,7 +1117,7 @@ public final class LangInterpreter {
 					output = leftSideOperand.opNot();
 					break;
 				case INC:
-					output = leftSideOperand.opInc();
+					output = operators.opInc(leftSideOperand, SCOPE_ID);
 					break;
 				case DEC:
 					output = leftSideOperand.opDec();

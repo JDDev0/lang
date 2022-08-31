@@ -2564,7 +2564,8 @@ final class LangPredefinedFunctions {
 		}, SCOPE_ID), SCOPE_ID));
 		
 		//Math operator functions
-		funcs.put("inc", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInc, SCOPE_ID), SCOPE_ID));
+		funcs.put("inc", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
+				opInc(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("dec", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opDec, SCOPE_ID), SCOPE_ID));
 		funcs.put("pos", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opPos, SCOPE_ID), SCOPE_ID));
 		funcs.put("inv", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInv, SCOPE_ID), SCOPE_ID));

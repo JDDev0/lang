@@ -1,10 +1,12 @@
 package me.jddev0.module.lang;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
  * Lang-Module<br>
@@ -137,7 +139,6 @@ final class LangOperators {
 		
 		return null;
 	}
-	
 	/**
 	 * For "&lt;=&gt;"
 	 */
@@ -150,5 +151,55 @@ final class LangOperators {
 			return new DataObject().setInt(1);
 		
 		return new DataObject().setNull();
+	}
+	
+	//Math operation functions
+	/**
+	 * For "▲"
+	 */
+	public DataObject opInc(DataObject operand, final int SCOPE_ID) {
+		switch(operand.getType()) {
+			case INT:
+				return new DataObject().setInt(operand.getInt() + 1);
+			case LONG:
+				return new DataObject().setLong(operand.getLong() + 1);
+			case FLOAT:
+				return new DataObject().setFloat(operand.getFloat() + 1.f);
+			case DOUBLE:
+				return new DataObject().setDouble(operand.getDouble() + 1.d);
+			case CHAR:
+				return new DataObject().setChar((char)(operand.getChar() + 1));
+			
+			case FUNCTION_POINTER:
+				final FunctionPointerObject func = operand.getFunctionPointer();
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					if(combinedArgumentList.size() < 1)
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", 1), INNER_SCOPE_ID);
+					if(combinedArgumentList.size() > 1)
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Too many arguments (%s needed)", 1), INNER_SCOPE_ID);
+					
+					DataObject arrPointerObject = combinedArgumentList.get(0);
+					
+					if(arrPointerObject.getType() != DataType.ARRAY)
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, INNER_SCOPE_ID);
+					
+					List<DataObject> argsFunc = new LinkedList<>(Arrays.asList(arrPointerObject.getArray()));
+					argsFunc = LangUtils.separateArgumentsWithArgumentSeparators(argsFunc);
+					return interpreter.callFunctionPointer(func, operand.getVariableName(), argsFunc, INNER_SCOPE_ID);
+				}));
+			
+			case TEXT:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
 	}
 }
