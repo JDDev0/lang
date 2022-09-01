@@ -1404,12 +1404,6 @@ public class DataObject {
 	
 	//Math operation functions
 	/**
-	 * For "+"
-	 */
-	public DataObject opPos() {
-		return new DataObject(this);
-	}
-	/**
 	 * For "-"
 	 */
 	public DataObject opInv() {

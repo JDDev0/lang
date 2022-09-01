@@ -241,4 +241,10 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "+"
+	 */
+	public DataObject opPos(DataObject operand, final int SCOPE_ID) {
+		return new DataObject(operand);
+	}
 }

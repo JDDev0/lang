@@ -2568,7 +2568,8 @@ final class LangPredefinedFunctions {
 				opInc(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("dec", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
 				opDec(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("pos", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opPos, SCOPE_ID), SCOPE_ID));
+		funcs.put("pos", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
+				opPos(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("inv", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(unaryOperationHelper(argumentList, DataObject::opInv, SCOPE_ID), SCOPE_ID));
 		funcs.put("add", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opAdd, SCOPE_ID), SCOPE_ID));
 		funcs.put("sub", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, DataObject::opSub, SCOPE_ID), SCOPE_ID));

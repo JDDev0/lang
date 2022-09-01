@@ -1108,7 +1108,7 @@ public final class LangInterpreter {
 					output = leftSideOperand;
 					break;
 				case POS:
-					output = leftSideOperand.opPos();
+					output = operators.opPos(leftSideOperand, SCOPE_ID);
 					break;
 				case INV:
 					output = leftSideOperand.opInv();
