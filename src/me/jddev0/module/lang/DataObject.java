@@ -1404,45 +1404,6 @@ public class DataObject {
 	
 	//Math operation functions
 	/**
-	 * For "▼"
-	 */
-	public DataObject opDec() {
-		switch(type) {
-			case INT:
-				return new DataObject().setInt(intValue - 1);
-			case LONG:
-				return new DataObject().setLong(longValue - 1);
-			case FLOAT:
-				return new DataObject().setFloat(floatValue - 1.f);
-			case DOUBLE:
-				return new DataObject().setDouble(doubleValue - 1.d);
-			case CHAR:
-				return new DataObject().setChar((char)(charValue - 1));
-			
-			case FUNCTION_POINTER:
-				final FunctionPointerObject func = getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, SCOPE_ID) -> {
-					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					
-					List<DataObject> argsFunc = new LinkedList<>();
-					argsFunc.add(new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0])));
-					return interpreter.callFunctionPointer(func, getVariableName(), argsFunc, SCOPE_ID);
-				}));
-			
-			case TEXT:
-			case ARRAY:
-			case ERROR:
-			case VAR_POINTER:
-			case NULL:
-			case VOID:
-			case ARGUMENT_SEPARATOR:
-			case TYPE:
-				return null;
-		}
-		
-		return null;
-	}
-	/**
 	 * For "+"
 	 */
 	public DataObject opPos() {

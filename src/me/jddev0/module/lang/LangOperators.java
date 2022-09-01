@@ -202,4 +202,43 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "▼"
+	 */
+	public DataObject opDec(DataObject operand, final int SCOPE_ID) {
+		switch(operand.getType()) {
+			case INT:
+				return new DataObject().setInt(operand.getInt() - 1);
+			case LONG:
+				return new DataObject().setLong(operand.getLong() - 1);
+			case FLOAT:
+				return new DataObject().setFloat(operand.getFloat() - 1.f);
+			case DOUBLE:
+				return new DataObject().setDouble(operand.getDouble() - 1.d);
+			case CHAR:
+				return new DataObject().setChar((char)(operand.getChar() - 1));
+			
+			case FUNCTION_POINTER:
+				final FunctionPointerObject func = operand.getFunctionPointer();
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					
+					List<DataObject> argsFunc = new LinkedList<>();
+					argsFunc.add(new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0])));
+					return interpreter.callFunctionPointer(func, operand.getVariableName(), argsFunc, INNER_SCOPE_ID);
+				}));
+			
+			case TEXT:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }

@@ -1120,7 +1120,7 @@ public final class LangInterpreter {
 					output = operators.opInc(leftSideOperand, SCOPE_ID);
 					break;
 				case DEC:
-					output = leftSideOperand.opDec();
+					output = operators.opDec(leftSideOperand, SCOPE_ID);
 					break;
 				
 				//Binary
