@@ -247,4 +247,41 @@ final class LangOperators {
 	public DataObject opPos(DataObject operand, final int SCOPE_ID) {
 		return new DataObject(operand);
 	}
+	/**
+	 * For "-"
+	 */
+	public DataObject opInv(DataObject operand, final int SCOPE_ID) {
+		switch(operand.getType()) {
+			case INT:
+				return new DataObject().setInt(-operand.getInt());
+			case LONG:
+				return new DataObject().setLong(-operand.getLong());
+			case FLOAT:
+				return new DataObject().setFloat(-operand.getFloat());
+			case DOUBLE:
+				return new DataObject().setDouble(-operand.getDouble());
+			case CHAR:
+				return new DataObject().setChar((char)(-operand.getChar()));
+			case TEXT:
+				return new DataObject(new StringBuilder(operand.getText()).reverse().toString());
+			case ARRAY:
+				DataObject[] arrInv = new DataObject[operand.getArray().length];
+				int index = arrInv.length - 1;
+				for(DataObject dataObject:operand.getArray())
+					arrInv[index--] = dataObject;
+				
+				return new DataObject().setArray(arrInv);
+			
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }

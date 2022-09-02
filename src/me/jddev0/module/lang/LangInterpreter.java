@@ -1111,7 +1111,7 @@ public final class LangInterpreter {
 					output = operators.opPos(leftSideOperand, SCOPE_ID);
 					break;
 				case INV:
-					output = leftSideOperand.opInv();
+					output = operators.opInv(leftSideOperand, SCOPE_ID);
 					break;
 				case BITWISE_NOT:
 					output = leftSideOperand.opNot();

@@ -1404,43 +1404,6 @@ public class DataObject {
 	
 	//Math operation functions
 	/**
-	 * For "-"
-	 */
-	public DataObject opInv() {
-		switch(type) {
-			case INT:
-				return new DataObject().setInt(-intValue);
-			case LONG:
-				return new DataObject().setLong(-longValue);
-			case FLOAT:
-				return new DataObject().setFloat(-floatValue);
-			case DOUBLE:
-				return new DataObject().setDouble(-doubleValue);
-			case CHAR:
-				return new DataObject().setChar((char)(-charValue));
-			case TEXT:
-				return new DataObject(new StringBuilder(txt).reverse().toString());
-			case ARRAY:
-				DataObject[] arrInv = new DataObject[arr.length];
-				int index = arrInv.length - 1;
-				for(DataObject dataObject:arr)
-					arrInv[index--] = dataObject;
-				
-				return new DataObject().setArray(arrInv);
-			
-			case ERROR:
-			case VAR_POINTER:
-			case FUNCTION_POINTER:
-			case NULL:
-			case VOID:
-			case ARGUMENT_SEPARATOR:
-			case TYPE:
-				return null;
-		}
-		
-		return null;
-	}
-	/**
 	 * For "+"
 	 */
 	public DataObject opAdd(DataObject dataObject) {
