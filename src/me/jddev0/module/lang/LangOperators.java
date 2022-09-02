@@ -88,29 +88,29 @@ final class LangOperators {
 	/**
 	 * For "|||"
 	 */
-	public DataObject opConcat(DataObject lettSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
-		switch(lettSideOperand.getType()) {
+	public DataObject opConcat(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
 			case INT:
-				return new DataObject(lettSideOperand.getInt() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getInt() + rightSideOperand.getText());
 			case LONG:
-				return new DataObject(lettSideOperand.getLong() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getLong() + rightSideOperand.getText());
 			case FLOAT:
-				return new DataObject(lettSideOperand.getFloat() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getFloat() + rightSideOperand.getText());
 			case DOUBLE:
-				return new DataObject(lettSideOperand.getDouble() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getDouble() + rightSideOperand.getText());
 			case CHAR:
-				return new DataObject(lettSideOperand.getChar() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getChar() + rightSideOperand.getText());
 			case TEXT:
-				return new DataObject(lettSideOperand.getText() + rightSideOperand.getText());
+				return new DataObject(leftSideOperand.getText() + rightSideOperand.getText());
 			case ARRAY:
 				if(rightSideOperand.getType() != DataType.ARRAY)
 					return null;
 				
-				DataObject[] arrNew = new DataObject[lettSideOperand.getArray().length + rightSideOperand.getArray().length];
-				for(int i = 0;i < lettSideOperand.getArray().length;i++)
-					arrNew[i] = lettSideOperand.getArray()[i];
+				DataObject[] arrNew = new DataObject[leftSideOperand.getArray().length + rightSideOperand.getArray().length];
+				for(int i = 0;i < leftSideOperand.getArray().length;i++)
+					arrNew[i] = leftSideOperand.getArray()[i];
 				for(int i = 0;i < rightSideOperand.getArray().length;i++)
-					arrNew[lettSideOperand.getArray().length + i] = rightSideOperand.getArray()[i];
+					arrNew[leftSideOperand.getArray().length + i] = rightSideOperand.getArray()[i];
 				
 				return new DataObject().setArray(arrNew);
 				
@@ -118,11 +118,11 @@ final class LangOperators {
 				if(rightSideOperand.getType() != DataType.FUNCTION_POINTER)
 					return null;
 				
-				final FunctionPointerObject aFunc = lettSideOperand.getFunctionPointer();
+				final FunctionPointerObject aFunc = leftSideOperand.getFunctionPointer();
 				final FunctionPointerObject bFunc = rightSideOperand.getFunctionPointer();
 				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
 					List<DataObject> argsB = new LinkedList<>();
-					DataObject retA = interpreter.callFunctionPointer(aFunc, lettSideOperand.getVariableName(), args, INNER_SCOPE_ID);
+					DataObject retA = interpreter.callFunctionPointer(aFunc, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
 					argsB.add(retA == null?new DataObject().setVoid():retA);
 					
 					return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), argsB, INNER_SCOPE_ID);
@@ -142,12 +142,12 @@ final class LangOperators {
 	/**
 	 * For "&lt;=&gt;"
 	 */
-	public DataObject opSpaceship(DataObject lettSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
-		if(lettSideOperand.isLessThan(rightSideOperand))
+	public DataObject opSpaceship(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(leftSideOperand.isLessThan(rightSideOperand))
 			return new DataObject().setInt(-1);
-		if(lettSideOperand.isEquals(rightSideOperand))
+		if(leftSideOperand.isEquals(rightSideOperand))
 			return new DataObject().setInt(0);
-		if(lettSideOperand.isGreaterThan(rightSideOperand))
+		if(leftSideOperand.isGreaterThan(rightSideOperand))
 			return new DataObject().setInt(1);
 		
 		return new DataObject().setNull();
