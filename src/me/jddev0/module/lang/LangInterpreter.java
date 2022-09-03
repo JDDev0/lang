@@ -1146,7 +1146,7 @@ public final class LangInterpreter {
 					output = leftSideOperand.opMod(rightSideOperand);
 					break;
 				case ADD:
-					output = leftSideOperand.opAdd(rightSideOperand);
+					output = operators.opAdd(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case SUB:
 					output = leftSideOperand.opSub(rightSideOperand);
