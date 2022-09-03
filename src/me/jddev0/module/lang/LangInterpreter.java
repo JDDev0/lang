@@ -1149,7 +1149,7 @@ public final class LangInterpreter {
 					output = operators.opAdd(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case SUB:
-					output = leftSideOperand.opSub(rightSideOperand);
+					output = operators.opSub(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case LSHIFT:
 					output = leftSideOperand.opLshift(rightSideOperand);
