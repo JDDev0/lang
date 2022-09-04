@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
@@ -568,6 +569,151 @@ final class LangOperators {
 				return null;
 			
 			case TEXT:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	/**
+	 * For "*"
+	 */
+	public DataObject opMul(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case INT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setInt(leftSideOperand.getInt() * rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setLong(leftSideOperand.getInt() * rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getInt() * rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getInt() * rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case LONG:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setLong(leftSideOperand.getLong() * rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setLong(leftSideOperand.getLong() * rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getLong() * rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getLong() * rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case FLOAT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setFloat(leftSideOperand.getFloat() * rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setFloat(leftSideOperand.getFloat() * rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getFloat() * rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getFloat() * rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case DOUBLE:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setDouble(leftSideOperand.getDouble() * rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setDouble(leftSideOperand.getDouble() * rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setDouble(leftSideOperand.getDouble() * rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getDouble() * rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case TEXT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() < 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Integer value must be larger than or equals to 0"));
+						
+						StringBuilder builder = new StringBuilder();
+						for(int i = 0;i < rightSideOperand.getInt();i++)
+							builder.append(leftSideOperand.getText());
+						
+						return new DataObject(builder.toString());
+					
+					case LONG:
+					case FLOAT:
+					case DOUBLE:
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case CHAR:
 			case ARRAY:
 			case ERROR:
 			case VAR_POINTER:

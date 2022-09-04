@@ -1128,7 +1128,7 @@ public final class LangInterpreter {
 					output = leftSideOperand.opPow(rightSideOperand);
 					break;
 				case MUL:
-					output = leftSideOperand.opMul(rightSideOperand);
+					output = operators.opMul(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case DIV:
 					output = leftSideOperand.opDiv(rightSideOperand);
