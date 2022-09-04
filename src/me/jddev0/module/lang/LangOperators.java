@@ -727,4 +727,151 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "**"
+	 */
+	public DataObject opPow(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case INT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						double ret = Math.pow(leftSideOperand.getInt(), rightSideOperand.getInt());
+						if(Math.abs(ret) > Integer.MAX_VALUE || rightSideOperand.getInt() < 0)
+							return new DataObject().setDouble(ret);
+						return new DataObject().setInt((int)ret);
+					case LONG:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getInt(), rightSideOperand.getLong()));
+					case FLOAT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getInt(), rightSideOperand.getFloat()));
+					case DOUBLE:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getInt(), rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case LONG:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getLong(), rightSideOperand.getInt()));
+					case LONG:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getLong(), rightSideOperand.getLong()));
+					case FLOAT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getLong(), rightSideOperand.getFloat()));
+					case DOUBLE:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getLong(), rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case FLOAT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getFloat(), rightSideOperand.getInt()));
+					case LONG:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getFloat(), rightSideOperand.getLong()));
+					case FLOAT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getFloat(), rightSideOperand.getFloat()));
+					case DOUBLE:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getFloat(), rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case DOUBLE:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getDouble(), rightSideOperand.getInt()));
+					case LONG:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getDouble(), rightSideOperand.getLong()));
+					case FLOAT:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getDouble(), rightSideOperand.getFloat()));
+					case DOUBLE:
+						return new DataObject().setDouble(Math.pow(leftSideOperand.getDouble(), rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case FUNCTION_POINTER:
+				if(rightSideOperand.getType() != DataType.INT)
+					return null;
+				
+				final int count = rightSideOperand.getInt();
+				if(count < 0)
+					return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Number must not be less than 0!"));
+				
+				if(count == 0)
+					return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+						return new DataObject().setVoid();
+					}));
+				
+				final FunctionPointerObject func = leftSideOperand.getFunctionPointer();
+				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					DataObject retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
+					DataObject ret = retN == null?new DataObject().setVoid():retN;
+					
+					for(int i = 1;i < count;i++) {
+						args = new LinkedList<>();
+						args.add(ret);
+						retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
+						ret = retN == null?new DataObject().setVoid():retN;
+					}
+					
+					return ret;
+				}));
+			
+			case TEXT:
+			case CHAR:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }

@@ -1125,7 +1125,7 @@ public final class LangInterpreter {
 				
 				//Binary
 				case POW:
-					output = leftSideOperand.opPow(rightSideOperand);
+					output = operators.opPow(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case MUL:
 					output = operators.opMul(leftSideOperand, rightSideOperand, SCOPE_ID);
