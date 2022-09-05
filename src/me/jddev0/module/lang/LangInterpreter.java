@@ -1131,7 +1131,7 @@ public final class LangInterpreter {
 					output = operators.opMul(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case DIV:
-					output = leftSideOperand.opDiv(rightSideOperand);
+					output = operators.opDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case TRUNC_DIV:
 					output = leftSideOperand.opTruncDiv(rightSideOperand);

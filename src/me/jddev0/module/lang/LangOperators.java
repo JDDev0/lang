@@ -874,4 +874,145 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "/"
+	 */
+	public DataObject opDiv(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case INT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setFloat(leftSideOperand.getInt() / 0.f);
+						
+						if(leftSideOperand.getInt() % rightSideOperand.getInt() != 0)
+							return new DataObject().setFloat(leftSideOperand.getInt() / (float)rightSideOperand.getInt());
+						
+						return new DataObject().setInt(leftSideOperand.getInt() / rightSideOperand.getInt());
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setFloat(leftSideOperand.getInt() / 0.f);
+						
+						if(leftSideOperand.getInt() % rightSideOperand.getLong() != 0)
+							return new DataObject().setFloat(leftSideOperand.getInt() / (float)rightSideOperand.getLong());
+						
+						return new DataObject().setLong(leftSideOperand.getInt() / rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getInt() / rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getInt() / rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case LONG:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setFloat(leftSideOperand.getLong() / 0.f);
+						
+						if(leftSideOperand.getLong() % rightSideOperand.getInt() != 0)
+							return new DataObject().setFloat(leftSideOperand.getLong() / (float)rightSideOperand.getInt());
+						
+						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getInt());
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setFloat(leftSideOperand.getLong() / 0.f);
+						
+						if(leftSideOperand.getLong() % rightSideOperand.getLong() != 0)
+							return new DataObject().setFloat(leftSideOperand.getLong() / (float)rightSideOperand.getLong());
+						
+						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getLong() / rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getLong() / rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case FLOAT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setFloat(leftSideOperand.getFloat() / rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setFloat(leftSideOperand.getFloat() / rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setFloat(leftSideOperand.getFloat() / rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getFloat() / rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case DOUBLE:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						return new DataObject().setDouble(leftSideOperand.getDouble() / rightSideOperand.getInt());
+					case LONG:
+						return new DataObject().setDouble(leftSideOperand.getDouble() / rightSideOperand.getLong());
+					case FLOAT:
+						return new DataObject().setDouble(leftSideOperand.getDouble() / rightSideOperand.getFloat());
+					case DOUBLE:
+						return new DataObject().setDouble(leftSideOperand.getDouble() / rightSideOperand.getDouble());
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case TEXT:
+			case CHAR:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }
