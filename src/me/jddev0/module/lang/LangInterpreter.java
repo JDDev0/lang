@@ -1140,7 +1140,7 @@ public final class LangInterpreter {
 					output = operators.opFloorDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case CEIL_DIV:
-					output = leftSideOperand.opCeilDiv(rightSideOperand);
+					output = operators.opCeilDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case MOD:
 					output = leftSideOperand.opMod(rightSideOperand);
