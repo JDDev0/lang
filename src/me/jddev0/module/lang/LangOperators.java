@@ -1241,4 +1241,170 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "//"
+	 */
+	public DataObject opFloorDiv(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case INT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setInt(Math.floorDiv(leftSideOperand.getInt(), rightSideOperand.getInt()));
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getInt(), rightSideOperand.getLong()));
+					case FLOAT:
+						if(rightSideOperand.getFloat() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getInt() / rightSideOperand.getFloat()));
+					case DOUBLE:
+						if(rightSideOperand.getDouble() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getInt() / rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case LONG:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getLong(), rightSideOperand.getInt()));
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getLong(), rightSideOperand.getLong()));
+					case FLOAT:
+						if(rightSideOperand.getFloat() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getLong() / rightSideOperand.getFloat()));
+					case DOUBLE:
+						if(rightSideOperand.getDouble() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getLong() / rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			case FLOAT:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getInt()));
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getLong()));
+					case FLOAT:
+						if(rightSideOperand.getFloat() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getFloat()));
+					case DOUBLE:
+						if(rightSideOperand.getDouble() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getFloat() / rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				
+				return null;
+			case DOUBLE:
+				switch(rightSideOperand.getType()) {
+					case INT:
+						if(rightSideOperand.getInt() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getInt()));
+					case LONG:
+						if(rightSideOperand.getLong() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getLong()));
+					case FLOAT:
+						if(rightSideOperand.getFloat() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getFloat()));
+					case DOUBLE:
+						if(rightSideOperand.getDouble() == 0)
+							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+						
+						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getDouble()));
+					
+					case TEXT:
+					case CHAR:
+					case ARRAY:
+					case ERROR:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return null;
+				}
+				return null;
+			
+			case TEXT:
+			case CHAR:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }
