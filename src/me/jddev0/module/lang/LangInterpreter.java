@@ -1143,7 +1143,7 @@ public final class LangInterpreter {
 					output = operators.opCeilDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case MOD:
-					output = leftSideOperand.opMod(rightSideOperand);
+					output = operators.opMod(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case ADD:
 					output = operators.opAdd(leftSideOperand, rightSideOperand, SCOPE_ID);
