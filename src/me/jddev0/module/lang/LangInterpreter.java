@@ -1167,7 +1167,7 @@ public final class LangInterpreter {
 					output = leftSideOperand.opXor(rightSideOperand);
 					break;
 				case BITWISE_OR:
-					output = leftSideOperand.opOr(rightSideOperand);
+					output = operators.opOr(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case GET_ITEM:
 					output = leftSideOperand.opGetItem(rightSideOperand);
