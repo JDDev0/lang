@@ -1853,4 +1853,30 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "~"
+	 */
+	public DataObject opNot(DataObject operand, final int SCOPE_ID) {
+		switch(operand.getType()) {
+			case INT:
+				return new DataObject().setInt(~operand.getInt());
+			case LONG:
+				return new DataObject().setLong(~operand.getLong());
+			case FLOAT:
+			case DOUBLE:
+			case TEXT:
+			case CHAR:
+			case ARRAY:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }

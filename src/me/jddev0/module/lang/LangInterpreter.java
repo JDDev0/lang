@@ -1114,7 +1114,7 @@ public final class LangInterpreter {
 					output = operators.opInv(leftSideOperand, SCOPE_ID);
 					break;
 				case BITWISE_NOT:
-					output = leftSideOperand.opNot();
+					output = operators.opNot(leftSideOperand, SCOPE_ID);
 					break;
 				case INC:
 					output = operators.opInc(leftSideOperand, SCOPE_ID);

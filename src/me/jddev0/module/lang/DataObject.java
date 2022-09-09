@@ -1403,32 +1403,6 @@ public class DataObject {
 	
 	//Math operation functions
 	/**
-	 * For "~"
-	 */
-	public DataObject opNot() {
-		switch(type) {
-			case INT:
-				return new DataObject().setInt(~intValue);
-			case LONG:
-				return new DataObject().setLong(~longValue);
-			case FLOAT:
-			case DOUBLE:
-			case TEXT:
-			case CHAR:
-			case ARRAY:
-			case ERROR:
-			case VAR_POINTER:
-			case FUNCTION_POINTER:
-			case NULL:
-			case VOID:
-			case ARGUMENT_SEPARATOR:
-			case TYPE:
-				return null;
-		}
-		
-		return null;
-	}
-	/**
 	 * For "&lt;&lt;"
 	 */
 	public DataObject opLshift(DataObject dataObject) {
