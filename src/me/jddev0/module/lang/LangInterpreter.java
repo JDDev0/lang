@@ -1170,7 +1170,7 @@ public final class LangInterpreter {
 					output = operators.opOr(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				case GET_ITEM:
-					output = leftSideOperand.opGetItem(rightSideOperand);
+					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				
 				default:

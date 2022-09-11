@@ -2080,4 +2080,67 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "[...]"
+	 */
+	public DataObject opGetItem(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case ARRAY:
+				if(rightSideOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getArray().length;
+					int index = rightSideOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					return leftSideOperand.getArray()[index];
+				}
+				
+				return null;
+			case TEXT:
+				if(rightSideOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getText().length();
+					int index = rightSideOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					return new DataObject().setChar(leftSideOperand.getText().charAt(index));
+				}
+				
+				return null;
+			case CHAR:
+				if(rightSideOperand.getType() == DataType.INT) {
+					int index = rightSideOperand.getInt();
+					if(index < 0)
+						index++;
+					
+					if(index != 0)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					return new DataObject().setChar(leftSideOperand.getChar());
+				}
+				
+				return null;
+			
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }
