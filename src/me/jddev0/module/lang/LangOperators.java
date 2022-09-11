@@ -1723,6 +1723,14 @@ final class LangOperators {
 	 * For "|"
 	 */
 	public DataObject opOr(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(rightSideOperand.getType() == DataType.FUNCTION_POINTER) {
+			FunctionPointerObject func = rightSideOperand.getFunctionPointer();
+			List<DataObject> args = new LinkedList<>();
+			args.add(leftSideOperand);
+			
+			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), args, SCOPE_ID);
+		}
+		
 		switch(leftSideOperand.getType()) {
 			case INT:
 				switch(rightSideOperand.getType()) {
