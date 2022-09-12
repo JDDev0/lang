@@ -2033,6 +2033,15 @@ final class LangOperators {
 	 * For "&gt;&gt;&gt;"
 	 */
 	public DataObject opRzshift(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(rightSideOperand.getType() == DataType.FUNCTION_POINTER && leftSideOperand.getType() == DataType.ARRAY) {
+			FunctionPointerObject func = rightSideOperand.getFunctionPointer();
+			
+			List<DataObject> args = new LinkedList<>(Arrays.asList(leftSideOperand.getArray()));
+			args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+			
+			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), args, SCOPE_ID);
+		}
+		
 		switch(leftSideOperand.getType()) {
 			case INT:
 				switch(rightSideOperand.getType()) {
