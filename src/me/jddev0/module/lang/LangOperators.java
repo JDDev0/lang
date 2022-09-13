@@ -1635,9 +1635,14 @@ final class LangOperators {
 				}
 				return null;
 			
+			case TEXT:
+				if(rightSideOperand.getType() == DataType.ARRAY)
+					return interpreter.formatText(leftSideOperand.getText(), new LinkedList<>(Arrays.asList(rightSideOperand.getArray())), SCOPE_ID);
+				
+				return null;
+			
 			case FLOAT:
 			case DOUBLE:
-			case TEXT:
 			case CHAR:
 			case ARRAY:
 			case ERROR:
