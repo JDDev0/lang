@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import me.jddev0.module.lang.DataObject.DataTypeConstraintViolatedException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
+import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
 
@@ -2076,6 +2078,432 @@ public final class LangInterpreter {
 		
 		List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
 		return new DataObject().setArray(elements.toArray(new DataObject[0]));
+	}
+	
+	//Return values for format sequence errors
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE = -1;
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS = -2;
+	private static final int FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT = -3;
+	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND = -4;
+	private static final int FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS = -5;
+	private static final int FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE = -6;
+	
+	/**
+	 * @param argumentList The argument list without argument separators of the function call without the format argument (= argument at index 0). Used data objects will be removed from the list
+	 * @param fullArgumentList The argument list of the function call where every argument are already combined to single values without argument separators with the format argument
+	 * (= argument at index 0). This list will not be modified and is used for value referencing by index
+	 * 
+	 * @return The count of chars used for the format sequence
+	 * Will return any of
+	 * <ul>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND}</li>
+	 * <li>{@code FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS}</li>
+	 * </ul>
+	 * for errors
+	 */
+	private int interpretNextFormatSequence(String format, StringBuilder builder, List<DataObject> argumentList, List<DataObject> fullArgumentList, final int SCOPE_ID) {
+		char[] posibleFormats = {'b', 'c', 'd', 'f', 'n', 'o', 's', 't', 'x', '?'};
+		int[] indices = new int[posibleFormats.length];
+		for(int i = 0;i < posibleFormats.length;i++)
+			indices[i] = format.indexOf(posibleFormats[i]);
+		
+		int minEndIndex = Integer.MAX_VALUE;
+		for(int index:indices) {
+			if(index == -1)
+				continue;
+			
+			if(index < minEndIndex)
+				minEndIndex = index;
+		}
+		
+		if(minEndIndex == Integer.MAX_VALUE)
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+		
+		String fullFormat = format.substring(0, minEndIndex + 1);
+		char formatType = fullFormat.charAt(fullFormat.length() - 1);
+		
+		//Parsing format arguments
+		Integer valueSpecifiedIndex = null;
+		if(fullFormat.charAt(0) == '[') {
+			int valueSpecifiedIndexEndIndex = fullFormat.indexOf(']');
+			if(valueSpecifiedIndexEndIndex < 0)
+				return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+			
+			String valueSpecifiedIndexString = fullFormat.substring(1, valueSpecifiedIndexEndIndex);
+			fullFormat = fullFormat.substring(valueSpecifiedIndexEndIndex + 1);
+			
+			String number = "";
+			while(!valueSpecifiedIndexString.isEmpty()) {
+				if(valueSpecifiedIndexString.charAt(0) < '0' || valueSpecifiedIndexString.charAt(0) > '9')
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				number += valueSpecifiedIndexString.charAt(0);
+				valueSpecifiedIndexString = valueSpecifiedIndexString.substring(1);
+			}
+			valueSpecifiedIndex = Integer.parseInt(number);
+			if(valueSpecifiedIndex >= fullArgumentList.size())
+				return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
+		}
+		boolean leftJustify = fullFormat.charAt(0) == '-';
+		if(leftJustify)
+			fullFormat = fullFormat.substring(1);
+		boolean forceSign = fullFormat.charAt(0) == '+';
+		if(forceSign)
+			fullFormat = fullFormat.substring(1);
+		boolean signSpace = !forceSign && fullFormat.charAt(0) == ' ';
+		if(signSpace)
+			fullFormat = fullFormat.substring(1);
+		boolean leadingZeros = fullFormat.charAt(0) == '0';
+		if(leadingZeros)
+			fullFormat = fullFormat.substring(1);
+		boolean sizeInArgument = fullFormat.charAt(0) == '*';
+		if(sizeInArgument)
+			fullFormat = fullFormat.substring(1);
+		Integer sizeArgumentIndex = null;
+		if(sizeInArgument && fullFormat.charAt(0) == '[') {
+			int sizeArgumentIndexEndIndex = fullFormat.indexOf(']');
+			if(sizeArgumentIndexEndIndex < 0)
+				return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+			
+			String sizeArgumentIndexString = fullFormat.substring(1, sizeArgumentIndexEndIndex);
+			fullFormat = fullFormat.substring(sizeArgumentIndexEndIndex + 1);
+			
+			String number = "";
+			while(!sizeArgumentIndexString.isEmpty()) {
+				if(sizeArgumentIndexString.charAt(0) < '0' || sizeArgumentIndexString.charAt(0) > '9')
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				number += sizeArgumentIndexString.charAt(0);
+				sizeArgumentIndexString = sizeArgumentIndexString.substring(1);
+			}
+			sizeArgumentIndex = Integer.parseInt(number);
+			if(sizeArgumentIndex >= fullArgumentList.size())
+				return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
+		}
+		Integer size = null;
+		if(fullFormat.charAt(0) > '0' && fullFormat.charAt(0) <= '9') {
+			String number = "";
+			while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
+				number += fullFormat.charAt(0);
+				fullFormat = fullFormat.substring(1);
+			}
+			size = Integer.parseInt(number);
+		}
+		boolean decimalPlaces = fullFormat.charAt(0) == '.';
+		boolean decimalPlacesInArgument = false;
+		Integer decimalPlacesCountIndex = null;
+		Integer decimalPlacesCount = null;
+		if(decimalPlaces) {
+			fullFormat = fullFormat.substring(1);
+			decimalPlacesInArgument = fullFormat.charAt(0) == '*';
+			if(decimalPlacesInArgument)
+				fullFormat = fullFormat.substring(1);
+			if(decimalPlacesInArgument && fullFormat.charAt(0) == '[') {
+				int decimalPlacesCountIndexEndIndex = fullFormat.indexOf(']');
+				if(decimalPlacesCountIndexEndIndex < 0)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				String decimalPlacesCountIndexString = fullFormat.substring(1, decimalPlacesCountIndexEndIndex);
+				fullFormat = fullFormat.substring(decimalPlacesCountIndexEndIndex + 1);
+				
+				String number = "";
+				while(!decimalPlacesCountIndexString.isEmpty()) {
+					if(decimalPlacesCountIndexString.charAt(0) < '0' || decimalPlacesCountIndexString.charAt(0) > '9')
+						return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+					
+					number += decimalPlacesCountIndexString.charAt(0);
+					decimalPlacesCountIndexString = decimalPlacesCountIndexString.substring(1);
+				}
+				decimalPlacesCountIndex = Integer.parseInt(number);
+				if(decimalPlacesCountIndex >= fullArgumentList.size())
+					return FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS;
+			}
+			if(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
+				String number = "";
+				while(fullFormat.charAt(0) >= '0' && fullFormat.charAt(0) <= '9') {
+					number += fullFormat.charAt(0);
+					fullFormat = fullFormat.substring(1);
+				}
+				boolean leadingZero = number.charAt(0) == '0';
+				if(leadingZero && number.length() > 1)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				decimalPlacesCount = Integer.parseInt(number);
+			}
+		}
+		
+		if(fullFormat.charAt(0) != formatType)
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Invalid characters
+		if((sizeInArgument && size != null) || (decimalPlacesInArgument && decimalPlacesCount != null) || (leftJustify && leadingZeros))
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Invalid format argument combinations
+		if(leftJustify && (!sizeInArgument && size == null))
+			return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE; //Missing size format argument for leftJustify
+		switch(formatType) { //Invalid arguments for formatType
+			case 'f':
+				break;
+			
+			case 'n':
+				if(valueSpecifiedIndex != null || sizeInArgument || size != null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				//Fall-trough
+			case 'c':
+			case 's':
+			case '?':
+				if(forceSign || signSpace || leadingZeros)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				
+				//Fall-trough
+			case 'b':
+			case 'd':
+			case 'o':
+			case 'x':
+				if(decimalPlaces)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+				break;
+				
+			case 't':
+				if(forceSign || signSpace || leadingZeros)
+					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
+		}
+		
+		//Get size from arguments
+		if(sizeInArgument) {
+			if(sizeArgumentIndex == null && argumentList.isEmpty())
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+			DataObject dataObject = sizeArgumentIndex == null?argumentList.remove(0):fullArgumentList.get(sizeArgumentIndex);
+			Number number = dataObject.toNumber();
+			if(number == null)
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+			
+			size = number.intValue();
+			if(size < 0)
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+		}
+		if(decimalPlacesInArgument) {
+			if(decimalPlacesCountIndex == null && argumentList.isEmpty())
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+			DataObject dataObject = decimalPlacesCountIndex == null?argumentList.remove(0):fullArgumentList.get(decimalPlacesCountIndex);
+			Number number = dataObject.toNumber();
+			if(number == null)
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+			
+			decimalPlacesCount = number.intValue();
+			if(decimalPlacesCount < 0)
+				return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+		}
+		
+		//Format argument
+		String output = null;
+		if(formatType != 'n' && valueSpecifiedIndex == null && argumentList.isEmpty())
+			return FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT;
+		DataObject dataObject = formatType == 'n'?null:(valueSpecifiedIndex == null?argumentList.remove(0):fullArgumentList.get(valueSpecifiedIndex));
+		switch(formatType) {
+			case 'd':
+				Number number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				output = number.longValue() + "";
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
+				break;
+			
+			case 'b':
+				number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				output = Long.toString(number.longValue(), 2).toUpperCase();
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
+				break;
+			
+			case 'o':
+				number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				output = Long.toString(number.longValue(), 8).toUpperCase();
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
+				break;
+			
+			case 'x':
+				number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				output = Long.toString(number.longValue(), 16).toUpperCase();
+				if(forceSign && output.charAt(0) != '-')
+					output = "+" + output;
+				
+				if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+					output = " " + output;
+				
+				break;
+			
+			case 'f':
+				number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				double value = number.doubleValue();
+				if(Double.isNaN(value)) {
+					output = "NaN";
+					forceSign = false;
+					leadingZeros = false;
+				}else if(Double.isInfinite(value)) {
+					output = (value == Double.NEGATIVE_INFINITY?"-":"") + "Infinity";
+					leadingZeros = false;
+					if(forceSign && output.charAt(0) != '-')
+						output = "+" + output;
+					
+					if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+						output = " " + output;
+				}else {
+					output = String.format(Locale.ENGLISH, "%" + (decimalPlacesCount == null?"":("." + decimalPlacesCount)) + "f", value);
+					if(forceSign && output.charAt(0) != '-')
+						output = "+" + output;
+					
+					if(signSpace && output.charAt(0) != '+' && output.charAt(0) != '-')
+						output = " " + output;
+				}
+				
+				break;
+				
+			case 'c':
+				number = dataObject.toNumber();
+				if(number == null)
+					return FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS;
+				
+				output = "" + (char)number.intValue();
+				
+				break;
+				
+			case 's':
+				output = dataObject.getText();
+				
+				break;
+				
+			case 't':
+				String translationKey = dataObject.getText();
+				
+				output = getData().get(SCOPE_ID).lang.get(translationKey);
+				if(output == null)
+					return FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND;
+				
+				if(decimalPlacesCount != null) {
+					try {
+						output = LangUtils.formatTranslationTemplatePluralization(output, decimalPlacesCount.intValue());
+					}catch(NumberFormatException|InvalidTranslationTemplateSyntaxException e) {
+						return FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE;
+					}
+				}
+				
+				break;
+				
+			case '?':
+				output = dataObject.getBoolean()?"true":"false";
+				
+				break;
+				
+			case 'n':
+				output = System.getProperty("line.separator");
+				
+				break;
+		}
+		
+		if(output != null) {
+			if(size == null) {
+				builder.append(output);
+			}else {
+				if(leftJustify) {
+					while(output.length() < size)
+						output = output + " ";
+				}else if(leadingZeros) {
+					char signOutput = 0;
+					if(output.charAt(0) == '+' || output.charAt(0) == '-' || output.charAt(0) == ' ') {
+						signOutput = output.charAt(0);
+						output = output.substring(1);
+					}
+					
+					int paddingSize = size - (signOutput == 0?0:1);
+					while(output.length() < paddingSize)
+						output = "0" + output;
+					
+					if(signOutput != 0)
+						output = signOutput + output;
+				}else {
+					while(output.length() < size)
+						output = " " + output;
+				}
+				
+				builder.append(output);
+			}
+		}
+		
+		return minEndIndex + 1;
+	}
+	DataObject formatText(String format, List<DataObject> argumentList, final int SCOPE_ID) {
+		StringBuilder builder = new StringBuilder();
+		List<DataObject> fullArgumentList = new LinkedList<>(argumentList);
+		fullArgumentList.add(0, new DataObject(format));
+		
+		int i = 0;
+		while(i < format.length()) {
+			char c = format.charAt(i);
+			if(c == '%') {
+				if(++i == format.length())
+					return setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
+				
+				c = format.charAt(i);
+				if(c == '%') {
+					builder.append(c);
+					
+					i++;
+					continue;
+				}
+				
+				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, fullArgumentList, SCOPE_ID);
+				if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE)
+					return setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS)
+					return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT)
+					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND)
+					return setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS)
+					return setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE)
+					return setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, SCOPE_ID);
+				
+				i += charCountUsed;
+				
+				continue;
+			}
+			
+			builder.append(c);
+			
+			i++;
+		}
+		
+		return new DataObject(builder.toString());
 	}
 	
 	/**
