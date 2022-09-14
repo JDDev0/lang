@@ -2459,6 +2459,9 @@ public final class LangInterpreter {
 		
 		return minEndIndex + 1;
 	}
+	/**
+	 * @param argumentList The argument list without argument separators of the function call. Used data objects will be removed from the list
+	 */
 	DataObject formatText(String format, List<DataObject> argumentList, final int SCOPE_ID) {
 		StringBuilder builder = new StringBuilder();
 		List<DataObject> fullArgumentList = new LinkedList<>(argumentList);
