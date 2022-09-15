@@ -2485,18 +2485,22 @@ public final class LangInterpreter {
 				}
 				
 				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, fullArgumentList, SCOPE_ID);
-				if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE)
-					return setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
-				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS)
-					return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT)
-					return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND)
-					return setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
-				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS)
-					return setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-				else if(charCountUsed == FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE)
-					return setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, SCOPE_ID);
+				if(charCountUsed < 0 ) {
+					switch(charCountUsed) {
+						case FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE:
+							return setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
+						case FORMAT_SEQUENCE_ERROR_INVALID_ARGUMENTS:
+							return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+						case FORMAT_SEQUENCE_ERROR_INVALID_ARG_COUNT:
+							return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+						case FORMAT_SEQUENCE_ERROR_TRANSLATION_KEY_NOT_FOUND:
+							return setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+						case FORMAT_SEQUENCE_ERROR_SPECIFIED_INDEX_OUT_OF_BOUNDS:
+							return setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+						case FORMAT_SEQUENCE_ERROR_TRANSLATION_INVALID_PLURALIZATION_TEMPLATE:
+							return setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, SCOPE_ID);
+					}
+				}
 				
 				i += charCountUsed;
 				
