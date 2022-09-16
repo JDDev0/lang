@@ -2485,7 +2485,7 @@ public final class LangInterpreter {
 				}
 				
 				int charCountUsed = interpretNextFormatSequence(format.substring(i), builder, argumentList, fullArgumentList, SCOPE_ID);
-				if(charCountUsed < 0 ) {
+				if(charCountUsed < 0) {
 					switch(charCountUsed) {
 						case FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE:
 							return setErrnoErrorObject(InterpretingError.INVALID_FORMAT, SCOPE_ID);
