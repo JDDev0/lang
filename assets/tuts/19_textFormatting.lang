@@ -223,3 +223,11 @@ func.printf(%t%n, plural.example.0)
 func.printf(%t%n, plural.example.1)
 func.printf(%t%n, plural.example.2)
 func.printf(%t%n, plural.example.3)
+
+func.println()
+
+# Format operator (%)
+# TEXT (Format) % ARRAY (Arguments)
+$txt $= {{{There are %d apples!}}} % [42]
+func.println($txt)
+func.println(parser.op({{{Numbers: %0*d %0*d %0*d}}} % [2, 42, 3, 43, 4, 44]))
