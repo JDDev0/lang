@@ -236,3 +236,6 @@ func.println(parser.op({{{Numbers: %0*d %0*d %0*d}}} % [2, 42, 3, 43, 4, 44]))
 $txt=Numbers: %04d %04d %04d
 $txt %= [2, 42, 3, 43, 4, 44]
 func.println($txt)
+
+# EXAMPLEs of errors:
+func.println(parser.op({{{Number: %[4]d}}} % [4, 2]))
