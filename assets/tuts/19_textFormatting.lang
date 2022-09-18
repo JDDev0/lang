@@ -239,3 +239,5 @@ func.println($txt)
 
 # EXAMPLEs of errors:
 func.println(parser.op({{{Number: %[4]d}}} % [4, 2]))
+func.println(parser.op({{{Test %*.*f}}} % [-2, 1, 42]))
+func.println(parser.op({{{Test %s}}} % []))
