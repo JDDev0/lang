@@ -2810,7 +2810,7 @@ public final class LangInterpreter {
 		
 		//Final vars
 		data.get(SCOPE_ID).var.put("$LANG_VERSION", new DataObject(VERSION, true).setLangVar().setVariableName("$LANG_VERSION"));
-		data.get(SCOPE_ID).var.put("$LANG_NAME", new DataObject("Standard LANG", true).setLangVar().setVariableName("$LANG_NAME"));
+		data.get(SCOPE_ID).var.put("$LANG_NAME", new DataObject("Standard Lang", true).setLangVar().setVariableName("$LANG_NAME"));
 		data.get(SCOPE_ID).var.put("$LANG_PATH", new DataObject(currentStackElement.getLangPath(), true).setLangVar().setVariableName("$LANG_PATH"));
 		data.get(SCOPE_ID).var.put("$LANG_FILE", new DataObject(currentStackElement.getLangFile(), true).setLangVar().setVariableName("$LANG_FILE"));
 		data.get(SCOPE_ID).var.put("$LANG_CURRENT_FUNCTION", new DataObject(currentStackElement.getLangFunctionName(), true).setLangVar().setVariableName("$LANG_CURRENT_FUNCTION"));
