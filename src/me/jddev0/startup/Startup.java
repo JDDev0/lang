@@ -236,7 +236,7 @@ public class Startup {
 	}
 	
 	private static void printHelp() {
-		System.out.println("Standard LANG version v1.0.0-dev");
+		System.out.println("Standard Lang version v1.0.0-dev");
 		System.out.println("================================");
 		System.out.println("Interprets Lang code & files");
 		System.out.println();
