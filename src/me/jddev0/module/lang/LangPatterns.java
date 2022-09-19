@@ -138,7 +138,7 @@ final class LangPatterns {
 	/**
 	 * RegEx: (-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)
 	 */
-	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER = Pattern.compile("(-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)");
+	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER = Pattern.compile("(-?(NaN|Infinity))|(.*[dD])|(0[xX].*)");
 	/**
 	 * RegEx: (.*[fFdD])|(0[xX].*)
 	 */

@@ -1733,14 +1733,13 @@ public final class LangParser {
 			}catch(NumberFormatException ignore) {}
 			
 			//FLOAT
-			try {
-				float floatNumber = Float.parseFloat(token);
-				if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-					nodes.add(new AbstractSyntaxTree.FloatValueNode(floatNumber));
+			if(token.endsWith("f") || token.endsWith("F")) {
+				try {
+					nodes.add(new AbstractSyntaxTree.FloatValueNode(Float.parseFloat(token.substring(0, token.length() - 1))));
 					
 					return;
-				}
-			}catch(NumberFormatException ignore) {}
+				}catch(NumberFormatException ignore) {}
+			}
 			
 			//DOUBLE
 			try {
