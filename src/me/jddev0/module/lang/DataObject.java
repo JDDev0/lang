@@ -775,12 +775,11 @@ public class DataObject {
 					}catch(NumberFormatException ignore) {}
 					
 					//FLOAT
-					try {
-						float floatNumber = Float.parseFloat(txt);
-						if(floatNumber != Float.POSITIVE_INFINITY && floatNumber != Float.NEGATIVE_INFINITY) {
-							return floatNumber;
-						}
-					}catch(NumberFormatException ignore) {}
+					if(txt.endsWith("f") || txt.endsWith("F")) {
+						try {
+							return Float.parseFloat(txt.substring(0, txt.length() - 1));
+						}catch(NumberFormatException ignore) {}
+					}
 					
 					//DOUBLE
 					try {
