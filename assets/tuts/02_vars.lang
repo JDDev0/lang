@@ -129,8 +129,8 @@ func.println(• "$LANG_OS_FILE_SEPARATOR") # Will print the file separator of t
 func.println(• "$LANG_OS_LINE_SEPARATOR") # Will print the line separator (new line) of the operating system
 func.println(• "$LANG_INT_MIN") # Will print the minimal value which can be stored in an INT
 func.println(• "$LANG_INT_MAX") # Will print the maximal value which can be stored in an INT
-func.println(• "$LANG_LONG_MIN") # Will print the minimal value which can be stored in an LONG
-func.println(• "$LANG_LONG_MAX") # Will print the maximal value which can be stored in an LONG
+func.println(• "$LANG_LONG_MIN") # Will print the minimal value which can be stored in a LONG
+func.println(• "$LANG_LONG_MAX") # Will print the maximal value which can be stored in a LONG
 func.println(• "$LANG_FLOAT_NAN") # Will print the NaN float value
 func.println(• "$LANG_FLOAT_POS_INF") # Will print the positive infinity float value
 func.println(• "$LANG_FLOAT_NEG_INF") # Will print the negative infinity float value
