@@ -883,18 +883,18 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setFloat(leftSideOperand.getInt() / 0.f);
+							return new DataObject().setDouble(leftSideOperand.getInt() / 0.);
 						
 						if(leftSideOperand.getInt() % rightSideOperand.getInt() != 0)
-							return new DataObject().setFloat(leftSideOperand.getInt() / (float)rightSideOperand.getInt());
+							return new DataObject().setDouble(leftSideOperand.getInt() / (double)rightSideOperand.getInt());
 						
 						return new DataObject().setInt(leftSideOperand.getInt() / rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setFloat(leftSideOperand.getInt() / 0.f);
+							return new DataObject().setDouble(leftSideOperand.getInt() / 0.);
 						
 						if(leftSideOperand.getInt() % rightSideOperand.getLong() != 0)
-							return new DataObject().setFloat(leftSideOperand.getInt() / (float)rightSideOperand.getLong());
+							return new DataObject().setDouble(leftSideOperand.getInt() / (double)rightSideOperand.getLong());
 						
 						return new DataObject().setLong(leftSideOperand.getInt() / rightSideOperand.getLong());
 					case FLOAT:
@@ -919,18 +919,18 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setFloat(leftSideOperand.getLong() / 0.f);
+							return new DataObject().setDouble(leftSideOperand.getLong() / 0.);
 						
 						if(leftSideOperand.getLong() % rightSideOperand.getInt() != 0)
-							return new DataObject().setFloat(leftSideOperand.getLong() / (float)rightSideOperand.getInt());
+							return new DataObject().setDouble(leftSideOperand.getLong() / (double)rightSideOperand.getInt());
 						
 						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setFloat(leftSideOperand.getLong() / 0.f);
+							return new DataObject().setDouble(leftSideOperand.getLong() / 0.);
 						
 						if(leftSideOperand.getLong() % rightSideOperand.getLong() != 0)
-							return new DataObject().setFloat(leftSideOperand.getLong() / (float)rightSideOperand.getLong());
+							return new DataObject().setDouble(leftSideOperand.getLong() / (double)rightSideOperand.getLong());
 						
 						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getLong());
 					case FLOAT:
