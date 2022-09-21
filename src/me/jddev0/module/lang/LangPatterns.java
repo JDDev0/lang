@@ -158,9 +158,9 @@ final class LangPatterns {
 	
 	//LangParser assignment specific
 	/**
-	 * RegEx: parser\.\w+(\.\w+)* ?= ?.{@literal *}
+	 * RegEx: parser(\.\w+)+ ?= ?.{@literal *}
 	 */
-	public static final Pattern PARSING_PARSER_FLAG = Pattern.compile("parser\\.\\w+(\\.\\w+)* ?= ?.*");
+	public static final Pattern PARSING_PARSER_FLAG = Pattern.compile("parser(\\.\\w+)+ ?= ?.*");
 	/**
 	 * RegEx: "  [^\\= ]{0,3}= "
 	 */
