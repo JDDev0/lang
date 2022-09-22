@@ -293,3 +293,28 @@ until($i > 20) {
 	
 	$i += 1
 }
+
+# Y-3: Multiple arguments
+func.println(Example  Y-3: Multiple arguments)
+func.println(--------------------------------)
+fp.facOut = (fp.func) -> {
+	fp.retFunc = (fp.func, $n, $run) -> {
+		func.printf({{{ > %2d (%2d)}}}, $run, $n)
+		parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
+		parser.op($n < 2?func.printf({{{%n=> }}}):null)
+		return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1), parser.op($run + 1)))
+	}
+	
+	return func.combAN(fp.retFunc, fp.func)
+}
+
+# Apply the Y combinator
+fp.facOutY = func.combY(fp.facOut)
+
+# Use function (All values from 0 to 20)
+$i $= long(0)
+until($i > 20) {
+	func.println(fp.facOutY($i, 1))
+	
+	$i += 1
+}
