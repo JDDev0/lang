@@ -58,7 +58,7 @@ lang.version = v1.0.0
 # opr1 = opr2         - Normal assignment
 # opr1 = opr2         - Normal translation
 # opr1 ?= opr2        - Condition operator assignment  (Is equivalent to "opr1 = parser.con(opr2)")
-# opr1 := opr2        - Set math assignment            (Is equivalent to "opr1 = parser.math(opr2)")
+# opr1 := opr2        - Math operator assignment       (Is equivalent to "opr1 = parser.math(opr2)")
 # opr1 $= opr2        - Set operation assignment       (Is equivalent to "opr1 = parser.op(opr2)")
 # opr1 += opr2        - Addition assignment            (Is equivalent to "opr1 = parser.op((opr1) + (opr2))")
 # opr1 -= opr2        - Subtract assignment            (Is equivalent to "opr1 = parser.op((opr1) - (opr2))")
@@ -144,7 +144,7 @@ lang.version = v1.0.0
 # 15         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
 #            | opr1 ?= opr2       |               | Condition operator assignment
-#            | opr1 := opr2       |               | Set math assignment
+#            | opr1 := opr2       |               | Math operator assignment
 #            | opr1 $= opr2       |               | Set operation assignment
 #            | opr1 += opr2       |               | Addition assignment
 #            | opr1 -= opr2       |               | Subtraction assignment
@@ -304,7 +304,7 @@ func.println($test)
 
 func.println()
 
-# Set math assignment
+# Math operator assignment
 $test := 2 + 3
 func.println($test)
 
