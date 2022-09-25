@@ -2129,9 +2129,9 @@ final class LangPredefinedFunctions {
 				opConcat(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
 				opSpaceship(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("elvis", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
+		funcs.put("elvis", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
-		}, SCOPE_ID), SCOPE_ID));
+		}, SCOPE_ID));
 		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID), SCOPE_ID));
