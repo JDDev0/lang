@@ -2132,9 +2132,9 @@ final class LangPredefinedFunctions {
 		funcs.put("elvis", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID));
-		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
+		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
-		}, SCOPE_ID), SCOPE_ID));
+		}, SCOPE_ID));
 		funcs.put("inlineIf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 3)
