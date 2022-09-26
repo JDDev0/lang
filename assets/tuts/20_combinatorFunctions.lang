@@ -243,6 +243,23 @@ lang.version = v1.0.0
 # Y    | 1     | f             |           f | (x -> f(x(x)))(x -> f(x(x)))   | -
 
 # Examples
+# A0
+
+func.println(Examples A0)
+func.println(===========)
+func.println()
+
+# A0-1: Map to executed functions
+func.println(Example A0-1: Map to executed functions)
+func.println(---------------------------------------)
+&funcs $= [func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
+&executedFuncs = func.arrayMapToNew(&funcs, func.combA0)
+
+func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println(&executedFuncs)
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
