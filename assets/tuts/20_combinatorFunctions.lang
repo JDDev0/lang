@@ -311,6 +311,8 @@ until($i > 20) {
 	$i += 1
 }
 
+func.println()
+
 # Y-3: Multiple arguments
 func.println(Example  Y-3: Multiple arguments)
 func.println(--------------------------------)
