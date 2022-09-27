@@ -259,6 +259,22 @@ func.println(&executedFuncs)
 
 func.printf(%n%n)
 
+# A
+func.println(Examples  A)
+func.println(===========)
+func.println()
+
+# A-1: Execute a function on every element
+func.println(Example A-1: Execute a function on every element)
+func.println(------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+func.println(&values)
+
+func.arrayMap(&values, func.combA(func.inc))
+func.println(&values)
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
