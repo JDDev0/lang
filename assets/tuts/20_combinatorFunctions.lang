@@ -275,6 +275,22 @@ func.println(&values)
 
 func.printf(%n%n)
 
+# A2
+func.println(Examples A2)
+func.println(===========)
+func.println()
+
+# A2-1: Add a number to every element
+func.println(Example A2-1: Add a number to every element)
+func.println(-------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+func.println(&values)
+
+func.arrayMap(&values, func.combA2(func.add, 42))
+func.println(&values)
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
