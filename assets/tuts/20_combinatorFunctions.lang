@@ -289,6 +289,15 @@ func.println(&values)
 func.arrayMap(&values, func.combA2(func.add, 42))
 func.println(&values)
 
+func.println()
+
+# A2-2: Output every element with format
+func.println(Example A2-2: Output every element with format)
+func.println(----------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+func.arrayForEach(&values, func.combA2(func.printf, {{{This is a value: "%5.2f"%n}}}))
+
 func.printf(%n%n)
 
 # Y
