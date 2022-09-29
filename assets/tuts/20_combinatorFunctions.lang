@@ -300,6 +300,20 @@ func.arrayForEach(&values, func.combA2(func.printf, {{{This is a value: "%5.2f"%
 
 func.printf(%n%n)
 
+# A3
+func.println(Examples A3)
+func.println(===========)
+func.println()
+
+# A3-1: Output every element with index with format
+func.println(Example A3-1: Output every element with index with format)
+func.println(---------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+func.arrayEnumerate(&values, func.combA3(func.printf, {{{The element at the index %d is "%s"%n}}}))
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
