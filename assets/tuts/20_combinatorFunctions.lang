@@ -323,6 +323,22 @@ func.arrayEnumerate(&values, func.combA3(func.printf, {{{Value "%[2]10s" (Index:
 
 func.printf(%n%n)
 
+# A4
+func.println(Examples A4)
+func.println(===========)
+func.println()
+
+element.index.txt = is at the index
+
+# A4-1: Output every element with index with format and additional value
+func.println(Example A4-1: Output every element with index with format and additional value)
+func.println(------------------------------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+func.arrayEnumerate(&values, func.combA4(func.printf, {{{"%[3]7s" %[1]t 0x%[2]02x%n}}}, element.index.txt))
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
