@@ -339,6 +339,22 @@ func.arrayEnumerate(&values, func.combA4(func.printf, {{{"%[3]7s" %[1]t 0x%[2]02
 
 func.printf(%n%n)
 
+# AN
+func.println(Examples AN)
+func.println(===========)
+func.println()
+
+element.index.txt = is at the index
+
+# AN-1: Output every element with additional information
+func.println(Example AN-1: Output every element with additional information)
+func.println(--------------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+func.arrayEnumerate(&values, func.combAN(func.printf, {{{The element "%[4]7s" ("%[4]5.2f") is located in %[2]s (Len: %[1]d) at index %[3]d!%n}}}, func.len(&values), &values))
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
