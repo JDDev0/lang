@@ -353,6 +353,19 @@ func.println(--------------------------------------------------------------)
 
 func.arrayEnumerate(&values, func.combAN(func.printf, {{{The element "%[4]7s" ("%[4]5.2f") is located in %[2]s (Len: %[1]d) at index %[3]d!%n}}}, func.len(&values), &values))
 
+func.println()
+
+# AN-2: Output every element with and without index with the same function call
+func.println(Example AN-2: Output every element with and without index with the same function call)
+func.println(-------------------------------------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+fp.arrayFunc = func.combAN(func.println, Element-Data)
+
+func.arrayForEach(&values, fp.arrayFunc)
+func.println(---)
+func.arrayEnumerate(&values, fp.arrayFunc)
+
 func.printf(%n%n)
 
 # Y
