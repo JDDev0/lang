@@ -384,6 +384,20 @@ func.println(&values)
 
 func.printf(%n%n)
 
+# AX
+func.println(Examples AX)
+func.println(===========)
+func.println()
+
+# AX-1: Output every element with index after value without specified index in func.printf
+func.println(Example AX-1: Output every element with index after value without specified index in func.printf)
+func.println(------------------------------------------------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
+
+func.arrayEnumerate(&values, func.combAX(func.printf, {{{Value "%7s" (Index: %d)%n}}}))
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
