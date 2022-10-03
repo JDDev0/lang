@@ -398,6 +398,11 @@ func.arrayEnumerate(&values, func.combAX(func.printf, {{{Value "%7s" (Index: %d)
 
 func.printf(%n%n)
 
+# AZ
+func.println(Examples AZ)
+func.println(===========)
+func.println()
+
 # AZ-1: Output every element with and without index with the same function call in reverse order
 func.println(Example AZ-1: Output every element with and without index with the same function call reverse order)
 func.println(---------------------------------------------------------------------------------------------------)
