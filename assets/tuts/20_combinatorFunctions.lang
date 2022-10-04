@@ -415,6 +415,21 @@ func.println(---)
 func.arrayEnumerate(&values, fp.arrayFunc)
 
 func.printf(%n%n)
+# B0
+func.println(Examples B0)
+func.println(===========)
+func.println()
+
+# B0-1: Map to executed functions and pass to other function
+func.println(Example B0-1: Map to executed functions and pass to other function)
+func.println(------------------------------------------------------------------)
+&funcs $= [func.rand, func.currentTimeMillis, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
+&executedFuncs = func.arrayMapToNew(&funcs, func.combB0(func.inv))
+
+func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println(&executedFuncs)
+
+func.printf(%n%n)
 
 # Y
 func.println(Examples  Y)
