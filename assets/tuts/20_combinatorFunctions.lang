@@ -415,6 +415,7 @@ func.println(---)
 func.arrayEnumerate(&values, fp.arrayFunc)
 
 func.printf(%n%n)
+
 # B0
 func.println(Examples B0)
 func.println(===========)
