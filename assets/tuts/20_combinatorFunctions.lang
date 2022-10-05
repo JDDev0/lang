@@ -437,9 +437,9 @@ func.println(Examples  B)
 func.println(===========)
 func.println()
 
-# B-1: Execute multiple functions in succession on every element
-func.println(Example B-1: Execute multiple functions in succession on every element)
-func.println(----------------------------------------------------------------------)
+# B-1: Map to the incremented inversed value
+func.println(Example B-1: Map to the incremented inversed value)
+func.println(--------------------------------------------------)
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
