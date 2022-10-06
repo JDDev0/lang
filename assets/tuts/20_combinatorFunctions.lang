@@ -455,7 +455,7 @@ func.println()
 
 # B2-1: Output to int casted elements with index
 func.println(Example B2-1: Output to int casted elements with index)
-func.println(--------------------------------------------------)
+func.println(------------------------------------------------------)
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
