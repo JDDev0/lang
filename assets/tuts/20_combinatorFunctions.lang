@@ -448,6 +448,21 @@ func.println(&values)
 
 func.printf(%n%n)
 
+# B2
+func.println(Examples B2)
+func.println(===========)
+func.println()
+
+# B2-1: Output to int casted elements with index
+func.println(Example B2-1: Output to int casted elements with index)
+func.println(--------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
+func.println(&values)
+
+func.arrayEnumerate(&values, func.combB2(func.println, func.int))
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
