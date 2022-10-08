@@ -478,6 +478,24 @@ func.arrayEnumerate(&values, func.combB3(func.println, func.int, func.len(&value
 
 func.printf(%n%n)
 
+# BN
+func.println(Examples BN)
+func.println(===========)
+func.println()
+
+# BN-1: Output to int casted elements with and without index with one function pointer
+func.println(Example BN-1: Output to int casted elements with and without index with one function pointer)
+func.println(--------------------------------------------------------------------------------------------)
+&values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
+func.println(&values)
+
+fp.arrayFunc = func.combBN(func.println, func.int)
+
+func.arrayForEach(&values, fp.arrayFunc)
+func.arrayEnumerate(&values, fp.arrayFunc)
+
+func.printf(%n%n)
+
 # Y
 func.println(Examples  Y)
 func.println(===========)
