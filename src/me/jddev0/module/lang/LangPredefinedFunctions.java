@@ -3014,7 +3014,7 @@ final class LangPredefinedFunctions {
 			DataObject b = args.get(1);
 			
 			FunctionPointerObject aFunc = a.getFunctionPointer();
-			FunctionPointerObject bFunc = a.getFunctionPointer();
+			FunctionPointerObject bFunc = b.getFunctionPointer();
 			
 			List<DataObject> argsA = new LinkedList<>();
 			for(int i = args.size() - 1;i > 1;i--) {
