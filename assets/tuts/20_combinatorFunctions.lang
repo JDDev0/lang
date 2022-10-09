@@ -496,11 +496,15 @@ func.arrayEnumerate(&values, fp.arrayFunc)
 
 func.printf(%n%n)
 
+# BV
+func.println(Examples BV)
+func.println(===========)
+func.println()
+
 # BV-1: Map every to int casted element to sum of its elements [Auto-unpack]
-func.println(Map every to int casted element to sum of its elements [Auto-unpack])
-func.println(--------------------------------------------------------------------)
+func.println(Examples BV-1: Map every to int casted element to sum of its elements [Auto-unpack])
+func.println(-----------------------------------------------------------------------------------)
 &values $= [func.arrayOf(42, 1, 3), func.arrayOf(0), func.arrayOf(-1, 2.5), func.arrayOf(1, 2), func.arrayOf(5.21234, 5.91235f), func.arrayOf(func.long(3), 3, -4.9)]
-func.println(&values)
 
 func.arrayMap(&values, func.combBV(func.addl, func.int))
 
