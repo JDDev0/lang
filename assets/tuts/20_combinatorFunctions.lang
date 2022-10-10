@@ -373,9 +373,9 @@ func.println(Examples AV)
 func.println(===========)
 func.println()
 
-# AV-1: Map every element to sum of its elements [Auto-unpack]
-func.println(Example AV-1: Map every element to sum of its elements [Auto-unpack])
-func.println(--------------------------------------------------------------------)
+# AV-1: Map every element to the sum of its elements [Auto-unpack]
+func.println(Example AV-1: Map every element to the sum of its elements [Auto-unpack])
+func.println(------------------------------------------------------------------------)
 &values $= [func.arrayOf(1, 2, 3), func.arrayOf(20, 40), func.arrayOf(10, 2, 5, 5.423, 1), func.arrayOf(10, 2, 5, 5.423f, 1)]
 
 func.arrayMap(&values, func.combAV(func.addf))
