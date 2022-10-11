@@ -19,6 +19,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
@@ -4331,6 +4332,30 @@ final class LangPredefinedFunctions {
 			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
 			
+			return new DataObject().setArray(elements.toArray(new DataObject[0]));
+		});
+		funcs.put("arrayGenerateFrom", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			DataObject countObject = combinedArgumentList.get(1);
+			Number countNumber = countObject.toNumber();
+			if(countNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "number"), SCOPE_ID);
+			
+			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
+				List<DataObject> args = new ArrayList<>();
+				args.add(new DataObject().setInt(i));
+				
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID));
+			}).collect(Collectors.toList());
 			return new DataObject().setArray(elements.toArray(new DataObject[0]));
 		});
 		funcs.put("arraySet", (argumentList, SCOPE_ID) -> {
