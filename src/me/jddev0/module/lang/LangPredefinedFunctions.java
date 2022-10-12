@@ -4738,6 +4738,31 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setArray(distinctValues.toArray(new DataObject[0]));
 		});
+		funcs.put("arrayFiltered", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			
+			DataObject funcPointerObject = combinedArgumentList.get(1);
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			List<DataObject> elements = Arrays.stream(arr).filter(dataObject -> {
+				List<DataObject> args = new ArrayList<>();
+				args.add(dataObject);
+				
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID).getBoolean();
+			}).collect(Collectors.toList());
+			return new DataObject().setArray(elements.toArray(new DataObject[0]));
+		});
 		funcs.put("arrayMap", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
