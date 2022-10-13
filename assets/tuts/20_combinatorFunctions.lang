@@ -7,6 +7,7 @@ lang.version = v1.0.0
 # A2: func.combA2(a, b, c)
 # A3: func.combA3(a, b, c, d)
 # A4: func.combA4(a, b, c, d, e)
+# AE: func.combAE(a, b)
 # AX: func.combAX(a, b, c, d)
 # B0: func.combB0(a, b)
 # B : func.combB(a, b, c)
@@ -120,6 +121,7 @@ lang.version = v1.0.0
 # A2   | 3     | a, b, c       | a           | a(b, c)                        | -
 # A3   | 4     | a, b, c, d    | a           | a(b, c, d)                     | -
 # A4   | 5     | a, b, c, d, e | a           | a(b, c, d, e)                  | -
+# AE   | 2     | a, b          | a           | a()                            | -
 # AN   | 1+    | a, ...        | a           | a(...[0], ...[1], ...)         | -
 # AV   | 2     | a, args[]     | a           | a(args[0], args[1], ...)       | -
 # AX   | 4     | a, b, c, d    | a           | a(b, d, c)                     | -
