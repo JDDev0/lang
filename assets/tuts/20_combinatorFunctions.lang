@@ -13,6 +13,7 @@ lang.version = v1.0.0
 # B : func.combB(a, b, c)
 # B2: func.combB2(a, b, c, d)
 # B3: func.combB3(a, b, c, d, e)
+# BE: func.combBE(a, b, c)
 # BX: func.combBX(a, b, c, d)
 # C0: func.combC0(a, b, c)
 # C1: func.combC1(a, b, c)
@@ -131,6 +132,7 @@ lang.version = v1.0.0
 # B    | 3     | a, b, c       | a b         | a(b(c))                        | -
 # B2   | 4     | a, b, c, d    | a b         | a(b(c), b(d))                  | -
 # B3   | 5     | a, b, c, d, e | a b         | a(b(c), b(d), b(e))            | -
+# BE   | 3     | a, b, c       | a b         | a(b())                         | -
 # BN   | 2+    | a, b, ...     | a b         | a(b(...[0]), b(...[1]), ...)   | Every varargs argument will be passed to b first
 # BV   | 3     | a, b, args[]  | a b         | a(b(args[0]), b(args[1]), ...) | Every array element will be passed to b first
 # BX   | 4     | a, b, c, d    | a b         | a(b(c, d))                     | -
