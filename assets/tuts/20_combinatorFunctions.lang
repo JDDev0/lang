@@ -20,6 +20,7 @@ lang.version = v1.0.0
 # C : func.combC(a, b, c)
 # C3: func.combC3(a, b, c, d)
 # C4: func.combC4(a, b, c, d, e)
+# CE: func.combCE(a, b, c)
 # CX: func.combCX(a, b, c, d)
 # D : func.combD(a, b, c, d)
 # E : func.combE(a, b, c, d, e)
