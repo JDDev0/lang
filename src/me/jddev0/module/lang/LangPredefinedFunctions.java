@@ -3228,7 +3228,6 @@ final class LangPredefinedFunctions {
 			FunctionPointerObject cFunc = c.getFunctionPointer();
 			
 			List<DataObject> argsC = new LinkedList<>();
-			argsC = LangUtils.separateArgumentsWithArgumentSeparators(argsC);
 			
 			return interpreter.callFunctionPointer(cFunc, c.getVariableName(), argsC, SCOPE_ID);
 		}));
