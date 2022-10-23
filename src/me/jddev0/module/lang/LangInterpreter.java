@@ -1701,7 +1701,7 @@ public final class LangInterpreter {
 		if(executionState.tryThrownError == null || executionState.tryBlockLevel == 0 || (executionState.isSoftTry && executionState.tryBodyScopeID != SCOPE_ID))
 			executionState.stopExecutionFlag = false;
 		
-		return retTmp;
+		return retTmp == null?retTmp:new DataObject(retTmp);
 	}
 	void executeAndClearCopyAfterFP(final int SCOPE_ID_TO, final int SCOPE_ID_FROM) {
 		//Add copyValue after call
@@ -1873,14 +1873,16 @@ public final class LangInterpreter {
 						function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
 						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, SCOPE_ID);
 					}
-					return ret == null?new DataObject().setVoid():ret;
+					
+					//Return non copy if copyStaticAndFinalModifiers flag is set for "func.asStatic()" and "func.asFinal()"
+					return ret == null?new DataObject().setVoid():(ret.isCopyStaticAndFinalModifiers()?ret:new DataObject(ret));
 				
 				case FunctionPointerObject.EXTERNAL:
 					LangExternalFunctionObject externalFunction = fp.getExternalFunction();
 					if(externalFunction == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", SCOPE_ID);
 					ret = externalFunction.callFunc(this, argumentValueList, SCOPE_ID);
-					return ret == null?new DataObject().setVoid():ret;
+					return ret == null?new DataObject().setVoid():new DataObject(ret);
 				
 				default:
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP type", SCOPE_ID);
