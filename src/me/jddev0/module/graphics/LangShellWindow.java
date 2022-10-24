@@ -86,6 +86,8 @@ public class LangShellWindow extends JDialog {
 	private boolean flagRunning = false;
 	private boolean flagExecutingQueue = false;
 	
+	private AutoPrintMode autoPrintMode = AutoPrintMode.NONE;
+	
 	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
 	private PrintStream oldOut;
@@ -471,7 +473,8 @@ public class LangShellWindow extends JDialog {
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
 			
 			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
-			"func.printDebug(value) # Prints debug information about the provided DataObject", LangShellWindow.class);
+			"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
+			"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
 			
 			return null;
 		});
@@ -489,6 +492,25 @@ public class LangShellWindow extends JDialog {
 			builder.append(getDebugString(dataObject, 4));
 			
 			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
+			
+			return null;
+		});
+		lii.addPredefinedFunction("setAutoPrintMode", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() != 1)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			DataObject textObject = combinedArgumentList.get(0);
+			try {
+				AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(textObject.getText());
+				
+				if(autoPrintMode == null)
+					return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Auto print mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
+				
+				LangShellWindow.this.autoPrintMode = autoPrintMode;
+			}catch(IllegalArgumentException e) {
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Auto print mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
+			}
 			
 			return null;
 		});
@@ -1034,7 +1056,11 @@ public class LangShellWindow extends JDialog {
 			flagRunning = true;
 			Thread t = new Thread(() -> {
 				try {
-					lii.exec(0, code);
+					DataObject lastVal = lii.exec(0, code);
+					if(autoPrintMode == AutoPrintMode.AUTO)
+						GraphicsHelper.addText(shell, " ==> " + lastVal + "\n", Color.PINK);
+					else if(autoPrintMode == AutoPrintMode.DEBUG)
+						GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
 				}catch(IOException e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}catch(LangInterpreter.StoppedException e) {
@@ -1059,7 +1085,13 @@ public class LangShellWindow extends JDialog {
 			Thread t = new Thread(() -> {
 				while(!executionQueue.isEmpty()) {
 					try {
-						lii.exec(0, executionQueue.poll());
+						DataObject lastVal = lii.exec(0, executionQueue.poll());
+						if(executionQueue.isEmpty()) {
+							if(autoPrintMode == AutoPrintMode.AUTO)
+								GraphicsHelper.addText(shell, " ==> " + lastVal + "\n", Color.PINK);
+							else if(autoPrintMode == AutoPrintMode.DEBUG)
+								GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
+						}
 					}catch(IOException e) {
 						term.logStackTrace(e, LangShellWindow.class);
 					}catch(LangInterpreter.StoppedException e) {
@@ -1148,5 +1180,9 @@ public class LangShellWindow extends JDialog {
 			setMinimumSize(getSize());
 			setLocationRelativeTo(owner);
 		}
+	}
+	
+	private enum AutoPrintMode {
+		NONE, AUTO, DEBUG
 	}
 }
