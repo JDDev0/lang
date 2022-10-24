@@ -169,23 +169,26 @@ public final class LangInterpreter {
 		return interpretOperationNode(node, SCOPE_ID).getBoolean();
 	}
 	
-	void interpretLines(BufferedReader lines, final int SCOPE_ID) throws IOException, StoppedException {
-		interpretAST(parseLines(lines), SCOPE_ID);
+	DataObject interpretLines(BufferedReader lines, final int SCOPE_ID) throws IOException, StoppedException {
+		return interpretAST(parseLines(lines), SCOPE_ID);
 	}
 	
-	void interpretAST(AbstractSyntaxTree ast, final int SCOPE_ID) {
+	DataObject interpretAST(AbstractSyntaxTree ast, final int SCOPE_ID) {
 		if(ast == null)
-			return;
+			return null;
 		
 		if(executionState.forceStopExecutionFlag)
 			throw new StoppedException();
 		
+		DataObject ret = null;
 		for(Node node:ast) {
 			if(executionState.stopExecutionFlag)
-				return;
+				return null;
 			
-			interpretNode(node, SCOPE_ID);
+			ret = interpretNode(node, SCOPE_ID);
 		}
+		
+		return ret;
 	}
 	
 	/**
@@ -3221,13 +3224,13 @@ public final class LangInterpreter {
 			return interpreter.funcs;
 		}
 		
-		public void exec(final int SCOPE_ID, BufferedReader lines) throws IOException, StoppedException {
+		public DataObject exec(final int SCOPE_ID, BufferedReader lines) throws IOException, StoppedException {
 			getAndResetReturnValue(); //Reset returned value else the interpreter would stop immediately
-			interpreter.interpretLines(lines, SCOPE_ID);
+			return interpreter.interpretLines(lines, SCOPE_ID);
 		}
-		public void exec(final int SCOPE_ID, String lines) throws IOException, StoppedException {
+		public DataObject exec(final int SCOPE_ID, String lines) throws IOException, StoppedException {
 			try(BufferedReader reader = new BufferedReader(new StringReader(lines))) {
-				exec(SCOPE_ID, reader);
+				return exec(SCOPE_ID, reader);
 			}
 		}
 		/**
