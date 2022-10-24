@@ -247,7 +247,7 @@ public class Startup {
 		System.out.println("    -executeLang -FILE                Executes a Lang file in the \"TermIO-Control\" window");
 		System.out.println("    -executeLang -warnings -FILE      Executes a Lang file in the \"TermIO-Control\" window with warnings output");
 		System.out.println("    -printAST -FILE                   Prints the AST of a Lang file to standard output");
-		System.out.println("    -startShell                       Opens the \"LangShell\" window");
+		System.out.println("    -startShell                       Opens the \"LangShell\" (REPL) window");
 		System.out.println("    -toogle4k                         Changes the fontSize");
 		System.out.println("    -printHelp                        Prints this help page");
 		System.out.println("    -clear                            Clears the output of the \"TermIO-Control\" window");
