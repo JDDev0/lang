@@ -3377,14 +3377,14 @@ final class LangPredefinedFunctions {
 		funcs.put("combK5", combinatorFunctionExternalFunctionObjectHelper(5, new int[] {}, (Combinator5ArgFunction)(a, b, c, d, e, SCOPE_ID) -> {
 			return a;
 		}));
+		funcs.put("combKD", combinatorFunctionExternalFunctionObjectHelper(4, new int[] {}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
+			return d;
+		}));
 		funcs.put("combKI", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {}, (Combinator2ArgFunction)(a, b, SCOPE_ID) -> {
 			return b;
 		}));
 		funcs.put("combKX", combinatorFunctionExternalFunctionObjectHelper(3, new int[] {}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
 			return c;
-		}));
-		funcs.put("combKD", combinatorFunctionExternalFunctionObjectHelper(4, new int[] {}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
-			return d;
 		}));
 		funcs.put("combL", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0, 1}, (Combinator2ArgFunction)(a, b, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
