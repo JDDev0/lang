@@ -47,6 +47,7 @@ lang.version = v1.0.0
 # K4: func.combK4(a, b, c, d)
 # K5: func.combK5(a, b, c, d, e)
 # KD: func.combKD(a, b, c, d)
+# KE: func.combKE(a, b, c, d, e)
 # KI: func.combKI(a, b)
 # KX: func.combKX(a, b, c)
 # L : func.combL(a, b)
@@ -187,6 +188,7 @@ lang.version = v1.0.0
 # K4   | 4     | a, b, c, d    |             | a                              | -
 # K5   | 5     | a, b, c, d, e |             | a                              | -
 # KD   | 4     | a, b, c, d    |             | d                              | -
+# KE   | 5     | a, b, c, d, e |             | e                              | -
 # KI   | 2     | a, b          |             | b                              | -
 # KX   | 3     | a, b, c       |             | c                              | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
