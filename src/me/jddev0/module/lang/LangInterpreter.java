@@ -411,10 +411,18 @@ public final class LangInterpreter {
 			isLinkerFunction = false;
 			
 			variableName = variableName.substring(5);
+		}else if(variableName.startsWith("fn.")) {
+			isLinkerFunction = false;
+			
+			variableName = variableName.substring(3);
 		}else if(variableName.startsWith("linker.")) {
 			isLinkerFunction = true;
 			
 			variableName = variableName.substring(7);
+		}else if(variableName.startsWith("ln.")) {
+			isLinkerFunction = true;
+			
+			variableName = variableName.substring(3);
 		}else {
 			setErrno(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 			
@@ -1579,10 +1587,18 @@ public final class LangInterpreter {
 			isLinkerFunction = false;
 			
 			variableName = variableName.substring(5);
+		}else if(variableName.startsWith("fn.")) {
+			isLinkerFunction = false;
+			
+			variableName = variableName.substring(3);
 		}else if(variableName.startsWith("linker.")) {
 			isLinkerFunction = true;
 			
 			variableName = variableName.substring(7);
+		}else if(variableName.startsWith("ln.")) {
+			isLinkerFunction = true;
+			
+			variableName = variableName.substring(3);
 		}else {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 		}
@@ -1969,10 +1985,18 @@ public final class LangInterpreter {
 				isLinkerFunction = false;
 				
 				functionName = functionName.substring(5);
+			}else if(functionName.startsWith("fn.")) {
+				isLinkerFunction = false;
+				
+				functionName = functionName.substring(3);
 			}else if(functionName.startsWith("linker.")) {
 				isLinkerFunction = true;
 				
 				functionName = functionName.substring(7);
+			}else if(functionName.startsWith("ln.")) {
+				isLinkerFunction = true;
+				
+				functionName = functionName.substring(3);
 			}else {
 				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid predfined, linker, or external function name", SCOPE_ID);
 			}
@@ -2676,19 +2700,21 @@ public final class LangInterpreter {
 	}
 	
 	/**
-	 * LangPatterns: VAR_NAME_FULL_WITH_FUNCS ((\$\**|&|fp\.|func\.|linker\.)\w+)
+	 * LangPatterns: VAR_NAME_FULL_WITH_FUNCS ((\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+)
 	 */
 	private boolean isVarNameFullWithFuncs(String token) {
 		boolean funcPtr = token.startsWith("fp.");
 		boolean func = token.startsWith("func.");
+		boolean fn = token.startsWith("fn.");
 		boolean linker = token.startsWith("linker.");
+		boolean ln = token.startsWith("ln.");
 		char firstChar = token.charAt(0);
 		boolean normalVar = firstChar == '$';
 		
-		if(!(funcPtr || func || linker || normalVar || firstChar == '&'))
+		if(!(funcPtr || func || fn || linker || ln || normalVar || firstChar == '&'))
 			return false;
 		
-		int i = funcPtr?3:(func?5:(linker?7:1));
+		int i = (funcPtr || fn || ln)?3:(func?5:(linker?7:1));
 		
 		if(normalVar)
 			for(;i < token.length();i++)
@@ -2753,16 +2779,17 @@ public final class LangInterpreter {
 	}
 	
 	/**
-	 * LangPatterns: FUNC_NAME ((func\.|linker\.)\w+)
+	 * LangPatterns: FUNC_NAME ((func\.|fn\.|linker\.|ln\.)\w+)
 	 */
 	private boolean isFuncName(String token) {
 		boolean func = token.startsWith("func.");
+		boolean linker = token.startsWith("linker.");
 		
-		if(!(func || token.startsWith("linker.")))
+		if(!(func || linker || token.startsWith("fn.") || token.startsWith("ln.")))
 			return false;
 		
 		boolean hasVarName = false;
-		for(int i = func?5:7;i < token.length();i++) {
+		for(int i = func?5:(linker?7:3);i < token.length();i++) {
 			char c = token.charAt(i);
 			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
 				hasVarName = true;

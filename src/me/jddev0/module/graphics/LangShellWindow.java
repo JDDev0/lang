@@ -664,8 +664,8 @@ public class LangShellWindow extends JDialog {
 				
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
-					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("linker.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") ||
-					checkTmp.startsWith("parser.");
+					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("fn.") || checkTmp.startsWith("linker.") ||
+					checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") || checkTmp.startsWith("parser.");
 				}
 				
 				if(!returnFlag)
@@ -740,7 +740,7 @@ public class LangShellWindow extends JDialog {
 			else
 				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
-			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|linker\\.|con\\.|math\\.|parser\\.)");
+			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.|con\\.|math\\.|parser\\.)");
 			if(tokens.length == 0)
 				return;
 			
@@ -788,8 +788,8 @@ public class LangShellWindow extends JDialog {
 					for(int i = 0;i < Math.max(appendClosingBracketCount, openingBracketCountVarName);i++)
 						autoCompleteText += "]";
 				}
-			}else if(lastToken.matches("(func|linker)\\..*")) {
-				boolean isLinkerFunction = lastToken.startsWith("linker.");
+			}else if(lastToken.matches("(func|fn|linker|ln)\\..*")) {
+				boolean isLinkerFunction = lastToken.startsWith("linker.") || lastToken.startsWith("ln.");
 				int indexFunctionNameStart = lastToken.indexOf('.') + 1;
 				String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
 				List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {

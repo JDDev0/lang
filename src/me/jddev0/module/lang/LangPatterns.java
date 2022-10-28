@@ -40,25 +40,25 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_FULL = Pattern.compile("(\\$\\**|&|fp\\.)\\w+");
 	/**
-	 * RegEx: (\$\**|&|fp\.|func\.|linker\.)\w+
+	 * RegEx: (\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+
 	 */
-	public static final Pattern VAR_NAME_FULL_WITH_FUNCS = Pattern.compile("(\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+");
+	public static final Pattern VAR_NAME_FULL_WITH_FUNCS = Pattern.compile("(\\$\\**|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.)\\w+");
 	/**
 	 * RegEx: ((\$\**|&|fp\.)\w+|\$\**\[+\w+\]+)
 	 */
 	public static final Pattern VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
 	/**
-	 * RegEx: ((\$\**|&|fp\.|func\.|linker\.)\w+|\$\**\[+\w+\]+)
+	 * RegEx: ((\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+|\$\**\[+\w+\]+)
 	 */
-	public static final Pattern VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.|func\\.|linker\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
+	public static final Pattern VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
 	/**
 	 * RegEx: fp\.\w+
 	 */
 	public static final Pattern VAR_NAME_FUNC_PTR = Pattern.compile("fp\\.\\w+");
 	/**
-	 * RegEx: (fp|func|linker)\.\w+
+	 * RegEx: (fp|func|fn|linker|ln)\.\w+
 	 */
-	public static final Pattern VAR_NAME_FUNC_PTR_WITH_FUNCS = Pattern.compile("(fp|func|linker)\\.\\w+");
+	public static final Pattern VAR_NAME_FUNC_PTR_WITH_FUNCS = Pattern.compile("(fp|func|fn|linker|ln)\\.\\w+");
 	/**
 	 * RegEx: &\w+
 	 */
@@ -76,9 +76,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("\\$\\**\\[+\\w+\\]+");
 	/**
-	 * RegEx: (func\.|linker\.)\w+
+	 * RegEx: (func\.|fn\.|linker\.|ln\.)\w+
 	 */
-	public static final Pattern FUNC_NAME = Pattern.compile("(func\\.|linker\\.)\\w+");
+	public static final Pattern FUNC_NAME = Pattern.compile("(func\\.|fn\\.|linker\\.|ln\\.)\\w+");
 	
 	//Function call specific
 	/**
@@ -108,9 +108,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_LEADING_OR_TRAILING_WHITSPACE = Pattern.compile("(\\s.*|.*\\s)");
 	/**
-	 * RegEx: (func|fp|linker)\.\w+\(.*\).{@literal *}
+	 * RegEx: (fp|func|fn|linker|ln)\.\w+\(.*\).{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL = Pattern.compile("(func|fp|linker)\\.\\w+\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL = Pattern.compile("(fp|func|fn|linker|ln)\\.\\w+\\(.*\\).*");
 	/**
 	 * RegEx: \\w+\\(.*\\).{@literal *}
 	 */
