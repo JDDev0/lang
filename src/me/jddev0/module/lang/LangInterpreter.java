@@ -407,20 +407,25 @@ public final class LangInterpreter {
 			return convertVariableNameToVariableNameNodeOrComposition(variableName, data.get(SCOPE_ID).var.keySet(), "", variableName.startsWith("$"));
 		
 		final boolean isLinkerFunction;
+		final String prefix;
 		if(variableName.startsWith("func.")) {
 			isLinkerFunction = false;
+			prefix = "func.";
 			
 			variableName = variableName.substring(5);
 		}else if(variableName.startsWith("fn.")) {
 			isLinkerFunction = false;
+			prefix = "fn.";
 			
 			variableName = variableName.substring(3);
 		}else if(variableName.startsWith("linker.")) {
 			isLinkerFunction = true;
+			prefix = "linker.";
 			
 			variableName = variableName.substring(7);
 		}else if(variableName.startsWith("ln.")) {
 			isLinkerFunction = true;
+			prefix = "ln.";
 			
 			variableName = variableName.substring(3);
 		}else {
@@ -431,7 +436,7 @@ public final class LangInterpreter {
 		
 		return convertVariableNameToVariableNameNodeOrComposition(variableName, funcs.entrySet().stream().filter(entry -> {
 			return entry.getValue().isLinkerFunction() == isLinkerFunction;
-		}).map(Entry<String, LangPredefinedFunctionObject>::getKey).collect(Collectors.toSet()), isLinkerFunction?"linker.":"func.", false);
+		}).map(Entry<String, LangPredefinedFunctionObject>::getKey).collect(Collectors.toSet()), prefix, false);
 	}
 	
 	private Node processFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
