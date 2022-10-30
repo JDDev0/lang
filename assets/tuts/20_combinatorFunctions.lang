@@ -65,6 +65,7 @@ lang.version = v1.0.0
 # O4: func.combO4(a, b, c, d, e)
 # P : func.combP(a, b, c, d)
 # P3: func.combP3(a, b, c, d, e)
+# PE: func.combPE(a, b, c, d)
 # PX: func.combPX(a, b, c, d)
 # Q : func.combQ(a, b, c)
 # QX: func.combQX(a, b, c)
@@ -210,6 +211,7 @@ lang.version = v1.0.0
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # P    | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                  | -
 # P3   | 5     | a, b, c, d, e | a b c d     | a(b(e), c(e), d(e))            | -
+# PE   | 4     | a, b, c, d    | a b c       | a(b(), c())                    | -
 # PN   | 2+    | a, b, ...     | a         + | a(...[0](b), ...[1](b), ...)   | Every varargs argument will be applied on b first
 # PV   | 3     | a, b, args[]  | a         + | a(args[0](b), args[1](b), ...) | Every array element will be applied on b first
 # PX   | 4     | a, b, c, d    | a b c       | a(c(d), b(d))                  | -
