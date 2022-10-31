@@ -68,6 +68,7 @@ lang.version = v1.0.0
 # PE: func.combPE(a, b, c, d)
 # PX: func.combPX(a, b, c, d)
 # Q : func.combQ(a, b, c)
+# QE: func.combQE(a, b, c)
 # QX: func.combQX(a, b, c)
 # R0: func.combR0(a, b, c)
 # R1: func.combR1(a, b, c)
@@ -218,6 +219,7 @@ lang.version = v1.0.0
 # PZ   | 2+    | a, b, ...     | a         + | a(..., ...[1](b), ...[0](b))   | Same as PN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # Q    | 3     | a, b, c       | a b         | b(a(c))                        | -
+# QE   | 3     | a, b, c       | a b         | b(a())                         | -
 # QN   | 1+    | a, ...        |           + | ...(...[1](...[0](a)))         | Every varargs argument will be consecutively applied on a
 # QV   | 2     | a, args[]     |           + | ...(args[1](args[0](a)))       | Every array element will be consecutively applied on a
 # QX   | 3     | a, b, c       |   b c       | c(b(a))                        | -
