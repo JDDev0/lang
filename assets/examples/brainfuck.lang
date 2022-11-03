@@ -1,0 +1,77 @@
+lang.name = Brainfuck
+lang.version = v1.0.0
+
+fp.interpretCode = ($code...) -> {
+	&mem = fn.arrayMake(30000)
+	fn.arraySetAll(&mem, 0)
+	
+	$ptr = 0
+	
+	$bracketCount = 0
+	
+	&instructions = fn.charsOf($code)
+	$pc = 0
+	
+	while($pc < parser.op(@&instructions)) {
+		$c $= &instructions[$pc]
+		
+		if($c === \>) {
+			$ptr += 1
+		}elif($c === \<) {
+			$ptr -= 1
+		}elif($c === \+) {
+			fn.arraySet(&mem, $ptr, parser.op(&mem[$ptr] + 1))
+		}elif($c === \-) {
+			fn.arraySet(&mem, $ptr, parser.op(&mem[$ptr] - 1))
+		}elif($c === \.) {
+			fn.print(fn.toChar(parser.op(&mem[$ptr])))
+		}elif($c === \,) {
+			$input = fn.readTerminal(Input)
+			if(parser.op(@$input) === 0) {
+				$val = -1
+			}else {
+				$val = fn.toValue(fn.charAt($input, 0))
+			}
+			fn.arraySet(&mem, $ptr, $val)
+		}elif($c === \[) {
+			if(parser.op(&mem[$ptr]) === 0) {
+				$bracketCount += 1
+				while($bracketCount > 0 && $pc < parser.op(@&instructions)) {
+					$pc += 1
+					
+					$c $= &instructions[$pc]
+		
+					if($c === \[) {
+						$bracketCount += 1
+					}elif($c === \]) {
+						$bracketCount -= 1
+					}
+				}
+				
+				# "$pc += 1" at end of outer loop -> Char after ']'
+			}
+		}elif($c === \]) {
+			if(parser.op(&mem[$ptr]) !== 0) {
+				$bracketCount += 1
+				while($bracketCount > 0 && $pc >= 0) {
+					$pc -= 1
+					
+					$c $= &instructions[$pc]
+		
+					if($c === \[) {
+						$bracketCount -= 1
+					}elif($c === \]) {
+						$bracketCount += 1
+					}
+				}
+				
+				$pc -= 1 # Go to Char before '['
+				# "$pc += 1" at end of outer loop -> Char after '['
+			}
+		}
+		
+		$pc += 1
+	}
+}
+
+fp.interpretCode(fn.readTerminal(Enter Brainfuck Code))
