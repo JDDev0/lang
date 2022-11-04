@@ -65,7 +65,6 @@ fp.interpretCode = ($code...) -> {
 					}
 				}
 				
-				$pc -= 1 # Go to Char before '['
 				# "$pc += 1" at end of outer loop -> Char after '['
 			}
 		}
