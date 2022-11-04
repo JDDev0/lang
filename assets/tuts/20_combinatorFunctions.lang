@@ -83,6 +83,7 @@ lang.version = v1.0.0
 # T : func.combT(a, b)
 # T3: func.combT3(a, b, c, d)
 # T4: func.combT4(a, b, c, d, e)
+# TE: func.combTE(a, b)
 # TX: func.combTX(a, b, c, d)
 # U : func.combU(a, b, c, d, e)
 # UX: func.combUX(a, b, c, d, e)
@@ -242,6 +243,7 @@ lang.version = v1.0.0
 # T    | 2     | a, b          |   b         | b(a)                           | -
 # T3   | 4     | a, b, c, d    |   b         | b(a, c, d)                     | -
 # T4   | 5     | a, b, c, d, e |   b         | b(a, c, d, e)                  | -
+# TE   | 2     | a, b          |   b         | b()                            | -
 # TN   | 1+    | ..., z        |           + | ...(...[1](...[0](z)))         | Every varargs argument will be consecutively applied on z
 # TV   | 2     | args[], z     |           + | ...(args[1](args[0](z)))       | Every array element will be consecutively applied on z
 # TX   | 4     | a, b, c, d    |   b         | b(d, c, a)                     | -
