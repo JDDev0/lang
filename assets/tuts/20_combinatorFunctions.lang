@@ -86,6 +86,7 @@ lang.version = v1.0.0
 # TE: func.combTE(a, b)
 # TX: func.combTX(a, b, c, d)
 # U : func.combU(a, b, c, d, e)
+# UE: func.combUE(a, b, c, d, e)
 # UX: func.combUX(a, b, c, d, e)
 # V1: func.combV1(a, b, c)
 # V : func.combV(a, b, c)
@@ -250,6 +251,7 @@ lang.version = v1.0.0
 # TZ   | 1+    | ..., z        |           + | ...[0](...[1](...(z)))         | Same as TN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # U    | 5     | a, b, c, d, e | a b c       | a(b(d), c(e))                  | -
+# UE   | 5     | a, b, c, d, e | a b c       | a(b(), c())                    | -
 # UX   | 5     | a, b, c, d, e | a     d e   | a(d(b), e(c))                  | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # V1   | 3     | a, b, c       |     c       | c(a)                           | -
