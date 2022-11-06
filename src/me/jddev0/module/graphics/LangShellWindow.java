@@ -879,7 +879,7 @@ public class LangShellWindow extends JDialog {
 					if(doc.getText(startOfLine, 1).charAt(0) == '\n')
 						break;
 				doc.remove(startOfLine, doc.getLength() - startOfLine);
-			}catch(BadLocationException e) {}
+			}catch(BadLocationException ignore) {}
 		}
 		
 		GraphicsHelper.addText(shell, "\n> ", Color.WHITE);
