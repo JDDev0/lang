@@ -3104,6 +3104,7 @@ public final class LangInterpreter {
 		INVALID_NUMBER_BASE    (41, "Invalid number base"),
 		INVALID_REGEX_SYNTAX   (42, "Invalid RegEx syntax"),
 		INVALID_TEMPLATE_SYNTAX(43, "Invalid translation template syntax"),
+		INVALID_MODULE         (44, "The Lang module is invalid"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL   (-1, "A deprecated predefined function was called"),
