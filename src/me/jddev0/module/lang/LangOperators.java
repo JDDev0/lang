@@ -17,7 +17,6 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  * @version v1.0.0
  */
 final class LangOperators {
-	@SuppressWarnings("unused")
 	private final LangInterpreter interpreter;
 	
 	public LangOperators(LangInterpreter interpreter) {
