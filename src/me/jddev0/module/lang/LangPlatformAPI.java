@@ -3,9 +3,11 @@ package me.jddev0.module.lang;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -59,6 +61,10 @@ public class LangPlatformAPI {
 	
 	public BufferedReader getLangReader(String langFile) throws IOException {
 		return new BufferedReader(new FileReader(new File(langFile)));
+	}
+	
+	public InputStream getInputStream(String langFile) throws IOException {
+		return new FileInputStream(new File(langFile));
 	}
 	
 	public boolean writeLangFile(File langFile, Map<String, String> translationMap, TerminalIO term) {
