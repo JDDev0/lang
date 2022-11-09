@@ -3248,7 +3248,7 @@ public final class LangInterpreter {
 		/**
 		 * Creates an function which is accessible globally in the Interpreter (= in all SCOPE_IDs)<br>
 		 * If function already exists, it will be overridden<br>
-		 * Function can be accessed with "func.[funcName]" or with "liner.[funcName]" and can't be removed nor changed by the lang file
+		 * Function can be accessed with "func.[funcName]"/"fn.[funcName]" or with "linker.[funcName]"/"ln.[funcName]" and can't be removed nor changed by the lang file
 		 */
 		public void addPredefinedFunction(String funcName, LangPredefinedFunctionObject function) {
 			interpreter.funcs.put(funcName, function);
