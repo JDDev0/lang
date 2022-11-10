@@ -3105,6 +3105,7 @@ public final class LangInterpreter {
 		INVALID_REGEX_SYNTAX   (42, "Invalid RegEx syntax"),
 		INVALID_TEMPLATE_SYNTAX(43, "Invalid translation template syntax"),
 		INVALID_MODULE         (44, "The Lang module is invalid"),
+		MODULE_LOAD_UNLOAD_ERR (45, "Error during load or unload of Lang module"),
 		
 		//WARNINGS
 		DEPRECATED_FUNC_CALL   (-1, "A deprecated predefined function was called"),
