@@ -88,6 +88,7 @@ func.println(Error code: $LANG_ERRNO)
 #        43: INVALID_TEMPLATE_SYNTAX
 #    Module errors:
 #        44: INVALID_MODULE
+#        45: MODULE_LOAD_UNLOAD_ERR
 #
 # Warning codes (v1.0.0):
 #    Predefined function warnings:
