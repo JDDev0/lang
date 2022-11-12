@@ -119,6 +119,39 @@ public final class LangUtils {
 	}
 	
 	/**
+	 * @return Returns the version as an integer array of length 3 or null if the version is invalid
+	 */
+	public static int[] getVersionComponents(String version) {
+		if(version.length() < 1)
+			return null;
+		
+		if(version.charAt(0) != 'v')
+			return null;
+		
+		int majorMinorSeparatorIndex = version.indexOf('.');
+		if(majorMinorSeparatorIndex == -1)
+			return null;
+		
+		int minorBugfixSeparatorIndex = version.indexOf('.', majorMinorSeparatorIndex + 1);
+		if(minorBugfixSeparatorIndex == -1)
+			return null;
+		
+		String majorStr = version.substring(1, majorMinorSeparatorIndex);
+		String minorStr = version.substring(majorMinorSeparatorIndex + 1, minorBugfixSeparatorIndex);
+		String bugfixStr = version.substring(minorBugfixSeparatorIndex + 1);
+		
+		try {
+			int major = Integer.parseInt(majorStr);
+			int minor = Integer.parseInt(minorStr);
+			int bugfix = Integer.parseInt(bugfixStr);
+			
+			return new int[] {major, minor, bugfix};
+		}catch(NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * @return Returns the index of the matching bracket (Escaped chars will be ignored (escape char: '\')) or -1 if no matching bracket was found
 	 */
 	public static int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {
