@@ -622,14 +622,20 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
 			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
-			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) > 0);
+			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
+			if(compVer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
+			return new DataObject().setBoolean(compVer > 0);
 		});
 		funcs.put("isLangVersionOlder", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
 			
 			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
-			return new DataObject().setBoolean(LangInterpreter.VERSION.compareTo(langVer) < 0);
+			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
+			if(compVer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
+			return new DataObject().setBoolean(compVer < 0);
 		});
 	}
 	private void addPredefinedSystemFunctions(Map<String, LangPredefinedFunctionObject> funcs) {

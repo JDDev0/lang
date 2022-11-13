@@ -1329,12 +1329,18 @@ public final class LangInterpreter {
 			//Data
 			case "lang.version":
 				String langVer = value.getText();
-				if(!langVer.equals(VERSION)) {
-					if(VERSION.compareTo(langVer) > 0)
-						setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be compiled right", SCOPE_ID);
-					else
-						setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be compiled right!", SCOPE_ID);
+				Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
+				if(compVer == null) {
+					setErrno(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
+					
+					return;
 				}
+				
+				if(compVer > 0)
+					setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be compiled right", SCOPE_ID);
+				else if(compVer < 0)
+					setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be compiled right!", SCOPE_ID);
+				
 				break;
 			
 			case "lang.name":
