@@ -171,6 +171,28 @@ public final class LangUtils {
 	}
 	
 	/**
+	 * @return Returns &lt;0 if versionA is older than versionB<br>
+	 * returns &gt;0 if versionA is newer than versionB<br>
+	 * returns 0 if versionA is equalsTo versionB<br>
+	 * returns null if at least one argument is invalid
+	 */
+	public static Integer compareVersions(String versionA, String versionB) {
+		int[] versionAComponents = getVersionComponents(versionA);
+		int[] versionBComponents = getVersionComponents(versionB);
+		
+		if(versionAComponents == null || versionBComponents == null)
+			return null;
+		
+		if(versionAComponents[0] != versionBComponents[0])
+			return Integer.compare(versionAComponents[0], versionBComponents[0]);
+		
+		if(versionAComponents[1] != versionBComponents[1])
+			return Integer.compare(versionAComponents[1], versionBComponents[1]);
+		
+		return Integer.compare(versionAComponents[2], versionBComponents[2]);
+	}
+	
+	/**
 	 * @return Returns the index of the matching bracket (Escaped chars will be ignored (escape char: '\')) or -1 if no matching bracket was found
 	 */
 	public static int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {
