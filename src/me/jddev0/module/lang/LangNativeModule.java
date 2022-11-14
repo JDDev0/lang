@@ -25,7 +25,7 @@ public abstract class LangNativeModule {
 	 * Will be called if the module is loaded
 	 * 
 	 * @param args provided to "func.loadModule()" [modulePath included] separated with ARGUMENT_SEPARATORs
-	 * @param interpreter (LII can be created with new LangInterpreterInterface(interpreter)) 
+	 * @param interpreter (LII can be created with new LangInterpreterInterface(interpreter))
 	 * @return Will be returned for the "linker.loadModule()" call
 	 */
 	public abstract DataObject load(List<DataObject> args, final int SCOPE_ID);
