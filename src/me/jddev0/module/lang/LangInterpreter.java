@@ -45,6 +45,9 @@ public final class LangInterpreter {
 	
 	final LangParser parser = new LangParser();
 	
+	final LangModuleManager moduleManager = new LangModuleManager(this);
+	final Map<String, LangModule> modules = new HashMap<>();
+	
 	private final LinkedList<StackElement> callStack;
 	
 	final TerminalIO term;
@@ -107,7 +110,7 @@ public final class LangInterpreter {
 	 */
 	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
 		callStack = new LinkedList<>();
-		callStack.add(new StackElement(langPath, langFile, null));
+		callStack.add(new StackElement(langPath, langFile, null, null));
 		this.term = term;
 		this.langPlatformAPI = langPlatformAPI;
 		
@@ -1785,7 +1788,8 @@ public final class LangInterpreter {
 		try {
 			//Update call stack
 			StackElement currentStackElement = getCurrentCallStackElement();
-			pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), functionName == null?fp.toString():functionName));
+			pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(),
+					functionName == null?fp.toString():functionName, currentStackElement.getModule()));
 			
 			switch(fp.getFunctionPointerType()) {
 				case FunctionPointerObject.NORMAL:
@@ -2891,6 +2895,11 @@ public final class LangInterpreter {
 			data.get(SCOPE_ID).var.put(variableName, new DataObject().setTypeValue(type).setFinalData(true).setLangVar().setVariableName(variableName));
 		}
 		
+		if(currentStackElement.module != null) {
+			data.get(SCOPE_ID).var.put("$LANG_MODULE_STATE", new DataObject(currentStackElement.module.isLoad()?"load":"unload").setFinalData(true).setLangVar().
+					setVariableName("$LANG_MODULE_STATE"));
+		}
+		
 		//Not final vars
 		data.get(SCOPE_ID).var.computeIfAbsent("$LANG_ERRNO", key -> new DataObject().
 				setError(new ErrorObject(InterpretingError.NO_ERROR)).setStaticData(true).setLangVar().setVariableName("$LANG_ERRNO"));
@@ -2973,11 +2982,13 @@ public final class LangInterpreter {
 		private final String langPath;
 		private final String langFile;
 		private final String langFunctionName;
+		private final LangModule module;
 		
-		public StackElement(String langPath, String langFile, String langFunctionName) {
+		public StackElement(String langPath, String langFile, String langFunctionName, LangModule module) {
 			this.langPath = langPath;
 			this.langFile = langFile;
 			this.langFunctionName = langFunctionName;
+			this.module = module;
 		}
 		
 		public String getLangPath() {
@@ -2990,6 +3001,10 @@ public final class LangInterpreter {
 		
 		public String getLangFunctionName() {
 			return langFunctionName;
+		}
+		
+		public LangModule getModule() {
+			return module;
 		}
 		
 		@Override

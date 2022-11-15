@@ -1025,7 +1025,7 @@ final class LangPredefinedFunctions {
 			
 			//Update call stack
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec"));
+			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()));
 			
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
 				//Add variables and local variables
@@ -5954,30 +5954,56 @@ final class LangPredefinedFunctions {
 			return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, SCOPE_ID);
 		
 		String absolutePath;
-		if(new File(langFileName).isAbsolute())
-			absolutePath = langFileName;
-		else
-			absolutePath = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + langFileName;
+		
+		LangModule module = interpreter.getCurrentCallStackElement().getModule();
+		boolean insideModule = module != null;
+		if(insideModule) {
+			absolutePath = LangModuleManager.getModuleFilePath(module, interpreter.getCurrentCallStackElement().getLangPath(), langFileName);
+		}else {
+			if(new File(langFileName).isAbsolute())
+				absolutePath = langFileName;
+			else
+				absolutePath = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + langFileName;
+		}
 		
 		final int NEW_SCOPE_ID = SCOPE_ID + 1;
 		
 		String langPathTmp = absolutePath;
-		langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
-		
-		//Update call stack
-		interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null));
+		if(insideModule) {
+			langPathTmp = absolutePath.substring(0, absolutePath.lastIndexOf('/'));
+			
+			//Update call stack
+			interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>" + langPathTmp,
+					langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module));
+		}else {
+			langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
+			
+			//Update call stack
+			interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null));
+		}
 		
 		//Create an empty data map
 		interpreter.createDataMap(NEW_SCOPE_ID, langArgs);
-		
-		try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
-			interpreter.interpretLines(reader, NEW_SCOPE_ID);
-		}catch(IOException e) {
-			interpreter.data.remove(NEW_SCOPE_ID);
-			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
-		}finally {
-			//Update call stack
-			interpreter.popStackElement();
+		if(insideModule) {
+			try(BufferedReader reader = LangModuleManager.readModuleLangFile(module, absolutePath)) {
+				interpreter.interpretLines(reader, NEW_SCOPE_ID);
+			}catch(IOException e) {
+				interpreter.data.remove(NEW_SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+			}finally {
+				//Update call stack
+				interpreter.popStackElement();
+			}
+		}else {
+			try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
+				interpreter.interpretLines(reader, NEW_SCOPE_ID);
+			}catch(IOException e) {
+				interpreter.data.remove(NEW_SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+			}finally {
+				//Update call stack
+				interpreter.popStackElement();
+			}
 		}
 		
 		function.accept(NEW_SCOPE_ID);
