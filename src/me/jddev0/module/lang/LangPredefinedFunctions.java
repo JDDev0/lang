@@ -6121,5 +6121,28 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+		funcs.put("moduleLoadNative", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				LangModule module = interpreter.getCurrentCallStackElement().getModule();
+				if(module == null || !module.isLoad())
+					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleLoadNative\" can only be used inside a module which "
+							+ "is in the \"load\" state", SCOPE_ID);
+				
+				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+				if(combinedArgumentList.size() < 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+				
+				DataObject entryPointObject = combinedArgumentList.remove(0);
+				String entryPoint = entryPointObject.getText();
+				
+				return interpreter.moduleManager.loadNative(entryPoint, module, argumentList, SCOPE_ID);
+			}
+			
+			@Override
+			public boolean isLinkerFunction() {
+				return true;
+			}
+		});
 	}
 }
