@@ -6100,5 +6100,26 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+		funcs.put("unloadModule", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+				if(combinedArgumentList.size() < 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+				
+				DataObject moduleFileObject = combinedArgumentList.remove(0);
+				String moduleFile = moduleFileObject.getText();
+				
+				if(!moduleFile.endsWith(".lm"))
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, "Modules must have a file extension of\".lm\"", SCOPE_ID);
+				
+				return interpreter.moduleManager.unload(moduleFile, argumentList, SCOPE_ID);
+			}
+			
+			@Override
+			public boolean isLinkerFunction() {
+				return true;
+			}
+		});
 	}
 }
