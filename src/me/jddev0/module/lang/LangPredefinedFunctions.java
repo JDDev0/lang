@@ -380,6 +380,7 @@ final class LangPredefinedFunctions {
 		addPredefinedCombinatorFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
+		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -5415,6 +5416,34 @@ final class LangPredefinedFunctions {
 			public String getDeprecatedReplacementFunction() {
 				return "func.freeVar";
 			}
+		});
+	}
+	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("moduleExportFunction", (argumentList, SCOPE_ID) -> {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleLoadNative\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject functionNameObject = combinedArgumentList.get(0);
+			DataObject fpObject = combinedArgumentList.get(1);
+			if(fpObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			String functionName = functionNameObject.getText();
+			FunctionPointerObject fp = fpObject.getFunctionPointer();
+			
+			interpreter.funcs.put(functionName, (innerArgumentList, INNER_SCOPE_ID) -> {
+				return interpreter.callFunctionPointer(fp, functionName, innerArgumentList, INNER_SCOPE_ID);
+			});
+			
+			return null;
 		});
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
