@@ -5437,6 +5437,14 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			String functionName = functionNameObject.getText();
+			for(int i = 0;i < functionName.length();i++) {
+				char c = functionName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
 			FunctionPointerObject fp = fpObject.getFunctionPointer();
 			
 			interpreter.funcs.put(functionName, (innerArgumentList, INNER_SCOPE_ID) -> {
@@ -5463,6 +5471,14 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
 			String functionName = functionNameObject.getText();
+			for(int i = 0;i < functionName.length();i++) {
+				char c = functionName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
 			FunctionPointerObject fp = fpObject.getFunctionPointer();
 			
 			interpreter.funcs.put(functionName, new LangPredefinedFunctionObject() {
