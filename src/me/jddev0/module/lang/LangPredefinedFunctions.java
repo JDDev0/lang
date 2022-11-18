@@ -5445,6 +5445,40 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("moduleExportLinkerFunction", (argumentList, SCOPE_ID) -> {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleLoadNative\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject functionNameObject = combinedArgumentList.get(0);
+			DataObject fpObject = combinedArgumentList.get(1);
+			if(fpObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			String functionName = functionNameObject.getText();
+			FunctionPointerObject fp = fpObject.getFunctionPointer();
+			
+			interpreter.funcs.put(functionName, new LangPredefinedFunctionObject() {
+				@Override
+				public DataObject callFunc(List<DataObject> innerArgumentList, final int INNER_SCOPE_ID) {
+					return interpreter.callFunctionPointer(fp, functionName, innerArgumentList, INNER_SCOPE_ID);
+				}
+				
+				@Override
+				public boolean isLinkerFunction() {
+					return true;
+				}
+			});
+			
+			return null;
+		});
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("langTestUnit", (argumentList, SCOPE_ID) -> {
