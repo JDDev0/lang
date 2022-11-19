@@ -96,7 +96,7 @@ final class LangModuleManager {
 		Map<String, byte[]> zipData = new HashMap<>();
 		LangModuleConfiguration[] lmcArray = new LangModuleConfiguration[1];
 		
-		DataObject errorObject = loadModuleData(moduleFile, zipEntries, zipData, lmcArray, CALLER_SCOPE_ID);
+		DataObject errorObject = readModuleData(moduleFile, zipEntries, zipData, lmcArray, CALLER_SCOPE_ID);
 		if(errorObject != null)
 			return errorObject;
 		
@@ -226,7 +226,7 @@ final class LangModuleManager {
 		}
 	}
 	
-	private DataObject loadModuleData(String moduleFile, Map<String, ZipEntry> zipEntries, Map<String, byte[]> zipData, LangModuleConfiguration[] lmcArray, final int SCOPE_ID) {
+	private DataObject readModuleData(String moduleFile, Map<String, ZipEntry> zipEntries, Map<String, byte[]> zipData, LangModuleConfiguration[] lmcArray, final int SCOPE_ID) {
 		InputStream in;
 		try {
 			in = interpreter.langPlatformAPI.getInputStream(moduleFile);
