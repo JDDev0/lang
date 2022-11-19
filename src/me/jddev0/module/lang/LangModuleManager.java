@@ -197,7 +197,7 @@ final class LangModuleManager {
 	
 	private DataObject loadUnloadNative(boolean load, boolean moduleEntryPoint, String entryPoint, LangModule module, List<DataObject> args, final int SCOPE_ID) {
 		LangNativeModule[] lnmArray = new LangNativeModule[1];
-		DataObject errorObject = loadNativeModule(entryPoint, module, lnmArray, SCOPE_ID);
+		DataObject errorObject = readNativeModule(entryPoint, module, lnmArray, SCOPE_ID);
 		if(errorObject != null)
 			return errorObject;
 		
@@ -305,7 +305,7 @@ final class LangModuleManager {
 		return null;
 	}
 	
-	private DataObject loadNativeModule(String nativeEntryPoint, LangModule module, LangNativeModule[] lnmArray, final int SCOPE_ID) {
+	private DataObject readNativeModule(String nativeEntryPoint, LangModule module, LangNativeModule[] lnmArray, final int SCOPE_ID) {
 		int colonIndex = nativeEntryPoint.lastIndexOf(':');
 		if(colonIndex == -1)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "\"/data.lmc\" is invalid: \"nativeEntryPoint\" must be of format"
