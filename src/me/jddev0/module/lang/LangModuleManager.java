@@ -103,6 +103,7 @@ final class LangModuleManager {
 		LangModuleConfiguration lmc = lmcArray[0];
 		
 		LangModule module = new LangModule(moduleFile, load, zipEntries, zipData, lmc);
+		LangModule unloadedModule = null;
 		
 		String loadUnloadStr = load?"load":"unload";
 		
@@ -125,7 +126,7 @@ final class LangModuleManager {
 				if(interpreter.modules.get(lmc.getName()) == null)
 					return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was not loaded", SCOPE_ID);
 				
-				interpreter.modules.remove(lmc.getName());
+				unloadedModule = interpreter.modules.remove(lmc.getName());
 			}
 			
 			LangModuleConfiguration.ModuleType moduleType = lmc.getModuleType();
@@ -192,6 +193,11 @@ final class LangModuleManager {
 			
 			//Remove data map
 			interpreter.data.remove(SCOPE_ID);
+			
+			if(!load && unloadedModule != null) {
+				//Remove exported functions and variables
+				unloadedModule.getExportedFunctions().forEach(interpreter.funcs::remove);
+			}
 		}
 	}
 	

@@ -5445,6 +5445,8 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
 			}
 			
+			module.getExportedFunctions().add(functionName);
+			
 			FunctionPointerObject fp = fpObject.getFunctionPointer();
 			
 			interpreter.funcs.put(functionName, (innerArgumentList, INNER_SCOPE_ID) -> {
@@ -5478,6 +5480,8 @@ final class LangPredefinedFunctions {
 				
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
 			}
+			
+			module.getExportedFunctions().add(functionName);
 			
 			FunctionPointerObject fp = fpObject.getFunctionPointer();
 			
