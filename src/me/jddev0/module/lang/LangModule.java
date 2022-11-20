@@ -1,6 +1,8 @@
 package me.jddev0.module.lang;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 
@@ -21,12 +23,18 @@ public final class LangModule {
 	
 	private final LangModuleConfiguration lmc;
 	
+	private final List<String> exportedFunctions = new LinkedList<>();
+	
 	public LangModule(String file, boolean load, Map<String, ZipEntry> zipEntries, Map<String, byte[]> zipData, LangModuleConfiguration lmc) {
 		this.file = file;
 		this.load = load;
 		this.zipEntries = new HashMap<>(zipEntries);
 		this.zipData = new HashMap<>(zipData);
 		this.lmc = lmc;
+	}
+	
+	List<String> getExportedFunctions() {
+		return exportedFunctions;
 	}
 	
 	public String getFile() {
