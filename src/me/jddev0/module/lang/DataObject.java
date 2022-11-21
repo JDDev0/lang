@@ -55,7 +55,7 @@ public class DataObject {
 		if(variableName.startsWith("&"))
 			return CONSTRAINT_ARRAY;
 		
-		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("linker."))
+		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("fn.") || variableName.startsWith("linker.") || variableName.startsWith("ln."))
 			return CONSTRAINT_FUNCTION_POINTER;
 		
 		return CONSTRAINT_NORMAL;
