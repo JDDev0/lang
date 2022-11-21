@@ -2936,10 +2936,13 @@ public final class LangInterpreter {
 			StackElement currentStackElement = getCurrentCallStackElement();
 			String langPath = currentStackElement.getLangPath();
 			String langFile = currentStackElement.getLangFile();
+			langFile = langFile == null?"<shell>":langFile;
+			
+			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + langFile;
 			String langFunctionName = currentStackElement.getLangFunctionName();
 			
-			String output = String.format("A%s %s occured in \"%s/%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
-					newErrno < 0?"warning":"error", langPath, langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
+			String output = String.format("A%s %s occured in \"%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
+					newErrno < 0?"warning":"error", langPathWithFile, langFunctionName == null?"main":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
 					error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message, printStackTrace());
 			if(term == null)
 				System.err.println(output);
@@ -3009,7 +3012,8 @@ public final class LangInterpreter {
 		
 		@Override
 		public String toString() {
-			return String.format("    at \"%s/%s\" in function \"%s\"", langPath, langFile == null?"<shell>":langFile, langFunctionName == null?"main":langFunctionName);
+			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + (langFile == null?"<shell>":langFile);
+			return String.format("    at \"%s\" in function \"%s\"", langPathWithFile, langFunctionName == null?"main":langFunctionName);
 		}
 	}
 	
