@@ -2895,9 +2895,19 @@ public final class LangInterpreter {
 			data.get(SCOPE_ID).var.put(variableName, new DataObject().setTypeValue(type).setFinalData(true).setLangVar().setVariableName(variableName));
 		}
 		
+		//Module vars
 		if(currentStackElement.module != null) {
 			data.get(SCOPE_ID).var.put("$LANG_MODULE_STATE", new DataObject(currentStackElement.module.isLoad()?"load":"unload").setFinalData(true).setLangVar().
 					setVariableName("$LANG_MODULE_STATE"));
+			
+			String prefix = "<module:" + currentStackElement.module.getFile() + "[" + currentStackElement.module.getLangModuleConfiguration().getName() + "]>";
+			
+			String modulePath = currentStackElement.getLangPath().substring(prefix.length());
+			if(!modulePath.startsWith("/"))
+				modulePath = "/" + modulePath;
+			
+			data.get(SCOPE_ID).var.put("$LANG_MODULE_PATH", new DataObject(modulePath, true).setLangVar().setVariableName("$LANG_MODULE_PATH"));
+			data.get(SCOPE_ID).var.put("$LANG_MODULE_FILE", new DataObject(currentStackElement.getLangFile(), true).setLangVar().setVariableName("$LANG_MODULE_FILE"));
 		}
 		
 		//Not final vars
