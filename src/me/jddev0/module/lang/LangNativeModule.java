@@ -38,6 +38,31 @@ public abstract class LangNativeModule {
 		});
 	}
 	
+	protected final void exportLinkerFunction(String functionName, LangPredefinedFunctionObject func) {
+		for(int i = 0;i < functionName.length();i++) {
+			char c = functionName.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				continue;
+			
+			throw new RuntimeException("The function name may only contain alphanumeric characters and underscore (_)");
+		}
+		
+		module.getExportedFunctions().add(functionName);
+		
+		//Create function object container to force function to be a linker function
+		interpreter.funcs.put(functionName, new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
+				return func.callFunc(argumentList, SCOPE_ID);
+			}
+			
+			@Override
+			public boolean isLinkerFunction() {
+				return true;
+			}
+		});
+	}
+	
 	/**
 	 * Will be called if the module is loaded
 	 * 
