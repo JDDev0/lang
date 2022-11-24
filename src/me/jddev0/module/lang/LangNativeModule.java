@@ -76,7 +76,7 @@ public abstract class LangNativeModule {
 	 * Will be called if the module is unloaded
 	 * 
 	 * @param args provided to "func.unloadModule()" [modulePath included] separated with ARGUMENT_SEPARATORs
-	 * @param interpreter (LII can be created with new LangInterpreterInterface(interpreter))
+	 * @param SCOPE_ID the scope id for the module unload execution
 	 * @return Will be returned for the "linker.unloadModule()" call
 	 */
 	public abstract DataObject unload(List<DataObject> args, final int SCOPE_ID);
