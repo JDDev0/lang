@@ -40,8 +40,8 @@ public class TerminalIO {
 	public TerminalIO(File logFile, boolean enableCommandInput) {
 		try {
 			//Writer for logFile
-			writer = new BufferedWriter(new OutputStreamWriter(
-			new FileOutputStream(logFile), "UTF-8"));
+			if(logFile != null)
+				writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(logFile), "UTF-8"));
 		}catch(Exception e) {
 			this.logStackTrace(e, TerminalIO.class);
 		}
@@ -149,13 +149,15 @@ public class TerminalIO {
 		//Prints the log on the standard output
 		System.out.print(log);
 		
-		try {
-			//Writes in the log in logFile
-			writer.write(log);
-			writer.flush();
-		}catch(IOException e) {
-			//Doesn't use the logStackTrace method to avoid a stack overflow
-			e.printStackTrace();
+		if(writer != null) {
+			try {
+				//Writes in the log in logFile
+				writer.write(log);
+				writer.flush();
+			}catch(IOException e) {
+				//Doesn't use the logStackTrace method to avoid a stack overflow
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -208,17 +210,20 @@ public class TerminalIO {
 			log(Level.ERROR, "", caller);
 		
 		thrown.printStackTrace(System.out);
-		thrown.printStackTrace(new PrintWriter(writer));
+		if(writer != null)
+			thrown.printStackTrace(new PrintWriter(writer));
 	}
 	
 	/**
 	 * Closes the logger
 	 */
 	public void close() {
-		try {
-			writer.close();
-		}catch(IOException e) {
-			logStackTrace(e, TerminalIO.class);
+		if(writer != null) {
+			try {
+				writer.close();
+			}catch(IOException e) {
+				logStackTrace(e, TerminalIO.class);
+			}
 		}
 	}
 	
