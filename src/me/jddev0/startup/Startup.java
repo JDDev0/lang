@@ -247,7 +247,7 @@ public class Startup {
 		System.out.println("================================");
 		System.out.println("Interprets Lang code & files");
 		System.out.println();
-		System.out.println("Usage: lang COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
+		System.out.println("Usage: lang COMMAND [ARGs]... | lang -nolog COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
 		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
@@ -260,6 +260,8 @@ public class Startup {
 		System.out.println("    -clear                            Clears the output of the \"TermIO-Control\" window");
 		System.out.println("    -exit                             Exits the \"TermIO-Control\" window");
 		System.out.println("    -commands                         Lists all \"TermIO-Control\" window commands");
+		System.out.println("");
+		System.out.println("    -nolog                            Disables log file output");
 		System.out.println("");
 		System.out.println("    -h, --help                        Prints this help page");
 		System.out.println();
