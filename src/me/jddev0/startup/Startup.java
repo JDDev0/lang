@@ -94,8 +94,15 @@ public class Startup {
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		is4k = dim.height > 1440;
 		
+		boolean noLog = false;
+		if(args.length > 0 && args[0].equals("-nolog")) {
+			args = Arrays.copyOfRange(args, 1, args.length);
+			
+			noLog = true;
+		}
+		
 		TerminalWindow termWin = new TerminalWindow(getFontSize());
-		TerminalIO term = new TerminalIO(new File("log.txt"));
+		TerminalIO term = new TerminalIO(noLog?null:new File("log.txt"));
 		term.addCommand("executeLang", input -> {
 			if(input.length < 1) {
 				term.logf(Level.ERROR, "To few arguments: %d/1+!\n", Startup.class, input.length);
