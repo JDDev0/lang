@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -389,11 +391,22 @@ final class LangModuleManager {
 			
 			Constructor<?> entryPointConstructor = entryPointClass.getConstructor();
 			
-			lnmArray[0] = (LangNativeModule)entryPointConstructor.newInstance();
-			lnmArray[0].setInterpreter(interpreter);
-			lnmArray[0].setModule(module);
+			LangNativeModule langNativeModule = lnmArray[0] = (LangNativeModule)entryPointConstructor.newInstance();
+			
+			Field modifiersField = Field.class.getDeclaredField("modifiers");
+			modifiersField.setAccessible(true);
+			
+			Field interpreterField = LangNativeModule.class.getDeclaredField("interpreter");
+			interpreterField.setAccessible(true);
+			modifiersField.setInt(interpreterField, interpreterField.getModifiers() & ~Modifier.FINAL);
+			interpreterField.set(langNativeModule, interpreter);
+			
+			Field moduleField = LangNativeModule.class.getDeclaredField("module");
+			moduleField.setAccessible(true);
+			modifiersField.setInt(moduleField, moduleField.getModifiers() & ~Modifier.FINAL);
+			moduleField.set(langNativeModule, module);
 		}catch(ClassNotFoundException|NoSuchMethodException|SecurityException|InstantiationException|
-				IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
+				IllegalAccessException|IllegalArgumentException|InvocationTargetException|NoSuchFieldException e) {
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "Invalid entry point (\"" + e.getClass().getSimpleName() + "\"): " + e.getMessage(), SCOPE_ID);
 		}
 		

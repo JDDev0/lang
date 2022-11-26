@@ -10,16 +10,14 @@ import java.util.List;
  * @version v1.0.0
  */
 public abstract class LangNativeModule {
-	protected LangInterpreter interpreter;
-	protected LangModule module;
-	
-	final void setInterpreter(LangInterpreter interpreter) {
-		this.interpreter = interpreter;
-	}
-	
-	final void setModule(LangModule module) {
-		this.module = module;
-	}
+	/**
+	 * The value for this field will be injected after the instantiation with the default constructor
+	 */
+	protected final LangInterpreter interpreter = null;
+	/**
+	 * The value for this field will be injected after the instantiation with the default constructor
+	 */
+	protected final LangModule module = null;
 	
 	protected final void exportFunction(String functionName, LangPredefinedFunctionObject func) {
 		for(int i = 0;i < functionName.length();i++) {
