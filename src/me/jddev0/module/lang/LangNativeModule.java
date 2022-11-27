@@ -4,7 +4,8 @@ import java.util.List;
 
 /**
  * Lang-Module<br>
- * Lang native module interface
+ * Lang native module<br>
+ * The default constructor may be public and will be called for the instantiation
  * 
  * @author JDDev0
  * @version v1.0.0
