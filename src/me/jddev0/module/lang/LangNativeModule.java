@@ -41,6 +41,9 @@ public abstract class LangNativeModule {
 	}
 	
 	protected final void exportLinkerFunction(String functionName, LangPredefinedFunctionObject func) {
+		if(!module.isLoad())
+			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
+		
 		for(int i = 0;i < functionName.length();i++) {
 			char c = functionName.charAt(i);
 			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
