@@ -736,9 +736,9 @@ public final class LangInterpreter {
 					
 					var = varPointer.getVarPointer().getVar();
 					
-					DataObject arrayOrTextNode = interpretNode(forEachNode.getArrayOrTextNode(), SCOPE_ID);
-					if(arrayOrTextNode.getType() == DataType.ARRAY) {
-						DataObject[] arr = arrayOrTextNode.getArray();
+					DataObject collectionOrTextNode = interpretNode(forEachNode.getCollectionOrTextNode(), SCOPE_ID);
+					if(collectionOrTextNode.getType() == DataType.ARRAY) {
+						DataObject[] arr = collectionOrTextNode.getArray();
 						for(int i = 0;i < arr.length;i++) {
 							flag = true;
 							
@@ -758,8 +758,29 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
+					}else if(collectionOrTextNode.getType() == DataType.LIST) {
+						List<DataObject> list = collectionOrTextNode.getList();
+						for(int i = 0;i < list.size();i++) {
+							flag = true;
+							
+							if(var != null) {
+								if(var.isFinalData() || var.isLangVar())
+									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
+								else
+									var.setData(list.get(i));
+							}
+							
+							interpretAST(node.getLoopBody(), SCOPE_ID);
+							Boolean ret = interpretLoopContinueAndBreak();
+							if(ret != null) {
+								if(ret)
+									return true;
+								else
+									continue;
+							}
+						}
 					}else {
-						String text = arrayOrTextNode.getText();
+						String text = collectionOrTextNode.getText();
 						for(int i = 0;i < text.length();i++) {
 							flag = true;
 							

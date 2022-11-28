@@ -2,6 +2,7 @@ package me.jddev0.module.lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -19,12 +20,13 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  */
 public class DataObject {
 	private final static DataTypeConstraint CONSTRAINT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
-	private final static DataTypeConstraint CONSTRAINT_ARRAY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.NULL));
+	private final static DataTypeConstraint CONSTRAINT_COLLECTION = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.LIST, DataType.NULL));
 	private final static DataTypeConstraint CONSTRAINT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
 	
 	//Value
 	private String txt;
 	private DataObject[] arr;
+	private List<DataObject> list;
 	private VarPointerObject vp;
 	private FunctionPointerObject fp;
 	private int intValue;
@@ -53,7 +55,7 @@ public class DataObject {
 			return CONSTRAINT_NORMAL;
 		
 		if(variableName.startsWith("&"))
-			return CONSTRAINT_ARRAY;
+			return CONSTRAINT_COLLECTION;
 		
 		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("fn.") || variableName.startsWith("linker.") || variableName.startsWith("ln."))
 			return CONSTRAINT_FUNCTION_POINTER;
@@ -89,6 +91,7 @@ public class DataObject {
 		
 		this.txt = dataObject.txt;
 		this.arr = dataObject.arr; //Array: copy reference only
+		this.list = dataObject.list; //List: copy reference only
 		this.vp = dataObject.vp; //Var pointer: copy reference only
 		this.fp = dataObject.fp; //Func pointer: copy reference only
 		this.intValue = dataObject.intValue;
@@ -115,6 +118,7 @@ public class DataObject {
 	private void resetValue() {
 		this.txt = null;
 		this.arr = null;
+		this.list = null;
 		this.vp = null;
 		this.fp = null;
 		this.intValue = 0;
@@ -171,6 +175,23 @@ public class DataObject {
 	
 	public DataObject[] getArray() {
 		return arr;
+	}
+	
+	public DataObject setList(List<DataObject> list) throws DataTypeConstraintViolatedException {
+		if(finalData)
+			return this;
+		if(list == null)
+			return setNull();
+		
+		this.type = checkAndRetType(DataType.LIST);
+		resetValue();
+		this.list = list;
+		
+		return this;
+	}
+	
+	public List<DataObject> getList() {
+		return list;
 	}
 	
 	public DataObject setVarPointer(VarPointerObject vp) throws DataTypeConstraintViolatedException {
@@ -452,28 +473,46 @@ public class DataObject {
 		return new DataObject().setNull();
 	}
 	
+	private void convertCollectionElementToText(DataObject ele, StringBuilder builder) {
+		if(ele.getType() == DataType.ARRAY) {
+			builder.append("<Array: len: " + ele.getArray().length + ">");
+		}else if(ele.getType() == DataType.LIST) {
+			builder.append("<List: len: " + ele.getList().size() + ">");
+		}else if(ele.getType() == DataType.VAR_POINTER) {
+			builder.append("VP -> {");
+			DataObject data = ele.getVarPointer().getVar();
+			if(data != null && data.getType() == DataType.ARRAY) {
+				builder.append("<Array: len: " + data.getArray().length + ">");
+			}else if(data.getType() == DataType.LIST) {
+				builder.append("<List: len: " + ele.getArray().length + ">");
+			}else if(data != null && data.getType() == DataType.VAR_POINTER) {
+				builder.append("VP -> {...}");
+			}else {
+				builder.append(data);
+			}
+			builder.append("}");
+		}else {
+			builder.append(ele.getText());
+		}
+		builder.append(", ");
+	}
+	
 	private String convertArrayToText() {
 		StringBuilder builder = new StringBuilder("[");
 		if(arr.length > 0) {
-			for(DataObject ele:arr) {
-				if(ele.getType() == DataType.ARRAY) {
-					builder.append("<Array: len: " + ele.getArray().length + ">");
-				}else if(ele.getType() == DataType.VAR_POINTER) {
-					builder.append("VP -> {");
-					DataObject data = ele.getVarPointer().getVar();
-					if(data != null && data.getType() == DataType.ARRAY) {
-						builder.append("<Array: len: " + data.getArray().length + ">");
-					}else if(data != null && data.getType() == DataType.VAR_POINTER) {
-						builder.append("VP -> {...}");
-					}else {
-						builder.append(data);
-					}
-					builder.append("}");
-				}else {
-					builder.append(ele.getText());
-				}
-				builder.append(", ");
-			}
+			for(DataObject ele:arr)
+				convertCollectionElementToText(ele, builder);
+			builder.delete(builder.length() - 2, builder.length());
+		}
+		builder.append(']');
+		return builder.toString();
+	}
+	
+	private String convertListToText() {
+		StringBuilder builder = new StringBuilder("[");
+		if(list.size() > 0) {
+			for(DataObject ele:list)
+				convertCollectionElementToText(ele, builder);
 			builder.delete(builder.length() - 2, builder.length());
 		}
 		builder.append(']');
@@ -489,6 +528,8 @@ public class DataObject {
 					return txt;
 				case ARRAY:
 					return convertArrayToText();
+				case LIST:
+					return convertListToText();
 				case VAR_POINTER:
 					if(variableName != null)
 						return variableName;
@@ -531,6 +572,8 @@ public class DataObject {
 				case ARGUMENT_SEPARATOR:
 					return null;
 				case ARRAY:
+					return null;
+				case LIST:
 					return null;
 				case VAR_POINTER:
 					return null;
@@ -585,6 +628,8 @@ public class DataObject {
 				return error.getErrno();
 			case ARRAY:
 				return arr.length;
+			case LIST:
+				return list.size();
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -621,6 +666,8 @@ public class DataObject {
 				return (long)error.getErrno();
 			case ARRAY:
 				return (long)arr.length;
+			case LIST:
+				return (long)list.size();
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -657,6 +704,8 @@ public class DataObject {
 				return (float)error.getErrno();
 			case ARRAY:
 				return (float)arr.length;
+			case LIST:
+				return (float)list.size();
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -693,6 +742,8 @@ public class DataObject {
 				return (double)error.getErrno();
 			case ARRAY:
 				return (double)arr.length;
+			case LIST:
+				return (double)list.size();
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -709,6 +760,33 @@ public class DataObject {
 		switch(type) {
 			case ARRAY:
 				return arr;
+			case LIST:
+				return list.toArray(new DataObject[0]);
+			
+			case TEXT:
+			case CHAR:
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	public List<DataObject> toList() {
+		switch(type) {
+			case ARRAY:
+				return new LinkedList<DataObject>(Arrays.asList(arr));
+			case LIST:
+				return list;
 			
 			case TEXT:
 			case CHAR:
@@ -744,6 +822,8 @@ public class DataObject {
 				return doubleValue != 0;
 			case ARRAY:
 				return arr.length > 0;
+			case LIST:
+				return list.size() > 0;
 			case ERROR:
 				return error.getErrno() != 0;
 			
@@ -802,6 +882,8 @@ public class DataObject {
 				return error.getErrno();
 			case ARRAY:
 				return arr.length;
+			case LIST:
+				return list.size();
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -858,7 +940,20 @@ public class DataObject {
 			case ARRAY:
 				if(other.type == DataType.ARRAY)
 					return Objects.deepEquals(arr, other.arr);
+				
+				if(other.type == DataType.LIST)
+					return Objects.deepEquals(arr, other.list.toArray(new DataObject[0]));
+				
 				return number != null && arr.length == number.intValue();
+				
+			case LIST:
+				if(other.type == DataType.LIST)
+					return Objects.deepEquals(list, other.list);
+				
+				if(other.type == DataType.ARRAY)
+					return Objects.deepEquals(list.toArray(new DataObject[0]), other.arr);
+				
+				return number != null && list.size() == number.intValue();
 			
 			case VAR_POINTER:
 				return vp.equals(other.vp);
@@ -879,6 +974,7 @@ public class DataObject {
 					case FLOAT:
 					case DOUBLE:
 					case ARRAY:
+					case LIST:
 						return number != null && error.getErrno() == number.intValue();
 					
 					case ERROR:
@@ -918,9 +1014,10 @@ public class DataObject {
 		
 		try {
 			return this.type.equals(other.type) && Objects.equals(this.txt, other.txt) && Objects.deepEquals(this.arr, other.arr) &&
-			Objects.equals(this.vp, other.vp) && Objects.equals(this.fp, other.fp) && this.intValue == other.intValue &&
-			this.longValue == other.longValue && this.floatValue == other.floatValue && this.doubleValue == other.doubleValue &&
-			this.charValue == other.charValue && Objects.equals(this.error, other.error) && this.typeValue == other.typeValue;
+			Objects.deepEquals(this.list, other.list) && Objects.equals(this.vp, other.vp) && Objects.equals(this.fp, other.fp) &&
+			this.intValue == other.intValue && this.longValue == other.longValue && this.floatValue == other.floatValue &&
+			this.doubleValue == other.doubleValue && this.charValue == other.charValue && Objects.equals(this.error, other.error) &&
+			this.typeValue == other.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -958,6 +1055,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -987,6 +1085,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1011,6 +1110,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1035,6 +1135,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1059,6 +1160,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1083,6 +1185,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1107,6 +1210,32 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
+			case LIST:
+				switch(number.type) {
+					case INT:
+						return list.size() < number.getInt();
+					case LONG:
+						return list.size() < number.getLong();
+					case FLOAT:
+						return list.size() < number.getFloat();
+					case DOUBLE:
+						return list.size() < number.getDouble();
+						
+					case CHAR:
+					case ERROR:
+					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1133,6 +1262,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1189,6 +1319,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1218,6 +1349,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1242,6 +1374,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1266,6 +1399,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1290,6 +1424,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1314,6 +1449,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1338,6 +1474,32 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
+			case LIST:
+				switch(number.type) {
+					case INT:
+						return list.size() > number.getInt();
+					case LONG:
+						return list.size() > number.getLong();
+					case FLOAT:
+						return list.size() > number.getFloat();
+					case DOUBLE:
+						return list.size() > number.getDouble();
+						
+					case CHAR:
+					case ERROR:
+					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1364,6 +1526,7 @@ public class DataObject {
 					case CHAR:
 					case ERROR:
 					case ARRAY:
+					case LIST:
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1419,9 +1582,10 @@ public class DataObject {
 		try {
 			DataObject that = (DataObject)obj;
 			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
-			Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) && this.intValue == that.intValue &&
-			this.longValue == that.longValue && this.floatValue == that.floatValue && this.doubleValue == that.doubleValue &&
-			this.charValue == that.charValue && Objects.equals(this.error, that.error) && this.typeValue == that.typeValue;
+			Objects.deepEquals(this.list, that.list) && Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) &&
+			this.intValue == that.intValue && this.longValue == that.longValue && this.floatValue == that.floatValue &&
+			this.doubleValue == that.doubleValue && this.charValue == that.charValue && Objects.equals(this.error, that.error) &&
+			this.typeValue == that.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -1429,11 +1593,11 @@ public class DataObject {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, txt, arr, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
+		return Objects.hash(type, txt, arr, list, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
 	}
 	
 	public static enum DataType {
-		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
+		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
 	public static final class DataTypeConstraint {
 		private final List<DataType> types;

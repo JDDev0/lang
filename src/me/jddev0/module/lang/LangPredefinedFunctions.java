@@ -413,6 +413,7 @@ final class LangPredefinedFunctions {
 					case FLOAT:
 					case INT:
 					case LONG:
+					case LIST:
 					case NULL:
 					case TEXT:
 					case VOID:
@@ -501,6 +502,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case LIST:
 				case NULL:
 				case TEXT:
 				case VOID:
@@ -2768,6 +2770,7 @@ final class LangPredefinedFunctions {
 				case CHAR:
 				case TEXT:
 				case ARRAY:
+				case LIST:
 				case ERROR:
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
@@ -4426,6 +4429,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case LIST:
 				case NULL:
 				case VOID:
 				case TYPE:
@@ -4462,6 +4466,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case LIST:
 				case NULL:
 				case VOID:
 				case TYPE:

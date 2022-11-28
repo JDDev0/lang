@@ -1204,13 +1204,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	
 	public static final class LoopStatementPartForEachNode extends LoopStatementPartNode {
 		private final Node varPointerNode;
-		private final Node arrayOrTextNode;
+		private final Node collectionOrTextNode;
 		
-		public LoopStatementPartForEachNode(AbstractSyntaxTree loopBody, Node varPointerNode, Node arrayOrTextNode) {
+		public LoopStatementPartForEachNode(AbstractSyntaxTree loopBody, Node varPointerNode, Node collectionOrTextNode) {
 			super(loopBody);
 			
 			this.varPointerNode = varPointerNode;
-			this.arrayOrTextNode = arrayOrTextNode;
+			this.collectionOrTextNode = collectionOrTextNode;
 		}
 		
 		@Override
@@ -1222,8 +1222,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return varPointerNode;
 		}
 		
-		public Node getArrayOrTextNode() {
-			return arrayOrTextNode;
+		public Node getCollectionOrTextNode() {
+			return collectionOrTextNode;
 		}
 		
 		@Override
@@ -1237,7 +1237,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				builder.append("\n");
 			}
 			builder.append("}, arrayOrTextNode: {\n");
-			tokens = arrayOrTextNode.toString().split("\\n");
+			tokens = collectionOrTextNode.toString().split("\\n");
 			for(String token:tokens) {
 				builder.append("\t");
 				builder.append(token);
@@ -1267,13 +1267,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				return false;
 			
 			LoopStatementPartForEachNode that = (LoopStatementPartForEachNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.varPointerNode.equals(that.varPointerNode) && this.arrayOrTextNode.equals(that.arrayOrTextNode) &&
+			return this.getNodeType().equals(that.getNodeType()) && this.varPointerNode.equals(that.varPointerNode) && this.collectionOrTextNode.equals(that.collectionOrTextNode) &&
 					this.getLoopBody().equals(that.getLoopBody());
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getNodeType(), this.varPointerNode, this.arrayOrTextNode, this.getLoopBody());
+			return Objects.hash(this.getNodeType(), this.varPointerNode, this.collectionOrTextNode, this.getLoopBody());
 		}
 	}
 	

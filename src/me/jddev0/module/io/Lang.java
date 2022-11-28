@@ -1291,6 +1291,13 @@ public final class Lang {
 							convertedArr[i] = convert(arr[i], lii);
 						convertedDataObject.setArray(convertedArr);
 						break;
+					case LIST:
+						arr = dataObject.getList().toArray(new me.jddev0.module.lang.DataObject[0]);
+						convertedArr = new DataObject[arr.length];
+						for(int i = 0;i < arr.length;i++)
+							convertedArr[i] = convert(arr[i], lii);
+						convertedDataObject.setArray(convertedArr);
+						break;
 					case CHAR:
 						convertedDataObject.setChar(dataObject.getChar());
 						break;
