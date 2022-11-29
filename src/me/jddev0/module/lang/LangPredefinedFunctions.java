@@ -2105,6 +2105,18 @@ final class LangPredefinedFunctions {
 			DataObject[] value = dataObject.toArray();
 			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setArray(value), SCOPE_ID);
 		});
+		funcs.put("list", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject dataObject = combinedArgumentList.get(0);
+			
+			List<DataObject> value = dataObject.toList();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setList(new LinkedList<>(value)), SCOPE_ID);
+		});
 		funcs.put("bool", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
