@@ -1,6 +1,7 @@
 package me.jddev0.module.lang;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ final class LangOperators {
 		switch(operand.getType()) {
 			case ARRAY:
 				return new DataObject().setInt(operand.getArray().length);
+			case LIST:
+				return new DataObject().setInt(operand.getList().size());
 			case TEXT:
 				return new DataObject().setInt(operand.getText().length());
 			case CHAR:
@@ -66,6 +69,15 @@ final class LangOperators {
 				}
 				
 				return new DataObject().setArray(arrCopy);
+			case LIST:
+				List<DataObject> listCopy = new LinkedList<>();
+				for(int i = 0;i < operand.getList().size();i++) {
+					listCopy.add(opDeepCopy(operand.getList().get(i), SCOPE_ID));
+					if(listCopy.get(i) == null)
+						return null;
+				}
+				
+				return new DataObject().setList(listCopy);
 			
 			case TEXT:
 			case CHAR:
@@ -103,17 +115,41 @@ final class LangOperators {
 			case TEXT:
 				return new DataObject(leftSideOperand.getText() + rightSideOperand.getText());
 			case ARRAY:
-				if(rightSideOperand.getType() != DataType.ARRAY)
-					return null;
+				if(rightSideOperand.getType() == DataType.ARRAY) {
+					DataObject[] arrNew = new DataObject[leftSideOperand.getArray().length + rightSideOperand.getArray().length];
+					for(int i = 0;i < leftSideOperand.getArray().length;i++)
+						arrNew[i] = leftSideOperand.getArray()[i];
+					for(int i = 0;i < rightSideOperand.getArray().length;i++)
+						arrNew[leftSideOperand.getArray().length + i] = rightSideOperand.getArray()[i];
+					
+					return new DataObject().setArray(arrNew);
+				}else if(rightSideOperand.getType() == DataType.LIST) {
+					DataObject[] arrNew = new DataObject[leftSideOperand.getArray().length + rightSideOperand.getList().size()];
+					for(int i = 0;i < leftSideOperand.getArray().length;i++)
+						arrNew[i] = leftSideOperand.getArray()[i];
+					for(int i = 0;i < rightSideOperand.getList().size();i++)
+						arrNew[leftSideOperand.getArray().length + i] = rightSideOperand.getList().get(i);
+					
+					return new DataObject().setArray(arrNew);
+				}
 				
-				DataObject[] arrNew = new DataObject[leftSideOperand.getArray().length + rightSideOperand.getArray().length];
-				for(int i = 0;i < leftSideOperand.getArray().length;i++)
-					arrNew[i] = leftSideOperand.getArray()[i];
-				for(int i = 0;i < rightSideOperand.getArray().length;i++)
-					arrNew[leftSideOperand.getArray().length + i] = rightSideOperand.getArray()[i];
+				return null;
+			case LIST:
+				if(rightSideOperand.getType() == DataType.ARRAY) {
+					List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+					for(int i = 0;i < rightSideOperand.getArray().length;i++)
+						listNew.add(rightSideOperand.getArray()[i]);
+					
+					return new DataObject().setList(listNew);
+				}else if(rightSideOperand.getType() == DataType.LIST) {
+					List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+					listNew.addAll(rightSideOperand.getList());
+					
+					return new DataObject().setList(listNew);
+				}
 				
-				return new DataObject().setArray(arrNew);
-				
+				return null;
+			
 			case FUNCTION_POINTER:
 				if(rightSideOperand.getType() != DataType.FUNCTION_POINTER)
 					return null;
@@ -191,6 +227,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case NULL:
@@ -230,6 +267,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case NULL:
@@ -271,6 +309,11 @@ final class LangOperators {
 					arrInv[index--] = dataObject;
 				
 				return new DataObject().setArray(arrInv);
+			case LIST:
+				List<DataObject> listInv = new LinkedList<>(operand.getList());
+				Collections.reverse(listInv);
+				
+				return new DataObject().setList(listInv);
 			
 			case ERROR:
 			case VAR_POINTER:
@@ -304,6 +347,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -329,6 +373,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -354,6 +399,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -379,6 +425,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -404,6 +451,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -423,6 +471,10 @@ final class LangOperators {
 				
 				arrNew[leftSideOperand.getArray().length] = new DataObject(rightSideOperand);
 				return new DataObject().setArray(arrNew);
+			case LIST:
+				List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+				listNew.add(new DataObject(rightSideOperand));
+				return new DataObject().setList(listNew);
 			
 			case ERROR:
 			case VAR_POINTER:
@@ -456,6 +508,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -481,6 +534,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -506,6 +560,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -531,6 +586,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -556,6 +612,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -569,6 +626,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -600,6 +658,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -624,6 +683,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -648,6 +708,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -672,6 +733,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -701,6 +763,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -714,6 +777,7 @@ final class LangOperators {
 			
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -748,6 +812,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -772,6 +837,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -796,6 +862,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -820,6 +887,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -862,6 +930,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case NULL:
@@ -904,6 +973,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -940,6 +1010,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -964,6 +1035,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -988,6 +1060,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1002,6 +1075,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1055,6 +1129,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1101,6 +1176,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1157,6 +1233,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1214,6 +1291,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1228,6 +1306,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1271,6 +1350,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1307,6 +1387,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1343,6 +1424,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1380,6 +1462,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1394,6 +1477,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1437,6 +1521,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1473,6 +1558,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1509,6 +1595,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1546,6 +1633,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1560,6 +1648,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1595,6 +1684,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1623,6 +1713,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1644,6 +1735,7 @@ final class LangOperators {
 			case DOUBLE:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1673,6 +1765,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1695,6 +1788,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1711,6 +1805,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1748,6 +1843,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1770,6 +1866,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1786,6 +1883,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1815,6 +1913,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1837,6 +1936,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1853,6 +1953,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1879,6 +1980,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1908,6 +2010,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1930,6 +2033,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -1946,6 +2050,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1983,6 +2088,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -2005,6 +2111,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -2021,6 +2128,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -2059,6 +2167,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -2081,6 +2190,7 @@ final class LangOperators {
 					case TEXT:
 					case CHAR:
 					case ARRAY:
+					case LIST:
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
@@ -2097,6 +2207,7 @@ final class LangOperators {
 			case TEXT:
 			case CHAR:
 			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -2125,6 +2236,20 @@ final class LangOperators {
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 					
 					return leftSideOperand.getArray()[index];
+				}
+				
+				return null;
+			case LIST:
+				if(rightSideOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getList().size();
+					int index = rightSideOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					return leftSideOperand.getList().get(index);
 				}
 				
 				return null;
