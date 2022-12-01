@@ -2282,6 +2282,29 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setInt(interpreter.RAN.nextInt(bound));
 		});
+		funcs.put("randChoice", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() == 0)
+				return new DataObject().setVoid();
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			if(arrPointerObject.getType() == DataType.ARRAY) {
+				if(combinedArgumentList.size() > 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a collection"), SCOPE_ID);
+				
+				DataObject[] arr = arrPointerObject.getArray();
+				return arr.length == 0?null:arr[interpreter.RAN.nextInt(arr.length)];
+			}
+			if(arrPointerObject.getType() == DataType.LIST) {
+				if(combinedArgumentList.size() > 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a collection"), SCOPE_ID);
+				
+				List<DataObject> list = arrPointerObject.getList();
+				return list.size() == 0?null:list.get(interpreter.RAN.nextInt(list.size()));
+			}
+			
+			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(interpreter.RAN.nextInt(combinedArgumentList.size()));
+		});
 		funcs.put("setSeed", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
@@ -5181,22 +5204,6 @@ final class LangPredefinedFunctions {
 				argumentListFuncCall.add(ele);
 				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
 			}));
-		});
-		funcs.put("randChoice", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() == 0)
-				return new DataObject().setVoid();
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			if(arrPointerObject.getType() == DataType.ARRAY) {
-				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of an array"), SCOPE_ID);
-				
-				DataObject[] arr = arrPointerObject.getArray();
-				return arr.length == 0?null:arr[interpreter.RAN.nextInt(arr.length)];
-			}
-			
-			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(interpreter.RAN.nextInt(combinedArgumentList.size()));
 		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArrays = new LinkedList<>();
