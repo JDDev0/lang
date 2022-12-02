@@ -70,7 +70,7 @@ final class LangOperators {
 				
 				return new DataObject().setArray(arrCopy);
 			case LIST:
-				List<DataObject> listCopy = new LinkedList<>();
+				LinkedList<DataObject> listCopy = new LinkedList<>();
 				for(int i = 0;i < operand.getList().size();i++) {
 					listCopy.add(opDeepCopy(operand.getList().get(i), SCOPE_ID));
 					if(listCopy.get(i) == null)
@@ -136,13 +136,13 @@ final class LangOperators {
 				return null;
 			case LIST:
 				if(rightSideOperand.getType() == DataType.ARRAY) {
-					List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+					LinkedList<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
 					for(int i = 0;i < rightSideOperand.getArray().length;i++)
 						listNew.add(rightSideOperand.getArray()[i]);
 					
 					return new DataObject().setList(listNew);
 				}else if(rightSideOperand.getType() == DataType.LIST) {
-					List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+					LinkedList<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
 					listNew.addAll(rightSideOperand.getList());
 					
 					return new DataObject().setList(listNew);
@@ -310,7 +310,7 @@ final class LangOperators {
 				
 				return new DataObject().setArray(arrInv);
 			case LIST:
-				List<DataObject> listInv = new LinkedList<>(operand.getList());
+				LinkedList<DataObject> listInv = new LinkedList<>(operand.getList());
 				Collections.reverse(listInv);
 				
 				return new DataObject().setList(listInv);
@@ -472,7 +472,7 @@ final class LangOperators {
 				arrNew[leftSideOperand.getArray().length] = new DataObject(rightSideOperand);
 				return new DataObject().setArray(arrNew);
 			case LIST:
-				List<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
+				LinkedList<DataObject> listNew = new LinkedList<>(leftSideOperand.getList());
 				listNew.add(new DataObject(rightSideOperand));
 				return new DataObject().setList(listNew);
 			

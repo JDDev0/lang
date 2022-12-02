@@ -26,7 +26,7 @@ public class DataObject {
 	//Value
 	private String txt;
 	private DataObject[] arr;
-	private List<DataObject> list;
+	private LinkedList<DataObject> list;
 	private VarPointerObject vp;
 	private FunctionPointerObject fp;
 	private int intValue;
@@ -177,7 +177,7 @@ public class DataObject {
 		return arr;
 	}
 	
-	public DataObject setList(List<DataObject> list) throws DataTypeConstraintViolatedException {
+	public DataObject setList(LinkedList<DataObject> list) throws DataTypeConstraintViolatedException {
 		if(finalData)
 			return this;
 		if(list == null)
@@ -190,7 +190,7 @@ public class DataObject {
 		return this;
 	}
 	
-	public List<DataObject> getList() {
+	public LinkedList<DataObject> getList() {
 		return list;
 	}
 	
