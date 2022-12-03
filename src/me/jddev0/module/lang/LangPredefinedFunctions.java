@@ -5557,6 +5557,24 @@ final class LangPredefinedFunctions {
 			list.addFirst(valueObject);
 			return null;
 		});
+		funcs.put("listPeekFirst", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			LinkedList<DataObject> list = listObject.getList();
+			if(list.size() == 0)
+				return null;
+			
+			return list.peekFirst();
+		});
 		funcs.put("listRemove", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
