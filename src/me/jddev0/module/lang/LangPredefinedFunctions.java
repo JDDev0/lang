@@ -5678,6 +5678,35 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("listRemoveAt", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			if(combinedArgumentList.size() > 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			DataObject indexObject = combinedArgumentList.get(1);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			Number indexNumber = indexObject.toNumber();
+			if(indexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int index = indexNumber.intValue();
+			
+			List<DataObject> list = listObject.getList();
+			if(index < 0)
+				index += list.size();
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= list.size())
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return list.remove(index);
+		});
 		funcs.put("listGet", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
