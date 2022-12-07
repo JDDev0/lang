@@ -5769,6 +5769,39 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("listFillFrom", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			DataObject startIndexObject = combinedArgumentList.get(1);
+			DataObject valueObject = combinedArgumentList.get(2);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			Number startIndexNumber = startIndexObject.toNumber();
+			if(startIndexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int startIndex = startIndexNumber.intValue();
+
+			List<DataObject> list = listObject.getList();
+			if(startIndex < 0)
+				startIndex += list.size();
+			
+			if(startIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(startIndex >= list.size())
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			for(int i = startIndex;i < list.size();i++)
+				list.set(i, new DataObject(valueObject));
+			
+			return null;
+		});
 		funcs.put("listLength", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
