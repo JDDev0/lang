@@ -5991,6 +5991,34 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setList(distinctValues);
 		});
+		funcs.put("listDistinctValuesLike", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			LinkedList<DataObject> distinctValues = new LinkedList<>();
+			for(DataObject ele:listObject.getList()) {
+				boolean flag = true;
+				for(DataObject distinctEle:distinctValues) {
+					if(ele.isEquals(distinctEle)) {
+						flag = false;
+						break;
+					}
+				}
+				
+				if(flag)
+					distinctValues.add(ele);
+			}
+			
+			return new DataObject().setList(distinctValues);
+		});
 		funcs.put("listClear", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
