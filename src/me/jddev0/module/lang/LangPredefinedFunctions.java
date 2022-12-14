@@ -6095,6 +6095,40 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setList(newList);
 		});
+		funcs.put("listReduce", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 2)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			if(combinedArgumentList.size() > 3)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
+			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
+			
+			List<DataObject> list = listObject.getList();
+			for(DataObject ele:list) {
+				if(currentValueObject == null) { //Set first element as currentValue if non was provided
+					currentValueObject = ele;
+					
+					continue;
+				}
+				
+				List<DataObject> argumentListFuncCall = new ArrayList<>();
+				argumentListFuncCall.add(currentValueObject);
+				argumentListFuncCall.add(ele);
+				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
+				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+			}
+			
+			return currentValueObject;
+		});
 		funcs.put("listClear", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
