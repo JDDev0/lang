@@ -1593,7 +1593,7 @@ public class DataObject {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, txt, arr, list, vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
+		return Objects.hash(type, txt, arr, list == null?null:list.toArray(), vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
 	}
 	
 	public static enum DataType {
