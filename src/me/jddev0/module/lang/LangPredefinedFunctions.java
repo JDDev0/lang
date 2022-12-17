@@ -6250,6 +6250,19 @@ final class LangPredefinedFunctions {
 				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
 			}));
 		});
+		funcs.put("listCombine", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			LinkedList<DataObject> combinedLists = new LinkedList<>();
+			
+			for(DataObject listObject:combinedArgumentList) {
+				if(listObject.getType() != DataType.LIST)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.LIST), SCOPE_ID);
+				
+				combinedLists.addAll(listObject.getList());
+			}
+			
+			return new DataObject().setList(combinedLists);
+		});
 		funcs.put("listClear", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 1)
