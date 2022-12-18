@@ -69,6 +69,15 @@ final class LangPredefinedFunctions {
 		return dataObject;
 	}
 	
+	private DataObject requireArgumentCount(List<DataObject> combinedArgumentList, int argCount, final int SCOPE_ID) {
+		if(combinedArgumentList.size() < argCount)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
+		if(combinedArgumentList.size() > argCount)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
+		
+		return null;
+	}
+	
 	private DataObject unaryOperationHelper(List<DataObject> argumentList, Function<DataObject, DataObject> operation, final int SCOPE_ID) {
 		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 		if(combinedArgumentList.size() < 1)
