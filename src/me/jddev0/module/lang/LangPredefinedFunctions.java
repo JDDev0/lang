@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
@@ -1954,14 +1955,14 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
 			DataObject textObject = combinedArgumentList.get(0);
-			DataObject arrPointerObject = combinedArgumentList.get(1);
-			if(arrPointerObject.getType() != DataType.ARRAY)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			DataObject collectionObject = combinedArgumentList.get(1);
+			if(collectionObject.getType() != DataType.ARRAY && collectionObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.ARRAY + " or " + DataType.LIST), SCOPE_ID);
 			
 			String text = textObject.getText();
-			DataObject[] arr = arrPointerObject.getArray();
+			Stream<DataObject> dataObjectStream = collectionObject.getType() == DataType.ARRAY?Arrays.stream(collectionObject.getArray()):collectionObject.getList().stream();
 			
-			return new DataObject(Arrays.stream(arr).map(DataObject::getText).collect(Collectors.joining(text)));
+			return new DataObject(dataObjectStream.map(DataObject::getText).collect(Collectors.joining(text)));
 		});
 		funcs.put("split", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
