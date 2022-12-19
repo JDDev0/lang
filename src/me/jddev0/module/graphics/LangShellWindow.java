@@ -646,6 +646,8 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getError().getErrno());
 				builder.append("\nError-Text: ");
 				builder.append(dataObject.getError().getErrtxt());
+				builder.append("\nError-Message: ");
+				builder.append(dataObject.getError().getMessage());
 				break;
 			
 			default:
