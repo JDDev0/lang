@@ -85,6 +85,22 @@ final class LangPredefinedFunctions {
 		
 		return null;
 	}
+	private DataObject requireArgumentCountAndType(List<DataObject> combinedArgumentList, List<DataType> requiredArgumentTypes, final int SCOPE_ID) {
+		int argCount = requiredArgumentTypes.size();
+		if(combinedArgumentList.size() < argCount)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
+		if(combinedArgumentList.size() > argCount)
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
+		
+		for(int i = 0;i < argCount;i++) {
+			DataType type = requiredArgumentTypes.get(i);
+			
+			if(combinedArgumentList.get(i).getType() != type)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", type), SCOPE_ID);
+		}
+		
+		return null;
+	}
 	
 	private DataObject unaryOperationHelper(List<DataObject> argumentList, Function<DataObject, DataObject> operation, final int SCOPE_ID) {
 		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
