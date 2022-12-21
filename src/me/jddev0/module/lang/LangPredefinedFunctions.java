@@ -487,8 +487,10 @@ final class LangPredefinedFunctions {
 		funcs.put("clearAllVars", new LangPredefinedFunctionObject() {
 			@Override
 			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				if(argumentList.size() > 0)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+				DataObject error;
+				if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+					return error;
 				
 				interpreter.resetVars(SCOPE_ID);
 				return null;
