@@ -559,8 +559,10 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("freeAllVars", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			interpreter.resetVars(SCOPE_ID);
 			return null;
