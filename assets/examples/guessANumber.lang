@@ -9,7 +9,7 @@ until($end) {
 	$guesses = 0
 	
 	# Generate random number between $low and $high
-	$num $= func.rand() % ▲($high - $low) + $low
+	$num $= func.rand() % +|($high - $low) + $low
 	until($win) {
 		func.println(Guesss a number between $low and $high!)
 		$in = func.input()
