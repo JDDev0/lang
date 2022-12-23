@@ -19,7 +19,9 @@ lang.version = v1.0.0
 # -opr                - Inverse
 # ~opr                - Bitwise not
 # ▲opr                - Increment (Will NOT change value of opr)
+# +|opr               - Increment (Will NOT change value of opr) [Alternative ascii-only symbol]
 # ▼opr                - Decrement (Will NOT change value of opr)
+# -|opr               - Decrement (Will NOT change value of opr) [Alternative ascii-only symbol]
 # opr1 * opr2         - Multiplication
 # opr1 / opr2         - Division
 # opr1 ~/ opr2        - Truncation division
@@ -95,7 +97,9 @@ lang.version = v1.0.0
 #            | -opr               |               | Inverse
 #            | ~opr               |               | Bitwise not
 #            | ▲opr               |               | Increment
+#            | +|opr              |               | Increment [Alternative ascii-only syntax]
 #            | ▼opr               |               | Decrement
+#            | -|opr              |               | Decrement [Alternative ascii-only syntax]
 #            | !opr               |               | Not
 # -----------|--------------------|---------------|--------------------------------
 #  4         | opr1 * opr2        | left-to-right | Multiplication
@@ -166,7 +170,7 @@ lang.version = v1.0.0
 #            | opr1 ??= opr2      |               | Null coalescing assignment
 #
 # Footnotes:
-# 1) The unary operators (+, -, ~, ▲, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
+# 1) The unary operators (+, -, ~, ▲, +|, ▼, -|, and !) have a higher binding than the power operator if they are on the right of the power operator.
 
 # Parser functions
 # parser.con(opr) # Condition
