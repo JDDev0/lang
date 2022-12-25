@@ -640,10 +640,6 @@ final class LangPredefinedFunctions {
 				return error;
 			
 			DataObject errorObject = combinedArgumentList.get(0);
-			
-			if(errorObject.getType() != DataType.ERROR)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.ERROR), SCOPE_ID);
-			
 			return new DataObject(errorObject.getError().getErrtxt());
 		});
 		funcs.put("errorCode", (argumentList, SCOPE_ID) -> {
