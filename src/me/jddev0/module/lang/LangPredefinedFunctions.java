@@ -651,6 +651,16 @@ final class LangPredefinedFunctions {
 			DataObject errorObject = combinedArgumentList.get(0);
 			return new DataObject().setInt(errorObject.getError().getErrno());
 		});
+		funcs.put("errorMessage", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.ERROR), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject errorObject = combinedArgumentList.get(0);
+			String msg = errorObject.getError().getMessage();
+			return msg == null?new DataObject().setNull():new DataObject().setText(msg);
+		});
 	}
 	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("isLangVersionNewer", (argumentList, SCOPE_ID) -> {
