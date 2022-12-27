@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
@@ -660,6 +661,20 @@ final class LangPredefinedFunctions {
 			DataObject errorObject = combinedArgumentList.get(0);
 			String msg = errorObject.getError().getMessage();
 			return msg == null?new DataObject().setNull():new DataObject().setText(msg);
+		});
+		funcs.put("withErrorMessage", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject errorObject = combinedArgumentList.get(0);
+			if(errorObject.getType() != DataType.ERROR)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.ERROR), SCOPE_ID);
+			
+			DataObject textObject = combinedArgumentList.get(1);
+			
+			return new DataObject().setError(new ErrorObject(errorObject.getError().getInterprettingError(), textObject.getText()));
 		});
 	}
 	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
