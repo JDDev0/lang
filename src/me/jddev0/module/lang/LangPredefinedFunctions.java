@@ -679,8 +679,10 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("isLangVersionNewer", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
@@ -689,8 +691,10 @@ final class LangPredefinedFunctions {
 			return new DataObject().setBoolean(compVer > 0);
 		});
 		funcs.put("isLangVersionOlder", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
 			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
