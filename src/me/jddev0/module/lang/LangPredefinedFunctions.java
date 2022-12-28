@@ -724,20 +724,26 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("nanoTime", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			return new DataObject().setLong(System.nanoTime());
 		});
 		funcs.put("currentTimeMillis", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			return new DataObject().setLong(System.currentTimeMillis());
 		});
 		funcs.put("currentUnixTime", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			return new DataObject().setLong(Instant.now().getEpochSecond());
 		});
