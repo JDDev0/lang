@@ -1041,10 +1041,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("pointerTo", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			if(combinedArgumentList.size() > 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject dataObject = combinedArgumentList.get(0);
 			return new DataObject().setVarPointer(new VarPointerObject(dataObject));
@@ -1126,17 +1125,18 @@ final class LangPredefinedFunctions {
 			return interpreter.getAndResetReturnValue(SCOPE_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
 			
 			return new DataObject().setBoolean(interpreter.term != null);
 		});
 		funcs.put("isInstanceOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject dataObject = combinedArgumentList.get(0);
 			DataObject dataTypeObject = combinedArgumentList.get(1);
@@ -1147,10 +1147,9 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("typeOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			if(combinedArgumentList.size() > 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject dataObject = combinedArgumentList.get(0);
 			return new DataObject().setTypeValue(dataObject.getType());
