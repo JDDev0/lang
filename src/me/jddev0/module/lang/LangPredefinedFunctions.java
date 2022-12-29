@@ -4448,10 +4448,9 @@ final class LangPredefinedFunctions {
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("copyAfterFP", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject toPointerObject = combinedArgumentList.get(0);
 			DataObject fromPointerObject = combinedArgumentList.get(1);
