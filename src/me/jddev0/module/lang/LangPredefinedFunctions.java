@@ -2185,10 +2185,9 @@ final class LangPredefinedFunctions {
 		}, SCOPE_ID));
 		funcs.put("inlineIf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 3), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
+				return error;
 			
 			return combinedArgumentList.get(combinedArgumentList.get(0).getBoolean()?1:2);
 		});
