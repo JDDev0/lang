@@ -6318,24 +6318,24 @@ final class LangPredefinedFunctions {
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("langTestUnit", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addUnit(textObject.getText());
 			
 			return null;
 		});
 		funcs.put("langTestSubUnit", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			DataObject textObject = LangUtils.combineDataObjects(argumentList);
 			if(textObject == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			try {
 				interpreter.langTestStore.addSubUnit(textObject.getText());
@@ -6346,17 +6346,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertError", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject errorObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			if(errorObject.getType() != DataType.ERROR)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
@@ -6369,18 +6368,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(actualValueObject.isEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
 					actualValueObject, expectedValueObject));
@@ -6388,18 +6386,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNotEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(!actualValueObject.isEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
 					actualValueObject, expectedValueObject));
@@ -6407,18 +6404,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertLessThan", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(actualValueObject.isLessThan(expectedValueObject), messageObject == null?null:messageObject.getText(),
 					actualValueObject, expectedValueObject));
@@ -6426,18 +6422,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertLessThanOrEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(actualValueObject.isLessThanOrEquals(expectedValueObject),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
@@ -6445,18 +6440,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertGreaterThan", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(actualValueObject.isGreaterThan(expectedValueObject), messageObject == null?null:messageObject.getText(),
 					actualValueObject, expectedValueObject));
@@ -6464,18 +6458,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertGreaterThanOrEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(actualValueObject.isGreaterThanOrEquals(expectedValueObject),
 					messageObject == null?null:messageObject.getText(), actualValueObject,
@@ -6484,18 +6477,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertStrictEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(actualValueObject.isStrictEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
 					actualValueObject, expectedValueObject));
@@ -6503,18 +6495,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertStrictNotEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!actualValueObject.isStrictEquals(expectedValueObject),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
@@ -6522,18 +6513,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertTranslationValueEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject translationKey = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueEquals(translationValue != null && translationValue.equals(expectedValueObject.getText()),
@@ -6542,18 +6532,17 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertTranslationValueNotEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
-			if(combinedArgumentList.size() > 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or 3"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject translationKey = combinedArgumentList.get(0);
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(translationValue != null && !translationValue.equals(expectedValueObject.getText()),
@@ -6562,17 +6551,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertTranslationKeyFound", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject translationKey = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(translationValue != null, messageObject == null?null:messageObject.getText(),
@@ -6581,17 +6569,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertTranslationKeyNotFound", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject translationKey = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(translationValue == null, messageObject == null?null:messageObject.getText(),
@@ -6600,17 +6587,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNull", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(actualValueObject.getType() == DataType.NULL, messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6618,17 +6604,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNotNull", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(actualValueObject.getType() != DataType.NULL, messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6636,17 +6621,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertVoid", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(actualValueObject.getType() == DataType.VOID, messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6654,17 +6638,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNotVoid", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(actualValueObject.getType() != DataType.VOID, messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6672,17 +6655,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertFinal", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFinal(actualValueObject.isFinalData(), messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6690,34 +6672,32 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNotFinal", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotFinal(!actualValueObject.isFinalData(), messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
 		funcs.put("langTestAssertStatic", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-						
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(),
 					actualValueObject));
@@ -6725,34 +6705,32 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNotStatic", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(!actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
 		funcs.put("langTestAssertThrow", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject expectedThrowObject= combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			if(expectedThrowObject.getType() != DataType.ERROR)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
@@ -6766,17 +6744,16 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertReturn", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
-			if(combinedArgumentList.size() > 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 or 2"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+				return error;
 			
 			DataObject expectedReturnObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
 			interpreter.langTestExpectedReturnValueScopeID = SCOPE_ID;
 			interpreter.langTestExpectedReturnValue = expectedReturnObject;
@@ -6785,16 +6762,15 @@ final class LangPredefinedFunctions {
 			return null;
 		});
 		funcs.put("langTestAssertNoReturn", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "0 or 1"), SCOPE_ID);
-			if(combinedArgumentList.size() > 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "0 or 1"), SCOPE_ID);
-			
-			DataObject messageObject = combinedArgumentList.size() < 1?null:combinedArgumentList.get(0);
-			
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject messageObject = combinedArgumentList.size() < 1?null:combinedArgumentList.get(0);
 			
 			interpreter.langTestExpectedReturnValueScopeID = SCOPE_ID;
 			interpreter.langTestExpectedNoReturnValue = true;
