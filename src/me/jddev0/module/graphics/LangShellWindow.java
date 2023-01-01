@@ -47,9 +47,10 @@ import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
-import me.jddev0.module.lang.LangPlatformAPI;
+import me.jddev0.module.lang.ILangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
 import me.jddev0.module.lang.LangUtils;
+import me.jddev0.module.lang.platform.desktop.swing.LangPlatformAPI;
 
 /**
  * Uses the io module<br>
@@ -88,7 +89,7 @@ public class LangShellWindow extends JDialog {
 	
 	private AutoPrintMode autoPrintMode = AutoPrintMode.NONE;
 	
-	private LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
+	private final ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
 	private PrintStream oldOut;
 	

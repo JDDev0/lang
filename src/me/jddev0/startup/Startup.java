@@ -18,12 +18,13 @@ import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.LangInterpreterInterface;
+import me.jddev0.module.lang.platform.desktop.swing.LangPlatformAPI;
 import me.jddev0.module.lang.LangParser;
-import me.jddev0.module.lang.LangPlatformAPI;
+import me.jddev0.module.lang.ILangPlatformAPI;
 
 public class Startup {
 	private static boolean is4k;
-	private static LangPlatformAPI langPlatformAPI = new LangPlatformAPI();
+	private static ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public static void main(String[] args) {
 		if(args.length > 0 && (!args[0].startsWith("-") || args[0].equals("-e") || args[0].startsWith("--") || args[0].startsWith("-h"))) {

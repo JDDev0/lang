@@ -1,4 +1,4 @@
-package me.jddev0.module.lang;
+package me.jddev0.module.lang.platform.desktop.swing;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,15 +17,16 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 import me.jddev0.module.io.TerminalIO;
+import me.jddev0.module.lang.ILangPlatformAPI;
 
 /**
  * Lang-Module<br>
- * Platform dependent code (e.g. Android would use a different LangPlatformAPI class)
+ * Platform dependent code for Java Desktop with AWT
  * 
  * @author JDDev0
  * @version v1.0.0
  */
-public class LangPlatformAPI {
+public class LangPlatformAPI implements ILangPlatformAPI {
 	public LangPlatformAPI() {}
 	
 	//File methods

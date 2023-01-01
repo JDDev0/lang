@@ -51,7 +51,7 @@ public final class LangInterpreter {
 	private final LinkedList<StackElement> callStack;
 	
 	final TerminalIO term;
-	final LangPlatformAPI langPlatformAPI;
+	final ILangPlatformAPI langPlatformAPI;
 	final Random RAN = new Random();
 	
 	//Lang tests
@@ -86,21 +86,21 @@ public final class LangInterpreter {
 	/**
 	 * @param term can be null
 	 */
-	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+	public LangInterpreter(String langPath, TerminalIO term, ILangPlatformAPI langPlatformAPI) {
 		this(langPath, null, term, langPlatformAPI, null);
 	}
 	/**
 	 * @param langFile can be null
 	 * @param term can be null
 	 */
-	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI) {
+	public LangInterpreter(String langPath, String langFile, TerminalIO term, ILangPlatformAPI langPlatformAPI) {
 		this(langPath, langFile, term, langPlatformAPI, null);
 	}
 	/**
 	 * @param term can be null
 	 * @param langArgs can be null
 	 */
-	public LangInterpreter(String langPath, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
+	public LangInterpreter(String langPath, TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) {
 		this(langPath, null, term, langPlatformAPI, langArgs);
 	}
 	/**
@@ -108,7 +108,7 @@ public final class LangInterpreter {
 	 * @param term can be null
 	 * @param langArgs can be null
 	 */
-	public LangInterpreter(String langPath, String langFile, TerminalIO term, LangPlatformAPI langPlatformAPI, String[] langArgs) {
+	public LangInterpreter(String langPath, String langFile, TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) {
 		callStack = new LinkedList<>();
 		callStack.add(new StackElement(langPath, langFile, null, null));
 		this.term = term;
