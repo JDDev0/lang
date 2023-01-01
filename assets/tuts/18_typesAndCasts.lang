@@ -9,6 +9,7 @@ lang.version = v1.0.0
 #   FLOAT
 #   DOUBLE
 #   ARRAY
+#   LIST
 #   VAR_POINTER
 #   FUNCTION_POINTER
 #   ERROR
@@ -25,6 +26,7 @@ func.println($LANG_TYPE_LONG)
 func.println($LANG_TYPE_FLOAT)
 func.println($LANG_TYPE_DOUBLE)
 func.println($LANG_TYPE_ARRAY)
+func.println($LANG_TYPE_LIST)
 func.println($LANG_TYPE_VAR_POINTER)
 func.println($LANG_TYPE_FUNCTION_POINTER)
 func.println($LANG_TYPE_ERROR)
@@ -88,6 +90,11 @@ func.println()
 func.println(func.typeOf(func.arrayMake(0))) # ARRAY
 func.println(func.typeOf(func.arrayOf())) # ARRAY
 func.println(func.typeOf(func.arrayOf(1, abc, test))) # ARRAY
+
+func.println()
+
+func.println(func.typeOf(func.listOf())) # LIST
+func.println(func.typeOf(func.listOf(1, abc, test))) # LIST
 
 func.println()
 
@@ -174,6 +181,8 @@ fp.printCastAndTypes(func.text, {{{1.8E4}}})
 fp.printCastAndTypes(func.text, {{{NaN}}})
 fp.printCastAndTypes(func.text, func.arrayOf())
 fp.printCastAndTypes(func.text, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.text, func.listOf())
+fp.printCastAndTypes(func.text, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.text, $ptr)
 fp.printCastAndTypes(func.text, $[LANG_ERRNO])
 fp.printCastAndTypes(func.text, func.pointerTo(func.text))
@@ -211,6 +220,8 @@ fp.printCastAndTypes(func.char, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.char, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.char, func.arrayOf()) # Error
 fp.printCastAndTypes(func.char, func.arrayOf(1, abc, test, 0)) # Error
+fp.printCastAndTypes(func.char, func.listOf()) # Error
+fp.printCastAndTypes(func.char, func.listOf(1, abc, test, 0)) # Error
 fp.printCastAndTypes(func.char, $ptr) # Error
 fp.printCastAndTypes(func.char, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.char, func.pointerTo(func.text)) # Error
@@ -248,6 +259,8 @@ fp.printCastAndTypes(func.int, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.int, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.int, func.arrayOf())
 fp.printCastAndTypes(func.int, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.int, func.listOf())
+fp.printCastAndTypes(func.int, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.int, $ptr) # Error
 fp.printCastAndTypes(func.int, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.int, func.pointerTo(func.text)) # Error
@@ -285,6 +298,8 @@ fp.printCastAndTypes(func.long, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.long, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.long, func.arrayOf())
 fp.printCastAndTypes(func.long, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.long, func.listOf())
+fp.printCastAndTypes(func.long, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.long, $ptr) # Error
 fp.printCastAndTypes(func.long, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.long, func.pointerTo(func.text)) # Error
@@ -322,6 +337,8 @@ fp.printCastAndTypes(func.float, {{{1.8E4}}})
 fp.printCastAndTypes(func.float, {{{NaN}}})
 fp.printCastAndTypes(func.float, func.arrayOf())
 fp.printCastAndTypes(func.float, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.float, func.listOf())
+fp.printCastAndTypes(func.float, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.float, $ptr) # Error
 fp.printCastAndTypes(func.float, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.float, func.pointerTo(func.text)) # Error
@@ -359,6 +376,8 @@ fp.printCastAndTypes(func.double, {{{1.8E4}}})
 fp.printCastAndTypes(func.double, {{{NaN}}})
 fp.printCastAndTypes(func.double, func.arrayOf())
 fp.printCastAndTypes(func.double, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.double, func.listOf())
+fp.printCastAndTypes(func.double, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.double, $ptr) # Error
 fp.printCastAndTypes(func.double, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.double, func.pointerTo(func.text)) # Error
@@ -396,6 +415,8 @@ fp.printCastAndTypes(func.array, {{{1.8E4}}}) # Error
 fp.printCastAndTypes(func.array, {{{NaN}}}) # Error
 fp.printCastAndTypes(func.array, func.arrayOf())
 fp.printCastAndTypes(func.array, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.array, func.listOf())
+fp.printCastAndTypes(func.array, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.array, $ptr) # Error
 fp.printCastAndTypes(func.array, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.array, func.pointerTo(func.text)) # Error
@@ -421,6 +442,45 @@ fp.printCastAndTypes(func.array, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
 
 func.println()
 
+# func.list(any) # Casts the provided value to a list value (No implicit casts will be executed)
+fp.printCastAndTypes(func.list, abc) # Error
+fp.printCastAndTypes(func.list, {{{80}}}) # Error
+fp.printCastAndTypes(func.list, {{{0080}}}) # Error
+fp.printCastAndTypes(func.list, {{{80.4}}}) # Error
+fp.printCastAndTypes(func.list, {{{0080.4}}}) # Error
+fp.printCastAndTypes(func.list, {{{1.8e4}}}) # Error
+fp.printCastAndTypes(func.list, {{{001.8e4}}}) # Error
+fp.printCastAndTypes(func.list, {{{1.8E4}}}) # Error
+fp.printCastAndTypes(func.list, {{{NaN}}}) # Error
+fp.printCastAndTypes(func.list, func.arrayOf())
+fp.printCastAndTypes(func.list, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.list, func.listOf())
+fp.printCastAndTypes(func.list, func.listOf(1, abc, test, 0))
+fp.printCastAndTypes(func.list, $ptr) # Error
+fp.printCastAndTypes(func.list, $[LANG_ERRNO]) # Error
+fp.printCastAndTypes(func.list, func.pointerTo(func.text)) # Error
+fp.printCastAndTypes(func.list, func.text) # Error
+fp.printCastAndTypes(func.list, func.randChoice(func.arrayOf())) # Error
+fp.printCastAndTypes(func.list, null) # Error
+fp.printCastAndTypes(func.list, 42) # Error
+fp.printCastAndTypes(func.list, func.long(42)) # Error
+fp.printCastAndTypes(func.list, 42.) # Error
+fp.printCastAndTypes(func.list, 1.8e4) # Error
+fp.printCastAndTypes(func.list, 1.8E4) # Error
+fp.printCastAndTypes(func.list, $LANG_FLOAT_POS_INF) # Error
+fp.printCastAndTypes(func.list, $LANG_FLOAT_NAN) # Error
+fp.printCastAndTypes(func.list, func.double(42.)) # Error
+fp.printCastAndTypes(func.list, $LANG_DOUBLE_POS_INF) # Error
+fp.printCastAndTypes(func.list, $LANG_DOUBLE_NAN) # Error
+fp.printCastAndTypes(func.list, NaN) # Error
+fp.printCastAndTypes(func.list, -NaN) # Error
+fp.printCastAndTypes(func.list, -Infinity) # Error
+fp.printCastAndTypes(func.list, a) # Error
+fp.printCastAndTypes(func.list, $LANG_ERROR_DIV_BY_ZERO) # Error
+fp.printCastAndTypes(func.list, $LANG_TYPE_ARGUMENT_SEPARATOR) # Error
+
+func.println()
+
 # func.bool(any) # Casts the provided value to a bool value (No implicit casts will be executed)
 fp.printCastAndTypes(func.bool, abc)
 fp.printCastAndTypes(func.bool, {{{80}}})
@@ -433,6 +493,8 @@ fp.printCastAndTypes(func.bool, {{{1.8E4}}})
 fp.printCastAndTypes(func.bool, {{{NaN}}})
 fp.printCastAndTypes(func.bool, func.arrayOf())
 fp.printCastAndTypes(func.bool, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.bool, func.listOf())
+fp.printCastAndTypes(func.bool, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.bool, $ptr)
 fp.printCastAndTypes(func.bool, $[LANG_ERRNO])
 fp.printCastAndTypes(func.bool, func.pointerTo(func.text))
@@ -470,6 +532,8 @@ fp.printCastAndTypes(func.number, {{{1.8E4}}})
 fp.printCastAndTypes(func.number, {{{NaN}}})
 fp.printCastAndTypes(func.number, func.arrayOf())
 fp.printCastAndTypes(func.number, func.arrayOf(1, abc, test, 0))
+fp.printCastAndTypes(func.number, func.listOf())
+fp.printCastAndTypes(func.number, func.listOf(1, abc, test, 0))
 fp.printCastAndTypes(func.number, $ptr) # Error
 fp.printCastAndTypes(func.number, $[LANG_ERRNO]) # Error
 fp.printCastAndTypes(func.number, func.pointerTo(func.text)) # Error
