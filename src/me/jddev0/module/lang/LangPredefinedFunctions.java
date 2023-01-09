@@ -2000,15 +2000,39 @@ final class LangPredefinedFunctions {
 		});
 		funcs.put("split", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "3 or 4"), SCOPE_ID);
-			if(combinedArgumentList.size() > 4)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "3 or 4"), SCOPE_ID);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 4, SCOPE_ID)) != null)
+				return error;
 			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject textObject = combinedArgumentList.get(1);
-			DataObject regexObject = combinedArgumentList.get(2);
-			DataObject maxSplitCountObject = combinedArgumentList.size() < 4?null:combinedArgumentList.get(3);
+			DataObject arrPointerObject;
+			DataObject textObject;
+			DataObject regexObject;
+			DataObject maxSplitCountObject;
+			if(combinedArgumentList.size() == 2) {
+				arrPointerObject = new DataObject().setNull();
+				textObject = combinedArgumentList.get(0);
+				regexObject = combinedArgumentList.get(1);
+				maxSplitCountObject = null;
+			}else if(combinedArgumentList.size() == 4) {
+				arrPointerObject = combinedArgumentList.get(0);
+				textObject = combinedArgumentList.get(1);
+				regexObject = combinedArgumentList.get(2);
+				maxSplitCountObject = combinedArgumentList.get(3);
+			}else {
+				DataObject firstObject = combinedArgumentList.get(0);
+				
+				if(firstObject.getType() == DataType.NULL || firstObject.getType() == DataType.ARRAY) {
+					arrPointerObject = firstObject;
+					textObject = combinedArgumentList.get(1);
+					regexObject = combinedArgumentList.get(2);
+					maxSplitCountObject = null;
+				}else {
+					arrPointerObject = new DataObject().setNull();
+					textObject = firstObject;
+					regexObject = combinedArgumentList.get(1);
+					maxSplitCountObject = combinedArgumentList.get(2);
+				}
+			}
 			
 			String[] arrTmp;
 			try {
@@ -2025,35 +2049,21 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
 			}
 			
-			String arrPtr;
-			if(arrPointerObject.getType() == DataType.NULL || arrPointerObject.getType() == DataType.ARRAY) {
-				arrPtr = null;
-			}else if(arrPointerObject.getType() == DataType.TEXT) {
-				arrPtr = arrPointerObject.getText();
-				if(!LangPatterns.matches(arrPtr, LangPatterns.VAR_NAME_ARRAY))
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			}else {
+			if(arrPointerObject.getType() != DataType.NULL && arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			}
 			
-			DataObject oldData = arrPtr == null?arrPointerObject:interpreter.data.get(SCOPE_ID).var.get(arrPtr);
-			if((oldData != null && (oldData.isFinalData() || oldData.isLangVar())) || (arrPtr != null && arrPtr.startsWith("&LANG_")))
+			if(arrPointerObject.getType() == DataType.ARRAY && (arrPointerObject.isFinalData() || arrPointerObject.isLangVar()))
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
 			DataObject[] arr = new DataObject[arrTmp.length];
 			for(int i = 0;i < arr.length;i++)
 				arr[i] = new DataObject(arrTmp[i]);
 			
-			if(arrPointerObject.getType() == DataType.NULL && arrPointerObject.getVariableName() == null) {
+			if(arrPointerObject.getType() == DataType.NULL && arrPointerObject.getVariableName() == null)
 				return new DataObject().setArray(arr);
-			}else if(oldData != null) {
-				oldData.setArray(arr);
-				return oldData;
-			}else {
-				arrPointerObject = new DataObject().setArray(arr).setVariableName(arrPtr);
-				interpreter.data.get(SCOPE_ID).var.put(arrPtr, arrPointerObject);
-				return arrPointerObject;
-			}
+			
+			arrPointerObject.setArray(arr);
+			return arrPointerObject;
 		});
 	}
 	private void addPredefinedConversionFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
