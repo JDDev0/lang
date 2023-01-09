@@ -4585,12 +4585,14 @@ final class LangPredefinedFunctions {
 			DataObject[] arr = new DataObject[length];
 			for(int i = 0;i < arr.length;i++)
 				arr[i] = new DataObject(); //Null data object
-			if(oldData != null)
+			if(oldData != null) {
 				oldData.setArray(arr);
-			else if(arrPointerObject == null)
+			}else if(arrPointerObject == null) {
 				return new DataObject().setArray(arr);
-			else
+			}else {
+				interpreter.setErrnoErrorObject(InterpretingError.DEPRECATED_FUNC_CALL, "Implicit variable creation is deprecated and will be removed in v1.2.0.", SCOPE_ID);
 				interpreter.data.get(SCOPE_ID).var.put(arrPtr, new DataObject().setArray(arr).setVariableName(arrPtr));
+			}
 			
 			return null;
 		});
