@@ -5477,6 +5477,45 @@ final class LangPredefinedFunctions {
 			}).collect(Collectors.toList());
 			return new DataObject().setList(new LinkedList<>(elements));
 		});
+		funcs.put("listZip", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
+			int len = -1;
+			List<Iterator<DataObject>> listIters = new LinkedList<>();
+			for(int i = 0;i < combinedArgumentList.size();i++) {
+				DataObject arg = combinedArgumentList.get(i);
+				if(arg.getType() != DataType.LIST)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.LIST), SCOPE_ID);
+				
+				listIters.add(arg.getList().iterator());
+				
+				int lenTest = arg.getList().size();
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (i + 1) + "] must be " + len, SCOPE_ID);
+			}
+			
+			LinkedList<DataObject> zippedList = new LinkedList<>();
+			for(int i = 0;i < len;i++) {
+				DataObject[] arr = new DataObject[combinedArgumentList.size()];
+				for(int j = 0;j < arr.length;j++) {
+					Iterator<DataObject> iter = listIters.get(j);
+					if(!iter.hasNext())
+						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (j + 1) + "] must be " + len, SCOPE_ID);
+					
+					arr[j] = iter.next();
+				}
+				
+				zippedList.add(new DataObject().setArray(arr));
+			}
+			
+			return new DataObject().setList(zippedList);
+		});
 		funcs.put("listAdd", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
