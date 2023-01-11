@@ -709,10 +709,14 @@ public final class LangInterpreter {
 						flag = true;
 						
 						if(var != null) {
-							if(var.isFinalData() || var.isLangVar())
+							if(var.isFinalData() || var.isLangVar()) {
 								setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.repeat current iteration value can not be set", SCOPE_ID);
-							else
-								var.setInt(i);
+							}else {
+								if(var.getTypeConstraint().isTypeAllowed(DataType.INT))
+									var.setInt(i);
+								else
+									setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat current iteration value can not be set", SCOPE_ID);
+							}
 						}
 						
 						interpretAST(node.getLoopBody(), SCOPE_ID);
