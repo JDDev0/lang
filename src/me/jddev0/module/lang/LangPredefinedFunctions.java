@@ -4749,8 +4749,14 @@ final class LangPredefinedFunctions {
 				if(combinedArgumentList.get(i).getType() != DataType.VAR_POINTER)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.VAR_POINTER), SCOPE_ID);
 			
-			for(int i = 0;i < combinedArgumentList.size();i++)
-				combinedArgumentList.get(i).getVarPointer().getVar().setData(arr[i]);
+			for(int i = 0;i < combinedArgumentList.size();i++) {
+				DataObject dereferencedPointer = combinedArgumentList.get(i).getVarPointer().getVar();
+				if(!dereferencedPointer.getTypeConstraint().isTypeAllowed(arr[i].getType()))
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The dereferenced pointer (arguments [" + (i + 1) + "]) does not allow the type " +
+					arr[i].getType(), SCOPE_ID);
+				
+				dereferencedPointer.setData(arr[i]);
+			}
 			
 			return null;
 		});
