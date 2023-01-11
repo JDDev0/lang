@@ -4752,7 +4752,7 @@ final class LangPredefinedFunctions {
 			for(int i = 0;i < combinedArgumentList.size();i++) {
 				DataObject dereferencedPointer = combinedArgumentList.get(i).getVarPointer().getVar();
 				if(!dereferencedPointer.getTypeConstraint().isTypeAllowed(arr[i].getType()))
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The dereferenced pointer (arguments [" + (i + 1) + "]) does not allow the type " +
+					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "The dereferenced pointer (arguments [" + (i + 1) + "]) does not allow the type " +
 					arr[i].getType(), SCOPE_ID);
 				
 				dereferencedPointer.setData(arr[i]);
