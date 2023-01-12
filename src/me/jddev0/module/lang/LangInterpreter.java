@@ -709,14 +709,12 @@ public final class LangInterpreter {
 						flag = true;
 						
 						if(var != null) {
-							if(var.isFinalData() || var.isLangVar()) {
+							if(var.isFinalData() || var.isLangVar())
 								setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.repeat current iteration value can not be set", SCOPE_ID);
-							}else {
-								if(var.getTypeConstraint().isTypeAllowed(DataType.INT))
-									var.setInt(i);
-								else
-									setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat current iteration value can not be set", SCOPE_ID);
-							}
+							else if(var.getTypeConstraint().isTypeAllowed(DataType.INT))
+								var.setInt(i);
+							else
+								setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.repeat current iteration value can not be set", SCOPE_ID);
 						}
 						
 						interpretAST(node.getLoopBody(), SCOPE_ID);
@@ -749,8 +747,10 @@ public final class LangInterpreter {
 							if(var != null) {
 								if(var.isFinalData() || var.isLangVar())
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
-								else
+								else if(var.getTypeConstraint().isTypeAllowed(arr[i].getType()))
 									var.setData(arr[i]);
+								else
+									setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach current element value can not be set", SCOPE_ID);
 							}
 							
 							interpretAST(node.getLoopBody(), SCOPE_ID);
