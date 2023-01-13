@@ -6090,6 +6090,30 @@ final class LangPredefinedFunctions {
 			}).collect(Collectors.toList());
 			return new DataObject().setList(new LinkedList<>(elements));
 		});
+		funcs.put("listFilteredCount", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = combinedArgumentList.get(1);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			List<DataObject> list = listObject.getList();
+			int count = (int)list.stream().filter(dataObject -> {
+				List<DataObject> args = new ArrayList<>();
+				args.add(dataObject);
+				
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID).getBoolean();
+			}).count();
+			return new DataObject().setInt(count);
+		});
 		funcs.put("listMap", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
