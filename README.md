@@ -2,7 +2,11 @@
 
 This project makes simple translation files Turing complete
 
-### "TermIO-Control" window commands
+## Combinator functions
+
+One of the main feature of this programming language is the combinator function system. You can use more than 100 predefined combinator functions. Combinator functions can be created by partially calling and combining combinator functions
+
+## "TermIO-Control" window commands
 
 **Execution of lang file**: Type "executeLang -*Path to .lang file*" in the white text input in the "TermIO-Control" window<br>
 **LangShell** (REPL): Type "startShell" in the white text input in the "TermIO-Control" window<br>
@@ -11,14 +15,14 @@ This project makes simple translation files Turing complete
 **Print AST tree**: Type "printAST -*Path to .lang file*" for parsing a Lang file and printing the parsed AST tree<br>
 **4K-Support**: Type "toggle4k" for a larger font in the "TermIO-Control" window and the "LangShell" window<br>
 
-#### "TermIO-Control" window commands from terminal/console
+### "TermIO-Control" window commands from terminal/console
 
 You can also run "java -jar Lang.jar -**command** **args**" in a terminal or console.<br>
 If "-e CODE" is used in Linux single quotes should be used for the CODE argument to prevent the shell from parsing $-shell variables and to enable multiline code execution (e.g. "java -jar Lang.jar -e '$a = test<br>
 func.println($a)')<br>
 You can use the "-nolog" argument to disable log file logging<br>
 
-### Breaking changes
+## Breaking changes
 
 - **v1.0.0**:
   - Array variable names starting with "&LANG_" are no longer allowed
