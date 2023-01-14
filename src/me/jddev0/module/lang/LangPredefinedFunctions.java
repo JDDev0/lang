@@ -4419,6 +4419,27 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
+		funcs.put("combXC", combinatorFunctionExternalFunctionObjectHelper(5, new int[] {0, 1}, (Combinator5ArgFunction)(a, b, c, d, e, SCOPE_ID) -> {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			FunctionPointerObject bFunc = b.getFunctionPointer();
+			
+			List<DataObject> argsA = new LinkedList<>();
+			List<DataObject> argsB1 = new LinkedList<>();
+			argsB1.add(c);
+			argsB1.add(e);
+			argsB1 = LangUtils.separateArgumentsWithArgumentSeparators(argsB1);
+			DataObject retB1 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB1, SCOPE_ID);
+			argsA.add(retB1 == null?new DataObject().setVoid():retB1);
+			List<DataObject> argsB2 = new LinkedList<>();
+			argsB2.add(d);
+			argsB2.add(e);
+			argsB2 = LangUtils.separateArgumentsWithArgumentSeparators(argsB2);
+			DataObject retB2 = interpreter.callFunctionPointer(bFunc, b.getVariableName(), argsB2, SCOPE_ID);
+			argsA.add(retB2 == null?new DataObject().setVoid():retB2);
+			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+		}));
 		funcs.put("combY", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(f, SCOPE_ID) -> {
 			FunctionPointerObject fFunc = f.getFunctionPointer();
 			
