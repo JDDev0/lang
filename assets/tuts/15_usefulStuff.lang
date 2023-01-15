@@ -372,6 +372,7 @@ func.println()
 # Y combinator function without "func.combY()"
 {
 	fp.combY = (fp.f) -> {
+		# fp.f must be provided by the function with a partially called combinator function, because fp.f will not be available in the callee scope
 		fp.func = (fp.f, fp.x) -> {
 			fp.callFunc = (fp.f, fp.x, &args...) -> return fp.f(fp.x(fp.x))(&args...)
 			
