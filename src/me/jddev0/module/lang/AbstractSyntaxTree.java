@@ -1229,7 +1229,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
-			builder.append("LoopStatementPartRepeatNode: varPointer: {\n");
+			builder.append("LoopStatementPartForEachNode: varPointer: {\n");
 			String[] tokens = varPointerNode.toString().split("\\n");
 			for(String token:tokens) {
 				builder.append("\t");
