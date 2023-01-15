@@ -143,7 +143,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	//Is only super class for other nodes
-	public static class ChildlessNode implements Node {
+	public static abstract class ChildlessNode implements Node {
 		private final List<Node> nodes;
 		
 		public ChildlessNode() {
@@ -709,7 +709,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	//Is only super class for other nodes
-	public static class IfStatementPartNode extends ChildlessNode {
+	public static abstract class IfStatementPartNode extends ChildlessNode {
 		private final AbstractSyntaxTree ifBody;
 		
 		public IfStatementPartNode(AbstractSyntaxTree ifBody) {
@@ -916,7 +916,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	//Is only super class for other nodes
-	public static class LoopStatementPartNode extends ChildlessNode {
+	public static abstract class LoopStatementPartNode extends ChildlessNode {
 		private final AbstractSyntaxTree loopBody;
 		
 		public LoopStatementPartNode(AbstractSyntaxTree loopBody) {
@@ -1447,7 +1447,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	//Is only super class for other nodes
-	public static class TryStatementPartNode extends ChildlessNode {
+	public static abstract class TryStatementPartNode extends ChildlessNode {
 		private final AbstractSyntaxTree tryBody;
 		
 		public TryStatementPartNode(AbstractSyntaxTree tryBody) {
@@ -2245,7 +2245,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	}
 	
 	//Is only super class for other nodes
-	public static class ValueNode extends ChildlessNode {
+	public static abstract class ValueNode extends ChildlessNode {
 		@Override
 		public NodeType getNodeType() {
 			return NodeType.GENERAL;
