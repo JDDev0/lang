@@ -1,7 +1,7 @@
 lang.name = Combinator functions
 lang.version = v1.0.0
 
-# Finite argument functions
+# Finite argument combinator functions
 # A0: func.combA0(a)
 # A : func.combA(a, b)
 # A2: func.combA2(a, b, c)
@@ -109,14 +109,14 @@ lang.version = v1.0.0
 # XB: func.combXB(a, b, c, d)
 # XC: func.combXC(a, b, c, d, e)
 
-# Array argument functions
+# Array argument combinator functions
 # AV: func.combAV(a, args)
 # BV: func.combBV(a, b, args)
 # PV: func.combPV(a, b, args)
 # QV: func.combQV(a, args)
 # TV: func.combTV(args, z)
 
-# Infinite argument functions
+# Infinite argument combinator functions
 # AN: func.combAN(a, ...)
 # AZ: func.combAZ(a, ...)
 # BN: func.combBN(a, b, ...)
