@@ -4477,6 +4477,126 @@ final class LangPredefinedFunctions {
 		}));
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("argCnt0", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
+		funcs.put("argCnt1", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
+		funcs.put("argCnt2", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
+		funcs.put("argCnt3", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
+		funcs.put("argCnt4", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
+		funcs.put("argCnt5", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject funcPointerObject = combinedArgumentList.get(0);
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
+				DataObject innerError;
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, SCOPE_ID)) != null)
+					return innerError;
+				
+				List<DataObject> args = new ArrayList<>();
+				args.addAll(combinedInnerArgumentList);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+			}));
+		});
 		funcs.put("copyAfterFP", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
