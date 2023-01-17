@@ -5697,7 +5697,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			listObject.getList().add(new DataObject(valueObject));
 			return null;
@@ -5713,7 +5713,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(2);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
@@ -5742,7 +5742,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			if(list.size() == 0)
@@ -5760,7 +5760,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			list.addFirst(valueObject);
@@ -5775,7 +5775,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			if(list.size() == 0)
@@ -5792,7 +5792,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			if(list.size() == 0)
@@ -5810,7 +5810,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			list.addLast(valueObject);
@@ -5825,7 +5825,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> list = listObject.getList();
 			if(list.size() == 0)
@@ -5843,7 +5843,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++) {
@@ -5867,7 +5867,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++) {
@@ -5891,7 +5891,7 @@ final class LangPredefinedFunctions {
 			DataObject indexObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
@@ -5919,7 +5919,7 @@ final class LangPredefinedFunctions {
 			DataObject indexObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
@@ -5946,7 +5946,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			return new DataObject(listObject.getList().stream().map(DataObject::getText).collect(Collectors.joining(", ")));
 		});
@@ -5960,7 +5960,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++)
@@ -5979,7 +5979,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(2);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			Number startIndexNumber = startIndexObject.toNumber();
 			if(startIndexNumber == null)
@@ -6011,7 +6011,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(2);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			Number endIndexNumber = endIndexObject.toNumber();
 			if(endIndexNumber == null)
@@ -6042,7 +6042,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			long count = list.stream().filter(ele -> ele.isStrictEquals(elementObject)).count();
@@ -6058,7 +6058,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++)
@@ -6077,7 +6077,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = list.size() - 1;i >= 0;i--)
@@ -6096,7 +6096,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			long count = list.stream().filter(ele -> ele.isEquals(elementObject)).count();
@@ -6112,7 +6112,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = list.size() - 1;i >= 0;i--)
@@ -6131,7 +6131,7 @@ final class LangPredefinedFunctions {
 			DataObject elementObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = list.size() - 1;i >= 0;i--)
@@ -6149,7 +6149,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			return new DataObject().setInt(listObject.getList().size());
 		});
@@ -6162,7 +6162,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> distinctValues = new LinkedList<>();
 			for(DataObject ele:listObject.getList()) {
@@ -6189,7 +6189,7 @@ final class LangPredefinedFunctions {
 			DataObject listObject = combinedArgumentList.get(0);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			LinkedList<DataObject> distinctValues = new LinkedList<>();
 			for(DataObject ele:listObject.getList()) {
@@ -6217,7 +6217,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
@@ -6241,7 +6241,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
@@ -6265,7 +6265,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6289,7 +6289,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6315,7 +6315,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6347,7 +6347,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6371,7 +6371,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6397,7 +6397,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6419,7 +6419,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
@@ -6441,7 +6441,7 @@ final class LangPredefinedFunctions {
 			DataObject funcPointerObject = combinedArgumentList.get(1);
 			
 			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
 			
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
