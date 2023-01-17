@@ -819,19 +819,36 @@ public class LangShellWindow extends JDialog {
 				}).map(Entry<String, LangPredefinedFunctionObject>::getKey).filter(functionName ->
 				functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
 				sorted().collect(Collectors.toList());
+				
+				if(autoCompletes.contains("setAutoPrintMode")) {
+					autoCompletes = new LinkedList<>(autoCompletes);
+					
+					int index = autoCompletes.indexOf("setAutoPrintMode");
+					
+					//Replace original
+					autoCompletes.set(index, "setAutoPrintMode(NONE)");
+					
+					//Add other modes
+					autoCompletes.add(index + 1, "setAutoPrintMode(AUTO)");
+					autoCompletes.add(index + 2, "setAutoPrintMode(DEBUG)");
+				}
+				
 				if(autoCompletes.isEmpty())
 					return;
 				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
 				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size()) {
 					autoCompleteText = "";
 				}else {
-					autoCompleteText = autoCompletes.get(autoCompletePos).substring(functionNameStart.length());
+					String autoComplete = autoCompletes.get(autoCompletePos);
+					autoCompleteText = autoComplete.substring(functionNameStart.length());
 					
-					//Mark deprecated function
-					if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
-						col = Color.RED.darker().darker();
-					
-					autoCompleteText += "(";
+					if(!autoComplete.startsWith("setAutoPrintMode")) {
+						//Mark deprecated function
+						if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
+							col = Color.RED.darker().darker();
+						
+						autoCompleteText += "(";
+					}
 				}
 			}else if(lastToken.matches("con\\..*")) {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
