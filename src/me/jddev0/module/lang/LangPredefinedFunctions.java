@@ -5138,6 +5138,41 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setArray(distinctValues.toArray(new DataObject[0]));
 		});
+		funcs.put("arraySorted", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = combinedArgumentList.get(1);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			
+			List<DataObject> elements = Arrays.stream(arr).sorted((a, b) -> {
+				List<DataObject> args = new ArrayList<>();
+				args.add(a);
+				args.add(b);
+				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
+				
+				DataObject retObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID);
+				Number retNumber = retObject.toNumber();
+				if(retNumber == null) {
+					interpreter.setErrno(InterpretingError.NO_NUM, SCOPE_ID);
+					
+					return 0;
+				}
+				
+				return retNumber.intValue();
+			}).collect(Collectors.toList());
+			return new DataObject().setList(new LinkedList<>(elements));
+		});
 		funcs.put("arrayFiltered", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
