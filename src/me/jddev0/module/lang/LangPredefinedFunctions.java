@@ -5303,6 +5303,39 @@ final class LangPredefinedFunctions {
 			
 			return currentValueObject;
 		});
+		funcs.put("arrayReduce", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
+			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			for(DataObject ele:arr) {
+				if(currentValueObject == null) { //Set first element as currentValue if non was provided
+					currentValueObject = ele;
+					
+					continue;
+				}
+				
+				List<DataObject> argumentListFuncCall = new ArrayList<>();
+				argumentListFuncCall.add(currentValueObject);
+				argumentListFuncCall.add(ele);
+				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
+				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+			}
+			
+			return currentValueObject;
+		});
 		funcs.put("arrayForEach", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
