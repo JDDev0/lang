@@ -108,6 +108,7 @@ lang.version = v1.0.0
 # XA: func.combXA(a, b, c, d)
 # XB: func.combXB(a, b, c, d)
 # XC: func.combXC(a, b, c, d, e)
+# XD: func.combXD(a, b, c, d, e)
 
 # Array argument combinator functions
 # AV: func.combAV(a, args)
@@ -277,6 +278,7 @@ lang.version = v1.0.0
 # XA   | 4     | a, b, c, d    | a b         | a(b(c, d, c), b(d, c, d))      | -
 # XB   | 4     | a, b, c, d    | a b         | a(b(d, c, d), b(c, d, c))      | -
 # XC   | 5     | a, b, c, d, e | a b         | a(b(c, e), b(d, e))            | -
+# XD   | 5     | a, b, c, d, e | a b         | a(b(e, c), b(e, d))            | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # Y    | 1     | f             |           f | (x -> f(x(x)))(x -> f(x(x)))   | -
 
