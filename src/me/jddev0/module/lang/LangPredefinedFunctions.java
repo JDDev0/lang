@@ -1991,7 +1991,7 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			DataObject collectionObject = combinedArgumentList.get(1);
 			if(collectionObject.getType() != DataType.ARRAY && collectionObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.ARRAY + " or " + DataType.LIST), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.ARRAY + " or " + DataType.LIST), SCOPE_ID);
 			
 			String text = textObject.getText();
 			Stream<DataObject> dataObjectStream = collectionObject.getType() == DataType.ARRAY?Arrays.stream(collectionObject.getArray()):collectionObject.getList().stream();
