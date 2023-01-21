@@ -604,7 +604,7 @@ func.println(Example  Y-2: Fibonacci function)
 func.println(--------------------------------)
 fp.fib = (fp.func) -> {
 	fp.retFunc = (fp.func, $x) -> {
-		return parser.op($x < 2?1:fp.func(parser.op($x - 2)) + fp.func(parser.op($x - 1)))
+		return parser.op($x < 2?$x:fp.func(parser.op($x - 2)) + fp.func(parser.op($x - 1)))
 	}
 	
 	return func.combAN(fp.retFunc, fp.func)
