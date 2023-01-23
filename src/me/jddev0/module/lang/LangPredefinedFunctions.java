@@ -4790,6 +4790,40 @@ final class LangPredefinedFunctions {
 			}).collect(Collectors.toList());
 			return new DataObject().setArray(elements.toArray(new DataObject[0]));
 		});
+		funcs.put("arrayZip", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
+			int len = -1;
+			List<DataObject[]> arrays = new LinkedList<>();
+			for(int i = 0;i < combinedArgumentList.size();i++) {
+				DataObject arg = combinedArgumentList.get(i);
+				if(arg.getType() != DataType.ARRAY)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.ARRAY), SCOPE_ID);
+				
+				arrays.add(arg.getArray());
+				
+				int lenTest = arg.getArray().length;
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (i + 1) + "] must be " + len, SCOPE_ID);
+			}
+			
+			DataObject[] zippedArray = new DataObject[len];
+			for(int i = 0;i < len;i++) {
+				DataObject[] arr = new DataObject[combinedArgumentList.size()];
+				for(int j = 0;j < arr.length;j++)
+					arr[j] = arrays.get(j)[i];
+				
+				zippedArray[i] = new DataObject().setArray(arr);
+			}
+			
+			return new DataObject().setArray(zippedArray);
+		});
 		funcs.put("arraySet", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
