@@ -1687,6 +1687,7 @@ final class LangPredefinedFunctions {
 		funcs.put("strlen", (argumentList, SCOPE_ID) -> new DataObject().setInt(getArgumentListAsString(argumentList, true).length()));
 		funcs.put("isEmpty", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(getArgumentListAsString(argumentList, true).isEmpty()));
 		funcs.put("isNotEmpty", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(!getArgumentListAsString(argumentList, true).isEmpty()));
+		funcs.put("isBlank", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(getArgumentListAsString(argumentList, true).trim().isEmpty()));
 		funcs.put("toUpper", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toUpperCase()));
 		funcs.put("toLower", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
 		funcs.put("trim", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).trim()));
