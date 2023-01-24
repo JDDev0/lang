@@ -5395,6 +5395,72 @@ final class LangPredefinedFunctions {
 			
 			return currentValueObject;
 		});
+		funcs.put("arrayReduceColumn", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject currentValueStartObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
+			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
+			
+			DataObject[] arrayOfArrays = arrPointerObject.getArray();
+			
+			int len = -1;
+			List<DataObject[]> arrays = new LinkedList<>();
+			for(int i = 0;i < arrayOfArrays.length;i++) {
+				DataObject arg = arrayOfArrays[i];
+				if(arg.getType() != DataType.ARRAY)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", DataType.ARRAY), SCOPE_ID);
+				
+				arrays.add(arg.getArray());
+				
+				int lenTest = arg.getArray().length;
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of the element [" + i + "] of array must be " + len, SCOPE_ID);
+			}
+			
+			if(arrays.size() == 0)
+				return new DataObject().setArray(new DataObject[0]);
+			
+			DataObject[] reducedArrays = new DataObject[len];
+			for(int i = 0;i < len;i++) {
+				DataObject currentValueObject = currentValueStartObject == null?null:new DataObject(currentValueStartObject);
+				
+				for(DataObject[] arr:arrays) {
+					DataObject ele = arr[i];
+					
+					if(currentValueObject == null) { //Set first element as currentValue if non was provided
+						currentValueObject = ele;
+						
+						continue;
+					}
+					
+					List<DataObject> argumentListFuncCall = new ArrayList<>();
+					argumentListFuncCall.add(currentValueObject);
+					argumentListFuncCall.add(ele);
+					argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
+					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+				}
+				
+				reducedArrays[i] = currentValueObject == null?new DataObject().setVoid():currentValueObject;
+			}
+			
+			return new DataObject().setArray(reducedArrays);
+		});
 		funcs.put("arrayForEach", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
