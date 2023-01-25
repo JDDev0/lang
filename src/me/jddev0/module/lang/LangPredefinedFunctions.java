@@ -6564,6 +6564,72 @@ final class LangPredefinedFunctions {
 			
 			return currentValueObject;
 		});
+		funcs.put("listReduceColumn", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject listObject = combinedArgumentList.get(0);
+			DataObject currentValueStartObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
+			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
+			
+			if(listObject.getType() != DataType.LIST)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
+			
+			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
+			
+			LinkedList<DataObject> listOfLists = listObject.getList();
+			
+			int len = -1;
+			List<LinkedList<DataObject>> lists = new LinkedList<>();
+			for(int i = 0;i < listOfLists.size();i++) {
+				DataObject arg = listOfLists.get(i);
+				if(arg.getType() != DataType.LIST)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", DataType.LIST), SCOPE_ID);
+				
+				lists.add(arg.getList());
+				
+				int lenTest = arg.getList().size();
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of the element [" + i + "] of list must be " + len, SCOPE_ID);
+			}
+			
+			if(lists.size() == 0)
+				return new DataObject().setList(new LinkedList<>());
+			
+			LinkedList<DataObject> reduceedLists = new LinkedList<>();
+			for(int i = 0;i < len;i++) {
+				DataObject currentValueObject = currentValueStartObject == null?null:new DataObject(currentValueStartObject);
+				
+				for(LinkedList<DataObject> list:lists) {
+					DataObject ele = list.get(i);
+					
+					if(currentValueObject == null) { //Set first element as currentValue if non was provided
+						currentValueObject = ele;
+						
+						continue;
+					}
+					
+					List<DataObject> argumentListFuncCall = new ArrayList<>();
+					argumentListFuncCall.add(currentValueObject);
+					argumentListFuncCall.add(ele);
+					argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
+					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+				}
+				
+				reduceedLists.add(currentValueObject == null?new DataObject().setVoid():currentValueObject);
+			}
+			
+			return new DataObject().setList(reduceedLists);
+		});
 		funcs.put("listForEach", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
