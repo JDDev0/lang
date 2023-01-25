@@ -68,7 +68,7 @@ public abstract class LangNativeModule {
 		});
 	}
 	
-	protected final void exportVariable(String variableName, DataObject value) {
+	protected final void exportNormalVariable(String variableName, DataObject value) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
@@ -89,7 +89,7 @@ public abstract class LangNativeModule {
 		module.getExportedVariables().add(variableName);
 	}
 	
-	protected final void exportArrayVariable(String variableName, DataObject value) {
+	protected final void exportCollectionVariable(String variableName, DataObject value) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
