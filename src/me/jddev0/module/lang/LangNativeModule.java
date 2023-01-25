@@ -68,6 +68,66 @@ public abstract class LangNativeModule {
 		});
 	}
 	
+	protected final void exportVariable(String variableName, DataObject value) {
+		if(!module.isLoad())
+			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
+		
+		for(int i = 0;i < variableName.length();i++) {
+			char c = variableName.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				continue;
+			
+			throw new RuntimeException("The variable name may only contain alphanumeric characters and underscores (_)");
+		}
+		
+		if(variableName.startsWith("LANG"))
+			throw new RuntimeException("The variable name may not start with LANG");
+		
+		variableName = "$" + variableName;
+		value = new DataObject(value).setVariableName(variableName);
+		
+		module.getExportedVariables().add(variableName);
+	}
+	
+	protected final void exportArrayVariable(String variableName, DataObject value) {
+		if(!module.isLoad())
+			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
+		
+		for(int i = 0;i < variableName.length();i++) {
+			char c = variableName.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				continue;
+			
+			throw new RuntimeException("The variable name may only contain alphanumeric characters and underscores (_)");
+		}
+		
+		if(variableName.startsWith("LANG"))
+			throw new RuntimeException("The variable name may not start with LANG");
+		
+		variableName = "&" + variableName;
+		value = new DataObject(value).setVariableName(variableName);
+		
+		module.getExportedVariables().add(variableName);
+	}
+	
+	protected final void exportFunctionPointerVariable(String variableName, DataObject value) {
+		if(!module.isLoad())
+			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
+		
+		for(int i = 0;i < variableName.length();i++) {
+			char c = variableName.charAt(i);
+			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+				continue;
+			
+			throw new RuntimeException("The variable name may only contain alphanumeric characters and underscores (_)");
+		}
+		
+		variableName = "fp." + variableName;
+		value = new DataObject(value).setVariableName(variableName);
+		
+		module.getExportedVariables().add(variableName);
+	}
+	
 	/**
 	 * Will be called if the module is loaded
 	 * 
