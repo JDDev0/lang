@@ -29,7 +29,7 @@ public abstract class LangNativeModule {
 			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
 				continue;
 			
-			throw new RuntimeException("The function name may only contain alphanumeric characters and underscore (_)");
+			throw new RuntimeException("The function name may only contain alphanumeric characters and underscores (_)");
 		}
 		
 		module.getExportedFunctions().add(functionName);
@@ -49,7 +49,7 @@ public abstract class LangNativeModule {
 			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
 				continue;
 			
-			throw new RuntimeException("The function name may only contain alphanumeric characters and underscore (_)");
+			throw new RuntimeException("The function name may only contain alphanumeric characters and underscores (_)");
 		}
 		
 		module.getExportedFunctions().add(functionName);

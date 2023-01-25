@@ -44,6 +44,12 @@ public final class LangModuleConfiguration {
 		String name = data.get("name");
 		if(name == null)
 			throw new InvalidModuleConfigurationException("Mandatory configuration of \"name\" is missing");
+		for(int i = 0; i < name.length(); ++i) {
+			char c = name.charAt(i);
+			if((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && c != '_') {
+				throw new InvalidModuleConfigurationException("The module name may only contain alphanumeric characters and underscores (_)");
+			}
+		}
 		
 		String supportedImplementationsString = data.get("supportedImplementations");
 		String[] supportedImplementations = null;
