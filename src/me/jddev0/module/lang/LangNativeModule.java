@@ -86,7 +86,7 @@ public abstract class LangNativeModule {
 		variableName = "$" + variableName;
 		value = new DataObject(value).setVariableName(variableName);
 		
-		module.getExportedVariables().add(variableName);
+		module.getExportedVariables().put(variableName, value);
 	}
 	
 	protected final void exportCollectionVariable(String variableName, DataObject value) {
@@ -107,7 +107,7 @@ public abstract class LangNativeModule {
 		variableName = "&" + variableName;
 		value = new DataObject(value).setVariableName(variableName);
 		
-		module.getExportedVariables().add(variableName);
+		module.getExportedVariables().put(variableName, value);
 	}
 	
 	protected final void exportFunctionPointerVariable(String variableName, DataObject value) {
@@ -125,7 +125,7 @@ public abstract class LangNativeModule {
 		variableName = "fp." + variableName;
 		value = new DataObject(value).setVariableName(variableName);
 		
-		module.getExportedVariables().add(variableName);
+		module.getExportedVariables().put(variableName, value);
 	}
 	
 	/**
