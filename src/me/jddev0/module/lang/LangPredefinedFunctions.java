@@ -7658,13 +7658,17 @@ final class LangPredefinedFunctions {
 				if(combinedArgumentList.size() < 1)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
 				
-				DataObject moduleFileObject = combinedArgumentList.remove(0);
-				String moduleFile = moduleFileObject.getText();
+				DataObject moduleNameObject = combinedArgumentList.remove(0);
+				String moduleName = moduleNameObject.getText();
+				for(int i = 0;i < moduleName.length();i++) {
+					char c = moduleName.charAt(i);
+					if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+						continue;
+					
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+				}
 				
-				if(!moduleFile.endsWith(".lm"))
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, "Modules must have a file extension of\".lm\"", SCOPE_ID);
-				
-				return interpreter.moduleManager.unload(moduleFile, argumentList, SCOPE_ID);
+				return interpreter.moduleManager.unload(moduleName, argumentList, SCOPE_ID);
 			}
 			
 			@Override

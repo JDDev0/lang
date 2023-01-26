@@ -81,8 +81,8 @@ final class LangModuleManager {
 		return loadUnload(true, moduleFile, args, CALLER_SCOPE_ID);
 	}
 	
-	public DataObject unload(String moduleFile, List<DataObject> args, final int CALLER_SCOPE_ID) {
-		return loadUnload(false, moduleFile, args, CALLER_SCOPE_ID);
+	public DataObject unload(String moduleName, List<DataObject> args, final int CALLER_SCOPE_ID) {
+		return loadUnload(false, moduleName, args, CALLER_SCOPE_ID);
 	}
 	
 	DataObject loadNative(String entryPoint, LangModule module, List<DataObject> args, final int SCOPE_ID) {
@@ -93,26 +93,39 @@ final class LangModuleManager {
 		return loadUnloadNative(false, false, entryPoint, module, args, SCOPE_ID);
 	}
 	
-	private DataObject loadUnload(boolean load, String moduleFile, List<DataObject> args, final int CALLER_SCOPE_ID) {
-		Map<String, ZipEntry> zipEntries = new HashMap<>();
-		Map<String, byte[]> zipData = new HashMap<>();
-		LangModuleConfiguration[] lmcArray = new LangModuleConfiguration[1];
+	private DataObject loadUnload(boolean load, String moduleFileOrName, List<DataObject> args, final int CALLER_SCOPE_ID) {
+		Map<String, ZipEntry> zipEntries;
+		Map<String, byte[]> zipData;
 		
-		DataObject errorObject = readModuleData(moduleFile, zipEntries, zipData, lmcArray, CALLER_SCOPE_ID);
-		if(errorObject != null)
-			return errorObject;
-		
-		LangModuleConfiguration lmc = lmcArray[0];
-		
-		LangModule module = new LangModule(moduleFile, load, zipEntries, zipData, lmc);
-		LangModule unloadedModule = null;
+		LangModule module;
+		LangModuleConfiguration lmc;
+		if(load) {
+			LangModuleConfiguration[] lmcArray = new LangModuleConfiguration[1];
+			zipEntries = new HashMap<>();
+			zipData = new HashMap<>();
+			
+			DataObject errorObject = readModuleData(moduleFileOrName, zipEntries, zipData, lmcArray, CALLER_SCOPE_ID);
+			if(errorObject != null)
+				return errorObject;
+			
+			lmc = lmcArray[0];
+			module = new LangModule(moduleFileOrName, load, zipEntries, zipData, lmc);
+		}else {
+			if(interpreter.modules.get(moduleFileOrName) == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + moduleFileOrName + "\" was not loaded", CALLER_SCOPE_ID);
+			
+			module = interpreter.modules.remove(moduleFileOrName);
+			zipEntries = module.getZipEntries();
+			zipData = module.getZipData();
+			lmc = module.getLangModuleConfiguration();
+		}
 		
 		String loadUnloadStr = load?"load":"unload";
 		
 		final int SCOPE_ID = CALLER_SCOPE_ID + 1;
 		try {
 			//Update call stack (Path inside module archive)
-			interpreter.pushStackElement(new StackElement("<module:" + moduleFile  + "[" + lmc.getName() + "]>", "<entryPoint>", null, module));
+			interpreter.pushStackElement(new StackElement("<module:" + module.getFile()  + "[" + lmc.getName() + "]>", "<entryPoint>", null, module));
 			
 			String[] langArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(args).stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
 			
@@ -124,11 +137,6 @@ final class LangModuleManager {
 					return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was already loaded", SCOPE_ID);
 				
 				interpreter.modules.put(lmc.getName(), module);
-			}else {
-				if(interpreter.modules.get(lmc.getName()) == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was not loaded", SCOPE_ID);
-				
-				unloadedModule = interpreter.modules.remove(lmc.getName());
 			}
 			
 			LangModuleConfiguration.ModuleType moduleType = lmc.getModuleType();
@@ -196,9 +204,9 @@ final class LangModuleManager {
 			//Remove data map
 			interpreter.data.remove(SCOPE_ID);
 			
-			if(!load && unloadedModule != null) {
+			if(!load && module != null) {
 				//Remove exported functions and variables
-				unloadedModule.getExportedFunctions().forEach(interpreter.funcs::remove);
+				module.getExportedFunctions().forEach(interpreter.funcs::remove);
 			}
 		}
 	}
