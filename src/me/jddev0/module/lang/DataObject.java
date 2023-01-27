@@ -1856,7 +1856,7 @@ public class DataObject {
 	
 	public static class DataTypeConstraintException extends RuntimeException {
 		private static final long serialVersionUID = 7335599147999542200L;
-
+		
 		public DataTypeConstraintException(String msg) {
 			super(msg);
 		}
