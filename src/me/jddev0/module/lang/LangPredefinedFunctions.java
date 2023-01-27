@@ -6776,6 +6776,14 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("getLoadedModules", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
+			
+			return new DataObject().setArray(interpreter.modules.keySet().stream().map(DataObject::new).toArray(DataObject[]::new));
+		});
 		funcs.put("getModuleVariable", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
