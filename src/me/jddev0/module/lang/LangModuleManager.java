@@ -110,6 +110,11 @@ final class LangModuleManager {
 			
 			lmc = lmcArray[0];
 			module = new LangModule(moduleFileOrName, load, zipEntries, zipData, lmc);
+			
+			if(interpreter.modules.get(lmc.getName()) != null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was already loaded", CALLER_SCOPE_ID);
+			
+			interpreter.modules.put(lmc.getName(), module);
 		}else {
 			if(interpreter.modules.get(moduleFileOrName) == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + moduleFileOrName + "\" was not loaded", CALLER_SCOPE_ID);
@@ -131,13 +136,6 @@ final class LangModuleManager {
 			
 			//Create an empty data map
 			interpreter.createDataMap(SCOPE_ID, langArgs);
-			
-			if(load) {
-				if(interpreter.modules.get(lmc.getName()) != null)
-					return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was already loaded", SCOPE_ID);
-				
-				interpreter.modules.put(lmc.getName(), module);
-			}
 			
 			LangModuleConfiguration.ModuleType moduleType = lmc.getModuleType();
 			if(moduleType == ModuleType.LANG) {
