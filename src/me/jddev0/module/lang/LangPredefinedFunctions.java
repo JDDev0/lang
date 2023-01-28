@@ -6979,7 +6979,8 @@ final class LangPredefinedFunctions {
 			if(variableName.startsWith("LANG"))
 				throw new RuntimeException("The variable name may not start with LANG");
 			
-			module.getExportedVariables().put("$" + variableName, variableObject.setVariableName(variableName));
+			variableName = "$" + variableName;
+			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
 			
 			return null;
 		});
@@ -7011,7 +7012,8 @@ final class LangPredefinedFunctions {
 			if(variableName.startsWith("LANG"))
 				throw new RuntimeException("The variable name may not start with LANG");
 			
-			module.getExportedVariables().put("&" + variableName, variableObject.setVariableName(variableName));
+			variableName = "&" + variableName;
+			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
 			
 			return null;
 		});
@@ -7043,7 +7045,8 @@ final class LangPredefinedFunctions {
 			if(variableName.startsWith("LANG"))
 				throw new RuntimeException("The variable name may not start with LANG");
 			
-			module.getExportedVariables().put("fp." + variableName, variableObject.setVariableName(variableName));
+			variableName = "fp." + variableName;
+			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
 			
 			return null;
 		});
