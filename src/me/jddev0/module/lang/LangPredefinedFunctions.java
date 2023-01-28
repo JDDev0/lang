@@ -6808,6 +6808,30 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject().setArray(module.getExportedVariables().keySet().stream().map(DataObject::new).toArray(DataObject[]::new));
 		});
+		funcs.put("getModuleFunctionNames", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject moduleNameObject = combinedArgumentList.get(0);
+			
+			String moduleName = moduleNameObject.getText();
+			
+			for(int i = 0;i < moduleName.length();i++) {
+				char c = moduleName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			return new DataObject().setArray(module.getExportedFunctions().stream().map(DataObject::new).toArray(DataObject[]::new));
+		});
 		funcs.put("getModuleVariable", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
