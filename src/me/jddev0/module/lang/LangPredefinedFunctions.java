@@ -6844,11 +6844,6 @@ final class LangPredefinedFunctions {
 			String moduleName = moduleNameObject.getText();
 			String variableName = variableNameObject.getText();
 			
-			if(!variableName.startsWith("$") && !variableName.startsWith("&") && !variableName.startsWith("fp."))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name must start with \"$\", \"&\", or \"fp.\"", SCOPE_ID);
-			
-			int variablePrefixLen = (variableName.charAt(0) == '$' || variableName.charAt(0) == '&')?1:3;
-			
 			for(int i = 0;i < moduleName.length();i++) {
 				char c = moduleName.charAt(i);
 				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
@@ -6856,6 +6851,12 @@ final class LangPredefinedFunctions {
 				
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
 			}
+			
+			if(!variableName.startsWith("$") && !variableName.startsWith("&") && !variableName.startsWith("fp."))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name must start with \"$\", \"&\", or \"fp.\"", SCOPE_ID);
+			
+			int variablePrefixLen = (variableName.charAt(0) == '$' || variableName.charAt(0) == '&')?1:3;
+			
 			for(int i = variablePrefixLen;i < variableName.length();i++) {
 				char c = variableName.charAt(i);
 				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
