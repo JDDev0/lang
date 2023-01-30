@@ -6958,6 +6958,47 @@ final class LangPredefinedFunctions {
 			
 			return variable;
 		});
+		funcs.put("getModuleVariableFunctionPointer", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject moduleNameObject = combinedArgumentList.get(0);
+			DataObject variableNameObject = combinedArgumentList.get(1);
+			
+			String moduleName = moduleNameObject.getText();
+			String variableName = variableNameObject.getText();
+			
+			for(int i = 0;i < moduleName.length();i++) {
+				char c = moduleName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
+			for(int i = 0;i < variableName.length();i++) {
+				char c = variableName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
+			variableName = "fp." + variableName;
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			DataObject variable = module.getExportedVariables().get(variableName);
+			if(variable == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
+						+ moduleName + "\"", SCOPE_ID);
+			
+			return variable;
+		});
 		funcs.put("moduleExportFunction", (argumentList, SCOPE_ID) -> {
 			LangModule module = interpreter.getCurrentCallStackElement().getModule();
 			if(module == null || !module.isLoad())
