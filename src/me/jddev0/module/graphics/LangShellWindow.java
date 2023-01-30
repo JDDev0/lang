@@ -87,7 +87,7 @@ public class LangShellWindow extends JDialog {
 	private boolean flagRunning = false;
 	private boolean flagExecutingQueue = false;
 	
-	private AutoPrintMode autoPrintMode = AutoPrintMode.NONE;
+	private AutoPrintMode autoPrintMode = AutoPrintMode.AUTO;
 	
 	private final ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
