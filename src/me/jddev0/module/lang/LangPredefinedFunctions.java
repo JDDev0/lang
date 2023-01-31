@@ -7085,11 +7085,12 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject variableNameObject = combinedArgumentList.get(0);
 			DataObject variableObject = combinedArgumentList.get(1);
+			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
 			
 			String variableName = variableNameObject.getText();
 			for(int i = 0;i < variableName.length();i++) {
@@ -7104,7 +7105,7 @@ final class LangPredefinedFunctions {
 				throw new RuntimeException("The variable name may not start with LANG");
 			
 			variableName = "$" + variableName;
-			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
 			
 			return null;
 		});
@@ -7116,11 +7117,13 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject variableNameObject = combinedArgumentList.get(0);
 			DataObject variableObject = combinedArgumentList.get(1);
+			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
+			
 			if(!DataObject.CONSTRAINT_COLLECTION.isTypeAllowed(variableObject.getType()))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "collection"), SCOPE_ID);
 			
@@ -7137,7 +7140,7 @@ final class LangPredefinedFunctions {
 				throw new RuntimeException("The variable name may not start with LANG");
 			
 			variableName = "&" + variableName;
-			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
 			
 			return null;
 		});
@@ -7149,11 +7152,13 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject variableNameObject = combinedArgumentList.get(0);
 			DataObject variableObject = combinedArgumentList.get(1);
+			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
+			
 			if(variableObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
 			
@@ -7170,7 +7175,7 @@ final class LangPredefinedFunctions {
 				throw new RuntimeException("The variable name may not start with LANG");
 			
 			variableName = "fp." + variableName;
-			module.getExportedVariables().put(variableName, variableObject.setVariableName(variableName));
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
 			
 			return null;
 		});
