@@ -68,7 +68,13 @@ public abstract class LangNativeModule {
 		});
 	}
 	
+	protected final void exportNormalVariableFinal(String variableName, DataObject value) {
+		exportNormalVariable(variableName, value, true);
+	}
 	protected final void exportNormalVariable(String variableName, DataObject value) {
+		exportNormalVariable(variableName, value, false);
+	}
+	protected final void exportNormalVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
@@ -84,12 +90,18 @@ public abstract class LangNativeModule {
 			throw new RuntimeException("The variable name may not start with LANG");
 		
 		variableName = "$" + variableName;
-		value = new DataObject(value).setVariableName(variableName);
+		value = new DataObject(value).setFinalData(finalData).setVariableName(variableName);
 		
 		module.getExportedVariables().put(variableName, value);
 	}
 	
+	protected final void exportCollectionVariableFinal(String variableName, DataObject value) {
+		exportCollectionVariable(variableName, value, true);
+	}
 	protected final void exportCollectionVariable(String variableName, DataObject value) {
+		exportCollectionVariable(variableName, value, false);
+	}
+	private final void exportCollectionVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
@@ -105,12 +117,18 @@ public abstract class LangNativeModule {
 			throw new RuntimeException("The variable name may not start with LANG");
 		
 		variableName = "&" + variableName;
-		value = new DataObject(value).setVariableName(variableName);
+		value = new DataObject(value).setFinalData(finalData).setVariableName(variableName);
 		
 		module.getExportedVariables().put(variableName, value);
 	}
 	
+	protected final void exportFunctionPointerVariableFinal(String variableName, DataObject value) {
+		exportFunctionPointerVariable(variableName, value, true);
+	}
 	protected final void exportFunctionPointerVariable(String variableName, DataObject value) {
+		exportFunctionPointerVariable(variableName, value, false);
+	}
+	private final void exportFunctionPointerVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
@@ -123,7 +141,7 @@ public abstract class LangNativeModule {
 		}
 		
 		variableName = "fp." + variableName;
-		value = new DataObject(value).setVariableName(variableName);
+		value = new DataObject(value).setFinalData(finalData).setVariableName(variableName);
 		
 		module.getExportedVariables().put(variableName, value);
 	}
