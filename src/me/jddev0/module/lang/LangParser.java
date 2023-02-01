@@ -219,8 +219,8 @@ public final class LangParser {
 				continue;
 			}
 			
-			//Var pointer referencing and dereferencing
-			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE)) {
+			//Parse module variable prefix
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
 				if(whitespaces.length() > 0) {
 					builder.append(whitespaces.toString());
 					whitespaces.delete(0, whitespaces.length());
@@ -230,6 +230,16 @@ public final class LangParser {
 					int startIndexVariable = token.indexOf(':') + 2;
 					builder.append(token.subSequence(0, startIndexVariable));
 					token = token.substring(startIndexVariable);
+				}
+				
+				continue;
+			}
+			
+			//Var pointer referencing and dereferencing
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE)) {
+				if(whitespaces.length() > 0) {
+					builder.append(whitespaces.toString());
+					whitespaces.delete(0, whitespaces.length());
 				}
 				
 				builder.append('$');
