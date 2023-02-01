@@ -16,65 +16,66 @@ final class LangPatterns {
 	 */
 	public static final Pattern GENERAL_DOT = Pattern.compile("\\.");
 	/**
-	 * RegEx: (\$|&)LANG_.{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?(\$|&)LANG_.{@literal *}
 	 */
-	public static final Pattern LANG_VAR = Pattern.compile("(\\$|&)LANG_.*");
+	public static final Pattern LANG_VAR = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$|&)LANG_.*");
 	/**
-	 * RegEx: &LANG_.{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?&LANG_.{@literal *}
 	 */
-	public static final Pattern LANG_VAR_ARRAY = Pattern.compile("&LANG_.*");
+	public static final Pattern LANG_VAR_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)?&LANG_.*");
 	/**
-	 * RegEx: \$\w+
+	 * RegEx: (\[\[\w+\]\]::)?\$\w+
 	 */
-	public static final Pattern VAR_NAME_NORMAL = Pattern.compile("\\$\\w+");
+	public static final Pattern VAR_NAME_NORMAL = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\w+");
 	/**
-	 * RegEx: \$\[+LANG_.*\]+
+	 * RegEx:(\[\[\w+\]\]::)? \$\[+LANG_.*\]+
 	 */
-	public static final Pattern LANG_VAR_POINTER_REDIRECTION = Pattern.compile("\\$\\[+LANG_.*\\]+");
+	public static final Pattern LANG_VAR_POINTER_REDIRECTION = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\[+LANG_.*\\]+");
 	/**
-	 * RegEx: (\$|&|fp\.)\w+
+	 * RegEx:(\[\[\w+\]\]::)?(\$|&|fp\.)\w+
 	 */
-	public static final Pattern VAR_NAME = Pattern.compile("(\\$|&|fp\\.)\\w+");
+	public static final Pattern VAR_NAME = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$|&|fp\\.)\\w+");
 	/**
-	 * RegEx: (\$\**|&|fp\.)\w+
+	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+
 	 */
-	public static final Pattern VAR_NAME_FULL = Pattern.compile("(\\$\\**|&|fp\\.)\\w+");
+	public static final Pattern VAR_NAME_FULL = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+");
 	/**
-	 * RegEx: (\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+
+	 * RegEx: ((\[\[\w+\]\]::)?(\$\**|&|fp\.)|func\.|fn\.|linker\.|ln\.)\w+
 	 */
-	public static final Pattern VAR_NAME_FULL_WITH_FUNCS = Pattern.compile("(\\$\\**|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.)\\w+");
+	public static final Pattern VAR_NAME_FULL_WITH_FUNCS = Pattern.compile("((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.)\\w+");
 	/**
-	 * RegEx: ((\$\**|&|fp\.)\w+|\$\**\[+\w+\]+)
+	 * RegEx: ((\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+|\$\**\[+\w+\]+)
 	 */
-	public static final Pattern VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
+	public static final Pattern VAR_NAME_FULL_WITH_PTR_AND_DEREFERENCE = Pattern.compile("((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
 	/**
-	 * RegEx: ((\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+|\$\**\[+\w+\]+)
+	 * RegEx: (((\[\[\w+\]\]::)?(\$\**|&|fp\.)|func\.|fn\.|linker\.|ln\.)\w+|(\[\[\w+\]\]::)?\$\**\[+\w+\]+)
 	 */
-	public static final Pattern VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE = Pattern.compile("((\\$\\**|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.)\\w+|\\$\\**\\[+\\w+\\]+)");
+	public static final Pattern VAR_NAME_FULL_WITH_FUNCS_AND_PTR_AND_DEREFERENCE = Pattern.compile(
+			"(((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.)\\w+|(\\[\\[\\w+\\]\\]::)?\\$\\**\\[+\\w+\\]+)");
 	/**
-	 * RegEx: fp\.\w+
+	 * RegEx: (\[\[\w+\]\]::)?fp\.\w+
 	 */
-	public static final Pattern VAR_NAME_FUNC_PTR = Pattern.compile("fp\\.\\w+");
+	public static final Pattern VAR_NAME_FUNC_PTR = Pattern.compile("(\\[\\[\\w+\\]\\]::)?fp\\.\\w+");
 	/**
-	 * RegEx: (fp|func|fn|linker|ln)\.\w+
+	 * RegEx: ((\[\[\w+\]\]::)?fp|func|fn|linker|ln)\.\w+
 	 */
-	public static final Pattern VAR_NAME_FUNC_PTR_WITH_FUNCS = Pattern.compile("(fp|func|fn|linker|ln)\\.\\w+");
+	public static final Pattern VAR_NAME_FUNC_PTR_WITH_FUNCS = Pattern.compile("((\\[\\[\\w+\\]\\]::)?fp|func|fn|linker|ln)\\.\\w+");
 	/**
-	 * RegEx: &\w+
+	 * RegEx: (\[\[\w+\]\]::)&\w+
 	 */
-	public static final Pattern VAR_NAME_ARRAY = Pattern.compile("&\\w+");
+	public static final Pattern VAR_NAME_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)&\\w+");
 	/**
-	 * RegEx: \$\[+\w+\]+
+	 * RegEx: (\[\[\w+\]\]::)\$\[+\w+\]+
 	 */
-	public static final Pattern VAR_NAME_PTR = Pattern.compile("\\$\\[+\\w+\\]+");
+	public static final Pattern VAR_NAME_PTR = Pattern.compile("(\\[\\[\\w+\\]\\]::)\\$\\[+\\w+\\]+");
 	/**
-	 * RegEx: (\$\**|&)\w+
+	 * RegEx: (\[\[\w+\]\]::)(\$\**|&)\w+
 	 */
-	public static final Pattern VAR_NAME_DEREFERENCE_AND_ARRAY = Pattern.compile("(\\$\\**|&)\\w+");
+	public static final Pattern VAR_NAME_DEREFERENCE_AND_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)(\\$\\**|&)\\w+");
 	/**
-	 * RegEx: \$\**\[+\w+\]+
+	 * RegEx: (\[\[\w+\]\]::)\$\**\[+\w+\]+
 	 */
-	public static final Pattern VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("\\$\\**\\[+\\w+\\]+");
+	public static final Pattern VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)\\$\\**\\[+\\w+\\]+");
 	/**
 	 * RegEx: (func\.|fn\.|linker\.|ln\.)\w+
 	 */
@@ -108,9 +109,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_LEADING_OR_TRAILING_WHITSPACE = Pattern.compile("(\\s.*|.*\\s)");
 	/**
-	 * RegEx: (fp|func|fn|linker|ln)\.\w+\(.*\).{@literal *}
+	 * RegEx: ((\[\[\w+\]\]::)?fp|func|fn|linker|ln)\.\w+\(.*\).{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL = Pattern.compile("(fp|func|fn|linker|ln)\\.\\w+\\(.*\\).*");
+	public static final Pattern PARSING_STARTS_WITH_FUNCTION_CALL = Pattern.compile("((\\[\\[\\w+\\]\\]::)?fp|func|fn|linker|ln)\\.\\w+\\(.*\\).*");
 	/**
 	 * RegEx: \\w+\\(.*\\).{@literal *}
 	 */
@@ -128,13 +129,17 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_ARGUMENT_SEPARATOR_LEADING_WHITESPACE = Pattern.compile("\\s*,.*");
 	/**
-	 * RegEx: \$\**\[+\w+\]+.{@literal *}
+	 * RegEx: (\[\[\w+\]\]::).{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("\\$\\**\\[+\\w+\\]+.*");
+	public static final Pattern PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER = Pattern.compile("(\\[\\[\\w+\\]\\]::).*");
 	/**
-	 * RegEx: \$(\*+\w+|\[+\w+\]+|\*+\[+\w+\]+).{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?\$\**\[+\w+\]+.{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE = Pattern.compile("\\$(\\*+\\w+|\\[+\\w+\\]+|\\*+\\[+\\w+\\]+).*");
+	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\**\\[+\\w+\\]+.*");
+	/**
+	 * RegEx: (\[\[\w+\]\]::)?\$(\*+\w+|\[+\w+\]+|\*+\[+\w+\]+).{@literal *}
+	 */
+	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$(\\*+\\w+|\\[+\\w+\\]+|\\*+\\[+\\w+\\]+).*");
 	/**
 	 * RegEx: (-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)
 	 */
@@ -166,22 +171,22 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_OPERATOR = Pattern.compile(" [^\\\\= ]{0,3}= ");
 	/**
-	 * RegEx: (\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
+	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
 	/**
-	 * RegEx: ((\$\**|&|fp\.)\w+|(\$\**\[+\w+\]+)) [^\\= ]{0,3}= .{@literal *}
+	 * RegEx: ((\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+|((\[\[\w+\]\]::)?\$\**\[+\w+\]+)) [^\\= ]{0,3}= .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT = Pattern.compile("((\\$\\**|&|fp\\.)\\w+|(\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*");
+	public static final Pattern PARSING_ASSIGNMENT = Pattern.compile("((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+|((\\[\\[\\w+\\]\\]::)?\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*");
 	/**
-	 * RegEx: (((\$\**|&|fp\.)\w+|(\$\**\[+\w+\]+)) [^\\= ]{0,3}= .*|[^=]+ = .*)
+	 * RegEx: (((\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+|(\[\[\w+\]\]::)?(\$\**\[+\w+\]+)) [^\\= ]{0,3}= .*|[^=]+ = .*)
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile(
-		"(((\\$\\**|&|fp\\.)\\w+|(\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*|[^=]+ = .*)");
+		"(((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+|(\\[\\[\\w+\\]\\]::)?(\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*|[^=]+ = .*)");
 	/**
-	 * RegEx: \$\[*\w+\]*=.{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?\$\**\[*\w+\]*=.{@literal *}
 	 */
-	public static final Pattern PARSING_SIMPLE_ASSIGNMENT = Pattern.compile("\\$\\[*\\w+\\]*=.*");
+	public static final Pattern PARSING_SIMPLE_ASSIGNMENT = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\**\\[*\\w+\\]*=.*");
 	/**
 	 * RegEx: [\w\-\.\:]+=.{@literal *}
 	 */

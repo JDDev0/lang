@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
@@ -315,9 +316,23 @@ public final class LangInterpreter {
 	 * @param supportsPointerDereferencingAndReferencing If true, this node will return pointer reference or a dereferenced pointers as VariableNameNode<br>
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a VariableNameNode)
 	 */
-	private Node convertVariableNameToVariableNameNodeOrComposition(String variableName, Set<String> variableNames,
-	String variablePrefixAppendAfterSearch, final boolean supportsPointerDereferencingAndReferencing) {
-		Optional<String> optionalReturnedVariableName = variableNames.stream().filter(varName -> {
+	private Node convertVariableNameToVariableNameNodeOrComposition(String moduleName, String variableName,
+	Set<String> variableNames, String variablePrefixAppendAfterSearch, final boolean supportsPointerDereferencingAndReferencing, final int SCOPE_ID) {
+		Stream<String> variableNameStream;
+		if(moduleName == null) {
+			variableNameStream = variableNames.stream();
+		}else {
+			LangModule module = modules.get(moduleName);
+			if(module == null) {
+				setErrno(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" is not loaded!", SCOPE_ID);
+				
+				return new TextValueNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
+			}
+			
+			variableNameStream = module.getExportedVariables().keySet().stream();
+		}
+		
+		Optional<String> optionalReturnedVariableName = variableNameStream.filter(varName -> {
 			return variableName.startsWith(varName);
 		}).sorted((s0, s1) -> { //Sort keySet from large to small length (e.g.: $abcd and $abc and $ab)
 			return s0.length() < s1.length()?1:(s0.length() == s1.length()?0:-1);
@@ -334,13 +349,14 @@ public final class LangInterpreter {
 					startIndex = variableName.indexOf('*');
 					int endIndex = variableName.lastIndexOf('*') + 1;
 					if(endIndex >= variableName.length())
-						return new TextValueNode(variablePrefixAppendAfterSearch + variableName);
+						return new TextValueNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
 					
 					dereferences = variableName.substring(startIndex, endIndex);
 					modifiedVariableName = variableName.substring(0, startIndex) + variableName.substring(endIndex);
 					
 					if(!modifiedVariableName.contains("[") && !modifiedVariableName.contains("]"))
-						returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName, variableNames, "", supportsPointerDereferencingAndReferencing);
+						returnedNode = convertVariableNameToVariableNameNodeOrComposition(moduleName, modifiedVariableName, variableNames, "", supportsPointerDereferencingAndReferencing,
+						SCOPE_ID);
 				}
 				
 				if(modifiedVariableName.contains("[") && modifiedVariableName.contains("]")) { //Check dereferenced variable name
@@ -359,8 +375,9 @@ public final class LangInterpreter {
 						}
 						
 						if(modifiedVariableName.indexOf('[', currentIndex) == -1) {
-							returnedNode = convertVariableNameToVariableNameNodeOrComposition(modifiedVariableName.substring(0, indexOpeningBracket) +
-							modifiedVariableName.substring(currentIndex, currentIndexMatchingBracket + 1), variableNames, "", supportsPointerDereferencingAndReferencing);
+							returnedNode = convertVariableNameToVariableNameNodeOrComposition(moduleName, modifiedVariableName.substring(0, indexOpeningBracket) +
+							modifiedVariableName.substring(currentIndex, currentIndexMatchingBracket + 1), variableNames, "", supportsPointerDereferencingAndReferencing,
+							SCOPE_ID);
 						}
 					}
 				}
@@ -371,32 +388,33 @@ public final class LangInterpreter {
 					switch(returnedNode.getNodeType()) {
 						case VARIABLE_NAME: //Variable was found without additional text -> valid pointer reference
 							if(text == null)
-								return new VariableNameNode(variablePrefixAppendAfterSearch + variableName);
+								return new VariableNameNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
 							
 							//Variable composition
 							List<Node> nodes = new ArrayList<>();
-							nodes.add(new VariableNameNode(variablePrefixAppendAfterSearch + modifiedVariableName));
+							nodes.add(new VariableNameNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + modifiedVariableName));
 							nodes.add(new TextValueNode(text));
 							return new ListNode(nodes);
 						
 						case LIST: //Variable was found with additional text -> no valid pointer reference
 						case TEXT_VALUE: //Variable was not found
 						default: //Default should never be reached
-							return new TextValueNode(variablePrefixAppendAfterSearch + variableName);
+							return new TextValueNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
 					}
 				}
 			}
 			
-			return new TextValueNode(variablePrefixAppendAfterSearch + variableName);
+			return new TextValueNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
 		}
 		
 		String returendVariableName = optionalReturnedVariableName.get();
 		if(returendVariableName.length() == variableName.length())
-			return new VariableNameNode(variablePrefixAppendAfterSearch + variableName);
+			return new VariableNameNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + variableName);
 		
 		//Variable composition
 		List<Node> nodes = new ArrayList<>();
-		nodes.add(new VariableNameNode(variablePrefixAppendAfterSearch + returendVariableName)); //Add matching part of variable as VariableNameNode
+		//Add matching part of variable as VariableNameNode
+		nodes.add(new VariableNameNode((moduleName == null?"":("[[" + moduleName + "]]::")) + variablePrefixAppendAfterSearch + returendVariableName));
 		nodes.add(new TextValueNode(variableName.substring(returendVariableName.length()))); //Add composition part as TextValueNode
 		return new ListNode(nodes);
 	}
@@ -406,27 +424,47 @@ public final class LangInterpreter {
 		if(executionFlags.rawVariableNames)
 			return new VariableNameNode(variableName);
 		
+		boolean isModuleVariable = variableName.startsWith("[[");
+		String moduleName = null;
+		if(isModuleVariable) {
+			int indexModuleIdientifierEnd = variableName.indexOf("]]::");
+			if(indexModuleIdientifierEnd == -1) {
+				setErrno(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
+				
+				return new TextValueNode(variableName);
+			}
+			
+			moduleName = variableName.substring(2, indexModuleIdientifierEnd);
+			if(!isAlphaNummericWithUnderline(moduleName)) {
+				setErrno(InterpretingError.INVALID_AST_NODE, "Invalid module name", SCOPE_ID);
+				
+				return new TextValueNode(variableName);
+			}
+			
+			variableName = variableName.substring(indexModuleIdientifierEnd + 4);
+		}
+		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
-			return convertVariableNameToVariableNameNodeOrComposition(variableName, data.get(SCOPE_ID).var.keySet(), "", variableName.startsWith("$"));
+			return convertVariableNameToVariableNameNodeOrComposition(moduleName, variableName, data.get(SCOPE_ID).var.keySet(), "", variableName.startsWith("$"), SCOPE_ID);
 		
 		final boolean isLinkerFunction;
 		final String prefix;
-		if(variableName.startsWith("func.")) {
+		if(!isModuleVariable && variableName.startsWith("func.")) {
 			isLinkerFunction = false;
 			prefix = "func.";
 			
 			variableName = variableName.substring(5);
-		}else if(variableName.startsWith("fn.")) {
+		}else if(!isModuleVariable && variableName.startsWith("fn.")) {
 			isLinkerFunction = false;
 			prefix = "fn.";
 			
 			variableName = variableName.substring(3);
-		}else if(variableName.startsWith("linker.")) {
+		}else if(!isModuleVariable && variableName.startsWith("linker.")) {
 			isLinkerFunction = true;
 			prefix = "linker.";
 			
 			variableName = variableName.substring(7);
-		}else if(variableName.startsWith("ln.")) {
+		}else if(!isModuleVariable && variableName.startsWith("ln.")) {
 			isLinkerFunction = true;
 			prefix = "ln.";
 			
@@ -437,9 +475,9 @@ public final class LangInterpreter {
 			return new TextValueNode(variableName);
 		}
 		
-		return convertVariableNameToVariableNameNodeOrComposition(variableName, funcs.entrySet().stream().filter(entry -> {
+		return convertVariableNameToVariableNameNodeOrComposition(null, variableName, funcs.entrySet().stream().filter(entry -> {
 			return entry.getValue().isLinkerFunction() == isLinkerFunction;
-		}).map(Entry<String, LangPredefinedFunctionObject>::getKey).collect(Collectors.toSet()), prefix, false);
+		}).map(Entry<String, LangPredefinedFunctionObject>::getKey).collect(Collectors.toSet()), prefix, false, SCOPE_ID);
 	}
 	
 	private Node processFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
@@ -1439,12 +1477,29 @@ public final class LangInterpreter {
 				case UNPROCESSED_VARIABLE_NAME:
 					UnprocessedVariableNameNode variableNameNode = (UnprocessedVariableNameNode)lvalueNode;
 					String variableName = variableNameNode.getVariableName();
+					
+					boolean isModuleVariable = variableName.startsWith("[[");
+					String moduleName = null;
+					if(isModuleVariable) {
+						int indexModuleIdientifierEnd = variableName.indexOf("]]::");
+						if(indexModuleIdientifierEnd == -1) {
+							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
+						}
+						
+						moduleName = variableName.substring(2, indexModuleIdientifierEnd);
+						if(!isAlphaNummericWithUnderline(moduleName)) {
+							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid module name", SCOPE_ID);
+						}
+						
+						variableName = variableName.substring(indexModuleIdientifierEnd + 4);
+					}
+					
 					if(isVarNameFull(variableName) || isVarNamePtrAndDereference(variableName)) {
 						int indexOpeningBracket = variableName.indexOf("[");
 						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
 						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
 							boolean[] flags = new boolean[] {false, false};
-							DataObject lvalue = getOrCreateDataObjectFromVariableName(variableName, false, true, true, flags, SCOPE_ID);
+							DataObject lvalue = getOrCreateDataObjectFromVariableName(moduleName, variableName, false, true, true, flags, SCOPE_ID);
 							if(flags[0])
 								return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
 							
@@ -1552,16 +1607,31 @@ public final class LangInterpreter {
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a DataObject)
 	 * @param flags Will set by this method in format: [error, created]
 	 */
-	private DataObject getOrCreateDataObjectFromVariableName(String variableName, boolean supportsPointerReferencing,
+	private DataObject getOrCreateDataObjectFromVariableName(String moduleName, String variableName, boolean supportsPointerReferencing,
 	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final boolean[] flags, final int SCOPE_ID) {
-		DataObject ret = data.get(SCOPE_ID).var.get(variableName);
+		Map<String, DataObject> variables;
+		if(moduleName == null) {
+			variables = data.get(SCOPE_ID).var;
+		}else {
+			LangModule module = modules.get(moduleName);
+			if(module == null) {
+				if(flags != null && flags.length == 2)
+					flags[0] = true;
+				
+				return setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" is not loaded!", SCOPE_ID);
+			}
+			
+			variables = module.getExportedVariables();
+		}
+		
+		DataObject ret = variables.get(variableName);
 		if(ret != null)
 			return ret;
 		
 		if(supportsPointerDereferencing && variableName.contains("*")) {
 			int index = variableName.indexOf('*');
 			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
-			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(referencedVariableName, supportsPointerReferencing, true, false, flags, SCOPE_ID);
+			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(moduleName, referencedVariableName, supportsPointerReferencing, true, false, flags, SCOPE_ID);
 			if(referencedVariable == null) {
 				if(flags != null && flags.length == 2)
 					flags[0] = true;
@@ -1584,7 +1654,7 @@ public final class LangInterpreter {
 			}
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
-			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(dereferencedVariableName, true, false, false, flags, SCOPE_ID);
+			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(moduleName, dereferencedVariableName, true, false, false, flags, SCOPE_ID);
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
@@ -1595,10 +1665,14 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(isLangVarOrLangVarPointerRedirection(variableName)) {
+		if(moduleName != null || isLangVarOrLangVarPointerRedirection(variableName)) {
 			if(flags != null && flags.length == 2)
 				flags[0] = true;
-			return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			if(moduleName == null)
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			else
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, "Module variables can not be created", SCOPE_ID);
 		}
 		
 		if(flags != null && flags.length == 2)
@@ -1614,27 +1688,43 @@ public final class LangInterpreter {
 	private DataObject interpretVariableNameNode(VariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
+		boolean isModuleVariable = variableName.startsWith("[[");
+		String moduleName = null;
+		if(isModuleVariable) {
+			int indexModuleIdientifierEnd = variableName.indexOf("]]::");
+			if(indexModuleIdientifierEnd == -1) {
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
+			}
+			
+			moduleName = variableName.substring(2, indexModuleIdientifierEnd);
+			if(!isAlphaNummericWithUnderline(moduleName)) {
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid module name", SCOPE_ID);
+			}
+			
+			variableName = variableName.substring(indexModuleIdientifierEnd + 4);
+		}
+		
 		if(!isVarNameFullWithFuncs(variableName) && !isVarNamePtrAndDereference(variableName))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
-			return getOrCreateDataObjectFromVariableName(variableName, variableName.startsWith("$"), variableName.startsWith("$"),
+			return getOrCreateDataObjectFromVariableName(moduleName, variableName, variableName.startsWith("$"), variableName.startsWith("$"),
 			true, null, SCOPE_ID);
 		
 		final boolean isLinkerFunction;
-		if(variableName.startsWith("func.")) {
+		if(!isModuleVariable && variableName.startsWith("func.")) {
 			isLinkerFunction = false;
 			
 			variableName = variableName.substring(5);
-		}else if(variableName.startsWith("fn.")) {
+		}else if(!isModuleVariable && variableName.startsWith("fn.")) {
 			isLinkerFunction = false;
 			
 			variableName = variableName.substring(3);
-		}else if(variableName.startsWith("linker.")) {
+		}else if(!isModuleVariable && variableName.startsWith("linker.")) {
 			isLinkerFunction = true;
 			
 			variableName = variableName.substring(7);
-		}else if(variableName.startsWith("ln.")) {
+		}else if(!isModuleVariable && variableName.startsWith("ln.")) {
 			isLinkerFunction = true;
 			
 			variableName = variableName.substring(3);
@@ -1787,7 +1877,7 @@ public final class LangInterpreter {
 						}
 						
 						boolean[] flags = new boolean[] {false, false};
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(to, false, false, true, flags, SCOPE_ID_TO);
+						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, to, false, false, true, flags, SCOPE_ID_TO);
 						try {
 							dataObject.setData(valFrom);
 						}catch(DataTypeConstraintViolatedException e) {
@@ -1978,7 +2068,7 @@ public final class LangInterpreter {
 				try {
 					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
 					if(variableName.startsWith("&") && variableName.endsWith("...")) {
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(variableName.substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
+						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, variableName.substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
 						if(dataObject == null) {
 							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", SCOPE_ID));
 							
@@ -2018,8 +2108,34 @@ public final class LangInterpreter {
 	 */
 	private DataObject interpretFunctionCallNode(FunctionCallNode node, final int SCOPE_ID) {
 		String functionName = node.getFunctionName();
+		
+		boolean isModuleVariable = functionName.startsWith("[[");
+		Map<String, DataObject> variables;
+		if(isModuleVariable) {
+			int indexModuleIdientifierEnd = functionName.indexOf("]]::");
+			if(indexModuleIdientifierEnd == -1) {
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid function name", SCOPE_ID);
+			}
+			
+			String moduleName = functionName.substring(2, indexModuleIdientifierEnd);
+			if(!isAlphaNummericWithUnderline(moduleName)) {
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid module name", SCOPE_ID);
+			}
+			
+			functionName = functionName.substring(indexModuleIdientifierEnd + 4);
+			
+			LangModule module = modules.get(moduleName);
+			if(module == null) {
+				return setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" is not loaded!", SCOPE_ID);
+			}
+			
+			variables = module.getExportedVariables();
+		}else {
+			variables = data.get(SCOPE_ID).var;
+		}
+		
 		FunctionPointerObject fp;
-		if(isFuncName(functionName)) {
+		if(!isModuleVariable && isFuncName(functionName)) {
 			final boolean isLinkerFunction;
 			if(functionName.startsWith("func.")) {
 				isLinkerFunction = false;
@@ -2051,7 +2167,7 @@ public final class LangInterpreter {
 			
 			fp = new FunctionPointerObject(ret.get().getValue());
 		}else if(isVarNameFuncPtr(functionName)) {
-			DataObject ret = data.get(SCOPE_ID).var.get(functionName);
+			DataObject ret = variables.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
 				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer was not found or is invalid", SCOPE_ID);
 			
@@ -2060,13 +2176,13 @@ public final class LangInterpreter {
 			//Function call without prefix
 			
 			//Function pointer
-			DataObject ret = data.get(SCOPE_ID).var.get("fp." + functionName);
+			DataObject ret = variables.get("fp." + functionName);
 			if(ret != null) {
 				if(ret.getType() != DataType.FUNCTION_POINTER)
 					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer is invalid", SCOPE_ID);
 					
 				fp = ret.getFunctionPointer();
-			}else {
+			}else if(!isModuleVariable) {
 				//Predefined/External function
 				
 				final String functionNameCopy = functionName;
@@ -2087,6 +2203,8 @@ public final class LangInterpreter {
 					
 					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());
 				}
+			}else {
+				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
 			}
 		}
 		
@@ -2582,6 +2700,22 @@ public final class LangInterpreter {
 		}
 		
 		return new DataObject(builder.toString());
+	}
+	
+	/**
+	 * LangPatterns: Regex: \w+
+	 */
+	private boolean isAlphaNummericWithUnderline(String token) {
+		if(token.length() == 0)
+			return false;
+		
+		for(int i = 0;i < token.length();i++) {
+			char c = token.charAt(i);
+			if(!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_'))
+				return false;
+		}
+		
+		return true;
 	}
 	
 	/**

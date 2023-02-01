@@ -226,6 +226,12 @@ public final class LangParser {
 					whitespaces.delete(0, whitespaces.length());
 				}
 				
+				if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
+					int startIndexVariable = token.indexOf(':') + 2;
+					builder.append(token.subSequence(0, startIndexVariable));
+					token = token.substring(startIndexVariable);
+				}
+				
 				builder.append('$');
 				token = token.substring(1);
 				
@@ -1460,7 +1466,7 @@ public final class LangParser {
 			}
 			
 			//Force node split
-			if(translationKey.startsWith("$")) {
+			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && (translationKey.startsWith("$"))) {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilderTranslationKey(builder, nodes);
 			}
@@ -1637,7 +1643,7 @@ public final class LangParser {
 			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
-				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 1, Integer.MAX_VALUE, '[', ']');
+				int endIndex = LangUtils.getIndexOfMatchingBracket(token, token.indexOf('$') + 1, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
 					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in variable pointer"));
 					return ast;
@@ -1650,9 +1656,9 @@ public final class LangParser {
 			}
 			
 			//Force node split
-			if(token.startsWith("$") || token.startsWith("&")) {
+			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && (token.startsWith("$"))) {
 				//Variable split for variable concatenation
-				clearAndParseStringBuilder(builder, nodes);
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
 			}
 			if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
 				//Variable split after invalid character (Not [A-Za-z0-9_]
@@ -1931,7 +1937,7 @@ public final class LangParser {
 					if(builder.length() > 0)
 						clearAndParseStringBuilder(builder, nodes);
 					
-					int endIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 1, Integer.MAX_VALUE, '[', ']');
+					int endIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterList.indexOf('$') + 1, Integer.MAX_VALUE, '[', ']');
 					if(endIndex != -1) {
 						String varPtr = parameterList.substring(0, endIndex + 1);
 						parameterList = parameterList.substring(endIndex + 1);
@@ -1955,10 +1961,6 @@ public final class LangParser {
 					hasNodesFlag = true;
 					continue;
 				}
-				
-				//Force node split
-				if(parameterList.startsWith("$") || parameterList.startsWith("&"))
-					clearAndParseStringBuilder(builder, nodes);
 				
 				//Variable split after invalid character (Not [A-Za-z0-9_]
 				if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_DEREFERENCE_AND_ARRAY) &&
