@@ -4513,7 +4513,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
@@ -4533,7 +4533,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
@@ -4553,7 +4553,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
@@ -4573,7 +4573,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
@@ -4593,7 +4593,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
@@ -4613,7 +4613,7 @@ final class LangPredefinedFunctions {
 			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, SCOPE_ID)) != null)
+				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
 				List<DataObject> args = new ArrayList<>();
