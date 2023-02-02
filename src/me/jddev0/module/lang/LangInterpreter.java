@@ -3518,6 +3518,20 @@ public final class LangInterpreter {
 		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) throws StoppedException {
 			return interpreter.callFunctionPointer(fp, functionName, argumentValueList, SCOPE_ID);
 		}
+		
+		public Map<String, LangModule> getModules() {
+			return interpreter.modules;
+		}
+		
+		public List<String> getModuleExportedFunctions(String moduleName) {
+			LangModule module = interpreter.modules.get(moduleName);
+			return module == null?null:module.getExportedFunctions();
+		}
+		
+		public Map<String, DataObject> getModuleExportedVariables(String moduleName) {
+			LangModule module = interpreter.modules.get(moduleName);
+			return module == null?null:module.getExportedVariables();
+		}
 	}
 	
 	/**
