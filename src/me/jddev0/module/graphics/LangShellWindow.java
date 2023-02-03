@@ -671,7 +671,7 @@ public class LangShellWindow extends JDialog {
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 			
 			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
-			nullFlag = false;
+			nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 				
@@ -683,6 +683,16 @@ public class LangShellWindow extends JDialog {
 				
 				if(!varFlag && (c == '$' || c == '&'))
 					varFlag = true;
+				
+				if(!varFlag && !modulePrefixFlag) {
+					String checkTmp = line.substring(i);
+					if(checkTmp.startsWith("[[")) {
+						int endIndex = checkTmp.indexOf("]]::");
+						if(endIndex != -1) {
+							modulePrefixFlag = true;
+						}
+					}
+				}
 				
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
@@ -697,6 +707,21 @@ public class LangShellWindow extends JDialog {
 				
 				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
 				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
+				
+				if(modulePrefixFlag) {
+					if(modulePrefixHasColon) {
+						String checkTmpPrev = line.substring(i - 3);
+						
+						modulePrefixHasColon = checkTmpPrev.startsWith("]]::");
+						if(!modulePrefixHasColon)
+							modulePrefixFlag = false;
+					}else if(c == ':') {
+						modulePrefixHasColon = true;
+					}
+					
+					if(modulePrefixFlag && !modulePrefixHasColon && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']'))
+						modulePrefixFlag = false;
+				}
 				
 				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '*' || c == '&'))
 					varFlag = false;
@@ -719,6 +744,8 @@ public class LangShellWindow extends JDialog {
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
+				else if(modulePrefixFlag)
+					col = Color.ORANGE.darker();
 				else if(dereferencingAndReferencingOperatorFlag)
 					col = Color.GRAY;
 				else if(bracketsFlag)
@@ -762,12 +789,21 @@ public class LangShellWindow extends JDialog {
 			else
 				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
-			String[] tokens = line.split(".(?=\\$|&|fp\\.|func\\.|fn\\.|linker\\.|ln\\.|con\\.|math\\.|parser\\.)");
+			String[] tokens = line.split(".(?=\\[\\[|(\\[\\[\\w+\\]\\]::)(\\$|&|fp\\.)|(?<!\\w]]::)(\\$|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.|con\\.|math\\.|parser\\.)");
 			if(tokens.length == 0)
 				return;
 			
 			String lastToken = tokens[tokens.length - 1];
-			if(lastToken.matches("(\\$|&|fp\\.).*")) {
+			if(lastToken.matches("(\\[\\[\\w+\\]\\]::)?(\\$|&|fp\\.).*")) {
+				Map<String, DataObject> moduleVariables = null;
+				if(lastToken.matches("(\\[\\[\\w+\\]\\]::).*")) {
+					int moduleIdentifierEndIndex = lastToken.indexOf(']');
+					String moduleName = lastToken.substring(2, moduleIdentifierEndIndex);
+					lastToken = lastToken.substring(moduleIdentifierEndIndex + 4);
+					
+					moduleVariables = lii.getModuleExportedVariables(moduleName);
+				}
+				
 				final int appendClosingBracketCount;
 				if(lastToken.matches("\\$\\**\\[*\\w*")) {
 					//Handle var pointer referencing and dereferencing "$*" and "$["
@@ -786,7 +822,7 @@ public class LangShellWindow extends JDialog {
 				}
 				
 				final String lastTokenCopy = lastToken;
-				List<String> autoCompletes = lii.getData(0).var.keySet().stream().filter(varName -> {
+				List<String> autoCompletes = (moduleVariables == null?lii.getData(0).var:moduleVariables).keySet().stream().filter(varName -> {
 					int oldLen = varName.length();
 					varName = varName.replace("[", "");
 					
@@ -809,6 +845,22 @@ public class LangShellWindow extends JDialog {
 					
 					for(int i = 0;i < Math.max(appendClosingBracketCount, openingBracketCountVarName);i++)
 						autoCompleteText += "]";
+				}
+			}else if(lastToken.matches("\\[\\[.*")) {
+				final String lastTokenCopy = lastToken.substring(2); //Remove "[["
+				
+				List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
+					int oldLen = moduleName.length();
+					
+					return oldLen == moduleName.length() && moduleName.startsWith(lastTokenCopy);
+				}).sorted().collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size()) {
+					autoCompleteText = "";
+				}else {
+					autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastTokenCopy.length()) + "]]::";
 				}
 			}else if(lastToken.matches("(func|fn|linker|ln)\\..*")) {
 				boolean isLinkerFunction = lastToken.startsWith("linker.") || lastToken.startsWith("ln.");
