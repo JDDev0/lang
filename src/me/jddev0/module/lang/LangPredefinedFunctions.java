@@ -1639,6 +1639,11 @@ final class LangPredefinedFunctions {
 				return new DataObject().setBoolean(true);
 			}, SCOPE_ID);
 		});
+		funcs.put("isEven", (argumentList, SCOPE_ID) -> {
+			return unaryMathOperationHelper(argumentList, number -> {
+				return new DataObject().setBoolean(number.longValue() % 2 == 0);
+			}, SCOPE_ID);
+		});
 	}
 	private void addPredefinedCharacterFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("toValue", (argumentList, SCOPE_ID) -> {
