@@ -70,7 +70,7 @@ public class Startup {
 					printReturnedValue = true;
 				}else if(arg.equals("-warnings")) {
 					warnings = true;
-				}else if(arg.equals("-langArgs")) {
+				}else if(arg.equals("-langArgs") || arg.equals("--")) {
 					langArgs = Arrays.copyOfRange(args, i + 1, args.length);
 					break;
 				}else {
@@ -276,6 +276,7 @@ public class Startup {
 		System.out.println("    -printReturnedValue               Prints the returned or thrown value of the lang file if any");
 		System.out.println("    -warnings                         Enables the output of warnings which occur");
 		System.out.println("    -langArgs                         Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
+		System.out.println("    --                                Alias for \"-langArgs\"");
 	}
 	
 	private static void executeLangCode(String langCode, boolean printTranslations, boolean printReturnedValue, boolean warnings, String[] langArgs) {
