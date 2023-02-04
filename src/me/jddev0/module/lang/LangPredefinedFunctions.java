@@ -3538,6 +3538,23 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
 		}));
+		funcs.put("combN", combinatorFunctionExternalFunctionObjectHelper(3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			List<DataObject> argsACall1 = new LinkedList<>();
+			argsACall1.add(b);
+			
+			DataObject ret = interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsACall1, SCOPE_ID);
+			ret = ret == null?new DataObject().setVoid():ret;
+			
+			if(ret.getType() != DataType.FUNCTION_POINTER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "The value returned by a(b) must be of type " + DataType.FUNCTION_POINTER, SCOPE_ID);
+			
+			List<DataObject> argsACall2 = new LinkedList<>();
+			argsACall2.add(c);
+			
+			return interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsACall2, SCOPE_ID);
+		}));
 		funcs.put("combM", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(a, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
