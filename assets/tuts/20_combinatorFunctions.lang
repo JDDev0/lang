@@ -59,6 +59,8 @@ lang.version = v1.0.0
 # N : func.combN(a, b, c)
 # N3: func.combN3(a, b, c, d)
 # N4: func.combN4(a, b, c, d, e)
+# NE: func.combNE(a, b, c)
+# NM: func.combNM(a)
 # M : func.combM(a)
 # M2: func.combM2(a, b)
 # M3: func.combM3(a, b, c)
@@ -215,6 +217,8 @@ lang.version = v1.0.0
 # N    | 3     | a, b, c       | a           | a(b)(c)                        | -
 # N3   | 4     | a, b, c, d    | a           | a(b)(c)(d)                     | -
 # N4   | 5     | a, b, c, d, e | a           | a(b)(c)(d)(e)                  | -
+# NE   | 3     | a, b, c       | a           | a()()                          | -
+# NM   | 1     | a             | a           | a(a)(a)                        | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # M    | 1     | a             | a           | a(a)                           | -
 # M2   | 2     | a, b          | a           | a(a, b)                        | -
