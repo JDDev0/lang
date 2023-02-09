@@ -3662,6 +3662,25 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsACall2, SCOPE_ID);
 		}));
+		funcs.put("combNN", combinatorFunctionInfiniteExternalFunctionObjectHelper(1, new int[] {0}, false, false, (args, SCOPE_ID) -> {
+			DataObject a = args.get(0);
+			
+			DataObject ret = a;
+			for(int i = 1;i < args.size();i++) {
+				DataObject n = args.get(i);
+				
+				if(ret.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "The return value after iteration " + i + " must be of type " +
+							DataType.FUNCTION_POINTER, SCOPE_ID);
+				
+				List<DataObject> argsFunc = new LinkedList<>();
+				argsFunc.add(n);
+				ret = interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsFunc, SCOPE_ID);
+				ret = ret == null?new DataObject().setVoid():ret;
+			}
+			
+			return ret;
+		}));
 		funcs.put("combNM", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(a, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
@@ -3678,6 +3697,26 @@ final class LangPredefinedFunctions {
 			argsACall2.add(a);
 			
 			return interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsACall2, SCOPE_ID);
+		}));
+		funcs.put("combNV", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0}, (Combinator2ArgFunction)(a, args, SCOPE_ID) -> {
+			if(args.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "3 ", DataType.ARRAY), SCOPE_ID);
+			
+			DataObject ret = a;
+			for(int i = 0;i < args.getArray().length;i++) {
+				DataObject n = args.getArray()[i];
+				
+				if(ret.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "The return value after iteration " + (i + 1) + " must be of type " +
+							DataType.FUNCTION_POINTER, SCOPE_ID);
+				
+				List<DataObject> argsFunc = new LinkedList<>();
+				argsFunc.add(n);
+				ret = interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsFunc, SCOPE_ID);
+				ret = ret == null?new DataObject().setVoid():ret;
+			}
+			
+			return ret;
 		}));
 		funcs.put("combNW", combinatorFunctionExternalFunctionObjectHelper(2, new int[] {0}, (Combinator2ArgFunction)(a, b, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
@@ -3712,6 +3751,25 @@ final class LangPredefinedFunctions {
 			argsACall2.add(b);
 			
 			return interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsACall2, SCOPE_ID);
+		}));
+		funcs.put("combNZ", combinatorFunctionInfiniteExternalFunctionObjectHelper(1, new int[] {0}, false, false, (args, SCOPE_ID) -> {
+			DataObject a = args.get(0);
+			
+			DataObject ret = a;
+			for(int i = args.size() - 1;i > 0;i--) {
+				DataObject n = args.get(i);
+				
+				if(ret.getType() != DataType.FUNCTION_POINTER)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "The return value after iteration " + i + " must be of type " +
+							DataType.FUNCTION_POINTER, SCOPE_ID);
+				
+				List<DataObject> argsFunc = new LinkedList<>();
+				argsFunc.add(n);
+				ret = interpreter.callFunctionPointer(ret.getFunctionPointer(), ret.getVariableName(), argsFunc, SCOPE_ID);
+				ret = ret == null?new DataObject().setVoid():ret;
+			}
+			
+			return ret;
 		}));
 		funcs.put("combM", combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(a, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
