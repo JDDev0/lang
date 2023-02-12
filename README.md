@@ -2,17 +2,36 @@
 
 This project makes simple translation files Turing complete
 
-## Combinator functions
+## Features
+
+In lang there a many predefined functions and operators which make development of programs easy.
+
+### LangShell (REPL)
+
+The Lang Shell is a REPL shell with syntax highlighting and autocompletes to aid you during development.
+
+### Combinator functions
 
 One of the main feature of this programming language is the combinator function system. You can use more than 100 predefined combinator functions. Combinator functions can be created by partially calling and combining combinator functions
+
+## Lang Modules
+
+Lang modules can be used to put common code into one library which can be re-used easily.
+
+### Native Lang Modules
+
+Lang modules can contain native code (In the standard lang implementation native code is Java code). In the [Lang Example Native Module](https://github.com/JDDev0/LangExampleNativeModule) repository a build script can be found in order to create modules containing nativ code easily.
+
+## Docs and examples
+
+**Language definitions**: See the lang docs repository for details: [Lang Docs](https://github.com/lang-programming/docs) and checkout the .lang files located in /assets/<br>
+**Language Tutorial**: You can find many tutorial lang files in /assets/tuts/.<br>
+**Language code examples**: Some examples are in /assets/examples/, many more are on [Rosetta Code](https://rosettacode.org/wiki/lang).<br>
 
 ## "TermIO-Control" window commands
 
 **Execution of lang file**: Type "executeLang -*Path to .lang file*" in the white text input in the "TermIO-Control" window<br>
 **LangShell** (REPL): Type "startShell" in the white text input in the "TermIO-Control" window<br>
-**Language definitions**: See the lang docs repository for details: [Lang Docs](https://github.com/lang-programming/docs) and checkout the .lang files located in /assets/<br>
-**Language Tutorial**: You can find many tutorial lang files in /assets/tuts/.<br>
-**Language code examples**: Some examples are in /assets/examples/, many more are on [Rosetta Code](https://rosettacode.org/wiki/lang).<br>
 **Print AST tree**: Type "printAST -*Path to .lang file*" for parsing a Lang file and printing the parsed AST tree<br>
 **4K-Support**: Type "toggle4k" for a larger font in the "TermIO-Control" window and the "LangShell" window<br>
 
