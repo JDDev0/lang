@@ -14,11 +14,11 @@ public abstract class LangNativeModule {
 	/**
 	 * The value for this field will be injected after the instantiation with the default constructor
 	 */
-	protected final LangInterpreter interpreter = null;
+	protected LangInterpreter interpreter;
 	/**
 	 * The value for this field will be injected after the instantiation with the default constructor
 	 */
-	protected final LangModule module = null;
+	protected LangModule module;
 	
 	protected final void exportFunction(String functionName, LangPredefinedFunctionObject func) {
 		if(!module.isLoad())
