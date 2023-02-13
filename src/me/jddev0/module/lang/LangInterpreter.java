@@ -1495,9 +1495,7 @@ public final class LangInterpreter {
 					}
 					
 					if(isVarNameFull(variableName) || isVarNamePtrAndDereference(variableName)) {
-						int indexOpeningBracket = variableName.indexOf("[");
-						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(variableName, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
-						if(indexOpeningBracket == -1 || indexMatchingBracket == variableName.length() - 1) {
+						if(variableName.indexOf("[") == -1) { //Pointer redirection is no longer supported
 							boolean[] flags = new boolean[] {false, false};
 							DataObject lvalue = getOrCreateDataObjectFromVariableName(moduleName, variableName, false, true, true, flags, SCOPE_ID);
 							if(flags[0])
@@ -1658,7 +1656,12 @@ public final class LangInterpreter {
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
-			//VarPointer redirection (e.g.: create "$[...]" as variable) -> at method end
+			if(shouldCreateDataObject) {
+				if(flags != null && flags.length == 2)
+					flags[0] = true;
+				
+				return setErrnoErrorObject(InterpretingError.INVALID_PTR, "Pointer redirection is not supported", SCOPE_ID);
+			}
 		}
 		
 		if(!shouldCreateDataObject)

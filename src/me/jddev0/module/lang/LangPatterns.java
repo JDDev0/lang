@@ -173,20 +173,16 @@ final class LangPatterns {
 	/**
 	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
+	public static final Pattern PARSING_ASSIGNMENT = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
 	/**
-	 * RegEx: ((\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+|((\[\[\w+\]\]::)?\$\**\[+\w+\]+)) [^\\= ]{0,3}= .{@literal *}
-	 */
-	public static final Pattern PARSING_ASSIGNMENT = Pattern.compile("((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+|((\\[\\[\\w+\\]\\]::)?\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*");
-	/**
-	 * RegEx: (((\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+|(\[\[\w+\]\]::)?(\$\**\[+\w+\]+)) [^\\= ]{0,3}= .*|[^=]+ = .*)
+	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .*|[^=]+ = .{@literal *}
 	 */
 	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION = Pattern.compile(
-		"(((\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+|(\\[\\[\\w+\\]\\]::)?(\\$\\**\\[+\\w+\\]+)) [^\\\\= ]{0,3}= .*|[^=]+ = .*)");
+		"(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*|[^=]+ = .*");
 	/**
-	 * RegEx: (\[\[\w+\]\]::)?\$\**\[*\w+\]*=.{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?\$\**\w+=.{@literal *}
 	 */
-	public static final Pattern PARSING_SIMPLE_ASSIGNMENT = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\**\\[*\\w+\\]*=.*");
+	public static final Pattern PARSING_SIMPLE_ASSIGNMENT = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\**\\w+=.*");
 	/**
 	 * RegEx: [\w\-\.\:]+=.{@literal *}
 	 */
