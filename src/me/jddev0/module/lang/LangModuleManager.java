@@ -406,7 +406,7 @@ final class LangModuleManager {
 			moduleField.setAccessible(true);
 			moduleField.set(langNativeModule, module);
 		}catch(ClassNotFoundException|NoSuchMethodException|SecurityException|InstantiationException|
-				IllegalAccessException|IllegalArgumentException|InvocationTargetException|NoSuchFieldException e) {
+				IllegalAccessException|IllegalArgumentException|InvocationTargetException|NoSuchFieldException|UnsupportedClassVersionError e) {
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "Invalid entry point (\"" + e.getClass().getSimpleName() + "\"): " + e.getMessage(), SCOPE_ID);
 		}
 		
