@@ -383,19 +383,6 @@ lang.errorOutput = 1 # Reenable error ouput
 		# Empty variable
 		$a
 		func.printTerminal(5, $a)
-		
-		# Redirecting of var pointer
-		$var = T
-		func.printTerminal(4, $var)
-		func.printTerminal(4, $[var])
-		func.printTerminal(4, $[[var]])
-		func.printTerminal(4, $[[[var]]])
-		
-		$[[var]] = Not T # Modified the pointer to the var pointer
-		func.printTerminal(4, $var)
-		func.printTerminal(4, $[var])
-		func.printTerminal(4, $[[var]])
-		func.printTerminal(4, $[[[var]]])
 	}
 	
 	# Condition function (New in v0.2.0) [func.condition is deprecated -> replaced with parser.con]
@@ -1256,21 +1243,5 @@ lang.errorOutput = 1 # Reenable error ouput
 		}elif(1) {
 			func.println(ELIF)
 		}
-	}
-	
-	func.println()
-	
-	# Pointer redirection of lang vars is no longer possible
-	{
-		func.printTerminal(4, $LANG_VERSION)
-		func.printTerminal(4, $[LANG_VERSION])
-		func.printTerminal(4, $[[LANG_VERSION]])
-		func.printTerminal(4, $[[[LANG_VERSION]]])
-		
-		$[[LANG_VERSION]] = Not \$LANG_VERSION # Is not possible
-		func.printTerminal(4, $LANG_VERSION)
-		func.printTerminal(4, $[LANG_VERSION])
-		func.printTerminal(4, $[[LANG_VERSION]])
-		func.printTerminal(4, $[[[LANG_VERSION]]])
 	}
 }
