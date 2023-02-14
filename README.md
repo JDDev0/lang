@@ -45,6 +45,7 @@ You can use the "-nolog" argument to disable log file logging<br>
 ## Breaking changes
 
 - **v1.0.0**:
+  - Pointer redirection is no longer supported
   - Array variable names starting with "&LANG_" are no longer allowed
   - Var/Array pointer names
   - Many deprecated methods and classes in the Lang class won't work as expected
