@@ -226,11 +226,9 @@ public final class LangParser {
 					whitespaces.delete(0, whitespaces.length());
 				}
 				
-				if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
-					int startIndexVariable = token.indexOf(':') + 2;
-					builder.append(token.subSequence(0, startIndexVariable));
-					token = token.substring(startIndexVariable);
-				}
+				int startIndexVariable = token.indexOf(':') + 2;
+				builder.append(token.subSequence(0, startIndexVariable));
+				token = token.substring(startIndexVariable);
 				
 				continue;
 			}
@@ -527,7 +525,8 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.OR;
 				}else if(token.startsWith("!") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.NOT;
-				}else if(token.startsWith("&") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
+				}else if(token.startsWith("&") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type) &&
+						(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_ENDS_WITH_MODULE_VAR_IDENTIFIER) || whitespaces.length() > 0)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.BITWISE_AND;
 				}else if(token.startsWith("~~") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
@@ -825,6 +824,15 @@ public final class LangParser {
 					whitespaces.delete(0, whitespaces.length());
 				}
 				
+				String modulePrefix = "";
+				if(LangPatterns.matches(builder.toString(), LangPatterns.PARSING_ENDS_WITH_MODULE_VAR_IDENTIFIER)) {
+					String builderStr = builder.toString();
+					int lastIndex = builderStr.lastIndexOf("[[");
+					modulePrefix = builderStr.substring(lastIndex);
+					
+					builder.delete(builder.length() - modulePrefix.length(), builder.length());
+				}
+				
 				if(builder.length() > 0) {
 					leftNodes.add(parseLRvalue(builder.toString(), null, true).convertToNode());
 					builder.delete(0, builder.length());
@@ -841,7 +849,7 @@ public final class LangParser {
 				String functionCall = token.substring(0, parameterEndIndex + 1);
 				token = token.substring(parameterEndIndex + 1);
 				
-				String functionName = functionCall.substring(0, parameterStartIndex);
+				String functionName = modulePrefix + functionCall.substring(0, parameterStartIndex);
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
 				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
@@ -1476,7 +1484,11 @@ public final class LangParser {
 			}
 			
 			//Force node split
-			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && (translationKey.startsWith("$"))) {
+			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && translationKey.startsWith("$")) {
+				//Variable split for variable concatenation
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+			}
+			if(LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilderTranslationKey(builder, nodes);
 			}
@@ -1666,7 +1678,11 @@ public final class LangParser {
 			}
 			
 			//Force node split
-			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && (token.startsWith("$"))) {
+			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && token.startsWith("$")) {
+				//Variable split for variable concatenation
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
+			}
+			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
 				//Variable split for variable concatenation
 				clearAndParseStringBuilderTranslationKey(builder, nodes);
 			}

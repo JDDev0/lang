@@ -141,6 +141,10 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_STARTS_WITH_VAR_NAME_PTR_OR_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$(\\*+\\w+|\\[+\\w+\\]+|\\*+\\[+\\w+\\]+).*");
 	/**
+	 * RegEx: .*(\[\[\w+\]\]::)
+	 */
+	public static final Pattern PARSING_ENDS_WITH_MODULE_VAR_IDENTIFIER = Pattern.compile(".*(\\[\\[\\w+\\]\\]::)");
+	/**
 	 * RegEx: (-?(NaN|Infinity))|(.*[fFdD])|(0[xX].*)
 	 */
 	public static final Pattern PARSING_INVALID_FLOATING_POINT_NUMBER = Pattern.compile("(-?(NaN|Infinity))|(.*[dD])|(0[xX].*)");
