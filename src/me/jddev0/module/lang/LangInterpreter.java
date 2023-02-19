@@ -1903,6 +1903,8 @@ public final class LangInterpreter {
 		copyAfterFP.remove(SCOPE_ID_FROM);
 	}
 	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) {
+		argumentValueList = new ArrayList<>(argumentValueList);
+		
 		try {
 			//Update call stack
 			StackElement currentStackElement = getCurrentCallStackElement();
