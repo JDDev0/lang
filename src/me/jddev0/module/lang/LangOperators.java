@@ -220,9 +220,9 @@ final class LangOperators {
 					if(arrPointerObject.getType() != DataType.ARRAY)
 						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, INNER_SCOPE_ID);
 					
-					List<DataObject> argsFunc = new LinkedList<>(Arrays.asList(arrPointerObject.getArray()));
-					argsFunc = LangUtils.separateArgumentsWithArgumentSeparators(argsFunc);
-					return interpreter.callFunctionPointer(func, operand.getVariableName(), argsFunc, INNER_SCOPE_ID);
+					return interpreter.callFunctionPointer(func, operand.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(arrPointerObject.getArray())
+					), INNER_SCOPE_ID);
 				}));
 			
 			case TEXT:
@@ -260,9 +260,9 @@ final class LangOperators {
 				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
 					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
 					
-					List<DataObject> argsFunc = new LinkedList<>();
-					argsFunc.add(new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0])));
-					return interpreter.callFunctionPointer(func, operand.getVariableName(), argsFunc, INNER_SCOPE_ID);
+					return interpreter.callFunctionPointer(func, operand.getVariableName(), Arrays.asList(
+							new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0]))
+					), INNER_SCOPE_ID);
 				}));
 			
 			case TEXT:
@@ -918,9 +918,9 @@ final class LangOperators {
 					DataObject ret = retN == null?new DataObject().setVoid():retN;
 					
 					for(int i = 1;i < count;i++) {
-						args = new LinkedList<>();
-						args.add(ret);
-						retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
+						retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), Arrays.asList(
+								ret
+						), INNER_SCOPE_ID);
 						ret = retN == null?new DataObject().setVoid():retN;
 					}
 					
@@ -1824,10 +1824,10 @@ final class LangOperators {
 	public DataObject opOr(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
 		if(rightSideOperand.getType() == DataType.FUNCTION_POINTER) {
 			FunctionPointerObject func = rightSideOperand.getFunctionPointer();
-			List<DataObject> args = new LinkedList<>();
-			args.add(leftSideOperand);
 			
-			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), args, SCOPE_ID);
+			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), Arrays.asList(
+					leftSideOperand
+			), SCOPE_ID);
 		}
 		
 		switch(leftSideOperand.getType()) {
@@ -2069,10 +2069,10 @@ final class LangOperators {
 	public DataObject opRshift(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
 		if(rightSideOperand.getType() == DataType.FUNCTION_POINTER) {
 			FunctionPointerObject func = rightSideOperand.getFunctionPointer();
-			List<DataObject> args = new LinkedList<>();
-			args.add(leftSideOperand);
 			
-			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), args, SCOPE_ID);
+			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), Arrays.asList(
+					leftSideOperand
+			), SCOPE_ID);
 		}
 		
 		switch(leftSideOperand.getType()) {
@@ -2148,10 +2148,9 @@ final class LangOperators {
 		if(rightSideOperand.getType() == DataType.FUNCTION_POINTER && leftSideOperand.getType() == DataType.ARRAY) {
 			FunctionPointerObject func = rightSideOperand.getFunctionPointer();
 			
-			List<DataObject> args = new LinkedList<>(Arrays.asList(leftSideOperand.getArray()));
-			args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-			
-			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), args, SCOPE_ID);
+			return interpreter.callFunctionPointer(func, rightSideOperand.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(leftSideOperand.getArray())
+			), SCOPE_ID);
 		}
 		
 		switch(leftSideOperand.getType()) {
