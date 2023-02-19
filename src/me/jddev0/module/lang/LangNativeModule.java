@@ -7,7 +7,7 @@ import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 /**
  * Lang-Module<br>
  * Lang native module<br>
- * The default constructor may be public and will be called for the instantiation
+ * The default constructor must be public and will be called for the instantiation
  * 
  * @author JDDev0
  * @version v1.0.0
