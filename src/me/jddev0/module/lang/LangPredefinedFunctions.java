@@ -4825,10 +4825,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("argCnt2", (argumentList, SCOPE_ID) -> {
@@ -4845,10 +4843,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("argCnt3", (argumentList, SCOPE_ID) -> {
@@ -4865,10 +4861,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("argCnt4", (argumentList, SCOPE_ID) -> {
@@ -4885,10 +4879,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("argCnt5", (argumentList, SCOPE_ID) -> {
@@ -4905,10 +4897,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("copyAfterFP", (argumentList, SCOPE_ID) -> {
