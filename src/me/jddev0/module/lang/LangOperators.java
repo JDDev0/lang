@@ -157,11 +157,11 @@ final class LangOperators {
 				final FunctionPointerObject aFunc = leftSideOperand.getFunctionPointer();
 				final FunctionPointerObject bFunc = rightSideOperand.getFunctionPointer();
 				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> argsB = new LinkedList<>();
 					DataObject retA = interpreter.callFunctionPointer(aFunc, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
-					argsB.add(retA == null?new DataObject().setVoid():retA);
 					
-					return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), argsB, INNER_SCOPE_ID);
+					return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), Arrays.asList(
+							retA == null?new DataObject().setVoid():retA
+					), INNER_SCOPE_ID);
 				}));
 			
 			case ERROR:
