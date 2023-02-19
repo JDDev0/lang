@@ -770,9 +770,9 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_REPEAT_COUNT, SCOPE_ID);
 			
 			for(int i = 0;i < repeatCount;i++) {
-				List<DataObject> loopFuncArgumentList = new ArrayList<>();
-				loopFuncArgumentList.add(new DataObject().setInt(i));
-				interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), loopFuncArgumentList, SCOPE_ID);
+				interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+						new DataObject().setInt(i)
+				), SCOPE_ID);
 			}
 			
 			return null;
