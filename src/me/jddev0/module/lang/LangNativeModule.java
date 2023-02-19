@@ -2,6 +2,8 @@ package me.jddev0.module.lang;
 
 import java.util.List;
 
+import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+
 /**
  * Lang-Module<br>
  * Lang native module<br>
@@ -19,6 +21,15 @@ public abstract class LangNativeModule {
 	 * The value for this field will be injected after the instantiation with the default constructor
 	 */
 	protected LangModule module;
+	
+	protected final DataObject getPredefinedFunctionAsDataObject(String name) {
+		LangPredefinedFunctionObject predefinedFuncObj = interpreter.funcs.get(name);
+		if(predefinedFuncObj == null)
+			return null;
+		
+		return new DataObject().setFunctionPointer(new FunctionPointerObject(predefinedFuncObj)).
+				setVariableName((predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name);
+	}
 	
 	protected final void exportFunction(String functionName, LangPredefinedFunctionObject func) {
 		if(!module.isLoad())
