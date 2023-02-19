@@ -55,6 +55,11 @@ lang.version = v1.0.0
 # L2: func.combL2(a, b, c)
 # L3: func.combL3(a, b, c, d)
 # L4: func.combL4(a, b, c, d, e)
+# M : func.combM(a)
+# M2: func.combM2(a, b)
+# M3: func.combM3(a, b, c)
+# M4: func.combM4(a, b, c, d)
+# M5: func.combM5(a, b, c, d, e)
 # N0: func.combN0(a)
 # N1: func.combN1(a, b, c)
 # N : func.combN(a, b, c)
@@ -64,11 +69,6 @@ lang.version = v1.0.0
 # NM: func.combNM(a)
 # NW: func.combNW(a, b)
 # NX: func.combNX(a, b, c)
-# M : func.combM(a)
-# M2: func.combM2(a, b)
-# M3: func.combM3(a, b, c)
-# M4: func.combM4(a, b, c, d)
-# M5: func.combM5(a, b, c, d, e)
 # O : func.combO(a, b)
 # O2: func.combO2(a, b, c)
 # O3: func.combO3(a, b, c, d)
@@ -221,6 +221,12 @@ lang.version = v1.0.0
 # L3   | 4     | a, b, c, d    | a b         | a(b(b, c, d))                  | -
 # L4   | 5     | a, b, c, d, e | a b         | a(b(b, c, d, e))               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# M    | 1     | a             | a           | a(a)                           | -
+# M2   | 2     | a, b          | a           | a(a, b)                        | -
+# M3   | 3     | a, b, c       | a           | a(a, b, c)                     | -
+# M4   | 4     | a, b, c, d    | a           | a(a, b, c, d)                  | -
+# M5   | 5     | a, b, c, d, e | a           | a(a, b, c, d, e)               | -
+# -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # N0   | 1     | a             | a           | a()()                          | -
 # N1   | 3     | a, b, c       | a           | a()(c)                         | -
 # N    | 3     | a, b, c       | a           | a(b)(c)                        | -
@@ -233,12 +239,6 @@ lang.version = v1.0.0
 # NW   | 2     | a, b          | a           | a(b)(b)                        | -
 # NX   | 3     | a, b, c       | a           | a(c)(b)                        | -
 # NZ   | 1+    | a, ...        | a           | a(...)(...[1])(...[0])         | Same as NN but with inverse varargs ordering
-# -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# M    | 1     | a             | a           | a(a)                           | -
-# M2   | 2     | a, b          | a           | a(a, b)                        | -
-# M3   | 3     | a, b, c       | a           | a(a, b, c)                     | -
-# M4   | 4     | a, b, c, d    | a           | a(a, b, c, d)                  | -
-# M5   | 5     | a, b, c, d, e | a           | a(a, b, c, d, e)               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # O    | 2     | a, b          | a b         | b(a(b))                        | -
 # O2   | 3     | a, b, c       | a b         | b(a(b, c))                     | -
