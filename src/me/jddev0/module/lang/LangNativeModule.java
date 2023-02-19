@@ -38,6 +38,10 @@ public abstract class LangNativeModule {
 		return interpreter.callFunctionPointer(func.getFunctionPointer(), func.getVariableName(), argumentValueList, SCOPE_ID);
 	}
 	
+	protected final DataObject callPredefinedFunction(String funcName, List<DataObject> argumentValueList, final int SCOPE_ID) {
+		return callFunctionPointer(getPredefinedFunctionAsDataObject(funcName), argumentValueList, SCOPE_ID);
+	}
+	
 	protected final void exportFunction(String functionName, LangPredefinedFunctionObject func) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
