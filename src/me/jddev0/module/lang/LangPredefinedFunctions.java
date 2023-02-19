@@ -6120,10 +6120,9 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "number"), SCOPE_ID);
 			
 			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
-				List<DataObject> args = new ArrayList<>();
-				args.add(new DataObject().setInt(i));
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						new DataObject().setInt(i)
+				), SCOPE_ID));
 			}).collect(Collectors.toList());
 			return new DataObject().setList(new LinkedList<>(elements));
 		});
@@ -6703,12 +6702,12 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			List<DataObject> elements = list.stream().sorted((a, b) -> {
-				List<DataObject> args = new ArrayList<>();
-				args.add(a);
-				args.add(b);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				
-				DataObject retObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID);
+				DataObject retObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								a, b
+						)
+				), SCOPE_ID);
 				Number retNumber = retObject.toNumber();
 				if(retNumber == null) {
 					interpreter.setErrno(InterpretingError.NO_NUM, SCOPE_ID);
@@ -6737,10 +6736,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			List<DataObject> elements = list.stream().filter(dataObject -> {
-				List<DataObject> args = new ArrayList<>();
-				args.add(dataObject);
-				
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID).getBoolean();
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						dataObject
+				), SCOPE_ID).getBoolean();
 			}).collect(Collectors.toList());
 			return new DataObject().setList(new LinkedList<>(elements));
 		});
@@ -6761,10 +6759,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			int count = (int)list.stream().filter(dataObject -> {
-				List<DataObject> args = new ArrayList<>();
-				args.add(dataObject);
-				
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, SCOPE_ID).getBoolean();
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						dataObject
+				), SCOPE_ID).getBoolean();
 			}).count();
 			return new DataObject().setInt(count);
 		});
@@ -6785,9 +6782,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++) {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(list.get(i));
-				list.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID)));
+				list.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						list.get(i)
+				), SCOPE_ID)));
 			}
 			
 			return null;
@@ -6810,9 +6807,9 @@ final class LangPredefinedFunctions {
 			List<DataObject> list = listObject.getList();
 			LinkedList<DataObject> newList = new LinkedList<>();
 			for(int i = 0;i < list.size();i++) {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(list.get(i));
-				newList.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID)));
+				newList.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						list.get(i)
+				), SCOPE_ID)));
 			}
 			
 			return new DataObject().setList(newList);
@@ -6841,11 +6838,13 @@ final class LangPredefinedFunctions {
 					continue;
 				}
 				
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(currentValueObject);
-				argumentListFuncCall.add(ele);
-				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
-				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								currentValueObject,
+								ele
+						)
+				), SCOPE_ID);
 			}
 			
 			return currentValueObject;
@@ -6904,11 +6903,13 @@ final class LangPredefinedFunctions {
 						continue;
 					}
 					
-					List<DataObject> argumentListFuncCall = new ArrayList<>();
-					argumentListFuncCall.add(currentValueObject);
-					argumentListFuncCall.add(ele);
-					argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
-					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									currentValueObject,
+									ele
+							)
+					), SCOPE_ID);
 				}
 				
 				reduceedLists.add(currentValueObject == null?new DataObject().setVoid():currentValueObject);
@@ -6933,9 +6934,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++) {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(list.get(i));
-				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						list.get(i)
+				), SCOPE_ID);
 			}
 			
 			return null;
@@ -6957,11 +6958,13 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			for(int i = 0;i < list.size();i++) {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(new DataObject().setInt(i));
-				argumentListFuncCall.add(list.get(i));
-				argumentListFuncCall = LangUtils.separateArgumentsWithArgumentSeparators(argumentListFuncCall);
-				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID);
+				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								new DataObject().setInt(i),
+								list.get(i)
+						)
+				), SCOPE_ID);
 			}
 			
 			return null;
@@ -6983,9 +6986,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			return new DataObject().setBoolean(list.stream().allMatch(ele -> {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(ele);
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
 			}));
 		});
 		funcs.put("listMatchAny", (argumentList, SCOPE_ID) -> {
@@ -7005,9 +7008,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			return new DataObject().setBoolean(list.stream().anyMatch(ele -> {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(ele);
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
 			}));
 		});
 		funcs.put("listMatchNon", (argumentList, SCOPE_ID) -> {
@@ -7027,9 +7030,9 @@ final class LangPredefinedFunctions {
 			
 			List<DataObject> list = listObject.getList();
 			return new DataObject().setBoolean(list.stream().noneMatch(ele -> {
-				List<DataObject> argumentListFuncCall = new ArrayList<>();
-				argumentListFuncCall.add(ele);
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), argumentListFuncCall, SCOPE_ID).getBoolean();
+				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
 			}));
 		});
 		funcs.put("listCombine", (argumentList, SCOPE_ID) -> {
