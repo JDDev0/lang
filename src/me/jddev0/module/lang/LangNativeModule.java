@@ -31,6 +31,13 @@ public abstract class LangNativeModule {
 				setVariableName((predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name);
 	}
 	
+	protected final DataObject callFunctionPointer(DataObject func, List<DataObject> argumentValueList, final int SCOPE_ID) {
+		if(func.getType() != DataObject.DataType.FUNCTION_POINTER)
+			throw new RuntimeException("\"func\" must be of type " + DataObject.DataType.FUNCTION_POINTER);
+		
+		return interpreter.callFunctionPointer(func.getFunctionPointer(), func.getVariableName(), argumentValueList, SCOPE_ID);
+	}
+	
 	protected final void exportFunction(String functionName, LangPredefinedFunctionObject func) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
