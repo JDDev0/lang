@@ -4805,10 +4805,8 @@ final class LangPredefinedFunctions {
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, INNER_SCOPE_ID)) != null)
 					return innerError;
 				
-				List<DataObject> args = new ArrayList<>();
-				args.addAll(combinedInnerArgumentList);
-				args = LangUtils.separateArgumentsWithArgumentSeparators(args);
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), args, INNER_SCOPE_ID));
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
 			}));
 		});
 		funcs.put("argCnt1", (argumentList, SCOPE_ID) -> {
