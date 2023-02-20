@@ -789,7 +789,7 @@ public class LangShellWindow extends JDialog {
 			else
 				autoCompleteText = autoCompletes.get(autoCompletePos).substring(conNameStart.length());
 		}else {
-			String[] tokens = line.split(".(?=\\[\\[|(\\[\\[\\w+\\]\\]::)(\\$|&|fp\\.)|(?<!\\w]]::)(\\$|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.|con\\.|math\\.|parser\\.)");
+			String[] tokens = line.split(".(?=\\[\\[|(\\[\\[\\w+\\]\\]::)(\\$|&|fp\\.)|(?<!\\w]]::)(\\$|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.|con\\.|parser\\.)");
 			if(tokens.length == 0)
 				return;
 			
