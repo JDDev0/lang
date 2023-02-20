@@ -181,8 +181,9 @@ public class LangShellWindow extends JDialog {
 						GraphicsHelper.addText(shell, autoCompleteText, Color.WHITE);
 						removeAutoCompleteText();
 						highlightSyntaxLastLine();
+						updateAutoCompleteText(lineTmp.toString());
 					}
-				}else if(c == '\t') { //Cycle trough auto completes
+				}else if(c == '\t') { //Cycle through auto completes
 					int oldAutoCompletePos = autoCompletePos;
 					removeAutoCompleteText();
 					autoCompletePos = oldAutoCompletePos + (e.isShiftDown()?-1:1);
@@ -861,6 +862,27 @@ public class LangShellWindow extends JDialog {
 					autoCompleteText = "";
 				}else {
 					autoCompleteText = autoCompletes.get(autoCompletePos).substring(lastTokenCopy.length()) + "]]::";
+				}
+			}else if(lastToken.matches("(linker|ln)\\.unloadModule.*")) {
+				int indexArgumentNameStart = lastToken.indexOf('.') + 13;
+				String argumentStart = indexArgumentNameStart == lastToken.length()?"":lastToken.substring(indexArgumentNameStart);
+				boolean hasParentheses = argumentStart.startsWith("(");
+				if(hasParentheses)
+					argumentStart = argumentStart.substring(1);
+				
+				final String argumentStartCopy = argumentStart;
+				List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
+					int oldLen = moduleName.length();
+					
+					return oldLen == moduleName.length() && moduleName.startsWith(argumentStartCopy);
+				}).sorted().collect(Collectors.toList());
+				if(autoCompletes.isEmpty())
+					return;
+				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
+				if(autoCompletePos < 0 || autoCompletePos >= autoCompletes.size()) {
+					autoCompleteText = "";
+				}else {
+					autoCompleteText = (hasParentheses?"":"(") + autoCompletes.get(autoCompletePos).substring(argumentStartCopy.length()) + ")";
 				}
 			}else if(lastToken.matches("(func|fn|linker|ln)\\..*")) {
 				boolean isLinkerFunction = lastToken.startsWith("linker.") || lastToken.startsWith("ln.");
