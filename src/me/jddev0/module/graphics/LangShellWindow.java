@@ -19,6 +19,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -251,6 +253,22 @@ public class LangShellWindow extends JDialog {
 					if(specialCharInputWindow == null) {
 						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "▲", "▼"});
 						specialCharInputWindow.setVisible(true);
+					}
+				}else if(e.getKeyCode() == KeyEvent.VK_F && e.isControlDown() && e.isShiftDown()) {
+					if(specialCharInputWindow == null) {
+						JFileChooser fileChooser = new JFileChooser(".");
+						if(fileChooser.showOpenDialog(LangShellWindow.this) == JFileChooser.APPROVE_OPTION) {
+							File file = fileChooser.getSelectedFile();
+							
+							removeAutoCompleteText();
+							
+							String textInsert = file.getAbsolutePath();
+							GraphicsHelper.addText(shell, textInsert, Color.WHITE);
+							highlightSyntaxLastLine();
+							lineTmp.append(textInsert);
+							
+							updateAutoCompleteText(lineTmp.toString());
+						}
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
 					if(flagRunning) {
@@ -530,6 +548,7 @@ public class LangShellWindow extends JDialog {
 		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
 		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
 		"• Press CTRL + SHIFT + S for opening the special char input window\n" +
+		"• Press CTRL + SHIFT + F for opening a file chooser to insert file paths\n" +
 		"• Press UP and DOWN for scrolling through the history\n" +
 		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
 		"    ◦ Press ENTER for accepting the auto complete text\n" +
