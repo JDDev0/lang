@@ -81,6 +81,97 @@ public abstract class LangNativeModule {
 		return new DataObject().setTypeValue(typeValue);
 	}
 	
+	protected final DataObject convertToDataObject(Object objectValue) throws DataObject.DataTypeConstraintException {
+		if(objectValue == null) {
+			return new DataObject();
+		}else if(objectValue instanceof CharSequence) {
+			return new DataObject("" + (CharSequence)objectValue);
+		}else if(objectValue instanceof Object[]) {
+			Object[] arrayValue = (Object[])objectValue;
+			DataObject[] dataObjectArray = new DataObject[arrayValue.length];
+			for(int i = 0;i < arrayValue.length;i++)
+				dataObjectArray[i] = convertToDataObject(arrayValue[i]);
+			
+			return new DataObject().setArray(dataObjectArray);
+		}else if(objectValue instanceof List<?>) {
+			List<?> listValue = (List<?>)objectValue;
+			LinkedList<DataObject> dataObjectList = new LinkedList<>();
+			for(Object ele:listValue)
+				dataObjectList.add(convertToDataObject(ele));
+			
+			return new DataObject().setList(dataObjectList);
+		}else if(objectValue instanceof DataObject.VarPointerObject) {
+			return new DataObject().setVarPointer((DataObject.VarPointerObject)objectValue);
+		}else if(objectValue instanceof DataObject.FunctionPointerObject) {
+			return new DataObject().setFunctionPointer((DataObject.FunctionPointerObject)objectValue);
+		}else if(objectValue instanceof LangPredefinedFunctionObject) {
+			return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject((LangPredefinedFunctionObject)objectValue));
+		}else if(objectValue instanceof LangExternalFunctionObject) {
+			return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject((LangExternalFunctionObject)objectValue));
+		}else if(objectValue instanceof Void) {
+			return new DataObject().setVoid();
+		}else if(objectValue instanceof Integer) {
+			return new DataObject().setInt((Integer)objectValue);
+		}else if(objectValue instanceof Boolean) {
+			return new DataObject().setBoolean((Boolean)objectValue);
+		}else if(objectValue instanceof Long) {
+			return new DataObject().setLong((Long)objectValue);
+		}else if(objectValue instanceof Float) {
+			return new DataObject().setFloat((Float)objectValue);
+		}else if(objectValue instanceof Double) {
+			return new DataObject().setDouble((Double)objectValue);
+		}else if(objectValue instanceof Character) {
+			return new DataObject().setChar((Character)objectValue);
+		}else if(objectValue instanceof DataObject.ErrorObject) {
+			return new DataObject().setError((DataObject.ErrorObject)objectValue);
+		}else if(objectValue instanceof LangInterpreter.InterpretingError) {
+			return new DataObject().setError(new DataObject.ErrorObject((LangInterpreter.InterpretingError)objectValue));
+		}else if(objectValue instanceof Throwable) {
+			Throwable throwableValue = (Throwable)objectValue;
+			return new DataObject().setError(new DataObject.ErrorObject(LangInterpreter.InterpretingError.SYSTEM_ERROR,
+					"Native Error (\"" + throwableValue.getClass().getSimpleName() + "\"): " + throwableValue.getMessage()));
+		}else if(objectValue instanceof DataObject.DataType) {
+			return new DataObject().setTypeValue((DataObject.DataType)objectValue);
+		}else if(objectValue instanceof Class<?>) {
+			Class<?> classValue = (Class<?>)objectValue;
+			if(CharSequence.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.TEXT);
+			}else if(classValue.isArray()) {
+				return new DataObject().setTypeValue(DataObject.DataType.ARRAY);
+			}else if(List.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.LIST);
+			}else if(DataObject.VarPointerObject.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.VAR_POINTER);
+			}else if(DataObject.FunctionPointerObject.class.isAssignableFrom(classValue) ||
+					LangPredefinedFunctionObject.class.isAssignableFrom(classValue) ||
+					LangExternalFunctionObject.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.FUNCTION_POINTER);
+			}else if(Void.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.VOID);
+			}else if(Integer.class.isAssignableFrom(classValue) ||
+					Boolean.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.INT);
+			}else if(Long.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.LONG);
+			}else if(Float.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.FLOAT);
+			}else if(Double.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.DOUBLE);
+			}else if(Character.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.CHAR);
+			}else if(DataObject.ErrorObject.class.isAssignableFrom(classValue) ||
+					LangInterpreter.InterpretingError.class.isAssignableFrom(classValue) ||
+					Throwable.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.ERROR);
+			}else if(DataObject.DataType.class.isAssignableFrom(classValue) ||
+					Class.class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.TYPE);
+			}
+		}
+		
+		throw new DataObject.DataTypeConstraintException("Java object can not be converted to DataObject");
+	}
+	
 	protected final DataObject getPredefinedFunctionAsDataObject(String name) {
 		LangPredefinedFunctionObject predefinedFuncObj = interpreter.funcs.get(name);
 		if(predefinedFuncObj == null)
