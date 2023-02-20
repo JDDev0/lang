@@ -1,8 +1,7 @@
 package me.jddev0.module.lang;
 
+import java.util.LinkedList;
 import java.util.List;
-
-import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 
 /**
  * Lang-Module<br>
@@ -22,12 +21,72 @@ public abstract class LangNativeModule {
 	 */
 	protected LangModule module;
 	
+	protected final DataObject createDataObject(String textValue) {
+		return new DataObject(textValue);
+	}
+	
+	protected final DataObject createDataObject(DataObject[] arrayValue) {
+		return new DataObject().setArray(arrayValue);
+	}
+	
+	protected final DataObject createDataObject(List<DataObject> listValue) {
+		return new DataObject().setList(new LinkedList<>(listValue));
+	}
+	
+	protected final DataObject createDataObject(DataObject.VarPointerObject varPointerValue) {
+		return new DataObject().setVarPointer(varPointerValue);
+	}
+	
+	protected final DataObject createDataObject(DataObject.FunctionPointerObject functionPointerValue) {
+		return new DataObject().setFunctionPointer(functionPointerValue);
+	}
+	
+	protected final DataObject createDataObject() {
+		return new DataObject();
+	}
+	
+	protected final DataObject createDataObject(Void v) {
+		return new DataObject().setVoid();
+	}
+	
+	protected final DataObject createDataObject(int intValue) {
+		return new DataObject().setInt(intValue);
+	}
+	
+	protected final DataObject createDataObject(boolean booleanValue) {
+		return new DataObject().setBoolean(booleanValue);
+	}
+	
+	protected final DataObject createDataObject(long longValue) {
+		return new DataObject().setLong(longValue);
+	}
+	
+	protected final DataObject createDataObject(float floatValue) {
+		return new DataObject().setFloat(floatValue);
+	}
+	
+	protected final DataObject createDataObject(double doubleValue) {
+		return new DataObject().setDouble(doubleValue);
+	}
+	
+	protected final DataObject createDataObject(char charValue) {
+		return new DataObject().setChar(charValue);
+	}
+	
+	protected final DataObject createDataObject(DataObject.ErrorObject errorValue) {
+		return new DataObject().setError(errorValue);
+	}
+	
+	protected final DataObject createDataObject(DataObject.DataType typeValue) {
+		return new DataObject().setTypeValue(typeValue);
+	}
+	
 	protected final DataObject getPredefinedFunctionAsDataObject(String name) {
 		LangPredefinedFunctionObject predefinedFuncObj = interpreter.funcs.get(name);
 		if(predefinedFuncObj == null)
 			return null;
 		
-		return new DataObject().setFunctionPointer(new FunctionPointerObject(predefinedFuncObj)).
+		return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(predefinedFuncObj)).
 				setVariableName((predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name);
 	}
 	
