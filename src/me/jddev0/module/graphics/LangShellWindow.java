@@ -18,8 +18,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -36,10 +38,12 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -71,6 +75,9 @@ public class LangShellWindow extends JDialog {
 	private final TerminalIO term;
 	
 	private SpecialCharInputWindow specialCharInputWindow = null;
+	
+	private File lastLangFileSavedTo = null;
+	private StringBuilder langFileOutputBuilder = new StringBuilder();
 	
 	private List<String> history = new LinkedList<String>();
 	private int historyPos = 0;
@@ -202,7 +209,7 @@ public class LangShellWindow extends JDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(flagEnd) {
-					if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown())
+					if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && !e.isShiftDown())
 						dispatchEvent(new WindowEvent(LangShellWindow.this, WindowEvent.WINDOW_CLOSING));
 					
 					return;
@@ -249,11 +256,13 @@ public class LangShellWindow extends JDialog {
 					}catch(HeadlessException|IOException e1) {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_S && e.isControlDown() && e.isShiftDown()) {
+				}else if(e.getKeyCode() == KeyEvent.VK_I && e.isControlDown() && !e.isShiftDown()) {
 					if(specialCharInputWindow == null) {
 						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "▲", "▼"});
 						specialCharInputWindow.setVisible(true);
 					}
+				}else if(e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
+					saveLangFile(e.isShiftDown());
 				}else if(e.getKeyCode() == KeyEvent.VK_F && e.isControlDown() && e.isShiftDown()) {
 					if(specialCharInputWindow == null) {
 						JFileChooser fileChooser = new JFileChooser(".");
@@ -271,14 +280,14 @@ public class LangShellWindow extends JDialog {
 							updateAutoCompleteText(lineTmp.toString());
 						}
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown()) {
+				}else if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && !e.isShiftDown()) {
 					if(flagRunning) {
 						lii.stop();
 						GraphicsHelper.addText(shell, "^C\n", Color.WHITE);
 					}else {
 						end();
 					}
-				}else if(e.getKeyCode() == KeyEvent.VK_L && e.isControlDown()) {
+				}else if(e.getKeyCode() == KeyEvent.VK_L && e.isControlDown() && !e.isShiftDown()) {
 					clear();
 				}else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 					removeAutoCompleteText();
@@ -548,7 +557,9 @@ public class LangShellWindow extends JDialog {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
 		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
-		"• Press CTRL + SHIFT + S for opening the special char input window\n" +
+		"• Press CTRL + S for saving all inputs to a .lang file (Save)\n" +
+		"• Press CTRL + SHIFT + S for saving all inputs to a .lang file (Save As...)\n" +
+		"• Press CTRL + I for opening the special char input window\n" +
 		"• Press CTRL + SHIFT + F for opening a file chooser to insert file paths\n" +
 		"• Press UP and DOWN for scrolling through the history\n" +
 		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
@@ -1187,6 +1198,7 @@ public class LangShellWindow extends JDialog {
 			term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
 		}else {
 			flagRunning = true;
+			langFileOutputBuilder.append(code).append('\n');
 			Thread t = new Thread(() -> {
 				try {
 					DataObject lastVal = lii.exec(0, code);
@@ -1217,6 +1229,7 @@ public class LangShellWindow extends JDialog {
 			flagExecutingQueue = true;
 			Thread t = new Thread(() -> {
 				while(!executionQueue.isEmpty()) {
+					langFileOutputBuilder.append(executionQueue.peek()).append('\n');
 					try {
 						DataObject lastVal = lii.exec(0, executionQueue.poll());
 						if(executionQueue.isEmpty()) {
@@ -1239,6 +1252,50 @@ public class LangShellWindow extends JDialog {
 			});
 			t.setDaemon(true);
 			t.start();
+		}
+	}
+	
+	private void saveLangFile(boolean chooseFile) {
+		File file = null;
+		if(chooseFile || lastLangFileSavedTo == null) {
+			JFileChooser fileChooser = new JFileChooser(".");
+			fileChooser.setDialogTitle("Select file to save input to");
+			fileChooser.setFileFilter(new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "Lang files";
+				}
+				
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || f.getName().endsWith(".lang");
+				}
+			});
+			
+			if(fileChooser.showSaveDialog(LangShellWindow.this) == JFileChooser.APPROVE_OPTION)
+				file = fileChooser.getSelectedFile();
+			else
+				return;
+		}else {
+			file = lastLangFileSavedTo;
+		}
+		
+		if(file.exists() && (chooseFile || lastLangFileSavedTo == null)) {
+			if(JOptionPane.showOptionDialog(LangShellWindow.this, "The file already exists!\nDo you want to override it?",
+					"Select an option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) != JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+		
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+			writer.write(langFileOutputBuilder.toString());
+			
+			JOptionPane.showOptionDialog(this, "The file was saved successfully!", "Ok", JOptionPane.DEFAULT_OPTION,
+					JOptionPane.INFORMATION_MESSAGE, null, null, null);
+			
+			lastLangFileSavedTo = file;
+		}catch(IOException e1) {
+			term.logStackTrace(e1, LangShellWindow.class);
 		}
 	}
 	
