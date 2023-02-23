@@ -257,6 +257,7 @@ public class LangShellWindow extends JDialog {
 				}else if(e.getKeyCode() == KeyEvent.VK_F && e.isControlDown() && e.isShiftDown()) {
 					if(specialCharInputWindow == null) {
 						JFileChooser fileChooser = new JFileChooser(".");
+						fileChooser.setDialogTitle("Select file for inserting the path");
 						if(fileChooser.showOpenDialog(LangShellWindow.this) == JFileChooser.APPROVE_OPTION) {
 							File file = fileChooser.getSelectedFile();
 							
