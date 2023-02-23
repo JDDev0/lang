@@ -1272,10 +1272,12 @@ public class LangShellWindow extends JDialog {
 				}
 			});
 			
-			if(fileChooser.showSaveDialog(LangShellWindow.this) == JFileChooser.APPROVE_OPTION)
-				file = fileChooser.getSelectedFile();
-			else
+			if(fileChooser.showSaveDialog(LangShellWindow.this) != JFileChooser.APPROVE_OPTION)
 				return;
+			
+			file = fileChooser.getSelectedFile();
+			if(!file.getName().contains("."))
+				file = new File(file.getAbsolutePath() + ".lang");
 		}else {
 			file = lastLangFileSavedTo;
 		}
@@ -1290,7 +1292,7 @@ public class LangShellWindow extends JDialog {
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
 			writer.write(langFileOutputBuilder.toString());
 			
-			JOptionPane.showOptionDialog(this, "The file was saved successfully!", "Ok", JOptionPane.DEFAULT_OPTION,
+			JOptionPane.showOptionDialog(this, "The file was saved successfully!", "Successfully saved!", JOptionPane.DEFAULT_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, null, null);
 			
 			lastLangFileSavedTo = file;
