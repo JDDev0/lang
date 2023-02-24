@@ -303,7 +303,7 @@ final class LangModuleManager {
 			String maxSupportedVersion = lmc.getMaxSupportedVersion();
 			Integer maxCompVer = LangUtils.compareVersions(maxSupportedVersion, LangInterpreter.VERSION);
 			if(maxCompVer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "The min supported version has an invalid format!", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "The max supported version has an invalid format!", SCOPE_ID);
 			if(maxSupportedVersion != null && maxCompVer < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "The maximal supported version of the module is lower than " + LangInterpreter.VERSION +
 						": " + maxSupportedVersion + "!", SCOPE_ID);
