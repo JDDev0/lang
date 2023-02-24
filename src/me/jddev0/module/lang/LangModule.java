@@ -26,6 +26,8 @@ public final class LangModule {
 	private final List<String> exportedFunctions = new LinkedList<>();
 	private final Map<String, DataObject> exportedVariables = new HashMap<>();
 	
+	private final Map<String, LangNativeModule> loadedNativeModules = new HashMap<>();
+	
 	public LangModule(String file, boolean load, Map<String, ZipEntry> zipEntries, Map<String, byte[]> zipData, LangModuleConfiguration lmc) {
 		this.file = file;
 		this.load = load;
@@ -40,6 +42,10 @@ public final class LangModule {
 	
 	Map<String, DataObject> getExportedVariables() {
 		return exportedVariables;
+	}
+	
+	Map<String, LangNativeModule> getLoadedNativeModules() {
+		return loadedNativeModules;
 	}
 	
 	public String getFile() {

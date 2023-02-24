@@ -318,7 +318,15 @@ final class LangModuleManager {
 		return null;
 	}
 	
-	private DataObject readNativeModule(String nativeEntryPoint, LangModule module, LangNativeModule[] lnmArray, final int SCOPE_ID) {
+	private DataObject readNativeModule(final String nativeEntryPoint, LangModule module, LangNativeModule[] lnmArray, final int SCOPE_ID) {
+		//Fix the unload method was not executed on the same instances as the load method was called on (Unloading class's attributes is now possible)
+		Map<String, LangNativeModule> loadedNativeModules = module.getLoadedNativeModules();
+		if(loadedNativeModules.containsKey(nativeEntryPoint)) {
+			lnmArray[0] = loadedNativeModules.get(nativeEntryPoint);
+			
+			return null;
+		}
+		
 		int colonIndex = nativeEntryPoint.lastIndexOf(':');
 		if(colonIndex == -1)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_MODULE, "\"/data.lmc\" is invalid: \"nativeEntryPoint\" must be of format"
@@ -397,6 +405,7 @@ final class LangModuleManager {
 			Constructor<?> entryPointConstructor = entryPointClass.getConstructor();
 			
 			LangNativeModule langNativeModule = lnmArray[0] = (LangNativeModule)entryPointConstructor.newInstance();
+			loadedNativeModules.put(nativeEntryPoint, langNativeModule);
 			
 			Field interpreterField = LangNativeModule.class.getDeclaredField("interpreter");
 			interpreterField.setAccessible(true);
