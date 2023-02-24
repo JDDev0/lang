@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public final class LangModuleConfiguration {
 	private final String name;
+	private final String description;
+	private final String version;
 	
 	private final String minSupportedVersion;
 	private final String maxSupportedVersion;
@@ -71,11 +73,15 @@ public final class LangModuleConfiguration {
 		else
 			throw new InvalidModuleConfigurationException("Invalid configuration for \"moduleType\" (Must be one of \"lang\", \"native\"): " + moduleTypeString);
 		
-		return new LangModuleConfiguration(name, data.get("minSupportedVersion"), data.get("maxSupportedVersion"), supportedImplementations, moduleType, data.get("nativeEntryPoint"));
+		return new LangModuleConfiguration(name, data.get("description"), data.get("version"), data.get("minSupportedVersion"),
+				data.get("maxSupportedVersion"), supportedImplementations, moduleType, data.get("nativeEntryPoint"));
 	}
 	
-	public LangModuleConfiguration(String name, String minSupportedVersion, String maxSupportedVersion, String[] supportedImplementations, ModuleType moduleType, String nativeEntryPoint) {
+	public LangModuleConfiguration(String name, String description, String version, String minSupportedVersion,
+			String maxSupportedVersion, String[] supportedImplementations, ModuleType moduleType, String nativeEntryPoint) {
 		this.name = name;
+		this.description = description;
+		this.version = version;
 		this.minSupportedVersion = minSupportedVersion;
 		this.maxSupportedVersion = maxSupportedVersion;
 		this.supportedImplementations = supportedImplementations;
@@ -85,6 +91,14 @@ public final class LangModuleConfiguration {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public String getVersion() {
+		return version;
 	}
 	
 	public String getMinSupportedVersion() {
