@@ -8048,6 +8048,9 @@ final class LangPredefinedFunctions {
 				if(!moduleFile.endsWith(".lm"))
 					return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, "Modules must have a file extension of\".lm\"", SCOPE_ID);
 				
+				if(!new File(moduleFile).isAbsolute())
+					moduleFile = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + moduleFile;
+				
 				return interpreter.moduleManager.load(moduleFile, argumentList, SCOPE_ID);
 			}
 			
