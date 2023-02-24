@@ -17,6 +17,9 @@ One of the main feature of this programming language is the combinator function 
 ## Lang Modules
 
 Lang modules can be used to put common code into one library which can be re-used easily.
+Here is a list of all existing modules for lang:
+- The [Lang Example Native Module](https://github.com/JDDev0/LangExampleNativeModule) is a reference implementation of a lang native module. It can be used as a base for creating new modules.
+- The [Lang IO Module](https://github.com/JDDev0/LangIOModule) is a lang native module providing basic IO operations for files.
 
 ### Native Lang Modules
 
