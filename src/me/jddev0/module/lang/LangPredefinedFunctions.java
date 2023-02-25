@@ -414,6 +414,7 @@ final class LangPredefinedFunctions {
 		addPredefinedMathFunctions(funcs);
 		addPredefinedCombinatorFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
+		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
@@ -448,6 +449,7 @@ final class LangPredefinedFunctions {
 					case FLOAT:
 					case INT:
 					case LONG:
+					case BYTE_BUFFER:
 					case LIST:
 					case NULL:
 					case TEXT:
@@ -538,6 +540,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case BYTE_BUFFER:
 				case LIST:
 				case NULL:
 				case TEXT:
@@ -2147,6 +2150,17 @@ final class LangPredefinedFunctions {
 			Double value = dataObject.toDouble();
 			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setDouble(value), SCOPE_ID);
 		});
+		funcs.put("byteBuffer", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject dataObject = combinedArgumentList.get(0);
+			
+			byte[] value = dataObject.toByteBuffer();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setByteBuffer(value), SCOPE_ID);
+		});
 		funcs.put("array", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -2851,6 +2865,7 @@ final class LangPredefinedFunctions {
 				
 				case CHAR:
 				case TEXT:
+				case BYTE_BUFFER:
 				case ARRAY:
 				case LIST:
 				case ERROR:
@@ -4869,6 +4884,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case BYTE_BUFFER:
 				case LIST:
 				case NULL:
 				case VOID:
@@ -4906,6 +4922,7 @@ final class LangPredefinedFunctions {
 				case FLOAT:
 				case INT:
 				case LONG:
+				case BYTE_BUFFER:
 				case LIST:
 				case NULL:
 				case VOID:
@@ -4919,6 +4936,116 @@ final class LangPredefinedFunctions {
 			interpreter.setErrno(InterpretingError.USE_OF_COPY_AFTER_FP, SCOPE_ID);
 			
 			return null;
+		});
+	}
+	private void addPredefinedByteBufferFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("byteBufferCreate", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject lengthObject = combinedArgumentList.get(0);
+			Number lengthNumber = lengthObject.toNumber();
+			if(lengthNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, SCOPE_ID);
+			int length = lengthNumber.intValue();
+			
+			if(length < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
+			
+			return new DataObject().setByteBuffer(new byte[length]);
+		});
+		funcs.put("byteBufferOf", (argumentList, SCOPE_ID) -> {
+			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
+			byte[] byteBuf = new byte[elements.size()];
+			for(int i = 0;i < byteBuf.length;i++) {
+				Number number = elements.get(i).toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument " + (i + 1) + " must be a number", SCOPE_ID);
+				
+				byteBuf[i] = number.byteValue();
+			}
+			
+			return new DataObject().setByteBuffer(byteBuf);
+		});
+		funcs.put("byteBufferSet", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject byteBufferObject = combinedArgumentList.get(0);
+			DataObject indexObject = combinedArgumentList.get(1);
+			DataObject valueObject = combinedArgumentList.get(2);
+			
+			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+			
+			Number indexNumber = indexObject.toNumber();
+			if(indexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int index = indexNumber.intValue();
+			
+			Number valueNumber = valueObject.toNumber();
+			if(valueNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			byte value = valueNumber.byteValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(index < 0)
+				index += byteBuf.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			byteBuf[index] = value;
+			
+			return null;
+		});
+		funcs.put("byteBufferGet", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject byteBufferObject = combinedArgumentList.get(0);
+			DataObject indexObject = combinedArgumentList.get(1);
+			
+			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+			
+			Number indexNumber = indexObject.toNumber();
+			if(indexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int index = indexNumber.intValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(index < 0)
+				index += byteBuf.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setInt(byteBuf[index]);
+		});
+		funcs.put("byteBufferLength", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject byteBufferObject = combinedArgumentList.get(0);
+			
+			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+			
+			return new DataObject().setInt(byteBufferObject.getByteBuffer().length);
 		});
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {

@@ -30,6 +30,8 @@ final class LangOperators {
 	 */
 	public DataObject opLen(DataObject operand, final int SCOPE_ID) {
 		switch(operand.getType()) {
+			case BYTE_BUFFER:
+				return new DataObject().setInt(operand.getByteBuffer().length);
 			case ARRAY:
 				return new DataObject().setInt(operand.getArray().length);
 			case LIST:
@@ -60,6 +62,8 @@ final class LangOperators {
 	 */
 	public DataObject opDeepCopy(DataObject operand, final int SCOPE_ID) {
 		switch(operand.getType()) {
+			case BYTE_BUFFER:
+				return new DataObject().setByteBuffer(Arrays.copyOf(operand.getByteBuffer(), operand.getByteBuffer().length));
 			case ARRAY:
 				DataObject[] arrCopy = new DataObject[operand.getArray().length];
 				for(int i = 0;i < operand.getArray().length;i++) {
@@ -114,6 +118,14 @@ final class LangOperators {
 				return new DataObject(leftSideOperand.getChar() + rightSideOperand.getText());
 			case TEXT:
 				return new DataObject(leftSideOperand.getText() + rightSideOperand.getText());
+			case BYTE_BUFFER:
+				byte[] newByteBuf = new byte[leftSideOperand.getByteBuffer().length + rightSideOperand.getByteBuffer().length];
+				
+				System.arraycopy(leftSideOperand.getByteBuffer(), 0, newByteBuf, 0, leftSideOperand.getByteBuffer().length);
+				System.arraycopy(rightSideOperand.getByteBuffer(), 0, newByteBuf, leftSideOperand.getByteBuffer().length,
+						rightSideOperand.getByteBuffer().length);
+				
+				return new DataObject().setByteBuffer(newByteBuf);
 			case ARRAY:
 				if(rightSideOperand.getType() == DataType.ARRAY) {
 					DataObject[] arrNew = new DataObject[leftSideOperand.getArray().length + rightSideOperand.getArray().length];
@@ -226,6 +238,7 @@ final class LangOperators {
 				}));
 			
 			case TEXT:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -267,6 +280,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case ARRAY:
+			case BYTE_BUFFER:
 			case LIST:
 			case ERROR:
 			case VAR_POINTER:
@@ -302,6 +316,12 @@ final class LangOperators {
 				return new DataObject().setChar((char)(-operand.getChar()));
 			case TEXT:
 				return new DataObject(new StringBuilder(operand.getText()).reverse().toString());
+			case BYTE_BUFFER:
+				byte[] revByteBuf = new byte[operand.getByteBuffer().length];
+				for(int i = 0;i < revByteBuf.length;i++)
+					revByteBuf[i] = operand.getByteBuffer()[revByteBuf.length - 1 - i];
+				
+				return new DataObject().setByteBuffer(revByteBuf);
 			case ARRAY:
 				DataObject[] arrInv = new DataObject[operand.getArray().length];
 				int index = arrInv.length - 1;
@@ -346,6 +366,7 @@ final class LangOperators {
 						return new DataObject().setInt(leftSideOperand.getInt() + rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -372,6 +393,7 @@ final class LangOperators {
 						return new DataObject().setLong(leftSideOperand.getLong() + rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -398,6 +420,7 @@ final class LangOperators {
 						return new DataObject().setFloat(leftSideOperand.getFloat() + rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -424,6 +447,7 @@ final class LangOperators {
 						return new DataObject().setDouble(leftSideOperand.getDouble() + rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -450,6 +474,7 @@ final class LangOperators {
 						return new DataObject().setInt(leftSideOperand.getChar() + rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -476,6 +501,7 @@ final class LangOperators {
 				listNew.add(new DataObject(rightSideOperand));
 				return new DataObject().setList(listNew);
 			
+			case BYTE_BUFFER:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -507,6 +533,7 @@ final class LangOperators {
 						return new DataObject().setInt(leftSideOperand.getInt() - rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -533,6 +560,7 @@ final class LangOperators {
 						return new DataObject().setLong(leftSideOperand.getLong() - rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -559,6 +587,7 @@ final class LangOperators {
 						return new DataObject().setFloat(leftSideOperand.getFloat() - rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -585,6 +614,7 @@ final class LangOperators {
 						return new DataObject().setDouble(leftSideOperand.getDouble() - rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -611,6 +641,7 @@ final class LangOperators {
 						return new DataObject().setInt(leftSideOperand.getChar() - rightSideOperand.getChar());
 					
 					case TEXT:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -625,6 +656,7 @@ final class LangOperators {
 				return null;
 			
 			case TEXT:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -657,6 +689,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -682,6 +715,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -707,6 +741,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -732,6 +767,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -762,6 +798,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -777,6 +814,7 @@ final class LangOperators {
 			
 			case CHAR:
 			case ARRAY:
+			case BYTE_BUFFER:
 			case LIST:
 			case ERROR:
 			case VAR_POINTER:
@@ -811,6 +849,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -836,6 +875,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -861,6 +901,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -886,6 +927,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -929,6 +971,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -972,6 +1015,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1009,6 +1053,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1034,6 +1079,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1059,6 +1105,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1074,6 +1121,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1128,6 +1176,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1175,6 +1224,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1232,6 +1282,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1290,6 +1341,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1305,6 +1357,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1349,6 +1402,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1386,6 +1440,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1423,6 +1478,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1461,6 +1517,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1476,6 +1533,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1520,6 +1578,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1557,6 +1616,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1594,6 +1654,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1632,6 +1693,7 @@ final class LangOperators {
 					
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1647,6 +1709,7 @@ final class LangOperators {
 			
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1683,6 +1746,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1712,6 +1776,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1734,6 +1799,7 @@ final class LangOperators {
 			case FLOAT:
 			case DOUBLE:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1764,6 +1830,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1787,6 +1854,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1804,6 +1872,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1842,6 +1911,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1865,6 +1935,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1882,6 +1953,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1912,6 +1984,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1935,6 +2008,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -1952,6 +2026,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -1979,6 +2054,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -2009,6 +2085,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2032,6 +2109,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2049,6 +2127,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -2087,6 +2166,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2110,6 +2190,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2127,6 +2208,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -2165,6 +2247,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2188,6 +2271,7 @@ final class LangOperators {
 					case DOUBLE:
 					case TEXT:
 					case CHAR:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 					case ERROR:
@@ -2205,6 +2289,7 @@ final class LangOperators {
 			case DOUBLE:
 			case TEXT:
 			case CHAR:
+			case BYTE_BUFFER:
 			case ARRAY:
 			case LIST:
 			case ERROR:
@@ -2224,6 +2309,20 @@ final class LangOperators {
 	 */
 	public DataObject opGetItem(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
 		switch(leftSideOperand.getType()) {
+			case BYTE_BUFFER:
+				if(rightSideOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getByteBuffer().length;
+					int index = rightSideOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					return new DataObject().setInt(leftSideOperand.getByteBuffer()[index]);
+				}
+				
+				return null;
 			case ARRAY:
 				if(rightSideOperand.getType() == DataType.INT) {
 					int len = leftSideOperand.getArray().length;

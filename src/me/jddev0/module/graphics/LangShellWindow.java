@@ -606,6 +606,11 @@ public class LangShellWindow extends JDialog {
 				builder.append("}");
 				break;
 			
+			case BYTE_BUFFER:
+				builder.append("\nSize: ");
+				builder.append(dataObject.getByteBuffer().length);
+				break;
+			
 			case ARRAY:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getArray().length);
@@ -624,25 +629,25 @@ public class LangShellWindow extends JDialog {
 					builder.append("    }");
 				}
 				break;
-				
-				case LIST:
-					builder.append("\nSize: ");
-					builder.append(dataObject.getList().size());
-					builder.append("\nElements:");
-					for(int i = 0;i < dataObject.getList().size();i++) {
-						DataObject ele = dataObject.getList().get(i);
-						builder.append("\n    list(");
-						builder.append(i);
-						builder.append("): {\n");
-						debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
-						for(String debugStringLine:debugStringLines) {
-							builder.append("        ");
-							builder.append(debugStringLine);
-							builder.append("\n");
-						}
-						builder.append("    }");
+			
+			case LIST:
+				builder.append("\nSize: ");
+				builder.append(dataObject.getList().size());
+				builder.append("\nElements:");
+				for(int i = 0;i < dataObject.getList().size();i++) {
+					DataObject ele = dataObject.getList().get(i);
+					builder.append("\n    list(");
+					builder.append(i);
+					builder.append("): {\n");
+					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
+					for(String debugStringLine:debugStringLines) {
+						builder.append("        ");
+						builder.append(debugStringLine);
+						builder.append("\n");
 					}
-					break;
+					builder.append("    }");
+				}
+				break;
 			
 			case FUNCTION_POINTER:
 				builder.append("\nFunction-Type: ");

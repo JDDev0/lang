@@ -25,6 +25,10 @@ public abstract class LangNativeModule {
 		return new DataObject(textValue);
 	}
 	
+	protected final DataObject createDataObject(byte[] byteBuf) {
+		return new DataObject().setByteBuffer(byteBuf);
+	}
+	
 	protected final DataObject createDataObject(DataObject[] arrayValue) {
 		return new DataObject().setArray(arrayValue);
 	}
@@ -86,6 +90,10 @@ public abstract class LangNativeModule {
 			return new DataObject();
 		}else if(objectValue instanceof CharSequence) {
 			return new DataObject("" + (CharSequence)objectValue);
+		}else if(objectValue instanceof byte[]) {
+			byte[] byteBuf = (byte[])objectValue;
+			
+			return new DataObject().setByteBuffer(byteBuf);
 		}else if(objectValue instanceof Object[]) {
 			Object[] arrayValue = (Object[])objectValue;
 			DataObject[] dataObjectArray = new DataObject[arrayValue.length];

@@ -25,6 +25,7 @@ public class DataObject {
 	
 	//Value
 	private String txt;
+	private byte[] byteBuf;
 	private DataObject[] arr;
 	private LinkedList<DataObject> list;
 	private VarPointerObject vp;
@@ -90,6 +91,7 @@ public class DataObject {
 		this.type = checkAndRetType(dataObject.type);
 		
 		this.txt = dataObject.txt;
+		this.byteBuf = dataObject.byteBuf; //Array: copy reference only
 		this.arr = dataObject.arr; //Array: copy reference only
 		this.list = dataObject.list; //List: copy reference only
 		this.vp = dataObject.vp; //Var pointer: copy reference only
@@ -117,6 +119,7 @@ public class DataObject {
 	 */
 	private void resetValue() {
 		this.txt = null;
+		this.byteBuf = null;
 		this.arr = null;
 		this.list = null;
 		this.vp = null;
@@ -158,6 +161,23 @@ public class DataObject {
 	
 	public String getText() {
 		return toText();
+	}
+	
+	public DataObject setByteBuffer(byte[] byteBuf) throws DataTypeConstraintViolatedException {
+		if(finalData)
+			return this;
+		if(byteBuf == null)
+			return setNull();
+		
+		this.type = checkAndRetType(DataType.BYTE_BUFFER);
+		resetValue();
+		this.byteBuf = byteBuf;
+		
+		return this;
+	}
+	
+	public byte[] getByteBuffer() {
+		return byteBuf;
 	}
 	
 	public DataObject setArray(DataObject[] arr) throws DataTypeConstraintViolatedException {
@@ -473,6 +493,22 @@ public class DataObject {
 		return new DataObject().setNull();
 	}
 	
+	private String convertByteBufferToText() {
+		StringBuilder builder = new StringBuilder();
+		if(byteBuf.length > 0) {
+			final String HEX_DIGITS = "0123456789ABCDEF";
+			
+			builder.append("0x");
+			for(byte b:byteBuf) {
+				builder.append(HEX_DIGITS.charAt((b >> 4) & 0xF));
+				builder.append(HEX_DIGITS.charAt(b & 0xF));
+			}
+		}else {
+			builder.append("<Empty ByteBuffer>");
+		}
+		return builder.toString();
+	}
+	
 	private void convertCollectionElementToText(DataObject ele, StringBuilder builder) {
 		if(ele.getType() == DataType.ARRAY) {
 			builder.append("<Array: len: " + ele.getArray().length + ">");
@@ -526,6 +562,8 @@ public class DataObject {
 				case TEXT:
 				case ARGUMENT_SEPARATOR:
 					return txt;
+				case BYTE_BUFFER:
+					return convertByteBufferToText();
 				case ARRAY:
 					return convertArrayToText();
 				case LIST:
@@ -570,6 +608,8 @@ public class DataObject {
 			switch(type) {
 				case TEXT:
 				case ARGUMENT_SEPARATOR:
+					return null;
+				case BYTE_BUFFER:
 					return null;
 				case ARRAY:
 					return null;
@@ -631,6 +671,7 @@ public class DataObject {
 			case LIST:
 				return list.size();
 			
+			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -669,6 +710,7 @@ public class DataObject {
 			case LIST:
 				return (long)list.size();
 			
+			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -707,6 +749,7 @@ public class DataObject {
 			case LIST:
 				return (float)list.size();
 			
+			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -745,6 +788,32 @@ public class DataObject {
 			case LIST:
 				return (double)list.size();
 			
+			case BYTE_BUFFER:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	public byte[] toByteBuffer() {
+		switch(type) {
+			case BYTE_BUFFER:
+				return byteBuf;
+			
+			case TEXT:
+			case CHAR:
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case ARRAY:
+			case LIST:
+			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -769,6 +838,7 @@ public class DataObject {
 			case LONG:
 			case FLOAT:
 			case DOUBLE:
+			case BYTE_BUFFER:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -794,6 +864,7 @@ public class DataObject {
 			case LONG:
 			case FLOAT:
 			case DOUBLE:
+			case BYTE_BUFFER:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -820,6 +891,8 @@ public class DataObject {
 				return floatValue != 0;
 			case DOUBLE:
 				return doubleValue != 0;
+			case BYTE_BUFFER:
+				return byteBuf.length > 0;
 			case ARRAY:
 				return arr.length > 0;
 			case LIST:
@@ -878,6 +951,8 @@ public class DataObject {
 				return floatValue;
 			case DOUBLE:
 				return doubleValue;
+			case BYTE_BUFFER:
+				return byteBuf.length;
 			case ERROR:
 				return error.getErrno();
 			case ARRAY:
@@ -936,6 +1011,12 @@ public class DataObject {
 			
 			case DOUBLE:
 				return number != null && doubleValue == number.doubleValue();
+				
+			case BYTE_BUFFER:
+				if(other.type == DataType.BYTE_BUFFER)
+					return Objects.equals(byteBuf, other.byteBuf);
+				
+				return number != null && byteBuf.length == number.intValue();
 			
 			case ARRAY:
 				if(other.type == DataType.ARRAY)
@@ -973,6 +1054,7 @@ public class DataObject {
 					case LONG:
 					case FLOAT:
 					case DOUBLE:
+					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
 						return number != null && error.getErrno() == number.intValue();
@@ -1053,6 +1135,7 @@ public class DataObject {
 						return thisNumber.doubleValue() < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1083,6 +1166,7 @@ public class DataObject {
 						return charValue < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1108,6 +1192,7 @@ public class DataObject {
 						return intValue < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1133,6 +1218,7 @@ public class DataObject {
 						return longValue < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1158,6 +1244,7 @@ public class DataObject {
 						return floatValue < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1183,6 +1270,33 @@ public class DataObject {
 						return doubleValue < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
+					case ERROR:
+					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
+			case BYTE_BUFFER:
+				switch(number.type) {
+					case INT:
+						return arr.length < number.getInt();
+					case LONG:
+						return arr.length < number.getLong();
+					case FLOAT:
+						return arr.length < number.getFloat();
+					case DOUBLE:
+						return arr.length < number.getDouble();
+						
+					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1208,6 +1322,7 @@ public class DataObject {
 						return arr.length < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1233,6 +1348,7 @@ public class DataObject {
 						return list.size() < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1260,6 +1376,7 @@ public class DataObject {
 						return error.getErrno() < number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1317,6 +1434,7 @@ public class DataObject {
 						return thisNumber.doubleValue() > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1347,6 +1465,7 @@ public class DataObject {
 						return charValue > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1372,6 +1491,7 @@ public class DataObject {
 						return intValue > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1397,6 +1517,7 @@ public class DataObject {
 						return longValue > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1422,6 +1543,7 @@ public class DataObject {
 						return floatValue > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1447,6 +1569,33 @@ public class DataObject {
 						return doubleValue > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
+					case ERROR:
+					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
+			case BYTE_BUFFER:
+				switch(number.type) {
+					case INT:
+						return arr.length > number.getInt();
+					case LONG:
+						return arr.length > number.getLong();
+					case FLOAT:
+						return arr.length > number.getFloat();
+					case DOUBLE:
+						return arr.length > number.getDouble();
+						
+					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1472,6 +1621,7 @@ public class DataObject {
 						return arr.length > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1497,6 +1647,7 @@ public class DataObject {
 						return list.size() > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1524,6 +1675,7 @@ public class DataObject {
 						return error.getErrno() > number.getDouble();
 						
 					case CHAR:
+					case BYTE_BUFFER:
 					case ERROR:
 					case ARRAY:
 					case LIST:
@@ -1581,11 +1733,11 @@ public class DataObject {
 		
 		try {
 			DataObject that = (DataObject)obj;
-			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.deepEquals(this.arr, that.arr) &&
-			Objects.deepEquals(this.list, that.list) && Objects.equals(this.vp, that.vp) && Objects.equals(this.fp, that.fp) &&
-			this.intValue == that.intValue && this.longValue == that.longValue && this.floatValue == that.floatValue &&
-			this.doubleValue == that.doubleValue && this.charValue == that.charValue && Objects.equals(this.error, that.error) &&
-			this.typeValue == that.typeValue;
+			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.equals(this.byteBuf, that.byteBuf) &&
+			Objects.deepEquals(this.arr, that.arr) && Objects.deepEquals(this.list, that.list) && Objects.equals(this.vp, that.vp) &&
+			Objects.equals(this.fp, that.fp) && this.intValue == that.intValue && this.longValue == that.longValue &&
+			this.floatValue == that.floatValue && this.doubleValue == that.doubleValue && this.charValue == that.charValue &&
+			Objects.equals(this.error, that.error) && this.typeValue == that.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -1593,11 +1745,11 @@ public class DataObject {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, txt, arr, list == null?null:list.toArray(), vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
+		return Objects.hash(type, txt, byteBuf, arr, list == null?null:list.toArray(), vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
 	}
 	
 	public static enum DataType {
-		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
+		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, BYTE_BUFFER, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
 	public static final class DataTypeConstraint {
 		private final List<DataType> types;
