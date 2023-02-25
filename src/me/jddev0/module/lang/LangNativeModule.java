@@ -144,6 +144,8 @@ public abstract class LangNativeModule {
 			Class<?> classValue = (Class<?>)objectValue;
 			if(CharSequence.class.isAssignableFrom(classValue)) {
 				return new DataObject().setTypeValue(DataObject.DataType.TEXT);
+			}else if(byte[].class.isAssignableFrom(classValue)) {
+				return new DataObject().setTypeValue(DataObject.DataType.BYTE_BUFFER);
 			}else if(classValue.isArray()) {
 				return new DataObject().setTypeValue(DataObject.DataType.ARRAY);
 			}else if(List.class.isAssignableFrom(classValue)) {
