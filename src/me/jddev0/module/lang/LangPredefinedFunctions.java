@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4969,6 +4970,54 @@ final class LangPredefinedFunctions {
 			}
 			
 			return new DataObject().setByteBuffer(byteBuf);
+		});
+		funcs.put("byteBufferPartialCopy", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject byteBufferObject = combinedArgumentList.get(0);
+			DataObject fromIndexObject = combinedArgumentList.get(1);
+			DataObject toIndexObject = combinedArgumentList.get(2);
+			
+			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+			
+			Number fromIndexNumber = fromIndexObject.toNumber();
+			if(fromIndexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int fromIndex = fromIndexNumber.intValue();
+			
+			Number toIndexNumber = toIndexObject.toNumber();
+			if(toIndexNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			int toIndex = toIndexNumber.intValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(fromIndex < 0)
+				fromIndex += byteBuf.length;
+			
+			if(fromIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(fromIndex >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			if(toIndex < 0)
+				toIndex += byteBuf.length;
+			
+			if(toIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(toIndex >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			if(toIndex < fromIndex)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "toIndex must be greater than or equals fromIndex", SCOPE_ID);
+			
+			byte[] byteBufPartialCopy = new byte[toIndex - fromIndex + 1];
+			System.arraycopy(byteBuf, fromIndex, byteBufPartialCopy, 0, byteBufPartialCopy.length);
+			
+			return new DataObject().setByteBuffer(byteBufPartialCopy);
 		});
 		funcs.put("byteBufferSet", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
