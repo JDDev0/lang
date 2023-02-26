@@ -95,7 +95,12 @@ public class DataObject {
 		this.arr = dataObject.arr; //Array: copy reference only
 		this.list = dataObject.list; //List: copy reference only
 		this.vp = dataObject.vp; //Var pointer: copy reference only
-		this.fp = dataObject.fp; //Func pointer: copy reference only
+		
+		//Func pointer: copy reference only
+		//Set function name for better debugging experience
+		this.fp = (dataObject.fp != null && getVariableName() != null && dataObject.fp.getFunctionName() == null)?
+				dataObject.fp.withFunctionName(getVariableName()):dataObject.fp;
+		
 		this.intValue = dataObject.intValue;
 		this.longValue = dataObject.longValue;
 		this.floatValue = dataObject.floatValue;
@@ -239,7 +244,8 @@ public class DataObject {
 		
 		this.type = checkAndRetType(DataType.FUNCTION_POINTER);
 		resetValue();
-		this.fp = fp;
+		
+		this.fp = (getVariableName() != null && fp.getFunctionName() == null)?fp.withFunctionName(getVariableName()):fp;
 		
 		return this;
 	}
@@ -1878,6 +1884,19 @@ public class DataObject {
 		 */
 		public FunctionPointerObject(LangExternalFunctionObject externalFunction) {
 			this(null, externalFunction);
+		}
+		
+		public FunctionPointerObject withFunctionName(String functionName) {
+			switch(functionPointerType) {
+				case NORMAL:
+					return new FunctionPointerObject(functionName, parameterList, functionBody);
+				case PREDEFINED:
+					return new FunctionPointerObject(functionName, predefinedFunction);
+				case EXTERNAL:
+					return new FunctionPointerObject(functionName, externalFunction);
+			}
+			
+			return null;
 		}
 		
 		public String getFunctionName() {
