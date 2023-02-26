@@ -650,6 +650,8 @@ public class LangShellWindow extends JDialog {
 				break;
 			
 			case FUNCTION_POINTER:
+				builder.append("\nFunction-Name: ");
+				builder.append(dataObject.getFunctionPointer().getFunctionName());
 				builder.append("\nFunction-Type: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
 				builder.append("\nParameter List: ");

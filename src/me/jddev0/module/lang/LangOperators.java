@@ -168,7 +168,8 @@ final class LangOperators {
 				
 				final FunctionPointerObject aFunc = leftSideOperand.getFunctionPointer();
 				final FunctionPointerObject bFunc = rightSideOperand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<concat-func(" + aFunc + ", " + bFunc + ")>",
+				(interpreter, args, INNER_SCOPE_ID) -> {
 					DataObject retA = interpreter.callFunctionPointer(aFunc, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
 					
 					return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), Arrays.asList(
@@ -220,7 +221,7 @@ final class LangOperators {
 			
 			case FUNCTION_POINTER:
 				final FunctionPointerObject func = operand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-unpack-func:" + func + ">", (interpreter, args, INNER_SCOPE_ID) -> {
 					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
 					if(combinedArgumentList.size() < 1)
 						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", 1), INNER_SCOPE_ID);
@@ -270,7 +271,7 @@ final class LangOperators {
 			
 			case FUNCTION_POINTER:
 				final FunctionPointerObject func = operand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-pack-func:" + func + ">", (interpreter, args, INNER_SCOPE_ID) -> {
 					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
 					
 					return interpreter.callFunctionPointer(func, operand.getVariableName(), Arrays.asList(
@@ -949,13 +950,14 @@ final class LangOperators {
 				if(count < 0)
 					return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Number must not be less than 0!"));
 				
+				final FunctionPointerObject func = leftSideOperand.getFunctionPointer();
+				
 				if(count == 0)
-					return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">", (interpreter, args, INNER_SCOPE_ID) -> {
 						return new DataObject().setVoid();
 					}));
 				
-				final FunctionPointerObject func = leftSideOperand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">", (interpreter, args, INNER_SCOPE_ID) -> {
 					DataObject retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
 					DataObject ret = retN == null?new DataObject().setVoid():retN;
 					

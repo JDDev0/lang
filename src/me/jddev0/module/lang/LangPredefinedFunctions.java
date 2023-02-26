@@ -310,10 +310,19 @@ final class LangPredefinedFunctions {
 			
 			return combinatorFunc.apply(args, INNER_SCOPE_ID);
 		};
-		if(argumentCount > outerArgs.size())
-			return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
-		else
+		if(argumentCount > outerArgs.size()) {
+			String funcNames = outerArgs.stream().map(dataObject -> {
+				if(dataObject.getType() != DataType.FUNCTION_POINTER)
+					return "<arg>";
+				
+				String functionName = dataObject.getFunctionPointer().getFunctionName();
+				return functionName == null?dataObject.getVariableName():functionName;
+			}).collect(Collectors.joining(", "));
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<comb-func(" + funcNames + ")>", func));
+		}else {
 			return func.callFunc(interpreter, new ArrayList<>(), SCOPE_ID);
+		}
 	}
 	/**
 	 * @param minimalArgumentsAtEnd If true the last arguments will be used for minimalArgumentCount and functionPointerIndices
@@ -397,7 +406,16 @@ final class LangPredefinedFunctions {
 			
 			return combinatorFunc.apply(args, INNER_SCOPE_ID);
 		};
-		return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+		
+		String funcNames = outerArgs.stream().map(dataObject -> {
+			if(dataObject.getType() != DataType.FUNCTION_POINTER)
+				return "<arg>";
+			
+			String functionName = dataObject.getFunctionPointer().getFunctionName();
+			return functionName == null?dataObject.getVariableName():functionName;
+		}).collect(Collectors.joining(", "));
+		
+		return new DataObject().setFunctionPointer(new FunctionPointerObject("<inf-comb-func(" + funcNames + ")>", func));
 	}
 	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -4722,7 +4740,7 @@ final class LangPredefinedFunctions {
 					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argumentList, INNER_INNER_SCOPE_ID);
 				};
 				
-				return new DataObject().setFunctionPointer(new FunctionPointerObject(func));
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<combX:anonFunc(" + xFunc + ")>", func));
 			});
 			
 			DataObject retAnonFunc1 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID);
@@ -4730,7 +4748,7 @@ final class LangPredefinedFunctions {
 			
 			DataObject retAnonFunc2 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID); //Will always return a DataObject of type FUNCTION_POINTER
 			
-			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getVariableName(), Arrays.asList(
+			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getFunctionPointer().getFunctionName(), Arrays.asList(
 					retAnonFunc2
 			), SCOPE_ID);
 		}));
@@ -4742,9 +4760,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt0(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, INNER_SCOPE_ID)) != null)
@@ -4760,9 +4779,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt1(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, INNER_SCOPE_ID)) != null)
@@ -4778,9 +4798,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt2(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, INNER_SCOPE_ID)) != null)
@@ -4796,9 +4817,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt3(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, INNER_SCOPE_ID)) != null)
@@ -4814,9 +4836,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt4(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, INNER_SCOPE_ID)) != null)
@@ -4832,9 +4855,10 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
+			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
 			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt5(" + funcPointerObject.getFunctionPointer() + ")>",
+			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
 				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
 				DataObject innerError;
 				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, INNER_SCOPE_ID)) != null)

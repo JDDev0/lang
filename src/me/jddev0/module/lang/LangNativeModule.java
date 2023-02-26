@@ -187,8 +187,10 @@ public abstract class LangNativeModule {
 		if(predefinedFuncObj == null)
 			return null;
 		
-		return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(predefinedFuncObj)).
-				setVariableName((predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name);
+		String functionName = (predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name;
+		
+		return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(functionName, predefinedFuncObj)).
+				setVariableName(functionName);
 	}
 	
 	protected final DataObject callFunctionPointer(DataObject func, List<DataObject> argumentValueList, final int SCOPE_ID) {

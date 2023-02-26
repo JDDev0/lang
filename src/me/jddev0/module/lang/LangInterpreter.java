@@ -1745,7 +1745,7 @@ public final class LangInterpreter {
 		if(!ret.isPresent())
 			return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + variableName + "\" was not found", SCOPE_ID);
 		
-		return new DataObject().setFunctionPointer(new FunctionPointerObject(ret.get().getValue())).setVariableName(node.getVariableName());
+		return new DataObject().setFunctionPointer(new FunctionPointerObject(node.getVariableName(), ret.get().getValue())).setVariableName(node.getVariableName());
 	}
 	
 	/**
@@ -2113,6 +2113,7 @@ public final class LangInterpreter {
 	 */
 	private DataObject interpretFunctionCallNode(FunctionCallNode node, final int SCOPE_ID) {
 		String functionName = node.getFunctionName();
+		final String originalFunctionName = functionName;
 		
 		boolean isModuleVariable = functionName.startsWith("[[");
 		Map<String, DataObject> variables;
@@ -2170,7 +2171,7 @@ public final class LangInterpreter {
 			if(!ret.isPresent())
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Predfined, linker, or external function was not found", SCOPE_ID);
 			
-			fp = new FunctionPointerObject(ret.get().getValue());
+			fp = new FunctionPointerObject(originalFunctionName, ret.get().getValue());
 		}else if(isVarNameFuncPtr(functionName)) {
 			DataObject ret = variables.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
@@ -2196,7 +2197,7 @@ public final class LangInterpreter {
 				}).findFirst();
 				
 				if(retPredefinedFunction.isPresent()) {
-					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());;
+					fp = new FunctionPointerObject("func." + functionName, retPredefinedFunction.get().getValue());;
 				}else {
 					//Predefined linker function
 					retPredefinedFunction = funcs.entrySet().stream().filter(entry -> {
@@ -2206,7 +2207,7 @@ public final class LangInterpreter {
 					if(!retPredefinedFunction.isPresent())
 						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
 					
-					fp = new FunctionPointerObject(retPredefinedFunction.get().getValue());
+					fp = new FunctionPointerObject("linker." + functionName, retPredefinedFunction.get().getValue());
 				}
 			}else {
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
@@ -3420,7 +3421,7 @@ public final class LangInterpreter {
 			setVar(SCOPE_ID, varName, function, false);
 		}
 		public void setVar(final int SCOPE_ID, String varName, LangExternalFunctionObject function, boolean ignoreFinal) {
-			setVar(SCOPE_ID, varName, new DataObject().setFunctionPointer(new FunctionPointerObject(function)), ignoreFinal);
+			setVar(SCOPE_ID, varName, new DataObject().setFunctionPointer(new FunctionPointerObject(varName, function)), ignoreFinal);
 		}
 		public void setVar(final int SCOPE_ID, String varName, InterpretingError error) {
 			setVar(SCOPE_ID, varName, error, false);

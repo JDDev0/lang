@@ -1819,6 +1819,7 @@ public class DataObject {
 		 */
 		public static final int EXTERNAL = 2;
 		
+		private final String functionName;
 		private final List<VariableNameNode> parameterList;
 		private final AbstractSyntaxTree functionBody;
 		private final LangPredefinedFunctionObject predefinedFunction;
@@ -1828,7 +1829,8 @@ public class DataObject {
 		/**
 		 * For normal function pointer definition
 		 */
-		public FunctionPointerObject(List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+		public FunctionPointerObject(String functionName, List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+			this.functionName = functionName;
 			this.parameterList = parameterList == null?null:new ArrayList<>(parameterList);
 			this.functionBody = functionBody;
 			this.predefinedFunction = null;
@@ -1836,9 +1838,17 @@ public class DataObject {
 			this.functionPointerType = NORMAL;
 		}
 		/**
+		 * For normal function pointer definition
+		 */
+		public FunctionPointerObject(List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+			this(null, parameterList, functionBody);
+		}
+		
+		/**
 		 * For pointer to predefined function/linker function
 		 */
-		public FunctionPointerObject(LangPredefinedFunctionObject predefinedFunction) {
+		public FunctionPointerObject(String functionName, LangPredefinedFunctionObject predefinedFunction) {
+			this.functionName = functionName;
 			this.parameterList = null;
 			this.functionBody = null;
 			this.predefinedFunction = predefinedFunction;
@@ -1846,14 +1856,32 @@ public class DataObject {
 			this.functionPointerType = PREDEFINED;
 		}
 		/**
+		 * For pointer to predefined function/linker function
+		 */
+		public FunctionPointerObject(LangPredefinedFunctionObject predefinedFunction) {
+			this(null, predefinedFunction);
+		}
+		
+		/**
 		 * For pointer to external function
 		 */
-		public FunctionPointerObject(LangExternalFunctionObject externalFunction) {
+		public FunctionPointerObject(String functionName, LangExternalFunctionObject externalFunction) {
+			this.functionName = functionName;
 			this.parameterList = null;
 			this.functionBody = null;
 			this.predefinedFunction = null;
 			this.externalFunction = externalFunction;
 			this.functionPointerType = EXTERNAL;
+		}
+		/**
+		 * For pointer to external function
+		 */
+		public FunctionPointerObject(LangExternalFunctionObject externalFunction) {
+			this(null, externalFunction);
+		}
+		
+		public String getFunctionName() {
+			return functionName;
 		}
 		
 		public List<VariableNameNode> getParameterList() {
@@ -1878,6 +1906,9 @@ public class DataObject {
 		
 		@Override
 		public String toString() {
+			if(functionName != null)
+				return functionName;
+			
 			switch(functionPointerType) {
 				case NORMAL:
 					return "<Normal FP>";
