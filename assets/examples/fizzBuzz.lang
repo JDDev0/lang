@@ -7,11 +7,11 @@ $i = 0
 until($i > $MAX) {
 	$3or5flag = 0
 	
-	if(!func.modi($i, 3)) {
+	if(!($i % 3)) {
 		func.print(Fizz)
 		$3or5flag = 1
 	}
-	if(!func.modi($i, 5)) {
+	if(!($i % 5)) {
 		func.print(Buzz)
 		$3or5flag = 1
 	}
