@@ -385,7 +385,7 @@ func.println()
 	# Factorial function
 	fp.fac = (fp.func) -> {
 		fp.retFunc = (fp.func, $n) -> {
-			return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1)))
+			return parser.op($n < 2?1:$n * fp.func($n - 1))
 		}
 		
 		return func.combAN(fp.retFunc, fp.func)
@@ -409,7 +409,7 @@ func.println()
 			func.printf({{{ > %2d (%2d)}}}, $run, $n)
 			parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
 			parser.op($n < 2?func.printf({{{%n=> }}}):null)
-			return parser.op($n < 2?1:$n * fp.func(parser.op($n - 1), parser.op($run + 1)))
+			return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
 		}
 		
 		return func.combAN(fp.retFunc, fp.func)
