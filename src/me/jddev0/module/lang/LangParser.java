@@ -1254,9 +1254,13 @@ public final class LangParser {
 					}else if(loopStatement.startsWith("con.loop")) {
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody));
 					}else if(loopStatement.startsWith("con.while")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, parseCondition(loopCondition)));
+						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
+						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, conNonNode));
 					}else if(loopStatement.startsWith("con.until")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, parseCondition(loopCondition)));
+						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
+						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, conNonNode));
 					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
 						List<AbstractSyntaxTree.Node> arguments = parseFunctionParameterList(loopCondition, false).getChildren();
 						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
@@ -1370,10 +1374,14 @@ public final class LangParser {
 						
 						return ast;
 					}
-					if(ifCondition == null)
+					if(ifCondition == null) {
 						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartElseNode(ifBody));
-					else
-						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, parseCondition(ifCondition)));
+					}else {
+						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(ifCondition),
+						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
+						
+						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, conNonNode));
+					}
 					
 					firstStatement = false;
 					ifStatement = currentLine;
