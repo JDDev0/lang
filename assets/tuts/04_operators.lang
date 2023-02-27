@@ -3,7 +3,6 @@ lang.version = v1.0.0
 
 # Operators
 # General
-# (opr)               - Grouping
 # @opr                - Length
 # ^opr                - Deep copy
 # opr1 ||| opr2       - Concat
@@ -13,7 +12,6 @@ lang.version = v1.0.0
 # opr1 ? opr2 : opr3  - Inline if
 
 # Math
-# (opr)               - Grouping
 # opr1 ** opr2        - Power
 # +opr                - Positive
 # -opr                - Inverse
@@ -38,7 +36,6 @@ lang.version = v1.0.0
 # opr1 | opr2         - Bitwise or
 
 # Condition
-# (opr)               - Grouping
 # !opr                - Not
 # opr1 ~~ opr2        - Instance of
 # opr1 == opr2        - Equals
@@ -55,6 +52,7 @@ lang.version = v1.0.0
 # opr1 || opr2        - Or
 
 # All
+# (opr)               - Grouping
 # opr1 , oper2        - Comma
 
 # Assignments
