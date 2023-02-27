@@ -12,7 +12,7 @@ fp.interpretCode = ($code...) -> {
 	&instructions = fn.charsOf($code)
 	$pc = 0
 	
-	while($pc < parser.op(@&instructions)) {
+	while($pc < @&instructions) {
 		$c $= &instructions[$pc]
 		
 		if($c === \>) {
@@ -27,16 +27,16 @@ fp.interpretCode = ($code...) -> {
 			fn.print(fn.toChar(parser.op(&mem[$ptr])))
 		}elif($c === \,) {
 			$input = fn.readTerminal(Input)
-			if(parser.op(@$input) === 0) {
+			if(@$input === 0) {
 				$val = -1
 			}else {
 				$val = fn.toValue(fn.charAt($input, 0))
 			}
 			fn.arraySet(&mem, $ptr, $val)
 		}elif($c === \[) {
-			if(parser.op(&mem[$ptr]) === 0) {
+			if(&mem[$ptr] === 0) {
 				$bracketCount += 1
-				while($bracketCount > 0 && $pc < parser.op(@&instructions)) {
+				while($bracketCount > 0 && $pc < @&instructions) {
 					$pc += 1
 					
 					$c $= &instructions[$pc]
@@ -51,7 +51,7 @@ fp.interpretCode = ($code...) -> {
 				# "$pc += 1" at end of outer loop -> Char after ']'
 			}
 		}elif($c === \]) {
-			if(parser.op(&mem[$ptr]) !== 0) {
+			if(&mem[$ptr] !== 0) {
 				$bracketCount += 1
 				while($bracketCount > 0 && $pc >= 0) {
 					$pc -= 1
