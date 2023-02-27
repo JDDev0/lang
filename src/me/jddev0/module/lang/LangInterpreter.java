@@ -1123,9 +1123,9 @@ public final class LangInterpreter {
 		DataObject middleOperand = (!node.getOperator().isTernary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getMiddleOperand(), SCOPE_ID);
 		DataObject rightSideOperand = (node.getOperator().isUnary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getRightSideOperand(), SCOPE_ID);
 		
-		//Replace Java null values for NON operators with Lang VOID values
+		//Forward Java null values for NON operators
 		if(leftSideOperand == null && (node.getOperator() == Operator.NON || node.getOperator() == Operator.CONDITIONAL_NON || node.getOperator() == Operator.MATH_NON)) {
-			leftSideOperand = new DataObject().setVoid();
+			return null;
 		}
 		
 		if(leftSideOperand == null || (!node.getOperator().isLazyEvaluation() && ((!node.getOperator().isUnary() && rightSideOperand == null) ||
