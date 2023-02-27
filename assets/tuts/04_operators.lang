@@ -54,6 +54,9 @@ lang.version = v1.0.0
 # opr1 && opr2        - And
 # opr1 || opr2        - Or
 
+# All
+# opr1 , oper2        - Comma
+
 # Assignments
 # opr1=opr2           - Simple assignment
 # opr1=opr2           - Simple translation
@@ -145,7 +148,9 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|------------------------------------------
 # 14         | opr1 ? opr2 : opr3 | right-to-left | Inline if
 # -----------|--------------------|---------------|------------------------------------------
-# 15         | opr1 = opr2        | right-to-left | Normal assignment
+# 15         | opr1 , opr2        | left-to-right | Comma
+# -----------|--------------------|---------------|------------------------------------------
+# 16         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
 #            | opr1 ?= opr2       |               | Condition operator assignment
 #            | opr1 := opr2       |               | Math operator assignment
