@@ -285,7 +285,7 @@ public final class LangParser {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
-					leftNodes.add(parseOperationExpr(token.substring(1, endIndex), null, null, 0, type));
+					leftNodes.add(parseOperationExpr(token.substring(1, endIndex), type));
 					token = token.substring(endIndex + 1);
 					
 					continue;
@@ -324,7 +324,7 @@ public final class LangParser {
 						builder.delete(0, builder.length());
 					}
 					
-					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(1, endIndex), null, null, 0, type);
+					AbstractSyntaxTree.OperationNode node = parseOperationExpr(token.substring(1, endIndex), type);
 					token = token.substring(endIndex + 1);
 					if(token.isEmpty()) {
 						//Add node directly if node has NON operator
@@ -364,7 +364,8 @@ public final class LangParser {
 					}
 					
 					//Array creation
-					leftNodes.add(new AbstractSyntaxTree.ArrayNode(parseFunctionParameterList(token.substring(1, endIndex), false).getChildren()));
+					leftNodes.add(new AbstractSyntaxTree.ArrayNode(convertCommaOperatorsToArgumentSeparators(
+							parseOperationExpr(token.substring(1, endIndex), type))));
 					token = token.substring(endIndex + 1);
 					
 					if(token.isEmpty()) {
@@ -469,7 +470,7 @@ public final class LangParser {
 			token.startsWith("!") || token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") ||
 			token.startsWith("*") || token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") ||
 			token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+|") || token.startsWith("-|") || token.startsWith("+") || token.startsWith("-") ||
-			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??")) {
+			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??") || token.startsWith(",")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -577,6 +578,8 @@ public final class LangParser {
 				}else if(token.startsWith("??") && AbstractSyntaxTree.OperationNode.OperatorType.GENERAL.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.NULL_COALESCING;
+				}else if(token.startsWith(",") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
+					operator = AbstractSyntaxTree.OperationNode.Operator.COMMA;
 				}else {
 					operator = null;
 				}
@@ -852,7 +855,8 @@ public final class LangParser {
 				String functionName = modulePrefix + functionCall.substring(0, parameterStartIndex);
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
-				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(convertCommaOperatorsToArgumentSeparators(
+						parseOperationExpr(functionParameterList, type)), functionName));
 				continue;
 			}
 			
@@ -935,6 +939,31 @@ public final class LangParser {
 			return new AbstractSyntaxTree.OperationNode(leftNode, middleNode, rightNode, operator, type);
 		
 		return null;
+	}
+
+	private List<AbstractSyntaxTree.Node> convertCommaOperatorsToArgumentSeparators(AbstractSyntaxTree.OperationNode operatorNode) {
+		List<AbstractSyntaxTree.Node> nodes = new LinkedList<>();
+		
+		//Only parse COMMA operators and COMMA operators inside COMMA operators but only if they are the left node
+		if(operatorNode.getOperator() == AbstractSyntaxTree.OperationNode.Operator.COMMA) {
+			AbstractSyntaxTree.Node leftSideOperand = operatorNode.getLeftSideOperand();
+			
+			//Add left side operand
+			if(leftSideOperand instanceof AbstractSyntaxTree.OperationNode)
+				nodes.addAll(convertCommaOperatorsToArgumentSeparators((AbstractSyntaxTree.OperationNode)leftSideOperand));
+			else
+				nodes.add(leftSideOperand);
+			
+			//Add argument separator
+			nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(","));
+			
+			//Add right side operand
+			nodes.add(operatorNode.getRightSideOperand());
+		}else {
+			nodes.add(operatorNode);
+		}
+		
+		return nodes;
 	}
 	
 	private AbstractSyntaxTree.AssignmentNode parseAssignment(String line, BufferedReader lines, boolean isInnerAssignment) throws IOException {

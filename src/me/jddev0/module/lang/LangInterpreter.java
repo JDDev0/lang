@@ -1126,7 +1126,16 @@ public final class LangInterpreter {
 		(node.getOperator().isTernary() && middleOperand == null))))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", SCOPE_ID);
 		
-		if(node.getOperatorType() == OperatorType.GENERAL) {
+		if(node.getOperatorType() == OperatorType.ALL) {
+			switch(node.getOperator()) {
+				case COMMA:
+					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+							"The COMMA operator is parser-only (If you meant the text value of \",\", you must escape the COMMA operator: \"\\,\")", SCOPE_ID);
+				
+				default:
+					return null;
+			}
+		}else if(node.getOperatorType() == OperatorType.GENERAL) {
 			DataObject output;
 			switch(node.getOperator()) {
 				//Unary

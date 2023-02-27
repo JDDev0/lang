@@ -1923,6 +1923,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		@Override
 		public NodeType getNodeType() {
 			switch(nodeType) {
+				case ALL:
 				case GENERAL:
 					return NodeType.OPERATION;
 				case MATH:
@@ -2053,7 +2054,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			LESS_THAN_OR_EQUALS   ("<=",       10,       OperatorType.CONDITION),
 			GREATER_THAN_OR_EQUALS(">=",       10,       OperatorType.CONDITION),
 			AND                   ("&&",       11, true, OperatorType.CONDITION),
-			OR                    ("||",       12, true, OperatorType.CONDITION);
+			OR                    ("||",       12, true, OperatorType.CONDITION),
+			
+			//ALL
+			/**
+			 * COMMA is a temporary parser-only operator (This operator can only be used during parsing)
+			 */
+			COMMA                 (",",        15,       OperatorType.ALL);
 			
 			private final String symbol;
 			private final int arity;
@@ -2108,10 +2115,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 		
 		public static enum OperatorType {
-			GENERAL, MATH, CONDITION;
+			ALL, GENERAL, MATH, CONDITION;
 			
 			public boolean isCompatibleWith(OperatorType type) {
-				return type == GENERAL || type == this;
+				return this == ALL || type == GENERAL || type == this;
 			}
 		}
 	}
