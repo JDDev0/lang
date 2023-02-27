@@ -182,6 +182,30 @@ public abstract class LangNativeModule {
 		throw new DataObject.DataTypeConstraintException("Java object can not be converted to DataObject");
 	}
 	
+	protected final DataObject throwError(DataObject dataObject, final int SCOPE_ID) throws DataObject.DataTypeConstraintException {
+		if(dataObject.getType() != DataObject.DataType.ERROR)
+			throw new DataObject.DataTypeConstraintException("DataObject must be of type " + DataObject.DataType.ERROR);
+		
+		return throwError(dataObject.getError(), SCOPE_ID);
+	}
+	
+	protected final DataObject throwError(DataObject.ErrorObject errorValue, final int SCOPE_ID) {
+		return throwError(errorValue.getInterprettingError(), errorValue.getMessage(), SCOPE_ID);
+	}
+	
+	protected final DataObject throwError(LangInterpreter.InterpretingError error, final int SCOPE_ID) {
+		return interpreter.setErrnoErrorObject(error, SCOPE_ID);
+	}
+	
+	protected final DataObject throwError(LangInterpreter.InterpretingError error, String message, final int SCOPE_ID) {
+		return interpreter.setErrnoErrorObject(error, message, SCOPE_ID);
+	}
+	
+	protected final DataObject throwError(Throwable throwableValue, final int SCOPE_ID) {
+		return interpreter.setErrnoErrorObject(LangInterpreter.InterpretingError.SYSTEM_ERROR,
+				"Native Error (\"" + throwableValue.getClass().getSimpleName() + "\"): " + throwableValue.getMessage(), SCOPE_ID);
+	}
+	
 	protected final DataObject getPredefinedFunctionAsDataObject(String name) {
 		LangPredefinedFunctionObject predefinedFuncObj = interpreter.funcs.get(name);
 		if(predefinedFuncObj == null)
