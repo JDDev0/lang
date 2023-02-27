@@ -1122,6 +1122,12 @@ public final class LangInterpreter {
 		DataObject leftSideOperand = interpretNode(node.getLeftSideOperand(), SCOPE_ID);
 		DataObject middleOperand = (!node.getOperator().isTernary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getMiddleOperand(), SCOPE_ID);
 		DataObject rightSideOperand = (node.getOperator().isUnary() || node.getOperator().isLazyEvaluation())?null:interpretNode(node.getRightSideOperand(), SCOPE_ID);
+		
+		//Replace Java null values for NON operators with Lang VOID values
+		if(leftSideOperand == null && (node.getOperator() == Operator.NON || node.getOperator() == Operator.CONDITIONAL_NON || node.getOperator() == Operator.MATH_NON)) {
+			leftSideOperand = new DataObject().setVoid();
+		}
+		
 		if(leftSideOperand == null || (!node.getOperator().isLazyEvaluation() && ((!node.getOperator().isUnary() && rightSideOperand == null) ||
 		(node.getOperator().isTernary() && middleOperand == null))))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", SCOPE_ID);
