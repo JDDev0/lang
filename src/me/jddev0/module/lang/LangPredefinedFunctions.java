@@ -2567,52 +2567,6 @@ final class LangPredefinedFunctions {
 				return new DataObject().setDouble(Math.log10(number.doubleValue()));
 			}, SCOPE_ID);
 		});
-		funcs.put("dtoi", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
-				return unaryMathOperationHelper(argumentList, number -> {
-					return new DataObject().setInt(number.intValue());
-				}, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.toInt";
-			}
-		});
-		funcs.put("dtol", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
-				return unaryMathOperationHelper(argumentList, number -> {
-					return new DataObject().setLong(number.longValue());
-				}, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.toLong";
-			}
-		});
 		funcs.put("round", (argumentList, SCOPE_ID) -> {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setLong((Math.signum(number.doubleValue()) < 0?-1:1) * Math.round(Math.abs(number.doubleValue())));
