@@ -5002,22 +5002,10 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayMake", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
 				return error;
 			
-			DataObject arrPointerObject = combinedArgumentList.size() == 1?null:combinedArgumentList.get(0);
-			DataObject lengthObject = combinedArgumentList.get(combinedArgumentList.size() == 1?0:1);
-			
-			String arrPtr;
-			if(arrPointerObject == null || arrPointerObject.getType() == DataType.ARRAY) {
-				arrPtr = null;
-			}else if(arrPointerObject.getType() == DataType.TEXT) {
-				arrPtr = arrPointerObject.getText();
-				if(!LangPatterns.matches(arrPtr, LangPatterns.VAR_NAME_ARRAY))
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			}else {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			}
+			DataObject lengthObject = combinedArgumentList.get(0);
 			
 			Number lengthNumber = lengthObject.toNumber();
 			if(lengthNumber == null)
@@ -5027,24 +5015,11 @@ final class LangPredefinedFunctions {
 			if(length < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
 			
-			DataObject oldData = arrPtr == null?arrPointerObject:interpreter.data.get(SCOPE_ID).var.get(arrPtr);
-			if((oldData != null && (oldData.isFinalData() || (oldData.getVariableName() != null && oldData.getVariableName().startsWith("&LANG_")))) ||
-			(arrPtr != null && arrPtr.startsWith("&LANG_")))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
 			DataObject[] arr = new DataObject[length];
 			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject(); //Null data object
-			if(oldData != null) {
-				oldData.setArray(arr);
-			}else if(arrPointerObject == null) {
-				return new DataObject().setArray(arr);
-			}else {
-				interpreter.setErrnoErrorObject(InterpretingError.DEPRECATED_FUNC_CALL, "Implicit variable creation is deprecated and will be removed in v1.2.0.", SCOPE_ID);
-				interpreter.data.get(SCOPE_ID).var.put(arrPtr, new DataObject().setArray(arr).setVariableName(arrPtr));
-			}
+				arr[i] = new DataObject();
 			
-			return null;
+			return new DataObject().setArray(arr);
 		});
 		funcs.put("arrayOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
