@@ -48,6 +48,7 @@ You can use the "-nolog" argument to disable log file logging<br>
 ## Breaking changes
 
 - **v1.0.0**:
+  - func.arrayClear was removed
   - The 2 args version of func.arrayMake was removed
   - func.copyAfterFP was removed (Use static vars or call-by-pointer instead)
   - func.split was changed and is not backwards compatible
