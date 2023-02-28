@@ -6037,45 +6037,6 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("arrayClear", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				DataObject error;
-				if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-					return error;
-				
-				DataObject arrPointerObject = combinedArgumentList.get(0);
-				
-				if(arrPointerObject.getType() != DataType.ARRAY)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-				
-				if(arrPointerObject.isFinalData() || arrPointerObject.isLangVar())
-					return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-				
-				String variableName = arrPointerObject.getVariableName();
-				if(variableName == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-				
-				interpreter.data.get(SCOPE_ID).var.remove(variableName);
-				return null;
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.freeVar";
-			}
-		});
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("listOf", (argumentList, SCOPE_ID) -> {
