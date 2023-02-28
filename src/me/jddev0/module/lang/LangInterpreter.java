@@ -65,11 +65,6 @@ public final class LangInterpreter {
 	
 	//Fields for return/throw node, continue/break node, and force stopping execution
 	private final ExecutionState executionState = new ExecutionState();
-	/**
-	 * <SCOPE_ID (of function), <to, from>><br>
-	 * Data tmp for "func.copyAfterFP"
-	 */
-	final Map<Integer, Map<String, String>> copyAfterFP = new HashMap<>();
 	final ExecutionFlags executionFlags = new ExecutionFlags();
 	
 	//DATA
@@ -1869,54 +1864,6 @@ public final class LangInterpreter {
 		
 		return retTmp == null?retTmp:new DataObject(retTmp);
 	}
-	void executeAndClearCopyAfterFP(final int SCOPE_ID_TO, final int SCOPE_ID_FROM) {
-		//Add copyValue after call
-		copyAfterFP.get(SCOPE_ID_FROM).forEach((to, from) -> {
-			if(from != null && to != null) {
-				DataObject valFrom = data.get(SCOPE_ID_FROM).var.get(from);
-				if(valFrom != null) {
-					if(to.startsWith("fp.") || to.startsWith("$") || to.startsWith("&")) {
-						DataObject dataTo = data.get(SCOPE_ID_TO).var.get(to);
-						//LANG and final vars can't be change
-						if(isLangVar(to) || (dataTo != null && (dataTo.isFinalData() || dataTo.isLangVar()))) {
-							setErrno(InterpretingError.FINAL_VAR_CHANGE, "during copy after FP execution", SCOPE_ID_TO);
-							return;
-						}
-						
-						if(!isVarName(to) && !isVarNamePtr(to)) {
-							setErrno(InterpretingError.INVALID_PTR, "during copy after FP execution", SCOPE_ID_TO);
-							return;
-						}
-						int indexOpeningBracket = to.indexOf("[");
-						int indexMatchingBracket = indexOpeningBracket == -1?-1:LangUtils.getIndexOfMatchingBracket(to, indexOpeningBracket, Integer.MAX_VALUE, '[', ']');
-						if(indexOpeningBracket != -1 && indexMatchingBracket != to.length() - 1) {
-							setErrno(InterpretingError.INVALID_PTR, "Non matching dereferencing prackets", SCOPE_ID_TO);
-							return;
-						}
-						
-						boolean[] flags = new boolean[] {false, false};
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, to, false, false, true, flags, SCOPE_ID_TO);
-						try {
-							dataObject.setData(valFrom);
-						}catch(DataTypeConstraintViolatedException e) {
-							if(flags[1])
-								data.get(SCOPE_ID_TO).var.remove(to);
-							
-							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "during copy after FP execution", SCOPE_ID_TO);
-							return;
-						}
-						
-						return;
-					}
-				}
-			}
-			
-			setErrno(InterpretingError.INVALID_ARGUMENTS, "for copy after FP", SCOPE_ID_TO);
-		});
-		
-		//Clear copyAfterFP
-		copyAfterFP.remove(SCOPE_ID_FROM);
-	}
 	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) {
 		argumentValueList = new ArrayList<>(argumentValueList);
 		
@@ -1945,8 +1892,6 @@ public final class LangInterpreter {
 						if(val.isStaticData()) //Static lang vars should also be copied
 							data.get(NEW_SCOPE_ID).var.put(key, val);
 					});
-					//Initialize copyAfterFP
-					copyAfterFP.put(NEW_SCOPE_ID, new HashMap<String, String>());
 					
 					//Set arguments
 					DataObject lastDataObject = new DataObject().setVoid();
@@ -2021,8 +1966,6 @@ public final class LangInterpreter {
 					
 					//Add lang after call
 					data.get(SCOPE_ID).lang.putAll(data.get(NEW_SCOPE_ID).lang);
-					
-					executeAndClearCopyAfterFP(SCOPE_ID, NEW_SCOPE_ID);
 					
 					//Remove data map
 					data.remove(NEW_SCOPE_ID);
@@ -2826,6 +2769,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: VAR_NAME_PTR (\$\[+\w+\]+)
 	 */
+	@SuppressWarnings("unused")
 	private boolean isVarNamePtr(String token) {
 		if(token.charAt(0) != '$')
 			return false;
