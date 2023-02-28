@@ -9,7 +9,6 @@ import java.io.StringReader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -1102,46 +1101,18 @@ final class LangPredefinedFunctions {
 			if(text == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
 			
-			final int NEW_SCOPE_ID = SCOPE_ID + 1;
-			
 			//Update call stack
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
 			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()));
 			
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
-				//Add variables and local variables
-				interpreter.createDataMap(NEW_SCOPE_ID);
-				//Copies must not be final
-				interpreter.data.get(SCOPE_ID).var.forEach((key, val) -> {
-					if(!val.isLangVar())
-						interpreter.data.get(NEW_SCOPE_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
-					
-					if(val.isStaticData()) //Static lang vars should also be copied
-						interpreter.data.get(NEW_SCOPE_ID).var.put(key, val);
-				});
-				//Initialize copyAfterFP
-				interpreter.copyAfterFP.put(NEW_SCOPE_ID, new HashMap<String, String>());
-				interpreter.interpretLines(lines, NEW_SCOPE_ID);
+				interpreter.interpretLines(lines, SCOPE_ID);
 			}catch(IOException e) {
-				//Remove data map
-				interpreter.data.remove(NEW_SCOPE_ID);
-				
-				//Clear copyAfterFP
-				interpreter.copyAfterFP.remove(NEW_SCOPE_ID);
-				
 				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
 			}finally {
 				//Update call stack
 				interpreter.popStackElement();
 			}
-			
-			//Add lang after call
-			interpreter.data.get(SCOPE_ID).lang.putAll(interpreter.data.get(NEW_SCOPE_ID).lang);
-			
-			interpreter.executeAndClearCopyAfterFP(SCOPE_ID, NEW_SCOPE_ID);
-			
-			//Remove data map
-			interpreter.data.remove(NEW_SCOPE_ID);
 			
 			return interpreter.getAndResetReturnValue(SCOPE_ID);
 		});
