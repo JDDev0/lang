@@ -990,6 +990,18 @@ public final class LangParser {
 		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
 		if(isInnerAssignment?isVariableAssignment:LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
 			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
+			
+			//If lvalue contains "(", "[", or "{" which are not closed -> do not parse as assignment
+			String[] bracketPairs = new String[] {
+					"()", "[]", "{}"
+			};
+			for(String bracketPair:bracketPairs) {
+				if(tokens[0].contains(bracketPair.charAt(0) + "") &&
+						LangUtils.getIndexOfMatchingBracket(tokens[0], 0, tokens[0].length(), bracketPair.charAt(0), bracketPair.charAt(1)) == -1) {
+					return null;
+				}
+			}
+			
 			String assignmentOperator = line.substring(tokens[0].length() + 1, line.indexOf('=', tokens[0].length()));
 			
 			AbstractSyntaxTree.Node lvalueNode = ((isVariableAssignment || !assignmentOperator.isEmpty())?parseLRvalue(tokens[0], null, false):parseTranslationKey(tokens[0])).convertToNode();
