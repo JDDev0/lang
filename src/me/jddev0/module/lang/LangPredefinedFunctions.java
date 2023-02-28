@@ -919,34 +919,6 @@ final class LangPredefinedFunctions {
 			DataObject dataObject = combinedArgumentList.get(0);
 			return new DataObject().setVarPointer(new VarPointerObject(dataObject));
 		});
-		funcs.put("condition", new LangPredefinedFunctionObject() {
-			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
-				DataObject condition = LangUtils.combineDataObjects(argumentList);
-				if(condition == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-				
-				try {
-					return new DataObject().setBoolean(interpreter.interpretCondition(interpreter.parser.parseCondition(condition.getText()), SCOPE_ID));
-				}catch(IOException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
-				}
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "parser.con";
-			}
-		});
 		funcs.put("exec", (argumentList, SCOPE_ID) -> {
 			DataObject text = LangUtils.combineDataObjects(argumentList);
 			if(text == null)
