@@ -930,7 +930,10 @@ public class DataObject {
 					
 					//LONG
 					try {
-						return Long.parseLong(txt);
+						if(txt.endsWith("l") || txt.endsWith("L"))
+							return Long.parseLong(txt.substring(0, txt.length() - 1));
+						else
+							return Long.parseLong(txt);
 					}catch(NumberFormatException ignore) {}
 					
 					//FLOAT

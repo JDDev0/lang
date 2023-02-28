@@ -1822,7 +1822,11 @@ public final class LangParser {
 			
 			//LONG
 			try {
-				nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token)));
+				if(token.endsWith("l") || token.endsWith("L"))
+					nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token.substring(0, token.length() - 1))));
+				else
+					nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token)));
+				
 				
 				return;
 			}catch(NumberFormatException ignore) {}
