@@ -45,30 +45,3 @@ If "-e CODE" is used in Linux single quotes should be used for the CODE argument
 func.println($a)')<br>
 You can use the "-nolog" argument to disable log file logging<br>
 
-## Breaking changes
-
-- **v1.0.0**:
-  - func.condition was removed
-  - func.clearVar, func.clearAllVars, and func.clearAllArrays were removed
-  - func.arrayDelete was renamed to func.arrayReset
-  - func.arrayClear was removed
-  - The 2 args version of func.arrayMake was removed
-  - func.copyAfterFP was removed (Use static vars or call-by-pointer instead)
-  - func.split was changed and is not backwards compatible
-  - Pointer redirection is no longer supported
-  - Array variable names starting with "&LANG_" are no longer allowed
-  - Var/Array pointer names
-  - Many deprecated methods and classes in the Lang class won't work as expected
-  - Array names written in a text would now print the array's content instead of the variable name (Variable name of an array can be gotten by "\\&array" \[Escaping of "&"\])
-  - The Lang class is now final
-  - "return $... = ", "return &... = ", and "return fp.... = " will now be parsed as an assignment (If you want to return something with " = ", you have to escape the "=": "return ... \\= ...")
-  - linker function will no longer return 0 or -1 for successful or unsuccessful execution
-  - Change of condition operator precedence and associativity
-  - "$LANG\_COMPILER\_VERSION" was removed and replaced with "$LANG\_VERSION"
-  - "func.isCompilerVersionNewer()" was removed and replaced with "func.isLangVersionNewer()"
-  - "func.isCompilerVersionOlder()" was removed and replaced with "func.isLangVersionOlder()"
-  - "func.exec()" can access variables defined in the caller's scope
-  - "$LANG\_ERRNO" is now static: If "$LANG\_ERRNO" is set inside a function, "$LANG\_ERRNO" in the caller scope will also be this value
-  - Pointer redirection of lang vars is no longer possible
-  - Whitespaces after "(" and before ")" in the argument parsing of function calls will now be ignored
-
