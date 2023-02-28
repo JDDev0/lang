@@ -1213,7 +1213,8 @@ public final class LangParser {
 				
 				nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts));
 				return ast;
-			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") || token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
+			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") ||
+					token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				boolean blockBracketFlag = token.endsWith("{");
@@ -1253,7 +1254,8 @@ public final class LangParser {
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONT_FLOW_ARG_MISSING, "Missing loop statement arguments"));
 						return ast;
-					}else if(loopStatement.startsWith("con.while(") || loopStatement.startsWith("con.until(") || loopStatement.startsWith("con.repeat(") || loopStatement.startsWith("con.foreach(")) {
+					}else if(loopStatement.startsWith("con.while(") || loopStatement.startsWith("con.until(") ||
+							loopStatement.startsWith("con.repeat(") || loopStatement.startsWith("con.foreach(")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
@@ -1291,7 +1293,7 @@ public final class LangParser {
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
 						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, conNonNode));
 					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
-						List<AbstractSyntaxTree.Node> arguments = parseFunctionParameterList(loopCondition, false).getChildren();
+						List<AbstractSyntaxTree.Node> arguments = convertCommaOperatorsToArgumentSeparators(parseOperationExpr(loopCondition));
 						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
 						
 						AbstractSyntaxTree.Node varPointerNode = null;
