@@ -1,4 +1,4 @@
-package me.jddev0.module.lang.platform.desktop.swing;
+package me.jddev0.platform.desktop.swing;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
