@@ -48,6 +48,7 @@ You can use the "-nolog" argument to disable log file logging<br>
 ## Breaking changes
 
 - **v1.0.0**:
+  - func.condition was removed
   - func.clearVar, func.clearAllVars, and func.clearAllArrays were removed
   - func.arrayDelete was renamed to func.arrayReset
   - func.arrayClear was removed
