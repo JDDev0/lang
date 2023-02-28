@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Lang-Module<br>
@@ -1496,7 +1498,7 @@ public final class LangParser {
 			
 			//Parser function calls
 			if(LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_PARSER_FUNCTION_CALL)) {
-				clearAndParseStringBuilder(builder, nodes);
+				clearAndParseStringBuilderTranslationKey(builder, nodes);
 				
 				int parameterStartIndex = translationKey.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(translationKey, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
@@ -1522,18 +1524,20 @@ public final class LangParser {
 				//Invalid parser function
 			}
 			
-			//Force node split
-			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && translationKey.startsWith("$")) {
-				//Variable split for variable concatenation
+			//Vars
+			Pattern varNamePattern = LangPatterns.VAR_NAME_NORMAL;
+			Matcher matcher = varNamePattern.matcher(translationKey);
+			if(matcher.find() && matcher.start() == 0) {
 				clearAndParseStringBuilderTranslationKey(builder, nodes);
-			}
-			if(LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
-				//Variable split for variable concatenation
+				
+				int len = matcher.end();
+				
+				builder.append(translationKey.substring(0, len));
+				translationKey = translationKey.substring(len);
+				
 				clearAndParseStringBuilderTranslationKey(builder, nodes);
-			}
-			if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_NORMAL) && LangPatterns.matches(translationKey, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
-				//Variable split after invalid character (Not [A-Za-z0-9_]
-				clearAndParseStringBuilderTranslationKey(builder, nodes);
+				
+				continue;
 			}
 			
 			builder.append(translationKey.charAt(0));
@@ -1716,18 +1720,20 @@ public final class LangParser {
 				continue;
 			}
 			
-			//Force node split
-			if(!LangPatterns.matches(builder.toString(), LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER) && token.startsWith("$")) {
-				//Variable split for variable concatenation
-				clearAndParseStringBuilderTranslationKey(builder, nodes);
-			}
-			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_MODULE_VAR_IDENTIFIER)) {
-				//Variable split for variable concatenation
-				clearAndParseStringBuilderTranslationKey(builder, nodes);
-			}
-			if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_FULL_WITH_FUNCS) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR)) {
-				//Variable split after invalid character (Not [A-Za-z0-9_]
+			//Vars
+			Pattern varNamePattern = LangPatterns.VAR_NAME_FULL_WITH_FUNCS;
+			Matcher matcher = varNamePattern.matcher(token);
+			if(matcher.find() && matcher.start() == 0) {
 				clearAndParseStringBuilder(builder, nodes);
+				
+				int len = matcher.end();
+				
+				builder.append(token.substring(0, len));
+				token = token.substring(len);
+				
+				clearAndParseStringBuilder(builder, nodes);
+				
+				continue;
 			}
 			
 			builder.append(token.charAt(0));
@@ -1864,8 +1870,7 @@ public final class LangParser {
 			while(parameterList.length() > 0) {
 				//Unescaping
 				if(parameterList.startsWith("\\")) {
-					if(builder.length() > 0)
-						clearAndParseStringBuilder(builder, nodes);
+					clearAndParseStringBuilder(builder, nodes);
 					
 					if(parameterList.length() == 1)
 						break;
@@ -1959,9 +1964,11 @@ public final class LangParser {
 					//Create new ArgumentSeparatorNode with "," surrounded by whitespaces
 					
 					if(builder.length() == 0) {
-						//Add empty TextObject in between two ","
-						if(!hasNodesFlag)
-							nodes.add(new AbstractSyntaxTree.TextValueNode(""));
+						if(nodes.size() == 0 || nodes.get(nodes.size() - 1) instanceof AbstractSyntaxTree.ArgumentSeparatorNode) {
+							//Add empty TextObject in between two ","
+							if(!hasNodesFlag)
+								nodes.add(new AbstractSyntaxTree.TextValueNode(""));
+						}
 					}else {
 						nodes.add(parseToken(builder.toString(), null).convertToNode());
 						builder.delete(0, builder.length());
@@ -1999,8 +2006,7 @@ public final class LangParser {
 				
 				//VarPtr
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_VAR_NAME_PTR_AND_DEREFERENCE)) {
-					if(builder.length() > 0)
-						clearAndParseStringBuilder(builder, nodes);
+					clearAndParseStringBuilder(builder, nodes);
 					
 					int endIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterList.indexOf('$') + 1, Integer.MAX_VALUE, '[', ']');
 					if(endIndex != -1) {
@@ -2015,8 +2021,7 @@ public final class LangParser {
 				
 				//Array unpacking
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_ARRAY_UNPACKING)) {
-					if(builder.length() > 0)
-						clearAndParseStringBuilder(builder, nodes);
+					clearAndParseStringBuilder(builder, nodes);
 					
 					int index = parameterList.indexOf('.') + 3;
 					String varName = parameterList.substring(0, index);
@@ -2027,10 +2032,21 @@ public final class LangParser {
 					continue;
 				}
 				
-				//Variable split after invalid character (Not [A-Za-z0-9_]
-				if(LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_DEREFERENCE_AND_ARRAY) &&
-				LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_NON_WORD_CHAR))
+				//Vars
+				Pattern varNamePattern = LangPatterns.VAR_NAME_FULL_WITH_FUNCS;
+				Matcher matcher = varNamePattern.matcher(parameterList);
+				if(matcher.find() && matcher.start() == 0) {
 					clearAndParseStringBuilder(builder, nodes);
+					
+					int len = matcher.end();
+					
+					builder.append(parameterList.substring(0, len));
+					parameterList = parameterList.substring(len);
+					
+					clearAndParseStringBuilder(builder, nodes);
+					
+					continue;
+				}
 				
 				builder.append(parameterList.charAt(0));
 				if(parameterList.length() > 1) {
