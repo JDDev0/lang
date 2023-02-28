@@ -692,34 +692,6 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("getLangRequest", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
-				DataObject langRequestObject = LangUtils.combineDataObjects(argumentList);
-				if(langRequestObject == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-				
-				String langValue = interpreter.data.get(SCOPE_ID).lang.get(langRequestObject.getText());
-				if(langValue == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
-				
-				return new DataObject(langValue);
-			}
-			
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.getTranslationValue";
-			}
-		});
 		funcs.put("getTranslationValue", (argumentList, SCOPE_ID) -> {
 			DataObject translationKeyObject = LangUtils.combineDataObjects(argumentList);
 			if(translationKeyObject == null)
