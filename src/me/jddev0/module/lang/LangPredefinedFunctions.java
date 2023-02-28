@@ -6020,7 +6020,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("arrayDelete", (argumentList, SCOPE_ID) -> {
+		funcs.put("arrayReset", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
 			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
