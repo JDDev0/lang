@@ -471,32 +471,6 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedErrorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("getErrorString", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				DataObject error;
-				if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-					return error;
-				
-				return new DataObject().setText(interpreter.getAndClearErrnoErrorObject(SCOPE_ID).getErrorText());
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.getErrorText";
-			}
-		});
 		funcs.put("getErrorText", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -1161,39 +1135,6 @@ final class LangPredefinedFunctions {
 				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
 			}catch(NumberFormatException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("hexToDez", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				DataObject hexObject = LangUtils.combineDataObjects(argumentList);
-				if(hexObject == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-				
-				String hexString = hexObject.getText();
-				if(!hexString.startsWith("0x") && !hexString.startsWith("0X"))
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, "Wrong prefix (Should be 0x or 0X)", SCOPE_ID);
-				
-				try {
-					return new DataObject().setInt(Integer.parseInt(hexString.substring(2), 16));
-				}catch(NumberFormatException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, e.getMessage(), SCOPE_ID);
-				}
-			}
-			
-			@Override
-			public boolean isDeprecated() {
-				return true;
-			}
-			
-			@Override
-			public String getDeprecatedRemoveVersion() {
-				return "v1.2.0";
-			}
-			
-			@Override
-			public String getDeprecatedReplacementFunction() {
-				return "func.hexToDec";
 			}
 		});
 		funcs.put("hexToDec", (argumentList, SCOPE_ID) -> {
