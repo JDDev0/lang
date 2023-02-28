@@ -441,37 +441,11 @@ final class LangPredefinedFunctions {
 		funcs.put("freeVar", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
 				return error;
 			
 			DataObject pointerObject = combinedArgumentList.get(0);
-			DataObject dereferencedVarPointer = null;
-			switch(pointerObject.getType()) {
-				case VAR_POINTER:
-					if(pointerObject.getVariableName() == null)
-						dereferencedVarPointer = pointerObject.getVarPointer().getVar();
-					break;
-				
-				case FUNCTION_POINTER:
-				case ARRAY:
-					dereferencedVarPointer = pointerObject;
-					break;
-				
-				case ARGUMENT_SEPARATOR:
-				case CHAR:
-				case DOUBLE:
-				case ERROR:
-				case FLOAT:
-				case INT:
-				case LONG:
-				case BYTE_BUFFER:
-				case LIST:
-				case NULL:
-				case TEXT:
-				case VOID:
-				case TYPE:
-					break;
-			}
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 			if(dereferencedVarPointer == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			
