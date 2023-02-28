@@ -223,73 +223,15 @@ lang.version = v1.0.0
 		func.printTerminal($i, $i: This is a for loop test!)
 	}
 	func.repeat(fp.printColor, 8)
-
-	# Copy value from function pointer to the caller
-	# func.copyAfterFP(varPtr, varPtr)
-	# func.copyAfterFP(arrPtr, arrPtr)
-	# func.copyAfterFP(funcPtr, funcPtr)
-	# -> The value from the second arg will be copied to the location
-	#    (in the function pointer var scope) of the var from the first
-	#    value after the function pointer was executed
-	#    -> "*Caller.var[1st arg] = *Function.var[2nd arg]"
-
-	$a = Test
-	fp.changeA = ($a) -> {
-		func.copyAfterFP($[a], $[a])
-		func.println(Local: $a)
-	}
-	func.println($a)
-	fp.changeA(100)
-	func.println($a)
-
-	$var = Test2
-	fp.change = ($ptr, $value) -> {
-		func.println(Local: $value)
-		func.copyAfterFP($ptr, $[value])
-	}
-	func.println($var)
-	fp.change($[var], 42)
-	func.println($var)
-
-	$test = Test3
-	fp.change = () -> {
-		$test = $test - Tested
-		func.println(Local: $test)
-		func.copyAfterFP($[test], $[test])
-	}
-	func.println($test)
-	fp.change()
-	func.println($test)
-
-	$test = Test4
-	fp.change = () -> {
-		func.copyAfterFP($[test], $[test]) # Can be executed anywere
-			                               # in the function
-		$test = $test - Tested
-		func.println(Local: $test)
-	}
-	func.println($test)
-	fp.change()
-	func.println($test)
-
-	$test = Test5
-	fp.change = () -> {
-		$test = $test - Tested
-		func.println(Local: $test)
-	}
-	func.println($test)
-	fp.change()
-	func.println($test)
-
+	
 	# While loop
 	# func.repeatWhile(funcPtr, funcPtr) # Will call the first function pointer
 	#                                      while the second function pointer returns true
-	$num = 50
+	$num = fn.asStatic(50)
 
 	fp.printFunc = () -> {
 		func.println($num)
-		$num = func.deci($num)
-		func.copyAfterFP($[num], $[num])
+		$num -= 1
 	}
 	fp.test = () -> return parser.con($num > 41)
 	func.repeatWhile(fp.printFunc, fp.test)
@@ -297,7 +239,7 @@ lang.version = v1.0.0
 	# Until loop
 	# func.repeatUntil(funcPtr, funcPtr) # Will call the first function pointer
 	#                                      while the second function pointer returns false
-	$win = 0
+	$win = fn.asStatic(0)
 	$num = func.modi(func.rand(), 10)
 	fp.printFunc = () -> {
 		$guess = func.addi(func.modi(func.rand(), 10))
@@ -307,7 +249,6 @@ lang.version = v1.0.0
 			func.printTerminal(3, The number is smaller than $guess!)
 		con.else
 			$win = 1
-			func.copyAfterFP($[win], $[win])
 			func.printTerminal(2, You got the number $guess!)
 		con.endif
 	}
@@ -327,14 +268,13 @@ lang.version = v1.0.0
 	func.arrayForEach(&a, fp.printElement)
 
 	$output
+	fn.makeStatic($[output])
 	fp.addElementToOuput = ($e) -> {
 		con.if($output == null)
 			$output = $e
 		con.else
 			$output = $output, $e
 		con.endif
-		
-		func.copyAfterFP($[output], $[output])
 	}
 	func.arrayForEach(&a, fp.addElementToOuput)
 	func.println($output)

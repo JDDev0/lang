@@ -703,7 +703,7 @@ func.println(|$rand1|$rand2|$rand3|$rand4|)
 $var = func
 func.exec($var.println(test inside exec))
 
-# Code executed by func.exec has access to outside variables and the code can override them with func.copyAfterFP: See [07_loops.lang: func.copyAfterFP]
+# Code executed by func.exec has access to outside variables and the code can change them
 func.exec(func.println($var)\nfunc.println(\$var)) # Would print "func" and than "$var"
 
 # Use multiline text for escaping variables
@@ -720,5 +720,5 @@ func.println($value [func.typeOf($value)], $a [func.typeOf($a)], $b [func.typeOf
 $val = 42
 func.exec({{{func.println($val)}}}) # Will print 42
 func.exec({{{$val = test
-func.println($val)}}}) # Will print test ($val is also changed in calle-scope)
+func.println($val)}}}) # Will print test ($val is also changed in caller-scope)
 func.println($val) # Will print test

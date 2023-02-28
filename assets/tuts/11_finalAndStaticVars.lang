@@ -66,9 +66,6 @@ fp.test = () -> {
 	$a = 100
 	func.printTerminal(2, $a)
 	func.printError()
-	
-	# Will also result in an error
-	func.copyAfterFP($[a], $[a])
 }
 fp.test()
 func.printTerminal(2, $a)

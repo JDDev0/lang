@@ -37,15 +37,12 @@ fp.test = ($d) -> { # "Function Scope Variable"
 		func.println(\$d: $d)
 		$a = new new var # "(Inner) Function Scope Variable" {$a will be shadowed}
 		func.println(\$a: $a)
-		
-		func.copyAfterFP($[a], $[a]) # Will copy $a to the callers variable scope [After function]
 	}
 	fp.innerTest()
 	
 	func.println(\s)
 	func.println(Function scope [fp.test])
 	func.println(\$a: $a)
-	func.copyAfterFP($[a], $[a]) # Will copy $a to the callers variable scope [After function]
 }
 fp.test(Tested)
 
