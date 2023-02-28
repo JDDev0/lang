@@ -720,5 +720,5 @@ func.println($value [func.typeOf($value)], $a [func.typeOf($a)], $b [func.typeOf
 $val = 42
 func.exec({{{func.println($val)}}}) # Will print 42
 func.exec({{{$val = test
-func.println($val)}}}) # Will print test, but $val is only set locally
-func.println($val) # Will print 42
+func.println($val)}}}) # Will print test ($val is also changed in calle-scope)
+func.println($val) # Will print test
