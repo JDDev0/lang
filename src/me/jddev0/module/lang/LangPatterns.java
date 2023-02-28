@@ -61,21 +61,21 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_FUNC_PTR_WITH_FUNCS = Pattern.compile("((\\[\\[\\w+\\]\\]::)?fp|func|fn|linker|ln)\\.\\w+");
 	/**
-	 * RegEx: (\[\[\w+\]\]::)&\w+
+	 * RegEx: (\[\[\w+\]\]::)?&\w+
 	 */
-	public static final Pattern VAR_NAME_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)&\\w+");
+	public static final Pattern VAR_NAME_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)?&\\w+");
 	/**
-	 * RegEx: (\[\[\w+\]\]::)\$\[+\w+\]+
+	 * RegEx: (\[\[\w+\]\]::)?\$\[+\w+\]+
 	 */
-	public static final Pattern VAR_NAME_PTR = Pattern.compile("(\\[\\[\\w+\\]\\]::)\\$\\[+\\w+\\]+");
+	public static final Pattern VAR_NAME_PTR = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\[+\\w+\\]+");
 	/**
-	 * RegEx: (\[\[\w+\]\]::)(\$\**|&)\w+
+	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&)\w+
 	 */
-	public static final Pattern VAR_NAME_DEREFERENCE_AND_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)(\\$\\**|&)\\w+");
+	public static final Pattern VAR_NAME_DEREFERENCE_AND_ARRAY = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&)\\w+");
 	/**
-	 * RegEx: (\[\[\w+\]\]::)\$\**\[+\w+\]+
+	 * RegEx: (\[\[\w+\]\]::)?\$\**\[+\w+\]+
 	 */
-	public static final Pattern VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)\\$\\**\\[+\\w+\\]+");
+	public static final Pattern VAR_NAME_PTR_AND_DEREFERENCE = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\**\\[+\\w+\\]+");
 	/**
 	 * RegEx: (func\.|fn\.|linker\.|ln\.)\w+
 	 */
