@@ -581,6 +581,26 @@ public class DataObject {
 		return builder.toString();
 	}
 	
+	private String convertStructToText() {
+		StringBuilder builder = new StringBuilder("{");
+		String[] memberNames = sp.getMemberNames();
+		if(memberNames.length > 0) {
+			if(sp.isDefinition()) {
+				for(String memberName:memberNames)
+					builder.append(memberName).append(", ");
+			}else {
+				for(String memberName:memberNames) {
+					builder.append(memberName).append(": ");
+					convertCollectionElementToText(sp.getMember(memberName), builder);
+				}
+			}
+			
+			builder.delete(builder.length() - 2, builder.length());
+		}
+		builder.append('}');
+		return builder.toString();
+	}
+	
 	//Conversion functions
 	public String toText() {
 		try {
@@ -605,7 +625,7 @@ public class DataObject {
 					
 					return fp.toString();
 				case STRUCT:
-					return sp.toString();
+					return convertStructToText();
 				case VOID:
 					return "";
 				case NULL:
