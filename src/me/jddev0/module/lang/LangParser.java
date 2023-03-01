@@ -31,7 +31,6 @@ public final class LangParser {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		int blockPos = 0;
 		
-		StringBuilder lineTmp = new StringBuilder();
 		do {
 			String line = lines.readLine();
 			if(line == null) {
@@ -39,71 +38,14 @@ public final class LangParser {
 				
 				break;
 			}
-			//Parse multiline text & line continuation
-			line = maskEscapedMultilineStringStartSequences(line);
-			while(line.contains("{{{") || line.endsWith("\\")) {
-				if(line.contains("{{{")) { //Multiline text
-					boolean multipleLinesFlag = true;
-					int startIndex = line.indexOf("{{{");
-					if(line.contains("}}}")) {
-						//Start search for "}}}" after "{{{"
-						int endIndex = line.indexOf("}}}", startIndex);
-						
-						//Multiple lines if "}}}" was found before "{{{"
-						if(endIndex != -1) {
-							multipleLinesFlag = false;
-							line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex).replace("\\{\\e", "\\{")) + line.substring(endIndex + 3);
-						}
-					}
-					
-					if(multipleLinesFlag) {
-						lineTmp.delete(0, lineTmp.length());
-						lineTmp.append(line.substring(startIndex + 3));
-						line = line.substring(0, startIndex);
-						String lineTmpString;
-						while(true) {
-							if(!lines.ready()) {
-								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
-								return ast;
-							}
-							
-							lineTmpString = lines.readLine();
-							if(lineTmpString == null) {
-								ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
-								return ast;
-							}
-							lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
-							lineTmp.append('\n');
-							if(lineTmpString.contains("}}}")) {
-								int endIndex = lineTmpString.indexOf("}}}");
-								lineTmp.append(lineTmpString.substring(0, endIndex));
-								line = line + LangUtils.escapeString(lineTmp.toString().replace("\\{\\e", "\\{")) + lineTmpString.substring(endIndex + 3);
-								
-								break;
-							}
-							
-							lineTmp.append(lineTmpString);
-						}
-					}
-				}else { //Line continuation
-					line = line.substring(0, line.length() - 1);
-					
-					if(!lines.ready()) {
-						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
-						return ast;
-					}
-					String lineTmpString = lines.readLine();
-					if(lineTmpString == null) {
-						ast.addChild(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
-						return ast;
-					}
-					lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
-					line += lineTmpString;
-				}
-			}
-			line = unmaskEscapedMultilineStringStartSequences(line);
 			
-			line = currentLine = prepareLine(line);
+			List<AbstractSyntaxTree.Node> errorNodes = new LinkedList<>();
+			line = currentLine = prepareNextLine(line, lines, errorNodes);
+			if(errorNodes.size() > 0) {
+				errorNodes.forEach(ast::addChild);
+				return ast;
+			}
+			
 			if(line != null) {
 				//Blocks
 				if(line.equals("{")) {
@@ -1627,14 +1569,21 @@ public final class LangParser {
 					while(lines.ready()) {
 						String line = lines.readLine().trim();
 						
-						if(line.trim().equals("}")) {
+						List<AbstractSyntaxTree.Node> errorNodes = new LinkedList<>();
+						line = prepareNextLine(line, lines, errorNodes);
+						if(errorNodes.size() > 0) {
+							errorNodes.forEach(ast::addChild);
+							return ast;
+						}
+						
+						if(line == null || line.isEmpty())
+							continue;
+						
+						if(line.equals("}")) {
 							hasEndBrace = true;
 							
 							break;
 						}
-						
-						if(line.isEmpty())
-							continue;
 						
 						if(!LangPatterns.matches(line, LangPatterns.VAR_NAME_WITHOUT_PREFIX)) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
@@ -2137,7 +2086,50 @@ public final class LangParser {
 		return null;
 	}
 	
-	private String prepareLine(String line) {
+	/**
+	 * Fix for "\{{{" would be parsed as mutliline text start sequence
+	 */
+	private String maskEscapedMultilineStringStartSequences(String line) {
+		int i = 0;
+		while(i < line.length()) {
+			i = line.indexOf("\\{", i);
+			if(i == -1)
+				break;
+			
+			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+				i += 2;
+				line = line.substring(0, i) + "\\e" + line.substring(i); //Add "\e" after "\{"
+				continue;
+			}
+			
+			i++;
+		}
+		
+		return line;
+	}
+	/**
+	 * Fix for "\{{{" would be parsed as mutliline text start sequence ({"\{" -&gt; "{" [CHAR]} should be parsed as CHAR and not as TEXT {"\{\e" -&gt; "{" [TEXT]})
+	 */
+	private String unmaskEscapedMultilineStringStartSequences(String line) {
+		int i = 0;
+		while(i < line.length()) {
+			i = line.indexOf("\\{\\e", i);
+			if(i == -1)
+				break;
+			
+			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+				i += 2;
+				line = line.substring(0, i) + line.substring(i + 2); //Remove "\e" after "\{"
+				continue;
+			}
+			
+			i++;
+		}
+		
+		return line;
+	}
+	
+	private String removeCommentsAndTrim(String line) {
 		if(line == null)
 			return null;
 		
@@ -2178,44 +2170,84 @@ public final class LangParser {
 	}
 	
 	/**
-	 * Fix for "\{{{" would be parsed as mutliline text start sequence
+	 * @param line (The line read by lines)
+	 * @param errorNodes Will be used to add error nodes
+	 * @return The next line to be executed or null if error
+	 * @throws IOException
 	 */
-	private String maskEscapedMultilineStringStartSequences(String line) {
-		int i = 0;
-		while(i < line.length()) {
-			i = line.indexOf("\\{", i);
-			if(i == -1)
-				break;
-			
-			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
-				i += 2;
-				line = line.substring(0, i) + "\\e" + line.substring(i); //Add "\e" after "\{"
-				continue;
+	private String parseMultilineTextAndLineContinuation(String line, BufferedReader lines, List<AbstractSyntaxTree.Node> errorNodes) throws IOException {
+		StringBuilder lineTmp = new StringBuilder();
+		
+		line = maskEscapedMultilineStringStartSequences(line);
+		
+		while(line.contains("{{{") || line.endsWith("\\")) {
+			if(line.contains("{{{")) { //Multiline text
+				boolean multipleLinesFlag = true;
+				int startIndex = line.indexOf("{{{");
+				if(line.contains("}}}")) {
+					//Start search for "}}}" after "{{{"
+					int endIndex = line.indexOf("}}}", startIndex);
+					
+					//Multiple lines if "}}}" was found before "{{{"
+					if(endIndex != -1) {
+						multipleLinesFlag = false;
+						line = line.substring(0, startIndex) + LangUtils.escapeString(line.substring(startIndex + 3, endIndex).replace("\\{\\e", "\\{")) + line.substring(endIndex + 3);
+					}
+				}
+				
+				if(multipleLinesFlag) {
+					lineTmp.delete(0, lineTmp.length());
+					lineTmp.append(line.substring(startIndex + 3));
+					line = line.substring(0, startIndex);
+					String lineTmpString;
+					while(true) {
+						if(!lines.ready()) {
+							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
+							return null;
+						}
+						
+						lineTmpString = lines.readLine();
+						if(lineTmpString == null) {
+							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
+							return null;
+						}
+						lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
+						lineTmp.append('\n');
+						if(lineTmpString.contains("}}}")) {
+							int endIndex = lineTmpString.indexOf("}}}");
+							lineTmp.append(lineTmpString.substring(0, endIndex));
+							line = line + LangUtils.escapeString(lineTmp.toString().replace("\\{\\e", "\\{")) + lineTmpString.substring(endIndex + 3);
+							
+							break;
+						}
+						
+						lineTmp.append(lineTmpString);
+					}
+				}
+			}else { //Line continuation
+				line = line.substring(0, line.length() - 1);
+				
+				if(!lines.ready()) {
+					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
+					return null;
+				}
+				String lineTmpString = lines.readLine();
+				if(lineTmpString == null) {
+					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
+					return null;
+				}
+				lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
+				line += lineTmpString;
 			}
-			
-			i++;
 		}
 		
-		return line;
+		return unmaskEscapedMultilineStringStartSequences(line);
 	}
-	/**
-	 * Fix for "\{{{" would be parsed as mutliline text start sequence ({"\{" -&gt; "{" [CHAR]} should be parsed as CHAR and not as TEXT {"\{\e" -&gt; "{" [TEXT]})
-	 */
-	private String unmaskEscapedMultilineStringStartSequences(String line) {
-		int i = 0;
-		while(i < line.length()) {
-			i = line.indexOf("\\{\\e", i);
-			if(i == -1)
-				break;
-			
-			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
-				i += 2;
-				line = line.substring(0, i) + line.substring(i + 2); //Remove "\e" after "\{"
-				continue;
-			}
-			
-			i++;
-		}
+	
+	private String prepareNextLine(String line, BufferedReader lines, List<AbstractSyntaxTree.Node> errorNodes) throws IOException {
+		line = parseMultilineTextAndLineContinuation(line, lines, errorNodes);
+		
+		line = removeCommentsAndTrim(line);
 		
 		return line;
 	}
