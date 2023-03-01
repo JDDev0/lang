@@ -77,6 +77,10 @@ public abstract class LangNativeModule {
 		return new DataObject().setChar(charValue);
 	}
 	
+	protected final DataObject createDataObject(DataObject.StructObject structValue) {
+		return new DataObject().setStruct(structValue);
+	}
+	
 	protected final DataObject createDataObject(DataObject.ErrorObject errorValue) {
 		return new DataObject().setError(errorValue);
 	}
@@ -130,6 +134,8 @@ public abstract class LangNativeModule {
 			return new DataObject().setDouble((Double)objectValue);
 		}else if(objectValue instanceof Character) {
 			return new DataObject().setChar((Character)objectValue);
+		}else if(objectValue instanceof DataObject.StructObject) {
+			return new DataObject().setStruct((DataObject.StructObject)objectValue);
 		}else if(objectValue instanceof DataObject.ErrorObject) {
 			return new DataObject().setError((DataObject.ErrorObject)objectValue);
 		}else if(objectValue instanceof LangInterpreter.InterpretingError) {
