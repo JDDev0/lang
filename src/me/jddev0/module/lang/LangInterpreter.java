@@ -32,6 +32,7 @@ import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
+import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
@@ -1356,12 +1357,35 @@ public final class LangInterpreter {
 				
 				//Binary (Comparison operators)
 				case INSTANCE_OF:
-					if(rightSideOperand.getType() != DataType.TYPE)
-						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The second operand of the \"" + node.getOperator().getSymbol() + "\" operator must be of type " +
-							DataType.TYPE.name(), SCOPE_ID);
+					DataObject dataObject = leftSideOperand;
+					DataObject typeObject = rightSideOperand;
 					
-					conditionOutput = leftSideOperand.getType() == rightSideOperand.getTypeValue();
-					break;
+					if(typeObject.getType() == DataType.TYPE) {
+						conditionOutput = leftSideOperand.getType() == rightSideOperand.getTypeValue();
+						
+						break;
+					}
+					
+					if(typeObject.getType() == DataType.STRUCT) {
+						StructObject dataStruct = dataObject.getStruct();
+						StructObject typeStruct = typeObject.getStruct();
+						
+						if(dataStruct.isDefinition())
+							return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The first operand of the \"" +
+									node.getOperator().getSymbol() + "\" operator may not be a definition struct", SCOPE_ID);
+						
+						if(!typeStruct.isDefinition())
+							return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The second operand of the \"" +
+									node.getOperator().getSymbol() + "\" operator must be a definition struct", SCOPE_ID);
+						
+						conditionOutput = dataStruct.getStructBaseDefinition().equals(typeStruct);
+						
+						break;
+					}
+					
+					return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The second operand of the \"" +
+							node.getOperator().getSymbol() + "\" operator must be of type " + DataType.TYPE + " or " +
+							DataType.STRUCT, SCOPE_ID);
 				case EQUALS:
 				case NOT_EQUALS:
 					conditionOutput = leftSideOperand.isEquals(rightSideOperand);

@@ -903,11 +903,26 @@ final class LangPredefinedFunctions {
 				return error;
 			
 			DataObject dataObject = combinedArgumentList.get(0);
-			DataObject dataTypeObject = combinedArgumentList.get(1);
-			if(dataTypeObject.getType() != DataType.TYPE)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.TYPE), SCOPE_ID);
+			DataObject typeObject = combinedArgumentList.get(1);
 			
-			return new DataObject().setBoolean(dataObject.getType() == dataTypeObject.getTypeValue());
+			if(typeObject.getType() == DataType.TYPE)
+				return new DataObject().setBoolean(dataObject.getType() == typeObject.getTypeValue());
+			
+			if(typeObject.getType() == DataType.STRUCT) {
+				StructObject dataStruct = dataObject.getStruct();
+				StructObject typeStruct = typeObject.getStruct();
+				
+				if(dataStruct.isDefinition())
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Data struct may not be a definition struct", SCOPE_ID);
+				
+				if(!typeStruct.isDefinition())
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Type struct must be a definition struct", SCOPE_ID);
+				
+				return new DataObject().setBoolean(dataStruct.getStructBaseDefinition().equals(typeStruct));
+			}
+			
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ",
+					DataType.TYPE + " or " + DataType.STRUCT), SCOPE_ID);
 		});
 		funcs.put("typeOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
