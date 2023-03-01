@@ -1633,6 +1633,9 @@ public final class LangParser {
 							break;
 						}
 						
+						if(line.isEmpty())
+							continue;
+						
 						if(!LangPatterns.matches(line, LangPatterns.VAR_NAME_WITHOUT_PREFIX)) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
 							
