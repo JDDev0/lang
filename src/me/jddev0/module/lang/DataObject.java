@@ -20,7 +20,7 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  */
 public class DataObject {
 	public final static DataTypeConstraint CONSTRAINT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
-	public final static DataTypeConstraint CONSTRAINT_COLLECTION = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.LIST, DataType.NULL));
+	public final static DataTypeConstraint CONSTRAINT_COLLECTION = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.LIST, DataType.STRUCT, DataType.NULL));
 	public final static DataTypeConstraint CONSTRAINT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
 	
 	//Value
@@ -30,6 +30,7 @@ public class DataObject {
 	private LinkedList<DataObject> list;
 	private VarPointerObject vp;
 	private FunctionPointerObject fp;
+	private StructObject sp;
 	private int intValue;
 	private long longValue;
 	private float floatValue;
@@ -100,6 +101,8 @@ public class DataObject {
 		//Set function name for better debugging experience
 		this.fp = (dataObject.fp != null && getVariableName() != null && dataObject.fp.getFunctionName() == null)?
 				dataObject.fp.withFunctionName(getVariableName()):dataObject.fp;
+		
+		this.sp = dataObject.sp; //Struct: copy reference only
 		
 		this.intValue = dataObject.intValue;
 		this.longValue = dataObject.longValue;
@@ -252,6 +255,23 @@ public class DataObject {
 	
 	public FunctionPointerObject getFunctionPointer() {
 		return fp;
+	}
+	
+	public DataObject setStruct(StructObject sp) throws DataTypeConstraintViolatedException {
+		if(finalData)
+			return this;
+		if(sp == null)
+			return setNull();
+		
+		this.type = checkAndRetType(DataType.STRUCT);
+		resetValue();
+		this.sp = sp;
+		
+		return this;
+	}
+	
+	public StructObject getStruct() {
+		return sp;
 	}
 	
 	public DataObject setNull() throws DataTypeConstraintViolatedException {
@@ -584,6 +604,8 @@ public class DataObject {
 						return variableName;
 					
 					return fp.toString();
+				case STRUCT:
+					return sp.toString();
 				case VOID:
 					return "";
 				case NULL:
@@ -624,6 +646,8 @@ public class DataObject {
 				case VAR_POINTER:
 					return null;
 				case FUNCTION_POINTER:
+					return null;
+				case STRUCT:
 					return null;
 				case VOID:
 					return null;
@@ -672,12 +696,15 @@ public class DataObject {
 				return (int)doubleValue;
 			case ERROR:
 				return error.getErrno();
+			case BYTE_BUFFER:
+				return byteBuf.length;
 			case ARRAY:
 				return arr.length;
 			case LIST:
 				return list.size();
+			case STRUCT:
+				return sp.getMemberNames().length;
 			
-			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -711,12 +738,15 @@ public class DataObject {
 				return (long)doubleValue;
 			case ERROR:
 				return (long)error.getErrno();
+			case BYTE_BUFFER:
+				return (long)byteBuf.length;
 			case ARRAY:
 				return (long)arr.length;
 			case LIST:
 				return (long)list.size();
+			case STRUCT:
+				return (long)sp.getMemberNames().length;
 			
-			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -750,12 +780,15 @@ public class DataObject {
 				return (float)doubleValue;
 			case ERROR:
 				return (float)error.getErrno();
+			case BYTE_BUFFER:
+				return (float)byteBuf.length;
 			case ARRAY:
 				return (float)arr.length;
 			case LIST:
 				return (float)list.size();
+			case STRUCT:
+				return (float)sp.getMemberNames().length;
 			
-			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -789,12 +822,15 @@ public class DataObject {
 				return doubleValue;
 			case ERROR:
 				return (double)error.getErrno();
+			case BYTE_BUFFER:
+				return (double)byteBuf.length;
 			case ARRAY:
 				return (double)arr.length;
 			case LIST:
 				return (double)list.size();
+			case STRUCT:
+				return (double)sp.getMemberNames().length;
 			
-			case BYTE_BUFFER:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -822,6 +858,7 @@ public class DataObject {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -837,6 +874,12 @@ public class DataObject {
 				return arr;
 			case LIST:
 				return list.toArray(new DataObject[0]);
+			case STRUCT:
+				try {
+					return Arrays.stream(sp.getMemberNames()).map(memberName -> sp.getMember(memberName)).toArray(DataObject[]::new);
+				}catch(DataTypeConstraintException e) {
+					return null;
+				}
 			
 			case TEXT:
 			case CHAR:
@@ -863,6 +906,12 @@ public class DataObject {
 				return new LinkedList<DataObject>(Arrays.asList(arr));
 			case LIST:
 				return list;
+			case STRUCT:
+				try {
+					return new LinkedList<DataObject>(Arrays.asList(Arrays.stream(sp.getMemberNames()).map(memberName -> sp.getMember(memberName)).toArray(DataObject[]::new)));
+				}catch(DataTypeConstraintException e) {
+					return null;
+				}
 			
 			case TEXT:
 			case CHAR:
@@ -871,6 +920,32 @@ public class DataObject {
 			case FLOAT:
 			case DOUBLE:
 			case BYTE_BUFFER:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
+	public StructObject toStruct() {
+		switch(type) {
+			case STRUCT:
+				return sp;
+			
+			case TEXT:
+			case CHAR:
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case BYTE_BUFFER:
+			case ARRAY:
+			case LIST:
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -903,6 +978,8 @@ public class DataObject {
 				return arr.length > 0;
 			case LIST:
 				return list.size() > 0;
+			case STRUCT:
+				return sp.getMemberNames().length > 0;
 			case ERROR:
 				return error.getErrno() != 0;
 			
@@ -968,6 +1045,8 @@ public class DataObject {
 				return arr.length;
 			case LIST:
 				return list.size();
+			case STRUCT:
+				return sp.getMemberNames().length;
 			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
@@ -1044,6 +1123,12 @@ public class DataObject {
 					return Objects.deepEquals(list.toArray(new DataObject[0]), other.arr);
 				
 				return number != null && list.size() == number.intValue();
+				
+			case STRUCT:
+				if(other.type == DataType.STRUCT)
+					return Objects.equals(sp, other.sp);
+				
+				return number != null && sp.getMemberNames().length == number.intValue();
 			
 			case VAR_POINTER:
 				return vp.equals(other.vp);
@@ -1066,6 +1151,7 @@ public class DataObject {
 					case BYTE_BUFFER:
 					case ARRAY:
 					case LIST:
+					case STRUCT:
 						return number != null && error.getErrno() == number.intValue();
 					
 					case ERROR:
@@ -1104,11 +1190,11 @@ public class DataObject {
 			return false;
 		
 		try {
-			return this.type.equals(other.type) && Objects.equals(this.txt, other.txt) && Objects.deepEquals(this.arr, other.arr) &&
-			Objects.deepEquals(this.list, other.list) && Objects.equals(this.vp, other.vp) && Objects.equals(this.fp, other.fp) &&
-			this.intValue == other.intValue && this.longValue == other.longValue && this.floatValue == other.floatValue &&
-			this.doubleValue == other.doubleValue && this.charValue == other.charValue && Objects.equals(this.error, other.error) &&
-			this.typeValue == other.typeValue;
+			return this.type.equals(other.type) && Objects.equals(this.txt, other.txt) && Objects.deepEquals(this.byteBuf, other.byteBuf) &&
+			Objects.deepEquals(this.arr, other.arr) && Objects.deepEquals(this.list, other.list) && Objects.equals(this.vp, other.vp) &&
+			Objects.equals(this.fp, other.fp) && Objects.equals(this.sp, other.sp) && this.intValue == other.intValue &&
+			this.longValue == other.longValue && this.floatValue == other.floatValue && this.doubleValue == other.doubleValue &&
+			this.charValue == other.charValue && Objects.equals(this.error, other.error) && this.typeValue == other.typeValue;
 		}catch(StackOverflowError e) {
 			return false;
 		}
@@ -1142,7 +1228,7 @@ public class DataObject {
 						return thisNumber.floatValue() < number.getFloat();
 					case DOUBLE:
 						return thisNumber.doubleValue() < number.getDouble();
-						
+					
 					case CHAR:
 					case BYTE_BUFFER:
 					case ERROR:
@@ -1151,6 +1237,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1182,6 +1269,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1208,6 +1296,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1234,6 +1323,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1260,6 +1350,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1286,6 +1377,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1296,13 +1388,13 @@ public class DataObject {
 			case BYTE_BUFFER:
 				switch(number.type) {
 					case INT:
-						return arr.length < number.getInt();
+						return byteBuf.length < number.getInt();
 					case LONG:
-						return arr.length < number.getLong();
+						return byteBuf.length < number.getLong();
 					case FLOAT:
-						return arr.length < number.getFloat();
+						return byteBuf.length < number.getFloat();
 					case DOUBLE:
-						return arr.length < number.getDouble();
+						return byteBuf.length < number.getDouble();
 						
 					case CHAR:
 					case BYTE_BUFFER:
@@ -1312,6 +1404,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1338,6 +1431,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1364,6 +1458,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1392,6 +1487,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1400,7 +1496,34 @@ public class DataObject {
 				}
 				
 				return false;
-				
+			
+			case STRUCT:
+				switch(number.type) {
+					case INT:
+						return sp.getMemberNames().length < number.getInt();
+					case LONG:
+						return sp.getMemberNames().length < number.getLong();
+					case FLOAT:
+						return sp.getMemberNames().length < number.getFloat();
+					case DOUBLE:
+						return sp.getMemberNames().length < number.getDouble();
+						
+					case CHAR:
+					case BYTE_BUFFER:
+					case ERROR:
+					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case STRUCT:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -1450,6 +1573,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1481,6 +1605,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1507,6 +1632,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1533,6 +1659,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1559,6 +1686,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1585,6 +1713,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1595,13 +1724,13 @@ public class DataObject {
 			case BYTE_BUFFER:
 				switch(number.type) {
 					case INT:
-						return arr.length > number.getInt();
+						return byteBuf.length > number.getInt();
 					case LONG:
-						return arr.length > number.getLong();
+						return byteBuf.length > number.getLong();
 					case FLOAT:
-						return arr.length > number.getFloat();
+						return byteBuf.length > number.getFloat();
 					case DOUBLE:
-						return arr.length > number.getDouble();
+						return byteBuf.length > number.getDouble();
 						
 					case CHAR:
 					case BYTE_BUFFER:
@@ -1611,6 +1740,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1637,6 +1767,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1663,6 +1794,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1691,6 +1823,7 @@ public class DataObject {
 					case TEXT:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1699,7 +1832,34 @@ public class DataObject {
 				}
 				
 				return false;
-				
+			
+			case STRUCT:
+				switch(number.type) {
+					case INT:
+						return sp.getMemberNames().length > number.getInt();
+					case LONG:
+						return sp.getMemberNames().length > number.getLong();
+					case FLOAT:
+						return sp.getMemberNames().length > number.getFloat();
+					case DOUBLE:
+						return sp.getMemberNames().length > number.getDouble();
+						
+					case CHAR:
+					case BYTE_BUFFER:
+					case ERROR:
+					case ARRAY:
+					case LIST:
+					case TEXT:
+					case VAR_POINTER:
+					case FUNCTION_POINTER:
+					case STRUCT:
+					case NULL:
+					case VOID:
+					case ARGUMENT_SEPARATOR:
+					case TYPE:
+						return false;
+				}
+			
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
 			case NULL:
@@ -1744,7 +1904,7 @@ public class DataObject {
 			DataObject that = (DataObject)obj;
 			return this.type.equals(that.type) && Objects.equals(this.txt, that.txt) && Objects.equals(this.byteBuf, that.byteBuf) &&
 			Objects.deepEquals(this.arr, that.arr) && Objects.deepEquals(this.list, that.list) && Objects.equals(this.vp, that.vp) &&
-			Objects.equals(this.fp, that.fp) && this.intValue == that.intValue && this.longValue == that.longValue &&
+			Objects.equals(this.fp, that.fp) && Objects.equals(this.sp, that.sp) && this.intValue == that.intValue && this.longValue == that.longValue &&
 			this.floatValue == that.floatValue && this.doubleValue == that.doubleValue && this.charValue == that.charValue &&
 			Objects.equals(this.error, that.error) && this.typeValue == that.typeValue;
 		}catch(StackOverflowError e) {
@@ -1754,11 +1914,11 @@ public class DataObject {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, txt, byteBuf, arr, list == null?null:list.toArray(), vp, fp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
+		return Objects.hash(type, txt, byteBuf, arr, list == null?null:list.toArray(), vp, fp, sp, intValue, longValue, floatValue, doubleValue, charValue, error, typeValue);
 	}
 	
 	public static enum DataType {
-		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, BYTE_BUFFER, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
+		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, BYTE_BUFFER, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, STRUCT, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
 	public static final class DataTypeConstraint {
 		private final List<DataType> types;
@@ -1999,6 +2159,114 @@ public class DataObject {
 		@Override
 		public int hashCode() {
 			return Objects.hash(var);
+		}
+	}
+	public static final class StructObject {
+		private final String[] memberNames;
+		private final DataObject[] members;
+		/**
+		 * If null: This is the struct definition<br>
+		 * If not null: This is an instance of structBaseDefinition<br>
+		 * This is also been used for instance of checks
+		 */
+		private final StructObject structBaseDefinition;
+		
+		public StructObject(String[] memberNames) {
+			this.memberNames = Arrays.copyOf(memberNames, memberNames.length);
+			this.members = null;
+			this.structBaseDefinition = null;
+		}
+		
+		public StructObject(StructObject structBaseDefinition) throws DataTypeConstraintException {
+			if(!structBaseDefinition.isDefinition())
+				throw new DataTypeConstraintException("No instance can be created of another struct instance");
+			
+			this.memberNames = Arrays.copyOf(structBaseDefinition.memberNames, structBaseDefinition.memberNames.length);
+			this.members = new DataObject[this.memberNames.length];
+			for(int i = 0;i < this.members.length;i++)
+				this.members[i] = new DataObject().setVariableName(this.memberNames[i]);
+			
+			this.structBaseDefinition = structBaseDefinition;
+		}
+		
+		public boolean isDefinition() {
+			return structBaseDefinition == null;
+		}
+		
+		public String[] getMemberNames() {
+			return Arrays.copyOf(memberNames, memberNames.length);
+		}
+		
+		public StructObject getStructBaseDefinition() {
+			return structBaseDefinition;
+		}
+		
+		/**
+		 * @return Will return null, if the member was not found
+		 */
+		public int getIndexOfMember(String memeberName) {
+			for(int i = 0;i < memberNames.length;i++)
+				if(memberNames[i].equals(memeberName))
+					return i;
+			
+			return -1;
+		}
+		
+		/**
+		 * @param memberName
+		 * @return Use for debugging only
+		 * @throws DataTypeConstraintException
+		 */
+		public DataObject getRawMember(String memberName) throws DataTypeConstraintException {
+			if(isDefinition())
+				throw new DataTypeConstraintException("The struct definition is no struct instance and has no member values");
+			
+			int index = getIndexOfMember(memberName);
+			if(index == -1)
+				throw new DataTypeConstraintException("The member \"" + memberName + "\" is not part of this struct");
+			
+			return members[index];
+		}
+		
+		public DataObject getMember(String memberName) throws DataTypeConstraintException {
+			return new DataObject(getRawMember(memberName));
+		}
+		
+		public void setMember(String memberName, DataObject dataObject) throws DataTypeConstraintException {
+			if(isDefinition())
+				throw new DataTypeConstraintException("The struct definition is no struct instance and has no member values");
+			
+			int index = getIndexOfMember(memberName);
+			if(index == -1)
+				throw new DataTypeConstraintException("The member \"" + memberName + "\" is not part of this struct");
+			
+			members[index].setData(dataObject);
+		}
+		
+		@Override
+		public String toString() {
+			return structBaseDefinition == null?"<Struct[Definition]>":"<Struct[Instance]>";
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof StructObject))
+				return false;
+			
+			StructObject that = (StructObject)obj;
+			return Objects.deepEquals(this.memberNames, that.memberNames) && Objects.deepEquals(this.members, that.members) &&
+					Objects.equals(this.structBaseDefinition, that.structBaseDefinition);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(memberNames, members, structBaseDefinition);
 		}
 	}
 	public static final class ErrorObject {

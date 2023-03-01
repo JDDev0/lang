@@ -26,9 +26,11 @@ import me.jddev0.module.lang.AbstractSyntaxTree.*;
 import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.Operator;
 import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.OperatorType;
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintViolatedException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
@@ -189,11 +191,17 @@ public final class LangInterpreter {
 		
 		return ret;
 	}
-	
+
 	/**
 	 * @return Might return null
 	 */
 	private DataObject interpretNode(Node node, final int SCOPE_ID) {
+		return interpretNode(null, node, SCOPE_ID);
+	}
+	/**
+	 * @return Might return null
+	 */
+	private DataObject interpretNode(DataObject compositeType, Node node, final int SCOPE_ID) {
 		if(executionState.forceStopExecutionFlag)
 			throw new StoppedException();
 		
@@ -206,10 +214,10 @@ public final class LangInterpreter {
 		try {
 			switch(node.getNodeType()) {
 				case UNPROCESSED_VARIABLE_NAME:
-					return interpretNode(processUnprocessedVariableNameNode((UnprocessedVariableNameNode)node, SCOPE_ID), SCOPE_ID);
+					return interpretNode(compositeType, processUnprocessedVariableNameNode(compositeType, (UnprocessedVariableNameNode)node, SCOPE_ID), SCOPE_ID);
 					
 				case FUNCTION_CALL_PREVIOUS_NODE_VALUE:
-					return interpretNode(processFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)node, null, SCOPE_ID), SCOPE_ID);
+					return interpretNode(compositeType, processFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)node, null, SCOPE_ID), SCOPE_ID);
 				
 				case LIST:
 					//Interpret a group of nodes
@@ -278,7 +286,7 @@ public final class LangInterpreter {
 					return interpretAssignmentNode((AssignmentNode)node, SCOPE_ID);
 				
 				case VARIABLE_NAME:
-					return interpretVariableNameNode((VariableNameNode)node, SCOPE_ID);
+					return interpretVariableNameNode(compositeType, (VariableNameNode)node, SCOPE_ID);
 				
 				case ESCAPE_SEQUENCE:
 					return interpretEscapeSequenceNode((EscapeSequenceNode)node, SCOPE_ID);
@@ -287,13 +295,16 @@ public final class LangInterpreter {
 					return interpretArgumentSeparatotNode((ArgumentSeparatorNode)node, SCOPE_ID);
 				
 				case FUNCTION_CALL:
-					return interpretFunctionCallNode((FunctionCallNode)node, SCOPE_ID);
+					return interpretFunctionCallNode(compositeType, (FunctionCallNode)node, SCOPE_ID);
 				
 				case FUNCTION_DEFINITION:
 					return interpretFunctionDefinitionNode((FunctionDefinitionNode)node, SCOPE_ID);
 				
 				case ARRAY:
 					return interpretArrayNode((ArrayNode)node, SCOPE_ID);
+				
+				case STRUCT_DEFINITION:
+					return interpretStructDefinitionNode((StructDefinitionNode)node, SCOPE_ID);
 				
 				case GENERAL:
 					setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
@@ -413,7 +424,7 @@ public final class LangInterpreter {
 		nodes.add(new TextValueNode(variableName.substring(returendVariableName.length()))); //Add composition part as TextValueNode
 		return new ListNode(nodes);
 	}
-	private Node processUnprocessedVariableNameNode(UnprocessedVariableNameNode node, final int SCOPE_ID) {
+	private Node processUnprocessedVariableNameNode(DataObject compositeType, UnprocessedVariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
 		if(executionFlags.rawVariableNames)
@@ -439,8 +450,28 @@ public final class LangInterpreter {
 			variableName = variableName.substring(indexModuleIdientifierEnd + 4);
 		}
 		
-		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
-			return convertVariableNameToVariableNameNodeOrComposition(moduleName, variableName, data.get(SCOPE_ID).var.keySet(), "", variableName.startsWith("$"), SCOPE_ID);
+		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp.")) {
+			Set<String> variableNames;
+			if(compositeType != null) {
+				if(compositeType.getType() != DataType.STRUCT) {
+					setErrno(InterpretingError.INVALID_ARGUMENTS, "Invalid composite type", SCOPE_ID);
+					
+					return new TextValueNode(variableName);
+				}
+				
+				variableNames = new HashSet<>(Arrays.asList(compositeType.getStruct().getMemberNames()));
+			}else {
+				variableNames = data.get(SCOPE_ID).var.keySet();
+			}
+			
+			return convertVariableNameToVariableNameNodeOrComposition(moduleName, variableName, variableNames, "", variableName.startsWith("$"), SCOPE_ID);
+		}
+		
+		if(compositeType != null) {
+			setErrno(InterpretingError.INVALID_AST_NODE, "Invalid composite type member name: \"" + variableName + "\"", SCOPE_ID);
+			
+			return new TextValueNode(variableName);
+		}
 		
 		final boolean isLinkerFunction;
 		final String prefix;
@@ -1129,9 +1160,16 @@ public final class LangInterpreter {
 		
 		if(node.getOperatorType() == OperatorType.ALL) {
 			switch(node.getOperator()) {
+				//Binary
 				case COMMA:
 					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
 							"The COMMA operator is parser-only (If you meant the text value of \",\", you must escape the COMMA operator: \"\\,\")", SCOPE_ID);
+				case MEMBER_ACCESS:
+					if(leftSideOperand.getType() != DataType.STRUCT)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+								"The left side operant of the member access operator (\"" + node.getOperator().getSymbol() + "\") must be a composite type", SCOPE_ID);
+					
+					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
 				
 				default:
 					return null;
@@ -1504,10 +1542,10 @@ public final class LangInterpreter {
 						variableName = variableName.substring(indexModuleIdientifierEnd + 4);
 					}
 					
-					if(isVarNameFull(variableName) || isVarNamePtrAndDereference(variableName)) {
+					if(isVarNameFullWithoutPrefix(variableName) || isVarNamePtrAndDereferenceWithoutPrefix(variableName)) {
 						if(variableName.indexOf("[") == -1) { //Pointer redirection is no longer supported
 							boolean[] flags = new boolean[] {false, false};
-							DataObject lvalue = getOrCreateDataObjectFromVariableName(moduleName, variableName, false, true, true, flags, SCOPE_ID);
+							DataObject lvalue = getOrCreateDataObjectFromVariableName(null, moduleName, variableName, false, true, true, flags, SCOPE_ID);
 							if(flags[0])
 								return lvalue; //Forward error from getOrCreateDataObjectFromVariableName()
 							
@@ -1587,6 +1625,7 @@ public final class LangInterpreter {
 				case VARIABLE_NAME:
 				case VOID_VALUE:
 				case ARRAY:
+				case STRUCT_DEFINITION:
 					DataObject translationKeyDataObject = interpretNode(lvalueNode, SCOPE_ID);
 					if(translationKeyDataObject == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid translationKey", SCOPE_ID);
@@ -1615,10 +1654,21 @@ public final class LangInterpreter {
 	 *                                   (e.g. $[abc] is not in variableNames, but $abc is -> $[abc] will return a DataObject)
 	 * @param flags Will set by this method in format: [error, created]
 	 */
-	private DataObject getOrCreateDataObjectFromVariableName(String moduleName, String variableName, boolean supportsPointerReferencing,
+	private DataObject getOrCreateDataObjectFromVariableName(DataObject compositeType, String moduleName, String variableName, boolean supportsPointerReferencing,
 	boolean supportsPointerDereferencing, boolean shouldCreateDataObject, final boolean[] flags, final int SCOPE_ID) {
 		Map<String, DataObject> variables;
-		if(moduleName == null) {
+		if(compositeType != null) {
+			if(compositeType.getType() != DataType.STRUCT)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid composite type", SCOPE_ID);
+			
+			variables = new HashMap<>();
+			try {
+				for(String memberName:compositeType.getStruct().getMemberNames())
+					variables.put(memberName, compositeType.getStruct().getMember(memberName));
+			}catch(DataTypeConstraintException e) {
+				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		}else if(moduleName == null) {
 			variables = data.get(SCOPE_ID).var;
 		}else {
 			LangModule module = modules.get(moduleName);
@@ -1639,7 +1689,7 @@ public final class LangInterpreter {
 		if(supportsPointerDereferencing && variableName.contains("*")) {
 			int index = variableName.indexOf('*');
 			String referencedVariableName = variableName.substring(0, index) + variableName.substring(index + 1);
-			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(moduleName, referencedVariableName, supportsPointerReferencing, true, false, flags, SCOPE_ID);
+			DataObject referencedVariable = getOrCreateDataObjectFromVariableName(compositeType, moduleName, referencedVariableName, supportsPointerReferencing, true, false, flags, SCOPE_ID);
 			if(referencedVariable == null) {
 				if(flags != null && flags.length == 2)
 					flags[0] = true;
@@ -1662,7 +1712,7 @@ public final class LangInterpreter {
 			}
 			
 			String dereferencedVariableName = variableName.substring(0, indexOpeningBracket) + variableName.substring(indexOpeningBracket + 1, indexMatchingBracket);
-			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(moduleName, dereferencedVariableName, true, false, false, flags, SCOPE_ID);
+			DataObject dereferencedVariable = getOrCreateDataObjectFromVariableName(compositeType, moduleName, dereferencedVariableName, true, false, false, flags, SCOPE_ID);
 			if(dereferencedVariable != null)
 				return new DataObject().setVarPointer(new VarPointerObject(dereferencedVariable));
 			
@@ -1678,11 +1728,13 @@ public final class LangInterpreter {
 			return null;
 		
 		//Variable creation if possible
-		if(moduleName != null || isLangVarOrLangVarPointerRedirection(variableName)) {
+		if(compositeType != null || moduleName != null || isLangVarOrLangVarPointerRedirectionWithoutPrefix(variableName)) {
 			if(flags != null && flags.length == 2)
 				flags[0] = true;
 			
-			if(moduleName == null)
+			if(compositeType != null)
+				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, "Composite type members can not be created", SCOPE_ID);
+			else if(moduleName == null)
 				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			else
 				return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, "Module variables can not be created", SCOPE_ID);
@@ -1698,10 +1750,10 @@ public final class LangInterpreter {
 	/**
 	 * Will create a variable if doesn't exist or returns an error object
 	 */
-	private DataObject interpretVariableNameNode(VariableNameNode node, final int SCOPE_ID) {
+	private DataObject interpretVariableNameNode(DataObject compositeType, VariableNameNode node, final int SCOPE_ID) {
 		String variableName = node.getVariableName();
 		
-		boolean isModuleVariable = variableName.startsWith("[[");
+		boolean isModuleVariable = compositeType == null && variableName.startsWith("[[");
 		String moduleName = null;
 		if(isModuleVariable) {
 			int indexModuleIdientifierEnd = variableName.indexOf("]]::");
@@ -1717,12 +1769,15 @@ public final class LangInterpreter {
 			variableName = variableName.substring(indexModuleIdientifierEnd + 4);
 		}
 		
-		if(!isVarNameFullWithFuncs(variableName) && !isVarNamePtrAndDereference(variableName))
+		if(!isVarNameFullWithFuncsWithoutPrefix(variableName) && !isVarNamePtrAndDereferenceWithoutPrefix(variableName))
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID);
 		
 		if(variableName.startsWith("$") || variableName.startsWith("&") || variableName.startsWith("fp."))
-			return getOrCreateDataObjectFromVariableName(moduleName, variableName, variableName.startsWith("$"), variableName.startsWith("$"),
-			true, null, SCOPE_ID);
+			return getOrCreateDataObjectFromVariableName(compositeType, moduleName, variableName, variableName.startsWith("$"),
+					variableName.startsWith("$"), true, null, SCOPE_ID);
+		
+		if(compositeType != null)
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid composite type member name: \"" + variableName + "\"", SCOPE_ID);
 		
 		final boolean isLinkerFunction;
 		if(!isModuleVariable && variableName.startsWith("func.")) {
@@ -1900,7 +1955,7 @@ public final class LangInterpreter {
 					while(parameterListIterator.hasNext()) {
 						VariableNameNode parameter = parameterListIterator.next();
 						String variableName = parameter.getVariableName();
-						if(!parameterListIterator.hasNext() && !isLangVar(variableName) && isFuncCallVarArgs(variableName)) {
+						if(!parameterListIterator.hasNext() && !isLangVarWithoutPrefix(variableName) && isFuncCallVarArgs(variableName)) {
 							//Varargs (only the last parameter can be a varargs parameter)
 							variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 							if(variableName.startsWith("$")) {
@@ -1939,7 +1994,7 @@ public final class LangInterpreter {
 							continue;
 						}
 						
-						if(!isVarName(variableName) || isLangVar(variableName)) {
+						if(!isVarNameWithoutPrefix(variableName) || isLangVarWithoutPrefix(variableName)) {
 							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", SCOPE_ID);
 							
 							continue;
@@ -2031,7 +2086,8 @@ public final class LangInterpreter {
 				try {
 					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
 					if(variableName.startsWith("&") && variableName.endsWith("...")) {
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, variableName.substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
+						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, null, variableName.
+								substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
 						if(dataObject == null) {
 							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", SCOPE_ID));
 							
@@ -2069,11 +2125,11 @@ public final class LangInterpreter {
 	/**
 	 * @return Will return void data for non return value functions
 	 */
-	private DataObject interpretFunctionCallNode(FunctionCallNode node, final int SCOPE_ID) {
+	private DataObject interpretFunctionCallNode(DataObject compositeType, FunctionCallNode node, final int SCOPE_ID) {
 		String functionName = node.getFunctionName();
 		final String originalFunctionName = functionName;
 		
-		boolean isModuleVariable = functionName.startsWith("[[");
+		boolean isModuleVariable = compositeType == null && functionName.startsWith("[[");
 		Map<String, DataObject> variables;
 		if(isModuleVariable) {
 			int indexModuleIdientifierEnd = functionName.indexOf("]]::");
@@ -2099,7 +2155,25 @@ public final class LangInterpreter {
 		}
 		
 		FunctionPointerObject fp;
-		if(!isModuleVariable && isFuncName(functionName)) {
+		if(compositeType != null) {
+			if(compositeType.getType() != DataType.STRUCT)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Invalid composite type", SCOPE_ID);
+			
+			if(!functionName.startsWith("fp."))
+				functionName = "fp." + functionName;
+			
+			try {
+				DataObject member = compositeType.getStruct().getMember(functionName);
+				
+				if(member.getType() != DataType.FUNCTION_POINTER)
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() +
+							"\": Function pointer is invalid", SCOPE_ID);
+				
+				fp = member.getFunctionPointer();
+			}catch(DataTypeConstraintException e) {
+				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		}else if(!isModuleVariable && isFuncName(functionName)) {
 			final boolean isLinkerFunction;
 			if(functionName.startsWith("func.")) {
 				isLinkerFunction = false;
@@ -2127,13 +2201,15 @@ public final class LangInterpreter {
 			}).findFirst();
 			
 			if(!ret.isPresent())
-				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Predfined, linker, or external function was not found", SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
+						"\": Predfined, linker, or external function was not found", SCOPE_ID);
 			
 			fp = new FunctionPointerObject(originalFunctionName, ret.get().getValue());
-		}else if(isVarNameFuncPtr(functionName)) {
+		}else if(isVarNameFuncPtrWithoutPrefix(functionName)) {
 			DataObject ret = variables.get(functionName);
 			if(ret == null || ret.getType() != DataType.FUNCTION_POINTER)
-				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer was not found or is invalid", SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() +
+						"\": Function pointer was not found or is invalid", SCOPE_ID);
 			
 			fp = ret.getFunctionPointer();
 		}else {
@@ -2143,7 +2219,8 @@ public final class LangInterpreter {
 			DataObject ret = variables.get("fp." + functionName);
 			if(ret != null) {
 				if(ret.getType() != DataType.FUNCTION_POINTER)
-					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() + "\": Function pointer is invalid", SCOPE_ID);
+					return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "\"" + node.getFunctionName() +
+							"\": Function pointer is invalid", SCOPE_ID);
 					
 				fp = ret.getFunctionPointer();
 			}else if(!isModuleVariable) {
@@ -2163,12 +2240,14 @@ public final class LangInterpreter {
 					}).findFirst();
 					
 					if(!retPredefinedFunction.isPresent())
-						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
+						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
+								"\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
 					
 					fp = new FunctionPointerObject("linker." + functionName, retPredefinedFunction.get().getValue());
 				}
 			}else {
-				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() + "\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
+						"\": Normal, predfined, linker, or external function was not found", SCOPE_ID);
 			}
 		}
 		
@@ -2197,13 +2276,13 @@ public final class LangInterpreter {
 				
 				VariableNameNode parameter = (VariableNameNode)child;
 				String variableName = parameter.getVariableName();
-				if(!childrenIterator.hasNext() && !isLangVar(variableName) && isFuncCallVarArgs(variableName)) {
+				if(!childrenIterator.hasNext() && !isLangVarWithoutPrefix(variableName) && isFuncCallVarArgs(variableName)) {
 					//Varargs (only the last parameter can be a varargs parameter)
 					parameterList.add(parameter);
 					break;
 				}
 				
-				if((!isVarName(variableName) && !isFuncCallCallByPtr(variableName)) || isLangVar(variableName)) {
+				if((!isVarNameWithoutPrefix(variableName) && !isFuncCallCallByPtr(variableName)) || isLangVarWithoutPrefix(variableName)) {
 					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter: \"" + variableName + "\"", SCOPE_ID);
 					
 					continue;
@@ -2229,6 +2308,19 @@ public final class LangInterpreter {
 		
 		List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(interpretedNodes);
 		return new DataObject().setArray(elements.toArray(new DataObject[0]));
+	}
+	
+	private DataObject interpretStructDefinitionNode(StructDefinitionNode node, final int SCOPE_ID) {
+		List<String> memberNames = node.getMemberNames();
+		
+		for(String memberName:memberNames)
+			if(!isVarNameWithoutPrefix(memberName))
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "\"" + memberName + "\" is no valid struct member name", SCOPE_ID);
+		
+		if(new HashSet<>(memberNames).size() < memberNames.size())
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Struct member name may not be duplicated", SCOPE_ID);
+		
+		return new DataObject().setStruct(new StructObject(memberNames.toArray(new String[0])));
 	}
 	
 	//Return values for format sequence errors
@@ -2685,7 +2777,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: LANG_VAR ((\$|&)LANG_.*)
 	 */
-	private boolean isLangVar(String token) {
+	private boolean isLangVarWithoutPrefix(String token) {
 		char firstChar = token.charAt(0);
 		return (firstChar == '$' || firstChar == '&') && token.startsWith("LANG_",  1);
 	}
@@ -2693,7 +2785,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: LANG_VAR ((\$|&)LANG_.*) || LANG_VAR_POINTER_REDIRECTION (\$\[+LANG_.*\]+)
 	 */
-	private boolean isLangVarOrLangVarPointerRedirection(String token) {
+	private boolean isLangVarOrLangVarPointerRedirectionWithoutPrefix(String token) {
 		char firstChar = token.charAt(0);
 		return (firstChar == '$' || firstChar == '&') && (token.startsWith("LANG_",  1) || token.contains("[LANG_"));
 	}
@@ -2745,9 +2837,9 @@ public final class LangInterpreter {
 	}
 	
 	/**
-	 * LangPatterns: VAR_NAME ((\$|&|fp\.)\w+)
+	 * LangPatterns: VAR_NAME_WITHOUT_PREFIX ((\$|&|fp\.)\w+)
 	 */
-	private boolean isVarName(String token) {
+	private boolean isVarNameWithoutPrefix(String token) {
 		boolean funcPtr = token.startsWith("fp.");
 		
 		char firstChar = token.charAt(0);
@@ -2767,51 +2859,9 @@ public final class LangInterpreter {
 	}
 	
 	/**
-	 * LangPatterns: VAR_NAME_PTR (\$\[+\w+\]+)
-	 */
-	@SuppressWarnings("unused")
-	private boolean isVarNamePtr(String token) {
-		if(token.charAt(0) != '$')
-			return false;
-		
-		int i = 1;
-		boolean hasNoBracketOpening = true;
-		for(;i < token.length();i++) {
-			if(token.charAt(i) == '[')
-				hasNoBracketOpening = false;
-			else
-				break;
-		}
-		
-		if(hasNoBracketOpening)
-			return false;
-		
-		boolean hasNoVarName = true;
-		for(;i < token.length();i++) {
-			char c = token.charAt(i);
-			if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-				hasNoVarName = false;
-			else
-				break;
-		}
-		
-		if(hasNoVarName)
-			return false;
-		
-		boolean hasBracketClosing = false;
-		for(;i < token.length();i++)
-			if(token.charAt(i) == ']')
-				hasBracketClosing = true;
-			else
-				return false;
-		
-		return hasBracketClosing;
-	}
-	
-	/**
 	 * LangPatterns: VAR_NAME_FULL ((\$\**|&|fp\.)\w+)
 	 */
-	private boolean isVarNameFull(String token) {
+	private boolean isVarNameFullWithoutPrefix(String token) {
 		boolean funcPtr = token.startsWith("fp.");
 		char firstChar = token.charAt(0);
 		boolean normalVar = firstChar == '$';
@@ -2841,7 +2891,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: VAR_NAME_FULL_WITH_FUNCS ((\$\**|&|fp\.|func\.|fn\.|linker\.|ln\.)\w+)
 	 */
-	private boolean isVarNameFullWithFuncs(String token) {
+	private boolean isVarNameFullWithFuncsWithoutPrefix(String token) {
 		boolean funcPtr = token.startsWith("fp.");
 		boolean func = token.startsWith("func.");
 		boolean fn = token.startsWith("fn.");
@@ -2875,7 +2925,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: VAR_NAME_PTR_AND_DEREFERENCE (\$\**\[+\w+\]+)
 	 */
-	private boolean isVarNamePtrAndDereference(String token) {
+	private boolean isVarNamePtrAndDereferenceWithoutPrefix(String token) {
 		if(token.charAt(0) != '$')
 			return false;
 		
@@ -2942,7 +2992,7 @@ public final class LangInterpreter {
 	/**
 	 * LangPatterns: VAR_NAME_FUNC_PTR (fp\.\w+)
 	 */
-	private boolean isVarNameFuncPtr(String token) {
+	private boolean isVarNameFuncPtrWithoutPrefix(String token) {
 		if(!token.startsWith("fp."))
 			return false;
 		
@@ -3473,7 +3523,7 @@ public final class LangInterpreter {
 			return interpreter.interpretNode(node, SCOPE_ID);
 		}
 		public DataObject interpretFunctionCallNode(final int SCOPE_ID, FunctionCallNode node) throws StoppedException {
-			return interpreter.interpretFunctionCallNode(node, SCOPE_ID);
+			return interpreter.interpretFunctionCallNode(null, node, SCOPE_ID);
 		}
 		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) throws StoppedException {
 			return interpreter.interpretFunctionPointer(fp, functionName, argumentList, SCOPE_ID);

@@ -6,8 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
@@ -40,6 +42,8 @@ final class LangOperators {
 				return new DataObject().setInt(operand.getText().length());
 			case CHAR:
 				return new DataObject().setInt(1);
+			case STRUCT:
+				return new DataObject().setInt(operand.getStruct().getMemberNames().length);
 			
 			case INT:
 			case LONG:
@@ -82,6 +86,19 @@ final class LangOperators {
 				}
 				
 				return new DataObject().setList(listCopy);
+			case STRUCT:
+				StructObject struct = operand.getStruct();
+				if(struct.isDefinition()) {
+					return new DataObject().setStruct(new StructObject(struct.getMemberNames()));
+				}else {
+					try {
+						StructObject structCopy = new StructObject(struct.getStructBaseDefinition());
+						for(String memberName:struct.getMemberNames())
+							structCopy.setMember(memberName, struct.getMember(memberName));
+					}catch(DataTypeConstraintException e) {
+						return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+					}
+				}
 			
 			case TEXT:
 			case CHAR:
@@ -177,6 +194,7 @@ final class LangOperators {
 					), INNER_SCOPE_ID);
 				}));
 			
+			case STRUCT:
 			case ERROR:
 			case VAR_POINTER:
 			case NULL:
@@ -238,6 +256,7 @@ final class LangOperators {
 					), INNER_SCOPE_ID);
 				}));
 			
+			case STRUCT:
 			case TEXT:
 			case BYTE_BUFFER:
 			case ARRAY:
@@ -283,6 +302,7 @@ final class LangOperators {
 			case ARRAY:
 			case BYTE_BUFFER:
 			case LIST:
+			case STRUCT:
 			case ERROR:
 			case VAR_POINTER:
 			case NULL:
@@ -339,6 +359,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -373,6 +394,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -400,6 +422,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -427,6 +450,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -454,6 +478,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -481,6 +506,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -506,6 +532,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -540,6 +567,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -567,6 +595,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -594,6 +623,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -621,6 +651,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -648,6 +679,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -663,6 +695,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -696,6 +729,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -722,6 +756,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -748,6 +783,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -774,6 +810,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -805,6 +842,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -820,6 +858,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -856,6 +895,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -882,6 +922,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -908,6 +949,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -934,6 +976,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -978,6 +1021,7 @@ final class LangOperators {
 			case LIST:
 			case ERROR:
 			case VAR_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1023,6 +1067,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1061,6 +1106,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1087,6 +1133,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1113,6 +1160,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1129,6 +1177,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1184,6 +1233,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1232,6 +1282,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1290,6 +1341,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1349,6 +1401,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1365,6 +1418,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1410,6 +1464,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1448,6 +1503,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1486,6 +1542,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1525,6 +1582,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1541,6 +1599,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1586,6 +1645,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1624,6 +1684,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1662,6 +1723,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1701,6 +1763,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1717,6 +1780,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1754,6 +1818,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1784,6 +1849,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1807,6 +1873,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1838,6 +1905,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1862,6 +1930,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1880,6 +1949,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1919,6 +1989,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1943,6 +2014,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -1961,6 +2033,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -1992,6 +2065,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2016,6 +2090,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2034,6 +2109,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -2062,6 +2138,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -2093,6 +2170,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2117,6 +2195,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2135,6 +2214,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -2174,6 +2254,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2198,6 +2279,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2216,6 +2298,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -2255,6 +2338,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2279,6 +2363,7 @@ final class LangOperators {
 					case ERROR:
 					case VAR_POINTER:
 					case FUNCTION_POINTER:
+					case STRUCT:
 					case NULL:
 					case VOID:
 					case ARGUMENT_SEPARATOR:
@@ -2297,6 +2382,7 @@ final class LangOperators {
 			case ERROR:
 			case VAR_POINTER:
 			case FUNCTION_POINTER:
+			case STRUCT:
 			case NULL:
 			case VOID:
 			case ARGUMENT_SEPARATOR:
@@ -2335,7 +2421,7 @@ final class LangOperators {
 					if(index < 0 || index >= len)
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 					
-					return leftSideOperand.getArray()[index];
+					return new DataObject(leftSideOperand.getArray()[index]);
 				}
 				
 				return null;
@@ -2349,7 +2435,7 @@ final class LangOperators {
 					if(index < 0 || index >= len)
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 					
-					return leftSideOperand.getList().get(index);
+					return new DataObject(leftSideOperand.getList().get(index));
 				}
 				
 				return null;
@@ -2377,6 +2463,16 @@ final class LangOperators {
 						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
 					
 					return new DataObject().setChar(leftSideOperand.getChar());
+				}
+				
+				return null;
+			case STRUCT:
+				if(rightSideOperand.getType() == DataType.TEXT) {
+					try {
+						return leftSideOperand.getStruct().getMember(rightSideOperand.getText());
+					}catch(DataTypeConstraintException e) {
+						return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+					}
 				}
 				
 				return null;

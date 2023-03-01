@@ -28,11 +28,15 @@ final class LangPatterns {
 	 */
 	public static final Pattern VAR_NAME_NORMAL = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\w+");
 	/**
-	 * RegEx:(\[\[\w+\]\]::)? \$\[+LANG_.*\]+
+	 * RegEx: (\[\[\w+\]\]::)?\$\[+LANG_.*\]+
 	 */
 	public static final Pattern LANG_VAR_POINTER_REDIRECTION = Pattern.compile("(\\[\\[\\w+\\]\\]::)?\\$\\[+LANG_.*\\]+");
 	/**
-	 * RegEx:(\[\[\w+\]\]::)?(\$|&|fp\.)\w+
+	 * RegEx: (\$|&|fp\.)\w+
+	 */
+	public static final Pattern VAR_NAME_WITHOUT_PREFIX = Pattern.compile("(\\$|&|fp\\.)\\w+");
+	/**
+	 * RegEx: (\[\[\w+\]\]::)?(\$|&|fp\.)\w+
 	 */
 	public static final Pattern VAR_NAME = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$|&|fp\\.)\\w+");
 	/**

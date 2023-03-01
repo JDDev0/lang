@@ -472,7 +472,7 @@ public final class LangParser {
 			token.startsWith("!") || token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") ||
 			token.startsWith("*") || token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") ||
 			token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+|") || token.startsWith("-|") || token.startsWith("+") || token.startsWith("-") ||
-			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??") || token.startsWith(",")) {
+			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??") || token.startsWith(",") || token.startsWith("::")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -582,6 +582,9 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.NULL_COALESCING;
 				}else if(token.startsWith(",") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.COMMA;
+				}else if(token.startsWith("::") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.MEMBER_ACCESS;
 				}else {
 					operator = null;
 				}
@@ -1586,8 +1589,9 @@ public final class LangParser {
 		
 		if(isRvalue) {
 			if(lines != null) {
-				//Function definition (rvalue only)
 				if(lrvalue.startsWith("(") && lrvalue.contains(") -> ")) {
+					//Function definition
+					
 					int parameterListEndIndex = LangUtils.getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterListEndIndex < 1) {
 						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function definition"));
@@ -1613,6 +1617,45 @@ public final class LangParser {
 					//Function pointer copying
 					
 					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lrvalue));
+					return ast;
+				}else if(lrvalue.trim().equals("{")) { 
+					//Struct definition
+					
+					List<String> memberNames = new LinkedList<>();
+					boolean hasEndBrace = false;
+					
+					while(lines.ready()) {
+						String line = lines.readLine().trim();
+						
+						if(line.trim().equals("}")) {
+							hasEndBrace = true;
+							
+							break;
+						}
+						
+						if(!LangPatterns.matches(line, LangPatterns.VAR_NAME_WITHOUT_PREFIX)) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
+							
+							return ast;
+						}
+						
+						if(memberNames.contains(line)) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Duplicated struct member name: \"" + line + "\""));
+							
+							return ast;
+						}
+						
+						memberNames.add(line);
+					}
+					
+					if(!hasEndBrace) {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "\"}\" is missing in struct definition"));
+						
+						return ast;
+					}
+					
+					nodes.add(new AbstractSyntaxTree.StructDefinitionNode(memberNames));
+					
 					return ast;
 				}
 			}

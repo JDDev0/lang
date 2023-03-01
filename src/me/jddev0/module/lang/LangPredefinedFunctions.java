@@ -23,8 +23,10 @@ import java.util.stream.Stream;
 
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
+import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
@@ -434,6 +436,7 @@ final class LangPredefinedFunctions {
 		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
+		addPredefinedStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
 	}
@@ -1908,6 +1911,17 @@ final class LangPredefinedFunctions {
 			List<DataObject> value = dataObject.toList();
 			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setList(new LinkedList<>(value)), SCOPE_ID);
 		});
+		funcs.put("struct", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject dataObject = combinedArgumentList.get(0);
+			
+			StructObject value = dataObject.toStruct();
+			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setStruct(value), SCOPE_ID);
+		});
 		funcs.put("bool", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -2550,6 +2564,7 @@ final class LangPredefinedFunctions {
 				case ERROR:
 				case VAR_POINTER:
 				case FUNCTION_POINTER:
+				case STRUCT:
 				case NULL:
 				case VOID:
 				case ARGUMENT_SEPARATOR:
@@ -4573,7 +4588,7 @@ final class LangPredefinedFunctions {
 			DataObject toIndexObject = combinedArgumentList.get(2);
 			
 			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
 			
 			Number fromIndexNumber = fromIndexObject.toNumber();
 			if(fromIndexNumber == null)
@@ -4621,7 +4636,7 @@ final class LangPredefinedFunctions {
 			DataObject valueObject = combinedArgumentList.get(2);
 			
 			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
@@ -4656,7 +4671,7 @@ final class LangPredefinedFunctions {
 			DataObject indexObject = combinedArgumentList.get(1);
 			
 			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
 			
 			Number indexNumber = indexObject.toNumber();
 			if(indexNumber == null)
@@ -4683,7 +4698,7 @@ final class LangPredefinedFunctions {
 			DataObject byteBufferObject = combinedArgumentList.get(0);
 			
 			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, " 1", DataType.BYTE_BUFFER), SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
 			
 			return new DataObject().setInt(byteBufferObject.getByteBuffer().length);
 		});
@@ -6693,6 +6708,178 @@ final class LangPredefinedFunctions {
 			listObject.getList().clear();
 			
 			return null;
+		});
+	}
+	private void addPredefinedStructFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("structCreate", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setStruct(new StructObject(struct));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structSet", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			DataObject memberNameObject = combinedArgumentList.get(1);
+			DataObject memberObject = combinedArgumentList.get(2);
+			
+			if(structObject.getType() != DataType.STRUCT)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.STRUCT), SCOPE_ID);
+			
+			if(memberNameObject.getType() != DataType.TEXT)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.TEXT), SCOPE_ID);
+			
+			StructObject struct = structObject.getStruct();
+			
+			String memberName = memberNameObject.getText();
+			
+			try {
+				struct.setMember(memberName, memberObject);
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		});
+		funcs.put("structSetAll", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			if(structObject.getType() != DataType.STRUCT)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.STRUCT), SCOPE_ID);
+			
+			String[] memberNames = structObject.getStruct().getMemberNames();
+			if(combinedArgumentList.size() - 1 != memberNames.length) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The array length is not equals to the count of member names (" + memberNames.length + ")", SCOPE_ID);
+			}
+			
+			StructObject struct = structObject.getStruct();
+			
+			int i = -1;
+			try {
+				for(i = 0;i < memberNames.length;i++)
+					struct.setMember(memberNames[i], combinedArgumentList.get(i + 1));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, (i == -1?"":"Argument " + (i + 2) + ": ") + e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		});
+		funcs.put("structGet", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT, DataType.TEXT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			DataObject memberNameObject = combinedArgumentList.get(1);
+			
+			StructObject struct = structObject.getStruct();
+			
+			String memberName = memberNameObject.getText();
+			
+			try {
+				return struct.getMember(memberName);
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structGetAll", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setArray(Arrays.stream(struct.getMemberNames()).map(memberName -> struct.getMember(memberName)).toArray(DataObject[]::new));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structGetMemberNames", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setArray(Arrays.stream(struct.getMemberNames()).map(DataObject::new).toArray(DataObject[]::new));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structGetMemberCount", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setInt(struct.getMemberNames().length);
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structIsDefinition", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setBoolean(struct.isDefinition());
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("structIsInstance", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setBoolean(!struct.isDefinition());
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
 		});
 	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {

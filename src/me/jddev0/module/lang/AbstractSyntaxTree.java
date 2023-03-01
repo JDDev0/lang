@@ -2060,7 +2060,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			/**
 			 * COMMA is a temporary parser-only operator (This operator can only be used during parsing)
 			 */
-			COMMA                 (",",        15,       OperatorType.ALL);
+			COMMA                 (",",        15,       OperatorType.ALL),
+			MEMBER_ACCESS         ("::",        1, true, OperatorType.ALL);
 			
 			private final String symbol;
 			private final int arity;
@@ -2673,10 +2674,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			if(obj == null)
 				return false;
 			
-			if(!(obj instanceof LoopStatementNode))
+			if(!(obj instanceof ArrayNode))
 				return false;
 			
-			LoopStatementNode that = (LoopStatementNode)obj;
+			ArrayNode that = (ArrayNode)obj;
 			return this.getNodeType().equals(that.getNodeType()) && this.nodes.equals(that.nodes);
 		}
 		
@@ -2686,12 +2687,63 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
+	public static final class StructDefinitionNode extends ChildlessNode {
+		private final List<String> memberNames;
+		
+		public StructDefinitionNode(List<String> memberNames) {
+			this.memberNames = memberNames;
+		}
+		
+		public List<String> getMemberNames() {
+			return memberNames;
+		}
+		
+		@Override
+		public NodeType getNodeType() {
+			return NodeType.STRUCT_DEFINITION;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("StructDefinitionNode: Members: {\n");
+			memberNames.forEach(memberName -> {
+				builder.append("\t");
+				builder.append(memberName);
+				builder.append("\n");
+			});
+			builder.append("}\n");
+			
+			return builder.toString();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof StructDefinitionNode))
+				return false;
+			
+			StructDefinitionNode that = (StructDefinitionNode)obj;
+			return this.getNodeType().equals(that.getNodeType()) && this.memberNames.equals(that.memberNames);
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getNodeType());
+		}
+	}
+	
 	public static enum NodeType {
 		GENERAL, LIST, PARSING_ERROR, ASSIGNMENT, ESCAPE_SEQUENCE, UNPROCESSED_VARIABLE_NAME, VARIABLE_NAME, ARGUMENT_SEPARATOR,
 		FUNCTION_CALL, FUNCTION_CALL_PREVIOUS_NODE_VALUE, FUNCTION_DEFINITION, CONDITION, IF_STATEMENT_PART_IF, IF_STATEMENT_PART_ELSE,
 		IF_STATEMENT, LOOP_STATEMENT_PART_LOOP, LOOP_STATEMENT_PART_WHILE, LOOP_STATEMENT_PART_UNTIL, LOOP_STATEMENT_PART_REPEAT, LOOP_STATEMENT_PART_FOR_EACH,
 		LOOP_STATEMENT_PART_ELSE, LOOP_STATEMENT, LOOP_STATEMENT_CONTINUE_BREAK, TRY_STATEMENT_PART_TRY, TRY_STATEMENT_PART_SOFT_TRY, TRY_STATEMENT_PART_NON_TRY,
 		TRY_STATEMENT_PART_CATCH, TRY_STATEMENT_PART_ELSE, TRY_STATEMENT_PART_FINALLY, TRY_STATEMENT, MATH, OPERATION, RETURN, THROW, INT_VALUE, LONG_VALUE,
-		FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY;
+		FLOAT_VALUE, DOUBLE_VALUE, CHAR_VALUE, TEXT_VALUE, NULL_VALUE, VOID_VALUE, ARRAY, STRUCT_DEFINITION;
 	}
 }

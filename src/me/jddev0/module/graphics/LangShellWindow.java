@@ -606,6 +606,30 @@ public class LangShellWindow extends JDialog {
 				builder.append("}");
 				break;
 			
+			case STRUCT:
+				boolean isStructDefinition = dataObject.getStruct().isDefinition();
+				builder.append("\nIs struct definition: ");
+				builder.append(isStructDefinition);
+				builder.append("\nMembers:");
+				for(String memberName:dataObject.getStruct().getMemberNames()) {
+					builder.append("\n    ");
+					builder.append(memberName);
+					
+					if(!isStructDefinition) {
+						DataObject member = dataObject.getStruct().getRawMember(memberName);
+						
+						builder.append(": {\n");
+						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+						for(String debugStringLine:debugStringLines) {
+							builder.append("        ");
+							builder.append(debugStringLine);
+							builder.append("\n");
+						}
+						builder.append("    }");
+					}
+				}
+				break;
+			
 			case BYTE_BUFFER:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getByteBuffer().length);
