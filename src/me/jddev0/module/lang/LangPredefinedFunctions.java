@@ -6896,6 +6896,25 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}
 		});
+		funcs.put("structDefinitionTypeOf", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				if(struct.isDefinition())
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The struct may not be a definition struct", SCOPE_ID);
+				
+				return new DataObject().setStruct(struct.getStructBaseDefinition());
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
 	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getLoadedModules", (argumentList, SCOPE_ID) -> {

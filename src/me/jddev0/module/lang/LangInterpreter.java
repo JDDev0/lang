@@ -32,7 +32,6 @@ import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
-import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
