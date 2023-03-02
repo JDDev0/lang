@@ -88,16 +88,16 @@ final class LangOperators {
 				return new DataObject().setList(listCopy);
 			case STRUCT:
 				StructObject struct = operand.getStruct();
-				if(struct.isDefinition()) {
-					return new DataObject().setStruct(new StructObject(struct.getMemberNames()));
-				}else {
-					try {
+				try {
+					if(struct.isDefinition()) {
+						return new DataObject().setStruct(new StructObject(struct.getMemberNames(), struct.getTypeConstraints()));
+					}else {
 						StructObject structCopy = new StructObject(struct.getStructBaseDefinition());
 						for(String memberName:struct.getMemberNames())
 							structCopy.setMember(memberName, struct.getMember(memberName));
-					}catch(DataTypeConstraintException e) {
-						return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 					}
+				}catch(DataTypeConstraintException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 				}
 			
 			case TEXT:

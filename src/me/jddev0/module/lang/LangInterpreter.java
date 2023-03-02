@@ -26,6 +26,7 @@ import me.jddev0.module.lang.AbstractSyntaxTree.*;
 import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.Operator;
 import me.jddev0.module.lang.AbstractSyntaxTree.OperationNode.OperatorType;
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintViolatedException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
@@ -2347,7 +2348,49 @@ public final class LangInterpreter {
 		if(new HashSet<>(memberNames).size() < memberNames.size())
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Struct member name may not be duplicated", SCOPE_ID);
 		
-		return new DataObject().setStruct(new StructObject(memberNames.toArray(new String[0])));
+		DataTypeConstraint[] typeConstraintsArray = new DataTypeConstraint[typeConstraints.size()];
+		for(int i = 0;i < typeConstraintsArray.length;i++) {
+			String typeConstraint = typeConstraints.get(i);
+			if(typeConstraint == null)
+				continue;
+			
+			if(typeConstraint.isEmpty())
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", SCOPE_ID);
+			
+			boolean nullable = typeConstraint.charAt(0) == '?';
+			boolean inverted = typeConstraint.charAt(0) == '!';
+			List<DataType> typeValues = new LinkedList<>(); 
+			
+			if(nullable || inverted)
+				typeConstraint = typeConstraint.substring(1);
+			
+			String[] types = typeConstraint.split("\\|");
+			if(types.length == 0)
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", SCOPE_ID);
+			
+			for(String type:types) {
+				try {
+					DataType typeValue = DataType.valueOf(type);
+					typeValues.add(typeValue);
+				}catch(IllegalArgumentException e) {
+					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid type: \"" + type + "\"", SCOPE_ID);
+				}
+			}
+			
+			if(nullable)
+				typeValues.add(DataType.NULL);
+			
+			if(inverted)
+				typeConstraintsArray[i] = DataTypeConstraint.fromNotAllowedTypes(typeValues);
+			else
+				typeConstraintsArray[i] = DataTypeConstraint.fromAllowedTypes(typeValues);
+		}
+		
+		try {
+			return new DataObject().setStruct(new StructObject(memberNames.toArray(new String[0]), typeConstraintsArray));
+		}catch(DataTypeConstraintException e) {
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, e.getMessage(), SCOPE_ID);
+		}
 	}
 	
 	//Return values for format sequence errors

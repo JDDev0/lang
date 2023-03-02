@@ -2,6 +2,7 @@ package me.jddev0.module.lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -1953,7 +1954,7 @@ public class DataObject {
 		}
 		
 		private DataTypeConstraint(List<DataType> types, boolean allowed) {
-			this.types = new ArrayList<>(types);
+			this.types = new ArrayList<>(new HashSet<>(types));
 			this.allowed = allowed;
 		}
 		
@@ -2183,6 +2184,7 @@ public class DataObject {
 	}
 	public static final class StructObject {
 		private final String[] memberNames;
+		private final DataTypeConstraint[] typeConstraints;
 		private final DataObject[] members;
 		/**
 		 * If null: This is the struct definition<br>
@@ -2191,8 +2193,9 @@ public class DataObject {
 		 */
 		private final StructObject structBaseDefinition;
 		
-		public StructObject(String[] memberNames) {
+		public StructObject(String[] memberNames, DataTypeConstraint[] typeConstraints) throws DataTypeConstraintException {
 			this.memberNames = Arrays.copyOf(memberNames, memberNames.length);
+			this.typeConstraints = Arrays.copyOf(typeConstraints, typeConstraints.length);
 			this.members = null;
 			this.structBaseDefinition = null;
 		}
@@ -2202,9 +2205,14 @@ public class DataObject {
 				throw new DataTypeConstraintException("No instance can be created of another struct instance");
 			
 			this.memberNames = Arrays.copyOf(structBaseDefinition.memberNames, structBaseDefinition.memberNames.length);
+			this.typeConstraints = Arrays.copyOf(structBaseDefinition.typeConstraints, structBaseDefinition.typeConstraints.length);
 			this.members = new DataObject[this.memberNames.length];
-			for(int i = 0;i < this.members.length;i++)
+			for(int i = 0;i < this.members.length;i++) {
 				this.members[i] = new DataObject().setVariableName(this.memberNames[i]);
+				
+				if(this.typeConstraints[i] != null)
+					this.members[i].setTypeConstraint(this.typeConstraints[i]);
+			}
 			
 			this.structBaseDefinition = structBaseDefinition;
 		}
@@ -2215,6 +2223,10 @@ public class DataObject {
 		
 		public String[] getMemberNames() {
 			return Arrays.copyOf(memberNames, memberNames.length);
+		}
+		
+		public DataTypeConstraint[] getTypeConstraints() {
+			return Arrays.copyOf(typeConstraints, typeConstraints.length);
 		}
 		
 		public StructObject getStructBaseDefinition() {
