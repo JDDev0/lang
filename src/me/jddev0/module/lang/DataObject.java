@@ -2,10 +2,12 @@ package me.jddev0.module.lang;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -1942,19 +1944,19 @@ public class DataObject {
 		TEXT, CHAR, INT, LONG, FLOAT, DOUBLE, BYTE_BUFFER, ARRAY, LIST, VAR_POINTER, FUNCTION_POINTER, STRUCT, ERROR, NULL, VOID, ARGUMENT_SEPARATOR, TYPE;
 	}
 	public static final class DataTypeConstraint {
-		private final List<DataType> types;
+		private final Set<DataType> types;
 		private final boolean allowed;
 		
-		public static DataTypeConstraint fromAllowedTypes(List<DataType> allowedTypes) {
+		public static DataTypeConstraint fromAllowedTypes(Collection<DataType> allowedTypes) {
 			return new DataTypeConstraint(allowedTypes, true);
 		}
 		
-		public static DataTypeConstraint fromNotAllowedTypes(List<DataType> notAllowedTypes) {
+		public static DataTypeConstraint fromNotAllowedTypes(Collection<DataType> notAllowedTypes) {
 			return new DataTypeConstraint(notAllowedTypes, false);
 		}
 		
-		private DataTypeConstraint(List<DataType> types, boolean allowed) {
-			this.types = new ArrayList<>(new HashSet<>(types));
+		private DataTypeConstraint(Collection<DataType> types, boolean allowed) {
+			this.types = new HashSet<>(types);
 			this.allowed = allowed;
 		}
 		
@@ -1993,6 +1995,26 @@ public class DataObject {
 				return "[" + Arrays.stream(DataType.values()).filter(((Predicate<DataType>)types::contains).negate()).map(DataType::name).collect(Collectors.joining(", ")) + "]";
 			
 			return "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			
+			if(obj == null)
+				return false;
+			
+			if(!(obj instanceof DataTypeConstraint))
+				return false;
+			
+			DataTypeConstraint that = (DataTypeConstraint)obj;
+			return Objects.deepEquals(new HashSet<>(this.getAllowedTypes()), new HashSet<>(that.getAllowedTypes()));
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(new HashSet<>(getAllowedTypes()));
 		}
 	}
 	public static final class FunctionPointerObject {
