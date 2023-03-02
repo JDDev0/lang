@@ -2193,22 +2193,42 @@ public class DataObject {
 		 */
 		private final StructObject structBaseDefinition;
 		
+		public StructObject(String[] memberNames) throws DataTypeConstraintException {
+			this(memberNames, null);
+		}
+		
 		public StructObject(String[] memberNames, DataTypeConstraint[] typeConstraints) throws DataTypeConstraintException {
 			this.memberNames = Arrays.copyOf(memberNames, memberNames.length);
-			this.typeConstraints = Arrays.copyOf(typeConstraints, typeConstraints.length);
+			this.typeConstraints = typeConstraints == null?new DataTypeConstraint[this.memberNames.length]:
+				Arrays.copyOf(typeConstraints, typeConstraints.length);
+			
+			if(this.memberNames.length != this.typeConstraints.length)
+				throw new DataTypeConstraintException("The count of members must be equals to the count of type constraints");
+			
 			this.members = null;
 			this.structBaseDefinition = null;
 		}
 		
 		public StructObject(StructObject structBaseDefinition) throws DataTypeConstraintException {
+			this(structBaseDefinition, null);
+		}
+		
+		public StructObject(StructObject structBaseDefinition, DataObject[] values) throws DataTypeConstraintException {
 			if(!structBaseDefinition.isDefinition())
 				throw new DataTypeConstraintException("No instance can be created of another struct instance");
 			
 			this.memberNames = Arrays.copyOf(structBaseDefinition.memberNames, structBaseDefinition.memberNames.length);
 			this.typeConstraints = Arrays.copyOf(structBaseDefinition.typeConstraints, structBaseDefinition.typeConstraints.length);
 			this.members = new DataObject[this.memberNames.length];
+			
+			if(values != null && this.memberNames.length != values.length)
+				throw new DataTypeConstraintException("The count of members must be equals to the count of values");
+			
 			for(int i = 0;i < this.members.length;i++) {
 				this.members[i] = new DataObject().setVariableName(this.memberNames[i]);
+				
+				if(values != null && values[i] != null)
+					this.members[i].setData(values[i]);
 				
 				if(this.typeConstraints[i] != null)
 					this.members[i].setTypeConstraint(this.typeConstraints[i]);

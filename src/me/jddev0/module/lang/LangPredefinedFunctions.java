@@ -6742,6 +6742,31 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}
 		});
+		funcs.put("structOf", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() < 1)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
+			
+			DataObject structObject = combinedArgumentList.get(0);
+			
+			if(structObject.getType() != DataType.STRUCT)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.STRUCT), SCOPE_ID);
+			
+			combinedArgumentList.remove(0);
+			
+			String[] memberNames = structObject.getStruct().getMemberNames();
+			if(combinedArgumentList.size() != memberNames.length) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The array length is not equals to the count of member names (" + memberNames.length + ")", SCOPE_ID);
+			}
+			
+			StructObject struct = structObject.getStruct();
+			
+			try {
+				return new DataObject().setStruct(new StructObject(struct, combinedArgumentList.toArray(new DataObject[0])));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
 		funcs.put("structSet", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
