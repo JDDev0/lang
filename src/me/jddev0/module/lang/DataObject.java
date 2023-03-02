@@ -606,93 +606,85 @@ public class DataObject {
 	
 	//Conversion functions
 	public String toText() {
-		try {
-			switch(type) {
-				case TEXT:
-				case ARGUMENT_SEPARATOR:
-					return txt;
-				case BYTE_BUFFER:
-					return convertByteBufferToText();
-				case ARRAY:
-					return convertArrayToText();
-				case LIST:
-					return convertListToText();
-				case VAR_POINTER:
-					if(variableName != null)
-						return variableName;
-					
-					return vp.toString();
-				case FUNCTION_POINTER:
-					if(variableName != null)
-						return variableName;
-					
-					return fp.toString();
-				case STRUCT:
-					return convertStructToText();
-				case VOID:
-					return "";
-				case NULL:
-					return "null";
-				case INT:
-					return intValue + "";
-				case LONG:
-					return longValue + "";
-				case FLOAT:
-					return floatValue + "";
-				case DOUBLE:
-					return doubleValue + "";
-				case CHAR:
-					return charValue + "";
-				case ERROR:
-					return error.toString();
-				case TYPE:
-					return typeValue.name();
-			}
-		}catch(StackOverflowError e) {
-			return "Error";
+		switch(type) {
+			case TEXT:
+			case ARGUMENT_SEPARATOR:
+				return txt;
+			case BYTE_BUFFER:
+				return convertByteBufferToText();
+			case ARRAY:
+				return convertArrayToText();
+			case LIST:
+				return convertListToText();
+			case VAR_POINTER:
+				if(variableName != null)
+					return variableName;
+				
+				return vp.toString();
+			case FUNCTION_POINTER:
+				if(variableName != null)
+					return variableName;
+				
+				return fp.toString();
+			case STRUCT:
+				return convertStructToText();
+			case VOID:
+				return "";
+			case NULL:
+				return "null";
+			case INT:
+				return intValue + "";
+			case LONG:
+				return longValue + "";
+			case FLOAT:
+				return floatValue + "";
+			case DOUBLE:
+				return doubleValue + "";
+			case CHAR:
+				return charValue + "";
+			case ERROR:
+				return error.toString();
+			case TYPE:
+				return typeValue.name();
 		}
 		
 		return null;
 	}
 	public Character toChar() {
-		try {
-			switch(type) {
-				case TEXT:
-				case ARGUMENT_SEPARATOR:
-					return null;
-				case BYTE_BUFFER:
-					return null;
-				case ARRAY:
-					return null;
-				case LIST:
-					return null;
-				case VAR_POINTER:
-					return null;
-				case FUNCTION_POINTER:
-					return null;
-				case STRUCT:
-					return null;
-				case VOID:
-					return null;
-				case NULL:
-					return null;
-				case INT:
-					return (char)intValue;
-				case LONG:
-					return (char)longValue;
-				case FLOAT:
-					return (char)floatValue;
-				case DOUBLE:
-					return (char)doubleValue;
-				case CHAR:
-					return charValue;
-				case ERROR:
-					return null;
-				case TYPE:
-					return null;
-			}
-		}catch(StackOverflowError e) {
-			return null;
+		switch(type) {
+			case TEXT:
+			case ARGUMENT_SEPARATOR:
+				return null;
+			case BYTE_BUFFER:
+				return null;
+			case ARRAY:
+				return null;
+			case LIST:
+				return null;
+			case VAR_POINTER:
+				return null;
+			case FUNCTION_POINTER:
+				return null;
+			case STRUCT:
+				return null;
+			case VOID:
+				return null;
+			case NULL:
+				return null;
+			case INT:
+				return (char)intValue;
+			case LONG:
+				return (char)longValue;
+			case FLOAT:
+				return (char)floatValue;
+			case DOUBLE:
+				return (char)doubleValue;
+			case CHAR:
+				return charValue;
+			case ERROR:
+				return null;
+			case TYPE:
+				return null;
 		}
 		
 		return null;
