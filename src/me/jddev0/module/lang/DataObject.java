@@ -2313,12 +2313,12 @@ public class DataObject {
 			
 			StructObject that = (StructObject)obj;
 			return Objects.deepEquals(this.memberNames, that.memberNames) && Objects.deepEquals(this.members, that.members) &&
-					Objects.equals(this.structBaseDefinition, that.structBaseDefinition);
+					Objects.deepEquals(this.typeConstraints, that.typeConstraints) && Objects.equals(this.structBaseDefinition, that.structBaseDefinition);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(memberNames, members, structBaseDefinition);
+			return Objects.hash(memberNames, members, typeConstraints, structBaseDefinition);
 		}
 	}
 	public static final class ErrorObject {
