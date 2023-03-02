@@ -2335,6 +2335,10 @@ public final class LangInterpreter {
 	
 	private DataObject interpretStructDefinitionNode(StructDefinitionNode node, final int SCOPE_ID) {
 		List<String> memberNames = node.getMemberNames();
+		List<String> typeConstraints = node.getTypeConstraints();
+		
+		if(memberNames.size() != typeConstraints.size())
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
 		
 		for(String memberName:memberNames)
 			if(!isVarNameWithoutPrefix(memberName))

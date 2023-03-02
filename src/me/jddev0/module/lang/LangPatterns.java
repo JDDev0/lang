@@ -84,6 +84,10 @@ final class LangPatterns {
 	 * RegEx: (func\.|fn\.|linker\.|ln\.)\w+
 	 */
 	public static final Pattern FUNC_NAME = Pattern.compile("(func\\.|fn\\.|linker\\.|ln\\.)\\w+");
+	/**
+	 * RegEx: \{[?!]?([A-Z]+\|)*[A-Z]+\}
+	 */
+	public static final Pattern TYPE_CONSTRAINT = Pattern.compile("\\{[?!]?([A-Z]+\\|)*[A-Z]+\\}");
 	
 	//Function call specific
 	/**
@@ -168,6 +172,10 @@ final class LangPatterns {
 	 * RegEx: &\w+\.\.\..{@literal *}
 	 */
 	public static final Pattern PARSING_STARTS_WITH_ARRAY_UNPACKING = Pattern.compile("&\\w+\\.\\.\\..*");
+	/**
+	 * RegEx: \{[?!]?([A-Z]+\|)*[A-Z]+\}.{@literal *}
+	 */
+	public static final Pattern PARSING_STARTS_TYPE_CONSTRAINT = Pattern.compile("\\{[?!]?([A-Z]+\\|)*[A-Z]+\\}.*");
 	
 	//LangParser assignment specific
 	/**

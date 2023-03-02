@@ -2689,13 +2689,19 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	
 	public static final class StructDefinitionNode extends ChildlessNode {
 		private final List<String> memberNames;
+		private final List<String> typeConstraints;
 		
-		public StructDefinitionNode(List<String> memberNames) {
+		public StructDefinitionNode(List<String> memberNames, List<String> typeConstraints) {
 			this.memberNames = memberNames;
+			this.typeConstraints = typeConstraints;
 		}
 		
 		public List<String> getMemberNames() {
 			return memberNames;
+		}
+		
+		public List<String> getTypeConstraints() {
+			return typeConstraints;
 		}
 		
 		@Override
@@ -2705,14 +2711,22 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		
 		@Override
 		public String toString() {
+			if(memberNames.size() != typeConstraints.size())
+				return "StructDefinitionNode: <INVALID>";
+			
 			StringBuilder builder = new StringBuilder();
-			builder.append("StructDefinitionNode: Members: {\n");
-			memberNames.forEach(memberName -> {
+			builder.append("StructDefinitionNode: Members{TypeConstraints}: {\n");
+			for(int i = 0;i < memberNames.size();i++) {
 				builder.append("\t");
-				builder.append(memberName);
+				builder.append(memberNames.get(i));
+				if(typeConstraints.get(i) != null) {
+					builder.append("{");
+					builder.append(typeConstraints.get(i));
+					builder.append("}");
+				}
 				builder.append("\n");
-			});
-			builder.append("}\n");
+			}
+			builder.append("}");
 			
 			return builder.toString();
 		}
@@ -2729,12 +2743,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				return false;
 			
 			StructDefinitionNode that = (StructDefinitionNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.memberNames.equals(that.memberNames);
+			return this.getNodeType().equals(that.getNodeType()) && this.memberNames.equals(that.memberNames) &&
+					this.typeConstraints.equals(that.typeConstraints);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getNodeType());
+			return Objects.hash(this.getNodeType(), this.memberNames, this.typeConstraints);
 		}
 	}
 	

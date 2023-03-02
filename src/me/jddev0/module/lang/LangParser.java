@@ -1564,6 +1564,7 @@ public final class LangParser {
 					//Struct definition
 					
 					List<String> memberNames = new LinkedList<>();
+					List<String> typeConstraints = new LinkedList<>();
 					boolean hasEndBrace = false;
 					
 					while(lines.ready()) {
@@ -1585,6 +1586,21 @@ public final class LangParser {
 							break;
 						}
 						
+						String typeConstraint = null;
+						int braceIndex = line.indexOf('{');
+						if(braceIndex != -1) {
+							String rawTypeConstraint = line.substring(braceIndex);
+							line = line.substring(0, braceIndex);
+							
+							if(!LangPatterns.matches(rawTypeConstraint, LangPatterns.TYPE_CONSTRAINT)) {
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid type constraint: \"" + rawTypeConstraint + "\""));
+								
+								return ast;
+							}
+							
+							typeConstraint = rawTypeConstraint.substring(1, rawTypeConstraint.length() - 1);
+						}
+						
 						if(!LangPatterns.matches(line, LangPatterns.VAR_NAME_WITHOUT_PREFIX)) {
 							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
 							
@@ -1598,6 +1614,7 @@ public final class LangParser {
 						}
 						
 						memberNames.add(line);
+						typeConstraints.add(typeConstraint);
 					}
 					
 					if(!hasEndBrace) {
@@ -1606,7 +1623,7 @@ public final class LangParser {
 						return ast;
 					}
 					
-					nodes.add(new AbstractSyntaxTree.StructDefinitionNode(memberNames));
+					nodes.add(new AbstractSyntaxTree.StructDefinitionNode(memberNames, typeConstraints));
 					
 					return ast;
 				}
