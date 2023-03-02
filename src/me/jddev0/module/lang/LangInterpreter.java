@@ -2364,18 +2364,24 @@ public final class LangInterpreter {
 			if(nullable || inverted)
 				typeConstraint = typeConstraint.substring(1);
 			
-			String[] types = typeConstraint.split("\\|");
-			if(types.length == 0)
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", SCOPE_ID);
-			
-			for(String type:types) {
+			int pipeIndex;
+			do {
+				pipeIndex = typeConstraint.indexOf('|');
+				
+				String type = pipeIndex > -1?typeConstraint.substring(0, pipeIndex):typeConstraint;
+				
+				if(type.isEmpty() || pipeIndex == typeConstraint.length() - 1)
+					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", SCOPE_ID);
+				
+				typeConstraint = pipeIndex > -1?typeConstraint.substring(pipeIndex + 1):"";
+				
 				try {
 					DataType typeValue = DataType.valueOf(type);
 					typeValues.add(typeValue);
 				}catch(IllegalArgumentException e) {
 					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid type: \"" + type + "\"", SCOPE_ID);
 				}
-			}
+			}while(pipeIndex > -1);
 			
 			if(nullable)
 				typeValues.add(DataType.NULL);
