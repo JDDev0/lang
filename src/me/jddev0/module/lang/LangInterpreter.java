@@ -2083,7 +2083,7 @@ public final class LangInterpreter {
 			popStackElement();
 		}
 	}
-	private DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) {
+	private List<DataObject> interpretFunctionPointerArguments(List<Node> argumentList, final int SCOPE_ID) {
 		List<DataObject> argumentValueList = new LinkedList<>();
 		DataObject previousDataObject = null;
 		for(Node argument:argumentList) {
@@ -2144,7 +2144,7 @@ public final class LangInterpreter {
 			previousDataObject = argumentValue;
 		}
 		
-		return callFunctionPointer(fp, functionName, argumentValueList, SCOPE_ID);
+		return argumentValueList;
 	}
 	/**
 	 * @return Will return void data for non return value functions
@@ -2275,14 +2275,14 @@ public final class LangInterpreter {
 			}
 		}
 		
-		return interpretFunctionPointer(fp, functionName, node.getChildren(), SCOPE_ID);
+		return callFunctionPointer(fp, functionName, interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
 	}
 	
 	private DataObject interpretFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
 		if(previousValue == null || previousValue.getType() != DataType.FUNCTION_POINTER)
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
 		
-		return interpretFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(), node.getChildren(), SCOPE_ID);
+		return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(), interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
 	}
 	
 	private DataObject interpretFunctionDefinitionNode(FunctionDefinitionNode node, final int SCOPE_ID) {
@@ -3602,7 +3602,7 @@ public final class LangInterpreter {
 			return interpreter.interpretFunctionCallNode(null, node, SCOPE_ID);
 		}
 		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) throws StoppedException {
-			return interpreter.interpretFunctionPointer(fp, functionName, argumentList, SCOPE_ID);
+			return interpreter.callFunctionPointer(fp, functionName, interpreter.interpretFunctionPointerArguments(argumentList, SCOPE_ID), SCOPE_ID);
 		}
 		
 		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) throws StoppedException {
