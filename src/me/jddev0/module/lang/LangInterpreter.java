@@ -200,109 +200,115 @@ public final class LangInterpreter {
 		if(executionState.forceStopExecutionFlag)
 			throw new StoppedException();
 		
-		if(node == null) {
-			setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
-			
-			return null;
-		}
-		
 		try {
-			switch(node.getNodeType()) {
-				case UNPROCESSED_VARIABLE_NAME:
-					return interpretNode(compositeType, processUnprocessedVariableNameNode(compositeType, (UnprocessedVariableNameNode)node, SCOPE_ID), SCOPE_ID);
-					
-				case FUNCTION_CALL_PREVIOUS_NODE_VALUE:
-					return interpretNode(compositeType, processFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)node, null, SCOPE_ID), SCOPE_ID);
-				
-				case LIST:
-					//Interpret a group of nodes
-					return interpretListNode((ListNode)node, SCOPE_ID);
-				
-				case CHAR_VALUE:
-				case TEXT_VALUE:
-				case INT_VALUE:
-				case LONG_VALUE:
-				case FLOAT_VALUE:
-				case DOUBLE_VALUE:
-				case NULL_VALUE:
-				case VOID_VALUE:
-					return interpretValueNode((ValueNode)node, SCOPE_ID);
-				
-				case PARSING_ERROR:
-					return interpretParsingErrorNode((ParsingErrorNode)node, SCOPE_ID);
-				
-				case IF_STATEMENT:
-					return new DataObject().setBoolean(interpretIfStatementNode((IfStatementNode)node, SCOPE_ID));
-				
-				case IF_STATEMENT_PART_ELSE:
-				case IF_STATEMENT_PART_IF:
-					return new DataObject().setBoolean(interpretIfStatementPartNode((IfStatementPartNode)node, SCOPE_ID));
-				
-				case LOOP_STATEMENT:
-					return new DataObject().setBoolean(interpretLoopStatementNode((LoopStatementNode)node, SCOPE_ID));
-				
-				case LOOP_STATEMENT_PART_WHILE:
-				case LOOP_STATEMENT_PART_UNTIL:
-				case LOOP_STATEMENT_PART_REPEAT:
-				case LOOP_STATEMENT_PART_FOR_EACH:
-				case LOOP_STATEMENT_PART_LOOP:
-				case LOOP_STATEMENT_PART_ELSE:
-					return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, SCOPE_ID));
-				
-				case LOOP_STATEMENT_CONTINUE_BREAK:
-					interpretLoopStatementContinueBreak((LoopStatementContinueBreakStatement)node, SCOPE_ID);
-					return null;
-				
-				case TRY_STATEMENT:
-					return new DataObject().setBoolean(interpretTryStatementNode((TryStatementNode)node, SCOPE_ID));
-				
-				case TRY_STATEMENT_PART_TRY:
-				case TRY_STATEMENT_PART_SOFT_TRY:
-				case TRY_STATEMENT_PART_NON_TRY:
-				case TRY_STATEMENT_PART_CATCH:
-				case TRY_STATEMENT_PART_ELSE:
-				case TRY_STATEMENT_PART_FINALLY:
-					return new DataObject().setBoolean(interpretTryStatementPartNode((TryStatementPartNode)node, SCOPE_ID));
-				
-				case OPERATION:
-				case MATH:
-				case CONDITION:
-					return interpretOperationNode((OperationNode)node, SCOPE_ID);
-				
-				case RETURN:
-					interpretReturnNode((ReturnNode)node, SCOPE_ID);
-					return null;
-				
-				case THROW:
-					interpretThrowNode((ThrowNode)node, SCOPE_ID);
-					return null;
-				
-				case ASSIGNMENT:
-					return interpretAssignmentNode((AssignmentNode)node, SCOPE_ID);
-				
-				case VARIABLE_NAME:
-					return interpretVariableNameNode(compositeType, (VariableNameNode)node, SCOPE_ID);
-				
-				case ESCAPE_SEQUENCE:
-					return interpretEscapeSequenceNode((EscapeSequenceNode)node, SCOPE_ID);
-				
-				case ARGUMENT_SEPARATOR:
-					return interpretArgumentSeparatotNode((ArgumentSeparatorNode)node, SCOPE_ID);
-				
-				case FUNCTION_CALL:
-					return interpretFunctionCallNode(compositeType, (FunctionCallNode)node, SCOPE_ID);
-				
-				case FUNCTION_DEFINITION:
-					return interpretFunctionDefinitionNode((FunctionDefinitionNode)node, SCOPE_ID);
-				
-				case ARRAY:
-					return interpretArrayNode((ArrayNode)node, SCOPE_ID);
-				
-				case STRUCT_DEFINITION:
-					return interpretStructDefinitionNode((StructDefinitionNode)node, SCOPE_ID);
-				
-				case GENERAL:
+			loop:
+			while(true) {
+				if(node == null) {
 					setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
+					
+					return null;
+				}
+				
+				switch(node.getNodeType()) {
+					case UNPROCESSED_VARIABLE_NAME:
+						node = processUnprocessedVariableNameNode(compositeType, (UnprocessedVariableNameNode)node, SCOPE_ID);
+						continue loop;
+						
+					case FUNCTION_CALL_PREVIOUS_NODE_VALUE:
+						node = processFunctionCallPreviousNodeValueNode((FunctionCallPreviousNodeValueNode)node, null, SCOPE_ID);
+						continue loop;
+					
+					case LIST:
+						//Interpret a group of nodes
+						return interpretListNode((ListNode)node, SCOPE_ID);
+					
+					case CHAR_VALUE:
+					case TEXT_VALUE:
+					case INT_VALUE:
+					case LONG_VALUE:
+					case FLOAT_VALUE:
+					case DOUBLE_VALUE:
+					case NULL_VALUE:
+					case VOID_VALUE:
+						return interpretValueNode((ValueNode)node, SCOPE_ID);
+					
+					case PARSING_ERROR:
+						return interpretParsingErrorNode((ParsingErrorNode)node, SCOPE_ID);
+					
+					case IF_STATEMENT:
+						return new DataObject().setBoolean(interpretIfStatementNode((IfStatementNode)node, SCOPE_ID));
+					
+					case IF_STATEMENT_PART_ELSE:
+					case IF_STATEMENT_PART_IF:
+						return new DataObject().setBoolean(interpretIfStatementPartNode((IfStatementPartNode)node, SCOPE_ID));
+					
+					case LOOP_STATEMENT:
+						return new DataObject().setBoolean(interpretLoopStatementNode((LoopStatementNode)node, SCOPE_ID));
+					
+					case LOOP_STATEMENT_PART_WHILE:
+					case LOOP_STATEMENT_PART_UNTIL:
+					case LOOP_STATEMENT_PART_REPEAT:
+					case LOOP_STATEMENT_PART_FOR_EACH:
+					case LOOP_STATEMENT_PART_LOOP:
+					case LOOP_STATEMENT_PART_ELSE:
+						return new DataObject().setBoolean(interpretLoopStatementPartNode((LoopStatementPartNode)node, SCOPE_ID));
+					
+					case LOOP_STATEMENT_CONTINUE_BREAK:
+						interpretLoopStatementContinueBreak((LoopStatementContinueBreakStatement)node, SCOPE_ID);
+						return null;
+					
+					case TRY_STATEMENT:
+						return new DataObject().setBoolean(interpretTryStatementNode((TryStatementNode)node, SCOPE_ID));
+					
+					case TRY_STATEMENT_PART_TRY:
+					case TRY_STATEMENT_PART_SOFT_TRY:
+					case TRY_STATEMENT_PART_NON_TRY:
+					case TRY_STATEMENT_PART_CATCH:
+					case TRY_STATEMENT_PART_ELSE:
+					case TRY_STATEMENT_PART_FINALLY:
+						return new DataObject().setBoolean(interpretTryStatementPartNode((TryStatementPartNode)node, SCOPE_ID));
+					
+					case OPERATION:
+					case MATH:
+					case CONDITION:
+						return interpretOperationNode((OperationNode)node, SCOPE_ID);
+					
+					case RETURN:
+						interpretReturnNode((ReturnNode)node, SCOPE_ID);
+						return null;
+					
+					case THROW:
+						interpretThrowNode((ThrowNode)node, SCOPE_ID);
+						return null;
+					
+					case ASSIGNMENT:
+						return interpretAssignmentNode((AssignmentNode)node, SCOPE_ID);
+					
+					case VARIABLE_NAME:
+						return interpretVariableNameNode(compositeType, (VariableNameNode)node, SCOPE_ID);
+					
+					case ESCAPE_SEQUENCE:
+						return interpretEscapeSequenceNode((EscapeSequenceNode)node, SCOPE_ID);
+					
+					case ARGUMENT_SEPARATOR:
+						return interpretArgumentSeparatotNode((ArgumentSeparatorNode)node, SCOPE_ID);
+					
+					case FUNCTION_CALL:
+						return interpretFunctionCallNode(compositeType, (FunctionCallNode)node, SCOPE_ID);
+					
+					case FUNCTION_DEFINITION:
+						return interpretFunctionDefinitionNode((FunctionDefinitionNode)node, SCOPE_ID);
+					
+					case ARRAY:
+						return interpretArrayNode((ArrayNode)node, SCOPE_ID);
+					
+					case STRUCT_DEFINITION:
+						return interpretStructDefinitionNode((StructDefinitionNode)node, SCOPE_ID);
+					
+					case GENERAL:
+						setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
+						return null;
+				}
 			}
 		}catch(ClassCastException e) {
 			setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
