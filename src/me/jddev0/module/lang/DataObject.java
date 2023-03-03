@@ -692,7 +692,7 @@ public class DataObject {
 	public Integer toInt() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+				if(txt.trim().length() == txt.length()) {
 					try {
 						return Integer.parseInt(txt);
 					}catch(NumberFormatException ignore) {}
@@ -734,7 +734,7 @@ public class DataObject {
 	public Long toLong() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE)) {
+				if(txt.trim().length() == txt.length()) {
 					try {
 						return Long.parseLong(txt);
 					}catch(NumberFormatException ignore) {}
@@ -776,10 +776,15 @@ public class DataObject {
 	public Float toFloat() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES)) {
-					try {
-						return Float.parseFloat(txt);
-					}catch(NumberFormatException ignore) {}
+				if(txt.length() > 0) {
+					char lastChar = txt.charAt(txt.length() - 1);
+					
+					if(txt.trim().length() == txt.length() && lastChar != 'f' && lastChar != 'F' && lastChar != 'd' &&
+							lastChar != 'D' && !txt.contains("x") && !txt.contains("X")) {
+						try {
+							return Float.parseFloat(txt);
+						}catch(NumberFormatException ignore) {}
+					}
 				}
 				
 				return null;
@@ -818,10 +823,15 @@ public class DataObject {
 	public Double toDouble() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES)) {
-					try {
-						return Double.parseDouble(txt);
-					}catch(NumberFormatException ignore) {}
+				if(txt.length() > 0) {
+					char lastChar = txt.charAt(txt.length() - 1);
+					
+					if(txt.trim().length() == txt.length() && lastChar != 'f' && lastChar != 'F' && lastChar != 'd' &&
+							lastChar != 'D' && !txt.contains("x") && !txt.contains("X")) {
+						try {
+							return Double.parseDouble(txt);
+						}catch(NumberFormatException ignore) {}
+					}
 				}
 				
 				return null;
@@ -1014,31 +1024,36 @@ public class DataObject {
 	public Number toNumber() {
 		switch(type) {
 			case TEXT:
-				if(!LangPatterns.matches(txt, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES)) {
-					//INT
-					try {
-						return Integer.parseInt(txt);
-					}catch(NumberFormatException ignore) {}
+				if(txt.length() > 0) {
+					char lastChar = txt.charAt(txt.length() - 1);
 					
-					//LONG
-					try {
-						if(txt.endsWith("l") || txt.endsWith("L"))
-							return Long.parseLong(txt.substring(0, txt.length() - 1));
-						else
-							return Long.parseLong(txt);
-					}catch(NumberFormatException ignore) {}
-					
-					//FLOAT
-					if(txt.endsWith("f") || txt.endsWith("F")) {
+					if(txt.trim().length() == txt.length() && lastChar != 'f' && lastChar != 'F' && lastChar != 'd' &&
+							lastChar != 'D' && !txt.contains("x") && !txt.contains("X")) {
+						//INT
 						try {
-							return Float.parseFloat(txt.substring(0, txt.length() - 1));
+							return Integer.parseInt(txt);
+						}catch(NumberFormatException ignore) {}
+						
+						//LONG
+						try {
+							if(txt.endsWith("l") || txt.endsWith("L"))
+								return Long.parseLong(txt.substring(0, txt.length() - 1));
+							else
+								return Long.parseLong(txt);
+						}catch(NumberFormatException ignore) {}
+						
+						//FLOAT
+						if(txt.endsWith("f") || txt.endsWith("F")) {
+							try {
+								return Float.parseFloat(txt.substring(0, txt.length() - 1));
+							}catch(NumberFormatException ignore) {}
+						}
+						
+						//DOUBLE
+						try {
+							return Double.parseDouble(txt);
 						}catch(NumberFormatException ignore) {}
 					}
-					
-					//DOUBLE
-					try {
-						return Double.parseDouble(txt);
-					}catch(NumberFormatException ignore) {}
 				}
 				
 				return null;

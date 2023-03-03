@@ -1321,8 +1321,15 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			
 			String str = textObject.getText();
-			if(LangPatterns.matches(str, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES))
+			
+			if(str.isEmpty())
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			char lastChar = str.charAt(str.length() - 1);
+			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
+					lastChar == 'D' || str.contains("x") || str.contains("X"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
 			try {
 				return new DataObject().setFloat(Float.parseFloat(str));
 			}catch(NumberFormatException e) {
@@ -1338,8 +1345,15 @@ final class LangPredefinedFunctions {
 			DataObject textObject = combinedArgumentList.get(0);
 			
 			String str = textObject.getText();
-			if(LangPatterns.matches(str, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER_ALLOW_NaN_INFINITY_OR_LEADING_OR_TRAILING_WHITESPACES))
+			
+			if(str.isEmpty())
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			char lastChar = str.charAt(str.length() - 1);
+			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
+					lastChar == 'D' || str.contains("x") || str.contains("X"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
 			try {
 				return new DataObject().setDouble(Double.parseDouble(str));
 			}catch(NumberFormatException e) {
