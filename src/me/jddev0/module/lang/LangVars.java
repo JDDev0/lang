@@ -1,33 +1,11 @@
 package me.jddev0.module.lang;
 
-import java.util.Arrays;
-
 import me.jddev0.module.lang.DataObject.DataType;
-import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 import me.jddev0.module.lang.DataObject.ErrorObject;
-import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 
 final class LangVars {
-	private static final DataTypeConstraint TYPE_CONSTRAINT_OPTIONAL_TEXT = DataTypeConstraint.fromAllowedTypes(Arrays.asList(
-					DataType.NULL, DataType.TEXT
-			));
-	
-	public static final StructObject STRUCT_STACK_TRACE_ELEMENT = new StructObject(new String[] {
-					"$path",
-					"$file",
-					"$functionName",
-					"$modulePath",
-					"$moduleFile"
-			}, new DataTypeConstraint[] {
-					TYPE_CONSTRAINT_OPTIONAL_TEXT,
-					TYPE_CONSTRAINT_OPTIONAL_TEXT,
-					TYPE_CONSTRAINT_OPTIONAL_TEXT,
-					TYPE_CONSTRAINT_OPTIONAL_TEXT,
-					TYPE_CONSTRAINT_OPTIONAL_TEXT
-			});
-	
 	private final LangInterpreter interpreter;
 	
 	public LangVars(LangInterpreter interpreter) {
@@ -120,6 +98,6 @@ final class LangVars {
 		}
 	}
 	private void addCompositeLangVars(final int SCOPE_ID) {
-		addStaticLangVar("&StackTraceElement", new DataObject().setStruct(STRUCT_STACK_TRACE_ELEMENT).setFinalData(true), SCOPE_ID);
+		addStaticLangVar("&StackTraceElement", new DataObject().setStruct(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT).setFinalData(true), SCOPE_ID);
 	}
 }

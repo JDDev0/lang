@@ -954,7 +954,7 @@ final class LangPredefinedFunctions {
 				moduleFile = currentStackElement.getLangFile();
 			}
 			
-			return new DataObject().setStruct(new StructObject(LangVars.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
+			return new DataObject().setStruct(new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
 					new DataObject(currentStackElement.getLangPath()),
 					new DataObject(currentStackElement.getLangFile()),
 					new DataObject(currentStackElement.getLangFunctionName()),
@@ -983,7 +983,7 @@ final class LangPredefinedFunctions {
 					moduleFile = ele.getLangFile();
 				}
 				
-				return new DataObject().setStruct(new StructObject(LangVars.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
+				return new DataObject().setStruct(new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
 						new DataObject(ele.getLangPath()),
 						new DataObject(ele.getLangFile()),
 						new DataObject(ele.getLangFunctionName()),
