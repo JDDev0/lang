@@ -437,6 +437,7 @@ final class LangPredefinedFunctions {
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedStructFunctions(funcs);
+		addPredefinedComplexStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
 	}
@@ -7007,6 +7008,235 @@ final class LangPredefinedFunctions {
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The struct may not be a definition struct", SCOPE_ID);
 				
 				return new DataObject().setStruct(struct.getStructBaseDefinition());
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+	}
+	private void addPredefinedComplexStructFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("complex", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject realObject = combinedArgumentList.get(0);
+			DataObject imagObject = combinedArgumentList.get(1);
+			
+			Number realNumber = realObject.toNumber();
+			Number imagNumber = imagObject.toNumber();
+			
+			if(realNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "number"), SCOPE_ID);
+			
+			if(imagNumber == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "number"), SCOPE_ID);
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(realNumber.doubleValue(), imagNumber.doubleValue()));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("creal", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructObject = combinedArgumentList.get(0);
+			
+			StructObject complexStruct = complexStructObject.getStruct();
+			
+			if(complexStruct.isDefinition() || !complexStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Complex"), SCOPE_ID);
+			
+			try {
+				return new DataObject(complexStruct.getMember("$real"));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("cimag", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructObject = combinedArgumentList.get(0);
+			
+			StructObject complexStruct = complexStructObject.getStruct();
+			
+			if(complexStruct.isDefinition() || !complexStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Complex"), SCOPE_ID);
+			
+			try {
+				return new DataObject(complexStruct.getMember("$imag"));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("cabs", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructObject = combinedArgumentList.get(0);
+			
+			StructObject complexStruct = complexStructObject.getStruct();
+			
+			if(complexStruct.isDefinition() || !complexStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Complex"), SCOPE_ID);
+			
+			try {
+				return new DataObject().setDouble(Math.hypot(complexStruct.getMember("$real").getDouble(),
+						complexStruct.getMember("$imag").getDouble()));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("conj", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructObject = combinedArgumentList.get(0);
+			
+			StructObject complexStruct = complexStructObject.getStruct();
+			
+			if(complexStruct.isDefinition() || !complexStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Complex"), SCOPE_ID);
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(complexStruct.getMember("$real").getDouble(),
+						-complexStruct.getMember("$imag").getDouble()));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("cadd", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT, DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructAObject = combinedArgumentList.get(0);
+			DataObject complexStructBObject = combinedArgumentList.get(1);
+			
+			StructObject complexAStruct = complexStructAObject.getStruct();
+			StructObject complexBStruct = complexStructBObject.getStruct();
+			
+			if(complexAStruct.isDefinition() || !complexAStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "&Complex"), SCOPE_ID);
+			
+			if(complexBStruct.isDefinition() || !complexBStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "&Complex"), SCOPE_ID);
+			
+			double realA = complexAStruct.getMember("$real").getDouble();
+			double imagA = complexAStruct.getMember("$imag").getDouble();
+			
+			double realB = complexBStruct.getMember("$real").getDouble();
+			double imagB = complexBStruct.getMember("$imag").getDouble();
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(realA + realB, imagA + imagB));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("csub", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT, DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructAObject = combinedArgumentList.get(0);
+			DataObject complexStructBObject = combinedArgumentList.get(1);
+			
+			StructObject complexAStruct = complexStructAObject.getStruct();
+			StructObject complexBStruct = complexStructBObject.getStruct();
+			
+			if(complexAStruct.isDefinition() || !complexAStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "&Complex"), SCOPE_ID);
+			
+			if(complexBStruct.isDefinition() || !complexBStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "&Complex"), SCOPE_ID);
+			
+			double realA = complexAStruct.getMember("$real").getDouble();
+			double imagA = complexAStruct.getMember("$imag").getDouble();
+			
+			double realB = complexBStruct.getMember("$real").getDouble();
+			double imagB = complexBStruct.getMember("$imag").getDouble();
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(realA - realB, imagA - imagB));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("cmul", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT, DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructAObject = combinedArgumentList.get(0);
+			DataObject complexStructBObject = combinedArgumentList.get(1);
+			
+			StructObject complexAStruct = complexStructAObject.getStruct();
+			StructObject complexBStruct = complexStructBObject.getStruct();
+			
+			if(complexAStruct.isDefinition() || !complexAStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "&Complex"), SCOPE_ID);
+			
+			if(complexBStruct.isDefinition() || !complexBStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "&Complex"), SCOPE_ID);
+			
+			double realA = complexAStruct.getMember("$real").getDouble();
+			double imagA = complexAStruct.getMember("$imag").getDouble();
+			
+			double realB = complexBStruct.getMember("$real").getDouble();
+			double imagB = complexBStruct.getMember("$imag").getDouble();
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(realA * realB - imagA * imagB, realA * imagB + imagA * realB));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("cdiv", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT, DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructAObject = combinedArgumentList.get(0);
+			DataObject complexStructBObject = combinedArgumentList.get(1);
+			
+			StructObject complexAStruct = complexStructAObject.getStruct();
+			StructObject complexBStruct = complexStructBObject.getStruct();
+			
+			if(complexAStruct.isDefinition() || !complexAStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", "&Complex"), SCOPE_ID);
+			
+			if(complexBStruct.isDefinition() || !complexBStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "&Complex"), SCOPE_ID);
+			
+			double realA = complexAStruct.getMember("$real").getDouble();
+			double imagA = complexAStruct.getMember("$imag").getDouble();
+			
+			double realB = complexBStruct.getMember("$real").getDouble();
+			double imagB = complexBStruct.getMember("$imag").getDouble();
+			
+			double realNumerator = realA * realB + imagA * imagB;
+			double imagNumerator = imagA * realB - realA * imagB;
+			
+			double denominator = realB * realB + imagB * imagB;
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(realNumerator / denominator, imagNumerator / denominator));
 			}catch(DataTypeConstraintException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}

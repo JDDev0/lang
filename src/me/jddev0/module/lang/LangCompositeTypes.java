@@ -46,7 +46,7 @@ public class LangCompositeTypes {
 			TYPE_CONSTRAINT_DOUBLE_ONLY,
 			TYPE_CONSTRAINT_DOUBLE_ONLY
 	});
-	public static StructObject createStackTraceElement(double real, double imag) {
+	public static StructObject createComplex(double real, double imag) {
 		return new StructObject(LangCompositeTypes.STRUCT_COMPLEX, new DataObject[] {
 				new DataObject().setDouble(real),
 				new DataObject().setDouble(imag)
