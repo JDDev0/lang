@@ -961,6 +961,14 @@ final class LangPredefinedFunctions {
 					new DataObject(moduleFile)
 			}));
 		});
+		funcs.put("getStackTrace", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
+			
+			return new DataObject(interpreter.printStackTrace());
+		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, SCOPE_ID) -> {

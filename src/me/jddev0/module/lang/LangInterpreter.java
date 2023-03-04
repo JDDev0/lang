@@ -153,7 +153,7 @@ public final class LangInterpreter {
 		return callStack.pollLast();
 	}
 	
-	private String printStackTrace() {
+	String printStackTrace() {
 		StringBuilder builder = new StringBuilder();
 		
 		ListIterator<StackElement> iter = callStack.listIterator(callStack.size());
