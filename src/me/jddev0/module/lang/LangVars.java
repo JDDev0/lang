@@ -1,11 +1,33 @@
 package me.jddev0.module.lang;
 
+import java.util.Arrays;
+
 import me.jddev0.module.lang.DataObject.DataType;
+import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 import me.jddev0.module.lang.DataObject.ErrorObject;
+import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 
 final class LangVars {
+	private static final DataTypeConstraint TYPE_CONSTRAINT_OPTIONAL_TEXT = DataTypeConstraint.fromAllowedTypes(Arrays.asList(
+					DataType.NULL, DataType.TEXT
+			));
+	
+	public static final StructObject STRUCT_STACK_FRAME = new StructObject(new String[] {
+					"$path",
+					"$file",
+					"$functionName",
+					"$modulePath",
+					"$moduleFile"
+			}, new DataTypeConstraint[] {
+					TYPE_CONSTRAINT_OPTIONAL_TEXT,
+					TYPE_CONSTRAINT_OPTIONAL_TEXT,
+					TYPE_CONSTRAINT_OPTIONAL_TEXT,
+					TYPE_CONSTRAINT_OPTIONAL_TEXT,
+					TYPE_CONSTRAINT_OPTIONAL_TEXT
+			});
+	
 	private final LangInterpreter interpreter;
 	
 	public LangVars(LangInterpreter interpreter) {
@@ -29,6 +51,7 @@ final class LangVars {
 		addNumberLangVars(SCOPE_ID);
 		addErrorLangVars(SCOPE_ID);
 		addTypeLangVars(SCOPE_ID);
+		addCompositeLangVars(SCOPE_ID);
 	}
 	private void addSystemLangVars(final int SCOPE_ID) {
 		addLangVar("$LANG_VERSION", new DataObject(LangInterpreter.VERSION, true).setFinalData(true), SCOPE_ID);
@@ -95,5 +118,8 @@ final class LangVars {
 			String variableName = "$LANG_TYPE_" + upperCaseTypeName;
 			addLangVar(variableName, new DataObject().setTypeValue(type).setFinalData(true), SCOPE_ID);
 		}
+	}
+	private void addCompositeLangVars(final int SCOPE_ID) {
+		addStaticLangVar("&StackFrame", new DataObject().setStruct(STRUCT_STACK_FRAME).setFinalData(true), SCOPE_ID);
 	}
 }
