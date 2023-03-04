@@ -24,6 +24,16 @@ public class LangCompositeTypes {
 			TYPE_CONSTRAINT_OPTIONAL_TEXT,
 			TYPE_CONSTRAINT_OPTIONAL_TEXT
 	});
+	public static StructObject createStackTraceElement(String path, String file, String functionName, String modulePath,
+			String moduleFile) {
+		return new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
+				new DataObject(path),
+				new DataObject(file),
+				new DataObject(functionName),
+				new DataObject(modulePath),
+				new DataObject(moduleFile)
+		});
+	}
 	
 	private LangCompositeTypes() {}
 }

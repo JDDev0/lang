@@ -954,13 +954,8 @@ final class LangPredefinedFunctions {
 				moduleFile = currentStackElement.getLangFile();
 			}
 			
-			return new DataObject().setStruct(new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
-					new DataObject(currentStackElement.getLangPath()),
-					new DataObject(currentStackElement.getLangFile()),
-					new DataObject(currentStackElement.getLangFunctionName()),
-					new DataObject(modulePath),
-					new DataObject(moduleFile)
-			}));
+			return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(currentStackElement.getLangPath(),
+					currentStackElement.getLangFile(), currentStackElement.getLangFunctionName(), modulePath, moduleFile));
 		});
 		funcs.put("getStackTraceElements", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -983,13 +978,8 @@ final class LangPredefinedFunctions {
 					moduleFile = ele.getLangFile();
 				}
 				
-				return new DataObject().setStruct(new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
-						new DataObject(ele.getLangPath()),
-						new DataObject(ele.getLangFile()),
-						new DataObject(ele.getLangFunctionName()),
-						new DataObject(modulePath),
-						new DataObject(moduleFile)
-				}));
+				return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(ele.getLangPath(),
+						ele.getLangFile(), ele.getLangFunctionName(), modulePath, moduleFile));
 			}).toArray(DataObject[]::new));
 		});
 		funcs.put("getStackTrace", (argumentList, SCOPE_ID) -> {
