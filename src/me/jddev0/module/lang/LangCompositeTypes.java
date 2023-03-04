@@ -11,6 +11,10 @@ public class LangCompositeTypes {
 			DataType.NULL, DataType.TEXT
 	));
 	
+	private static final DataTypeConstraint TYPE_CONSTRAINT_DOUBLE_ONLY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(
+			DataType.DOUBLE
+	));
+	
 	public static final StructObject STRUCT_STACK_TRACE_ELEMENT = new StructObject(new String[] {
 			"$path",
 			"$file",
@@ -32,6 +36,20 @@ public class LangCompositeTypes {
 				new DataObject(functionName),
 				new DataObject(modulePath),
 				new DataObject(moduleFile)
+		});
+	}
+	
+	public static final StructObject STRUCT_COMPLEX = new StructObject(new String[] {
+			"$real",
+			"$imag"
+	}, new DataTypeConstraint[] {
+			TYPE_CONSTRAINT_DOUBLE_ONLY,
+			TYPE_CONSTRAINT_DOUBLE_ONLY
+	});
+	public static StructObject createStackTraceElement(double real, double imag) {
+		return new StructObject(LangCompositeTypes.STRUCT_COMPLEX, new DataObject[] {
+				new DataObject().setDouble(real),
+				new DataObject().setDouble(imag)
 		});
 	}
 	
