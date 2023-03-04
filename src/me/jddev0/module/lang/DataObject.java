@@ -548,14 +548,18 @@ public class DataObject {
 			DataObject data = ele.getVarPointer().getVar();
 			if(data != null && data.getType() == DataType.ARRAY) {
 				builder.append("<Array: len: " + data.getArray().length + ">");
-			}else if(data.getType() == DataType.LIST) {
+			}else if(data != null && data.getType() == DataType.LIST) {
 				builder.append("<List: len: " + ele.getArray().length + ">");
 			}else if(data != null && data.getType() == DataType.VAR_POINTER) {
 				builder.append("VP -> {...}");
+			}else if(data != null && data.getType() == DataType.STRUCT) {
+				builder.append(ele.getStruct().isDefinition()?"<Struct[Definition]>":"<Struct[Instance]>");
 			}else {
 				builder.append(data);
 			}
 			builder.append("}");
+		}else if(ele.getType() == DataType.STRUCT) {
+			builder.append(ele.getStruct().isDefinition()?"<Struct[Definition]>":"<Struct[Instance]>");
 		}else {
 			builder.append(ele.getText());
 		}
