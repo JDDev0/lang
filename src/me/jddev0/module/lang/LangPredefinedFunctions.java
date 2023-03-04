@@ -962,6 +962,36 @@ final class LangPredefinedFunctions {
 					new DataObject(moduleFile)
 			}));
 		});
+		funcs.put("getStackTraceElements", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
+			
+			List<StackElement> stackTraceElements = interpreter.getCallStackElements();
+			
+			return new DataObject().setArray(stackTraceElements.stream().map(ele -> {
+				String modulePath = null;
+				String moduleFile = null;
+				if(ele.module != null) {
+					String prefix = "<module:" + ele.module.getFile() + "[" + ele.module.getLangModuleConfiguration().getName() + "]>";
+					
+					modulePath = ele.getLangPath().substring(prefix.length());
+					if(!modulePath.startsWith("/"))
+						modulePath = "/" + modulePath;
+					
+					moduleFile = ele.getLangFile();
+				}
+				
+				return new DataObject().setStruct(new StructObject(LangVars.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
+						new DataObject(ele.getLangPath()),
+						new DataObject(ele.getLangFile()),
+						new DataObject(ele.getLangFunctionName()),
+						new DataObject(modulePath),
+						new DataObject(moduleFile)
+				}));
+			}).toArray(DataObject[]::new));
+		});
 		funcs.put("getStackTrace", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
