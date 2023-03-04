@@ -939,7 +939,8 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
 				return error;
 			
-			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
+			//Get second to last element (Last element would always be this function)
+			StackElement currentStackElement = interpreter.getCallStackElements().get(interpreter.getCallStackElements().size() - 2);
 			
 			String modulePath = null;
 			String moduleFile = null;

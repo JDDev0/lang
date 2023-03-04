@@ -145,6 +145,10 @@ public final class LangInterpreter {
 		return callStack.peekLast();
 	}
 	
+	List<StackElement> getCallStackElements() {
+		return new ArrayList<>(callStack);
+	}
+	
 	void pushStackElement(StackElement stackElement) {
 		callStack.addLast(stackElement);
 	}
