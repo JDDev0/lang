@@ -7116,6 +7116,26 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}
 		});
+		funcs.put("cinv", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject complexStructObject = combinedArgumentList.get(0);
+			
+			StructObject complexStruct = complexStructObject.getStruct();
+			
+			if(complexStruct.isDefinition() || !complexStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_COMPLEX))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Complex"), SCOPE_ID);
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createComplex(-complexStruct.getMember("$real").getDouble(),
+						-complexStruct.getMember("$imag").getDouble()));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
 		funcs.put("cadd", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
