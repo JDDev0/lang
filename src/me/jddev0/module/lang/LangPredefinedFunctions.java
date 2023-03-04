@@ -933,14 +933,14 @@ final class LangPredefinedFunctions {
 			DataObject dataObject = combinedArgumentList.get(0);
 			return new DataObject().setTypeValue(dataObject.getType());
 		});
-		funcs.put("getCurrentStackFrame", (argumentList, SCOPE_ID) -> {
+		funcs.put("getCurrentStackElement", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
 			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
 				return error;
 			
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-
+			
 			String modulePath = null;
 			String moduleFile = null;
 			if(currentStackElement.module != null) {
@@ -953,7 +953,7 @@ final class LangPredefinedFunctions {
 				moduleFile = currentStackElement.getLangFile();
 			}
 			
-			return new DataObject().setStruct(new StructObject(LangVars.STRUCT_STACK_FRAME, new DataObject[] {
+			return new DataObject().setStruct(new StructObject(LangVars.STRUCT_STACK_ELEMENT, new DataObject[] {
 					new DataObject(currentStackElement.getLangPath()),
 					new DataObject(currentStackElement.getLangFile()),
 					new DataObject(currentStackElement.getLangFunctionName()),

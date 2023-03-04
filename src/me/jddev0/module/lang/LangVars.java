@@ -14,7 +14,7 @@ final class LangVars {
 					DataType.NULL, DataType.TEXT
 			));
 	
-	public static final StructObject STRUCT_STACK_FRAME = new StructObject(new String[] {
+	public static final StructObject STRUCT_STACK_ELEMENT = new StructObject(new String[] {
 					"$path",
 					"$file",
 					"$functionName",
@@ -120,6 +120,6 @@ final class LangVars {
 		}
 	}
 	private void addCompositeLangVars(final int SCOPE_ID) {
-		addStaticLangVar("&StackFrame", new DataObject().setStruct(STRUCT_STACK_FRAME).setFinalData(true), SCOPE_ID);
+		addStaticLangVar("&StackElement", new DataObject().setStruct(STRUCT_STACK_ELEMENT).setFinalData(true), SCOPE_ID);
 	}
 }
