@@ -8,11 +8,13 @@ lang.version = v1.0.0
 #   LONG
 #   FLOAT
 #   DOUBLE
+#   BYTE_BUFFER
 #   ARRAY
 #   LIST
 #   VAR_POINTER
 #   FUNCTION_POINTER
 #   ERROR
+#   STRUCT
 #   NULL
 #   VOID
 #   ARGUMENT_SEPARATOR
@@ -25,10 +27,12 @@ func.println($LANG_TYPE_INT)
 func.println($LANG_TYPE_LONG)
 func.println($LANG_TYPE_FLOAT)
 func.println($LANG_TYPE_DOUBLE)
+func.println($LANG_TYPE_BYTE_BUFFER)
 func.println($LANG_TYPE_ARRAY)
 func.println($LANG_TYPE_LIST)
 func.println($LANG_TYPE_VAR_POINTER)
 func.println($LANG_TYPE_FUNCTION_POINTER)
+func.println($LANG_TYPE_STRUCT)
 func.println($LANG_TYPE_ERROR)
 func.println($LANG_TYPE_NULL)
 func.println($LANG_TYPE_VOID)
