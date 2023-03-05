@@ -20,6 +20,10 @@ lang.version = v1.0.0
 #   ARGUMENT_SEPARATOR
 #   TYPE
 
+# Predefined Struct-Types (v1.0.0):
+#   &Complex($real{DOUBLE}, $imag{DOUBLE})
+#   &StackTraceElement($path{?TEXT}, $file{?TEXT}, $functionName{?TEXT}, $modulePath{?TEXT}, $moduleFile{$?TEXT})
+
 # LANG variables with type as value: $LANG_TYPE_<type>
 func.println($LANG_TYPE_TEXT)
 func.println($LANG_TYPE_CHAR)
