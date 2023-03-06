@@ -961,32 +961,6 @@ public class DataObject {
 		
 		return null;
 	}
-	public StructObject toStruct() {
-		switch(type) {
-			case STRUCT:
-				return sp;
-			
-			case TEXT:
-			case CHAR:
-			case INT:
-			case LONG:
-			case FLOAT:
-			case DOUBLE:
-			case BYTE_BUFFER:
-			case ARRAY:
-			case LIST:
-			case ERROR:
-			case VAR_POINTER:
-			case FUNCTION_POINTER:
-			case NULL:
-			case VOID:
-			case ARGUMENT_SEPARATOR:
-			case TYPE:
-				return null;
-		}
-		
-		return null;
-	}
 	public boolean toBoolean() {
 		switch(type) {
 			case TEXT:
