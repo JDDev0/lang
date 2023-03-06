@@ -1998,17 +1998,6 @@ final class LangPredefinedFunctions {
 			List<DataObject> value = dataObject.toList();
 			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setList(new LinkedList<>(value)), SCOPE_ID);
 		});
-		funcs.put("struct", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			StructObject value = dataObject.toStruct();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setStruct(value), SCOPE_ID);
-		});
 		funcs.put("bool", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
