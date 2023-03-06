@@ -929,7 +929,7 @@ public class DataObject {
 		
 		return null;
 	}
-	public List<DataObject> toList() {
+	public LinkedList<DataObject> toList() {
 		switch(type) {
 			case ARRAY:
 				return new LinkedList<DataObject>(Arrays.asList(arr));
