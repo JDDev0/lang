@@ -905,7 +905,8 @@ public class DataObject {
 				return list.toArray(new DataObject[0]);
 			case STRUCT:
 				try {
-					return Arrays.stream(sp.getMemberNames()).map(memberName -> sp.getMember(memberName)).toArray(DataObject[]::new);
+					return Arrays.stream(sp.getMemberNames()).
+							map(memberName -> new DataObject(sp.getMember(memberName))).toArray(DataObject[]::new);
 				}catch(DataTypeConstraintException e) {
 					return null;
 				}
@@ -937,7 +938,8 @@ public class DataObject {
 				return list;
 			case STRUCT:
 				try {
-					return new LinkedList<DataObject>(Arrays.asList(Arrays.stream(sp.getMemberNames()).map(memberName -> sp.getMember(memberName)).toArray(DataObject[]::new)));
+					return new LinkedList<DataObject>(Arrays.asList(Arrays.stream(sp.getMemberNames()).
+							map(memberName -> new DataObject(sp.getMember(memberName))).toArray(DataObject[]::new)));
 				}catch(DataTypeConstraintException e) {
 					return null;
 				}
@@ -2271,12 +2273,7 @@ public class DataObject {
 			return -1;
 		}
 		
-		/**
-		 * @param memberName
-		 * @return Use for debugging only
-		 * @throws DataTypeConstraintException
-		 */
-		public DataObject getRawMember(String memberName) throws DataTypeConstraintException {
+		public DataObject getMember(String memberName) throws DataTypeConstraintException {
 			if(isDefinition())
 				throw new DataTypeConstraintException("The struct definition is no struct instance and has no member values");
 			
@@ -2285,10 +2282,6 @@ public class DataObject {
 				throw new DataTypeConstraintException("The member \"" + memberName + "\" is not part of this struct");
 			
 			return members[index];
-		}
-		
-		public DataObject getMember(String memberName) throws DataTypeConstraintException {
-			return new DataObject(getRawMember(memberName));
 		}
 		
 		public void setMember(String memberName, DataObject dataObject) throws DataTypeConstraintException {

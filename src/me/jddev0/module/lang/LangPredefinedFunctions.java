@@ -6897,7 +6897,7 @@ final class LangPredefinedFunctions {
 			String memberName = memberNameObject.getText();
 			
 			try {
-				return struct.getMember(memberName);
+				return new DataObject(struct.getMember(memberName));
 			}catch(DataTypeConstraintException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}
@@ -6913,7 +6913,8 @@ final class LangPredefinedFunctions {
 			StructObject struct = structObject.getStruct();
 			
 			try {
-				return new DataObject().setArray(Arrays.stream(struct.getMemberNames()).map(memberName -> struct.getMember(memberName)).toArray(DataObject[]::new));
+				return new DataObject().setArray(Arrays.stream(struct.getMemberNames()).
+						map(memberName -> new DataObject(struct.getMember(memberName))).toArray(DataObject[]::new));
 			}catch(DataTypeConstraintException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}

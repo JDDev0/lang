@@ -616,7 +616,7 @@ public class LangShellWindow extends JDialog {
 					builder.append(memberName);
 					
 					if(!isStructDefinition) {
-						DataObject member = dataObject.getStruct().getRawMember(memberName);
+						DataObject member = dataObject.getStruct().getMember(memberName);
 						
 						builder.append(": {\n");
 						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");

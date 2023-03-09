@@ -94,7 +94,7 @@ final class LangOperators {
 					}else {
 						StructObject structCopy = new StructObject(struct.getStructBaseDefinition());
 						for(String memberName:struct.getMemberNames())
-							structCopy.setMember(memberName, struct.getMember(memberName));
+							structCopy.setMember(memberName, opDeepCopy(struct.getMember(memberName), SCOPE_ID));
 					}
 				}catch(DataTypeConstraintException e) {
 					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
@@ -2469,7 +2469,7 @@ final class LangOperators {
 			case STRUCT:
 				if(rightSideOperand.getType() == DataType.TEXT) {
 					try {
-						return leftSideOperand.getStruct().getMember(rightSideOperand.getText());
+						return new DataObject(leftSideOperand.getStruct().getMember(rightSideOperand.getText()));
 					}catch(DataTypeConstraintException e) {
 						return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 					}
