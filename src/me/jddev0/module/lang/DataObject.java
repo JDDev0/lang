@@ -540,18 +540,18 @@ public class DataObject {
 	
 	private void convertCollectionElementToText(DataObject ele, StringBuilder builder) {
 		if(ele.getType() == DataType.ARRAY) {
-			builder.append("<Array: len: " + ele.getArray().length + ">");
+			builder.append("<Array[" + ele.getArray().length + "]>");
 		}else if(ele.getType() == DataType.LIST) {
-			builder.append("<List: len: " + ele.getList().size() + ">");
+			builder.append("<List[" + ele.getList().size() + "]>");
 		}else if(ele.getType() == DataType.VAR_POINTER) {
-			builder.append("VP -> {");
+			builder.append("-->{");
 			DataObject data = ele.getVarPointer().getVar();
 			if(data != null && data.getType() == DataType.ARRAY) {
-				builder.append("<Array: len: " + data.getArray().length + ">");
+				builder.append("<Array[" + data.getArray().length + "]>");
 			}else if(data != null && data.getType() == DataType.LIST) {
-				builder.append("<List: len: " + data.getList().size() + ">");
+				builder.append("<List[" + data.getList().size() + "]>");
 			}else if(data != null && data.getType() == DataType.VAR_POINTER) {
-				builder.append("VP -> {...}");
+				builder.append("-->{...}");
 			}else if(data != null && data.getType() == DataType.STRUCT) {
 				builder.append(data.getStruct().isDefinition()?"<Struct[Definition]>":"<Struct[Instance]>");
 			}else {
@@ -621,9 +621,6 @@ public class DataObject {
 			case LIST:
 				return convertListToText();
 			case VAR_POINTER:
-				if(variableName != null)
-					return variableName;
-				
 				return vp.toString();
 			case FUNCTION_POINTER:
 				if(variableName != null)
@@ -2168,7 +2165,10 @@ public class DataObject {
 		
 		@Override
 		public String toString() {
-			return "VP -> {" + var + "}";
+			if(var.getType() == DataType.VAR_POINTER)
+				return "-->{-->{...}}";
+			
+			return "-->{" + var + "}";
 		}
 		
 		@Override
