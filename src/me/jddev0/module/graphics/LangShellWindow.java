@@ -590,6 +590,8 @@ public class LangShellWindow extends JDialog {
 		builder.append(dataObject.isLangVar());
 		builder.append("\nVariable Name: ");
 		builder.append(dataObject.getVariableName());
+		builder.append("\nType constraint: ");
+		builder.append(dataObject.getTypeConstraint().toTypeConstraintSyntax());
 		builder.append("\nAllowed types: ");
 		builder.append(dataObject.getTypeConstraint().printAllowedTypes());
 		builder.append("\nNot allowed types: ");
@@ -615,7 +617,9 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    ");
 					builder.append(memberName);
 					
-					if(!isStructDefinition) {
+					if(isStructDefinition) {
+						builder.append(dataObject.getStruct().getTypeConstraint(memberName).toTypeConstraintSyntax());
+					}else {
 						DataObject member = dataObject.getStruct().getMember(memberName);
 						
 						builder.append(": {\n");

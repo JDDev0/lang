@@ -1962,6 +1962,33 @@ public class DataObject {
 			return types.stream().collect(Collectors.toList());
 		}
 		
+		public String toTypeConstraintSyntax() {
+			StringBuilder strBuilder = new StringBuilder();
+			strBuilder.append("{");
+			
+			//Invert "!" if no types are set and print all types
+			boolean inverted = !allowed ^ this.types.size() == 0;
+			
+			if(inverted)
+				strBuilder.append("!");
+			
+			Set<DataType> types = new HashSet<>(this.types.size() == 0?Arrays.asList(DataType.values()):this.types);
+			
+			if(!inverted && types.contains(DataType.NULL) && types.size() > 1) {
+				types.remove(DataType.NULL);
+				
+				strBuilder.append("?");
+			}
+			
+			for(DataType type:types)
+				strBuilder.append(type).append("|");
+			
+			strBuilder.delete(strBuilder.length() - 1, strBuilder.length());
+			
+			strBuilder.append("}");
+			return strBuilder.toString();
+		}
+		
 		@Override
 		public String toString() {
 			return (allowed?"= ":"! ") + "[" + types.stream().map(DataType::name).collect(Collectors.joining(", ")) + "]";
@@ -2271,6 +2298,14 @@ public class DataObject {
 					return i;
 			
 			return -1;
+		}
+		
+		public DataTypeConstraint getTypeConstraint(String memberName) throws DataTypeConstraintException {
+			int index = getIndexOfMember(memberName);
+			if(index == -1)
+				throw new DataTypeConstraintException("The member \"" + memberName + "\" is not part of this struct");
+			
+			return typeConstraints[index];
 		}
 		
 		public DataObject getMember(String memberName) throws DataTypeConstraintException {
