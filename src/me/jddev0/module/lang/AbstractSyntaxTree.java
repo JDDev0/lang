@@ -1849,7 +1849,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 		}
 	}
 	
-	
 	public static final class OperationNode implements Node {
 		private final List<Node> nodes;
 		private final Operator operator;
@@ -2017,7 +2016,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			//Math
 			MATH_NON              ("",      1, -1,       OperatorType.MATH),
-			GET_ITEM              ("[...]",     0,       OperatorType.MATH),
 			POW                   ("**",        2,       OperatorType.MATH),
 			POS                   ("+",     1,  3,       OperatorType.MATH),
 			INV                   ("-",     1,  3,       OperatorType.MATH),
@@ -2061,6 +2059,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			 * COMMA is a temporary parser-only operator (This operator can only be used during parsing)
 			 */
 			COMMA                 (",",        15,       OperatorType.ALL),
+			GET_ITEM              ("[...]",     0,       OperatorType.ALL),
 			MEMBER_ACCESS         ("::",        0, true, OperatorType.ALL);
 			
 			private final String symbol;

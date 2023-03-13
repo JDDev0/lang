@@ -257,7 +257,7 @@ public final class LangParser {
 					break;
 				}
 				//Binary operator if something was before else unary operator
-				if(AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
+				if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.GET_ITEM;
 					
 					if(whitespaces.length() > 0)

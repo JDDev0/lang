@@ -2392,6 +2392,8 @@ final class LangOperators {
 		
 		return null;
 	}
+	
+	//All operation functions
 	/**
 	 * For "[...]"
 	 */

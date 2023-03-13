@@ -1165,11 +1165,15 @@ public final class LangInterpreter {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing operand", SCOPE_ID);
 		
 		if(node.getOperatorType() == OperatorType.ALL) {
+			DataObject output;
 			switch(node.getOperator()) {
 				//Binary
 				case COMMA:
 					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
 							"The COMMA operator is parser-only (If you meant the text value of \",\", you must escape the COMMA operator: \"\\,\")", SCOPE_ID);
+				case GET_ITEM:
+					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
+					break;
 				case MEMBER_ACCESS:
 					if(leftSideOperand.getType() != DataType.STRUCT)
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
@@ -1180,6 +1184,15 @@ public final class LangInterpreter {
 				default:
 					return null;
 			}
+			
+			if(output == null)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The \"" + node.getOperator().getSymbol() + "\" operator is not defined for " + leftSideOperand.getType().name() + (
+					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""), SCOPE_ID);
+			
+			if(output.getType() == DataType.ERROR)
+				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), SCOPE_ID);
+			
+			return output;
 		}else if(node.getOperatorType() == OperatorType.GENERAL) {
 			DataObject output;
 			switch(node.getOperator()) {
@@ -1306,9 +1319,6 @@ public final class LangInterpreter {
 					break;
 				case BITWISE_OR:
 					output = operators.opOr(leftSideOperand, rightSideOperand, SCOPE_ID);
-					break;
-				case GET_ITEM:
-					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
 				
 				default:
