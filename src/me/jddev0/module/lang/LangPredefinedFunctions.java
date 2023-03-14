@@ -709,21 +709,22 @@ final class LangPredefinedFunctions {
 		funcs.put("makeFinal", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject dataObject = combinedArgumentList.get(0);
-			if(dataObject.getVariableName() == null && dataObject.getType() == DataType.VAR_POINTER) {
-				dataObject = dataObject.getVarPointer().getVar();
-				
-				if(dataObject == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
+			DataObject pointerObject = combinedArgumentList.get(0);
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			if(dereferencedVarPointer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			
-			if(dataObject.isLangVar())
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
-			dataObject.setFinalData(true);
+			dereferencedVarPointer.setFinalData(true);
 			
 			return null;
 		});
@@ -748,21 +749,22 @@ final class LangPredefinedFunctions {
 		funcs.put("makeStatic", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
 				return error;
 			
-			DataObject dataObject = combinedArgumentList.get(0);
-			if(dataObject.getVariableName() == null && dataObject.getType() == DataType.VAR_POINTER) {
-				dataObject = dataObject.getVarPointer().getVar();
-				
-				if(dataObject == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
+			DataObject pointerObject = combinedArgumentList.get(0);
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			if(dereferencedVarPointer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 			
-			if(dataObject.isLangVar())
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
-			dataObject.setStaticData(true);
+			dereferencedVarPointer.setStaticData(true);
 			
 			return null;
 		});
