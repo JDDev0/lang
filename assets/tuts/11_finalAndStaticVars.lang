@@ -32,11 +32,6 @@ func.freeAllVars()
 
 # Make variable final
 # func.makeFinal(varPtr)
-# func.makeFinal(funcPtr)
-# func.makeFinal(arrPtr) # Will make the variable final
-#                        (= not overrideable)
-#                        The content of a final arrPtr
-#                        can be changed
 # -> If a variable is final, it can not be overriden by another value.
 
 # Final var
@@ -73,7 +68,7 @@ func.printError()
 
 # Final arrPtrs
 &a = func.arrayOf(10, 42)
-func.makeFinal(&a)
+func.makeFinal(fn.pointerTo(&a))
 func.printTerminal(3, func.arrayGetAll(&a))
 
 func.arraySetAll(&a, 42, 40) # No Error
@@ -92,7 +87,7 @@ func.printTerminal(3, func.arrayGetAll(&a))
 fp.test = () -> {
 	func.printTerminal(2, TESTED!)
 }
-func.makeFinal(fp.test)
+func.makeFinal(fn.pointerTo(fp.test))
 fp.test() # Will produce no error
 func.printError()
 
@@ -176,8 +171,6 @@ func.freeAllVars()
 
 # Make variable static
 # func.makeStatic(varPtr)
-# func.makeStatic(funcPtr)
-# func.makeStatic(arrPtr)
 # -> If a variable is static, it will can be overriden in function and "func.exec" scopes. Static vars are not accessible in linked lang files.
 
 # Static var
@@ -212,7 +205,7 @@ func.println()
 # Static arrays
 &a = func.arrayOf(1, 3, abc)
 &b = func.arrayOf(0, 42, test)
-func.makeStatic(&a)
+func.makeStatic(fn.pointerTo(&a))
 
 func.println(\&a: &a) # [1, 3, abc]
 func.println(\&b: &b) # [0, 42, test]
@@ -305,14 +298,14 @@ func.println()
 # Static final vars
 # Variables can be static and final at the same time
 $a = Final Static
-func.makeFinal($a)
-func.makeStatic($a)
+func.makeFinal($[a])
+func.makeStatic($[a])
 
 # Also possible with: "func.asFinal(func.asStatic(<value>))" or "func.asStatic(func.asFinal(<value>))"
 
 $b = Static Final
-func.makeStatic($b)
-func.makeFinal($b)
+func.makeStatic($[b])
+func.makeFinal($[b])
 
 # Both "$a" and "$b" are both static and final, the order of the "makeStatic" call and the "makeFinal" call is not important
 
@@ -338,7 +331,7 @@ func.println()
 
 # Static vars in multiple scope
 $outerStatic = Outer static
-func.makeStatic($outerStatic)
+func.makeStatic($[outerStatic])
 
 func.println(\$outerStatic: $outerStatic) # Outer static
 
@@ -347,12 +340,12 @@ func.println(\$x: $x) # X
 
 fp.inner = () -> {
 	$innerStatic = Inner static
-	func.makeStatic($innerStatic)
+	func.makeStatic($[innerStatic])
 	
 	func.println(\$innerStatic: $innerStatic) # Inner static
 	
 	func.println(\$x: $x) # X
-	func.makeStatic($x) # Make $x static in inner scope
+	func.makeStatic($[x]) # Make $x static in inner scope
 	func.println(\$x: $x) # X
 	
 	fp.function = () -> {
