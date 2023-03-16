@@ -22,7 +22,7 @@ import java.util.Scanner;
 public class TerminalIO {
 	//Map for saving commands
 	private Map<String, ReaderActionObject> actions = new HashMap<String, ReaderActionObject>();
-	private SimpleDateFormat form = new SimpleDateFormat("dd.MM.YYYY|HH:mm:ss");
+	private SimpleDateFormat form = new SimpleDateFormat("dd.MM.yyyy|HH:mm:ss");
 	private BufferedWriter writer;
 	private Scanner s;
 	//Standard level: all levels will be logged
