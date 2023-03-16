@@ -23,7 +23,7 @@ public class LangTest {
 	
 	private Long startTime = null;
 	
-	private static final String printFailedTestResult(String linePrefix, AssertResult assertResult) {
+	private static String printFailedTestResult(String linePrefix, AssertResult assertResult) {
 		String message = assertResult.getMessage();
 		String actualValue = assertResult.getActualValue();
 		String expectedValue = assertResult.getExpectedValue();

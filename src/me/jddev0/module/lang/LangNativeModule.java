@@ -315,7 +315,7 @@ public abstract class LangNativeModule {
 	protected final void exportCollectionVariable(String variableName, DataObject value) {
 		exportCollectionVariable(variableName, value, false);
 	}
-	private final void exportCollectionVariable(String variableName, DataObject value, boolean finalData) {
+	private void exportCollectionVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
@@ -342,7 +342,7 @@ public abstract class LangNativeModule {
 	protected final void exportFunctionPointerVariable(String variableName, DataObject value) {
 		exportFunctionPointerVariable(variableName, value, false);
 	}
-	private final void exportFunctionPointerVariable(String variableName, DataObject value, boolean finalData) {
+	private void exportFunctionPointerVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
