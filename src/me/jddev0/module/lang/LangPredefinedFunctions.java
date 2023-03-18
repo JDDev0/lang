@@ -7660,7 +7660,7 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("langTestUnit", (argumentList, SCOPE_ID) -> {
+		funcs.put("testUnit", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7672,7 +7672,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestSubUnit", (argumentList, SCOPE_ID) -> {
+		funcs.put("testSubUnit", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7688,7 +7688,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertError", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertError", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7710,7 +7710,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7728,7 +7728,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNotEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNotEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7746,7 +7746,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertLessThan", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertLessThan", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7764,7 +7764,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertLessThanOrEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertLessThanOrEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7782,7 +7782,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertGreaterThan", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertGreaterThan", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7800,7 +7800,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertGreaterThanOrEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertGreaterThanOrEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7819,7 +7819,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertStrictEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertStrictEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7837,7 +7837,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertStrictNotEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertStrictNotEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7855,7 +7855,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertTranslationValueEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertTranslationValueEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7874,7 +7874,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertTranslationValueNotEquals", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertTranslationValueNotEquals", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7893,7 +7893,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertTranslationKeyFound", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertTranslationKeyFound", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7911,7 +7911,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertTranslationKeyNotFound", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertTranslationKeyNotFound", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7929,7 +7929,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNull", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNull", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7946,7 +7946,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNotNull", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNotNull", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7963,7 +7963,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertVoid", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertVoid", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7980,7 +7980,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNotVoid", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNotVoid", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -7997,7 +7997,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertFinal", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertFinal", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8014,7 +8014,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNotFinal", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNotFinal", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8030,7 +8030,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertStatic", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertStatic", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8047,7 +8047,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNotStatic", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNotStatic", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8063,7 +8063,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertThrow", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertThrow", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8086,7 +8086,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertReturn", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertReturn", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8104,7 +8104,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertNoReturn", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertNoReturn", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8121,7 +8121,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestAssertFail", (argumentList, SCOPE_ID) -> {
+		funcs.put("testAssertFail", (argumentList, SCOPE_ID) -> {
 			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
 			if(messageObject == null) //Not 1 argument
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too few arguments (1 needed)", SCOPE_ID);
@@ -8133,7 +8133,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestClearAllTranslations", (argumentList, SCOPE_ID) -> {
+		funcs.put("testClearAllTranslations", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
@@ -8144,7 +8144,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("langTestPrintResults", (argumentList, SCOPE_ID) -> {
+		funcs.put("testPrintResults", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
