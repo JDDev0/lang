@@ -17,218 +17,218 @@ $ret = linker.include(16_library.lang)
 
 # langTest assert functions:
 # - assert functions can be used in:
-#   - the noname unit (= Default unit if "func.langTestUnit()" was not called)
-#   - the noname subUnit (= Default SubUnit of an Unit if "func.langTestSubUnit()" was not called)
-#   - a subUnit (= In a SubUnit if "func.langTestSubUnit()" was called)
-# - a message can be included in every assert function which will be printed if the assert failed (Optional paramter in every assert function except "func.langTestAssertFail()")
+#   - the noname unit (= Default unit if "func.testUnit()" was not called)
+#   - the noname subUnit (= Default SubUnit of an Unit if "func.testSubUnit()" was not called)
+#   - a subUnit (= In a SubUnit if "func.testSubUnit()" was called)
+# - a message can be included in every assert function which will be printed if the assert failed (Optional paramter in every assert function except "func.testAssertFail()")
 
 # Assert fail:
-#   func.langTestAssertFail(reason) # Will always fail (Should be used for not yet implemented tests)
-func.langTestAssertFail(Not implemented yet)
+#   func.testAssertFail(reason) # Will always fail (Should be used for not yet implemented tests)
+func.testAssertFail(Not implemented yet)
 
 # Unit creation:
-#   func.langTestUnit(TEXT)
-func.langTestUnit(Tests without library)
+#   func.testUnit(TEXT)
+func.testUnit(Tests without library)
 
 # Assert equals:
-#   func.langTestAssertEquals(actual, expected): Checks if actual == expected
-func.langTestAssertEquals($ret, 42) # Will pass
-func.langTestAssertEquals($ret, -42) # Will not pass
+#   func.testAssertEquals(actual, expected): Checks if actual == expected
+func.testAssertEquals($ret, 42) # Will pass
+func.testAssertEquals($ret, -42) # Will not pass
 
-func.langTestAssertEquals($ret, 42, {{{$ret was not 42}}}) # Will pass and will not print message
-func.langTestAssertEquals($ret, -42, {{{$ret was not -42}}}) # Will not pass and will print message
+func.testAssertEquals($ret, 42, {{{$ret was not 42}}}) # Will pass and will not print message
+func.testAssertEquals($ret, -42, {{{$ret was not -42}}}) # Will not pass and will print message
 
 # Assert not equals:
-#   func.langTestAssertNotEquals(actual, expected): Checks if actual != expected
-func.langTestAssertNotEquals($ret, 42) # Will not pass
-func.langTestAssertNotEquals($ret, -42) # Will pass
+#   func.testAssertNotEquals(actual, expected): Checks if actual != expected
+func.testAssertNotEquals($ret, 42) # Will not pass
+func.testAssertNotEquals($ret, -42) # Will pass
 
 # Assert strict equals:
-#   func.langTestAssertStrictEquals(actual, expected): Checks if actual === expected
-func.langTestAssertStrictEquals($ret, 42) # Will pass
-func.langTestAssertStrictEquals($ret, 42.0) # Will not pass
-func.langTestAssertStrictEquals($ret, {{{42}}}) # Will not pass
-func.langTestAssertStrictEquals($ret, -42) # Will not pass
+#   func.testAssertStrictEquals(actual, expected): Checks if actual === expected
+func.testAssertStrictEquals($ret, 42) # Will pass
+func.testAssertStrictEquals($ret, 42.0) # Will not pass
+func.testAssertStrictEquals($ret, {{{42}}}) # Will not pass
+func.testAssertStrictEquals($ret, -42) # Will not pass
 
 # Assert strict not equals:
-#   func.langTestAssertStrictNotEquals(actual, expected): Checks if actual !== expected
-func.langTestAssertStrictNotEquals($ret, 42) # Will not pass
-func.langTestAssertStrictNotEquals($ret, 42.0) # Will pass
-func.langTestAssertStrictNotEquals($ret, {{{42}}}) # Will pass
-func.langTestAssertStrictNotEquals($ret, -42) # Will pass
+#   func.testAssertStrictNotEquals(actual, expected): Checks if actual !== expected
+func.testAssertStrictNotEquals($ret, 42) # Will not pass
+func.testAssertStrictNotEquals($ret, 42.0) # Will pass
+func.testAssertStrictNotEquals($ret, {{{42}}}) # Will pass
+func.testAssertStrictNotEquals($ret, -42) # Will pass
 
 # New Unit
-func.langTestUnit(\$LANG_ERRNO)
+func.testUnit(\$LANG_ERRNO)
 lang.errorOutput = 0 # Disable error output temporarily
 
 # Assert error:
-#   func.langTestAssertError(ERROR): Checks if $LANG_ERRNO == ERROR.code AND will RESET $LANG_ERRNO ($LANG_ERROR_... vars should be used)
-func.langTestAssertError($LANG_ERROR_NO_ERROR) # Will pass
-func.langTestAssertError($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+#   func.testAssertError(ERROR): Checks if $LANG_ERRNO == ERROR.code AND will RESET $LANG_ERRNO ($LANG_ERROR_... vars should be used)
+func.testAssertError($LANG_ERROR_NO_ERROR) # Will pass
+func.testAssertError($LANG_ERROR_DIV_BY_ZERO) # Will not pass
 
 func.divi(1, 0) # Set $LANG_ERRNO to $LANG_ERRNO_DIV_BY_ZERO
-func.langTestAssertError($LANG_ERROR_NO_ERROR) # Will not pass
+func.testAssertError($LANG_ERROR_NO_ERROR) # Will not pass
 
 func.divi(1, 0) # Set $LANG_ERRNO to $LANG_ERRNO_DIV_BY_ZERO
-func.langTestAssertError($LANG_ERROR_DIV_BY_ZERO) # Will pass
+func.testAssertError($LANG_ERROR_DIV_BY_ZERO) # Will pass
 
 lang.errorOutput = 1 # Re-enable error output
 
 # New Unit
-func.langTestUnit(Library)
+func.testUnit(Library)
 
 # SubUnit creation:
-#   func.langTestSubUnit(TEXT) # Can not be used in the noname unit
-func.langTestSubUnit(Translations)
+#   func.testSubUnit(TEXT) # Can not be used in the noname unit
+func.testSubUnit(Translations)
 
 # Assert translation value equals:
-#   func.langTestAssertTranslationValueEquals(translationKey, expected): Checks if translations[translationKey] exists and == expected
-func.langTestAssertTranslationValueEquals(xyz.lib.ver, v1.0.0) # Will pass
-func.langTestAssertTranslationValueEquals(xyz.lib.ver, v1.2.0) # Will not pass
-func.langTestAssertTranslationValueEquals(xyz.lib.vers, v1.0.0) # Will not pass
+#   func.testAssertTranslationValueEquals(translationKey, expected): Checks if translations[translationKey] exists and == expected
+func.testAssertTranslationValueEquals(xyz.lib.ver, v1.0.0) # Will pass
+func.testAssertTranslationValueEquals(xyz.lib.ver, v1.2.0) # Will not pass
+func.testAssertTranslationValueEquals(xyz.lib.vers, v1.0.0) # Will not pass
 
 # Assert translation value not equals:
-#   func.langTestAssertTranslationValueNotEquals(translationKey, expected): Checks if translations[translationKey] exists and != expected
-func.langTestAssertTranslationValueNotEquals(xyz.lib.ver, v1.0.0) # Will not pass
-func.langTestAssertTranslationValueNotEquals(xyz.lib.ver, v1.2.0) # Will pass
-func.langTestAssertTranslationValueNotEquals(xyz.lib.vers, v1.0.0) # Will not pass
+#   func.testAssertTranslationValueNotEquals(translationKey, expected): Checks if translations[translationKey] exists and != expected
+func.testAssertTranslationValueNotEquals(xyz.lib.ver, v1.0.0) # Will not pass
+func.testAssertTranslationValueNotEquals(xyz.lib.ver, v1.2.0) # Will pass
+func.testAssertTranslationValueNotEquals(xyz.lib.vers, v1.0.0) # Will not pass
 
 # Assert translation key found:
-#   func.langTestAssertTranslationKeyFound(translationKey): Checks if translation key exists
-func.langTestAssertTranslationKeyFound(xyz.lib.ver) # Will pass
-func.langTestAssertTranslationKeyFound(xyz.lib.abc) # Will pass
-func.langTestAssertTranslationKeyFound(xyz.lib.abc.test) # Will not pass
-func.langTestAssertTranslationKeyFound(lang.invalidLangFlag) # Will not pass
+#   func.testAssertTranslationKeyFound(translationKey): Checks if translation key exists
+func.testAssertTranslationKeyFound(xyz.lib.ver) # Will pass
+func.testAssertTranslationKeyFound(xyz.lib.abc) # Will pass
+func.testAssertTranslationKeyFound(xyz.lib.abc.test) # Will not pass
+func.testAssertTranslationKeyFound(lang.invalidLangFlag) # Will not pass
 
 # Assert translation key not found:
-#   func.langTestAssertTranslationKeyNotFound(translationKey): Checks if translation key does not exist
-func.langTestAssertTranslationKeyNotFound(xyz.lib.ver) # Will not pass
-func.langTestAssertTranslationKeyNotFound(xyz.lib.abc) # Will not pass
-func.langTestAssertTranslationKeyNotFound(xyz.lib.abc.test) # Will pass
-func.langTestAssertTranslationKeyNotFound(lang.invalidLangFlag) # Will pass
+#   func.testAssertTranslationKeyNotFound(translationKey): Checks if translation key does not exist
+func.testAssertTranslationKeyNotFound(xyz.lib.ver) # Will not pass
+func.testAssertTranslationKeyNotFound(xyz.lib.abc) # Will not pass
+func.testAssertTranslationKeyNotFound(xyz.lib.abc.test) # Will pass
+func.testAssertTranslationKeyNotFound(lang.invalidLangFlag) # Will pass
 
 # New SubUnit
-func.langTestSubUnit(Variables)
+func.testSubUnit(Variables)
 
 # Assert less than:
-#   func.langTestAssertLessThan(actual, expected): Checks if actual < expected
-func.langTestAssertLessThan($xyz_num, 10000) # Will pass
-func.langTestAssertLessThan($xyz_num, 4224) # Will not pass
-func.langTestAssertLessThan($xyz_num, 0) # Will not pass
+#   func.testAssertLessThan(actual, expected): Checks if actual < expected
+func.testAssertLessThan($xyz_num, 10000) # Will pass
+func.testAssertLessThan($xyz_num, 4224) # Will not pass
+func.testAssertLessThan($xyz_num, 0) # Will not pass
 
 # Assert less than or equals:
-#   func.langTestAssertLessThanOrEquals(actual, expected): Checks if actual <= expected
-func.langTestAssertLessThanOrEquals($xyz_num, 10000) # Will pass
-func.langTestAssertLessThanOrEquals($xyz_num, 4224) # Will pass
-func.langTestAssertLessThanOrEquals($xyz_num, 0) # Will not pass
+#   func.testAssertLessThanOrEquals(actual, expected): Checks if actual <= expected
+func.testAssertLessThanOrEquals($xyz_num, 10000) # Will pass
+func.testAssertLessThanOrEquals($xyz_num, 4224) # Will pass
+func.testAssertLessThanOrEquals($xyz_num, 0) # Will not pass
 
 # Assert greater than:
-#   func.langTestAssertGreaterThan(actual, expected): Checks if actual > expected
-func.langTestAssertGreaterThan($xyz_num, 10000) # Will not pass
-func.langTestAssertGreaterThan($xyz_num, 4224) # Will not pass
-func.langTestAssertGreaterThan($xyz_num, 0) # Will pass
+#   func.testAssertGreaterThan(actual, expected): Checks if actual > expected
+func.testAssertGreaterThan($xyz_num, 10000) # Will not pass
+func.testAssertGreaterThan($xyz_num, 4224) # Will not pass
+func.testAssertGreaterThan($xyz_num, 0) # Will pass
 
 # Assert greater than or equals:
-#   func.langTestAssertGreaterThanOrEquals(actual, expected): Checks if actual >= expected
-func.langTestAssertGreaterThanOrEquals($xyz_num, 10000) # Will not pass
-func.langTestAssertGreaterThanOrEquals($xyz_num, 4224) # Will pass
-func.langTestAssertGreaterThanOrEquals($xyz_num, 0) # Will pass
+#   func.testAssertGreaterThanOrEquals(actual, expected): Checks if actual >= expected
+func.testAssertGreaterThanOrEquals($xyz_num, 10000) # Will not pass
+func.testAssertGreaterThanOrEquals($xyz_num, 4224) # Will pass
+func.testAssertGreaterThanOrEquals($xyz_num, 0) # Will pass
 
 # New SubUnit
-func.langTestSubUnit(Functions)
+func.testSubUnit(Functions)
 lang.errorOutput = 0 # Disable error output temporarily
 
 # Assert throw:
-#   func.langTestAssertThrow(ERROR): Checks if the next normal function pointer which will be called throws that ERROR ($LANG_ERROR_... vars should be used)
+#   func.testAssertThrow(ERROR): Checks if the next normal function pointer which will be called throws that ERROR ($LANG_ERROR_... vars should be used)
 
-func.langTestAssertThrow($LANG_ERROR_NO_ERROR) # Will pass
+func.testAssertThrow($LANG_ERROR_NO_ERROR) # Will pass
 fp.xyz_throw($LANG_ERROR_NO_ERROR)
 
-func.langTestAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+func.testAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
 fp.xyz_throw($LANG_ERROR_NO_ERROR)
 
-func.langTestAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+func.testAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
 fp.xyz_ret($LANG_ERROR_DIV_BY_ZERO)
 
-func.langTestAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+func.testAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will not pass
 fp.xyz_noRet()
 
-func.langTestAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will pass
+func.testAssertThrow($LANG_ERROR_DIV_BY_ZERO) # Will pass
 fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
 # Assert return:
-#   func.langTestAssertReturn(value): Checks if the next normal function pointer which will be called returns that value (Strict equals)
+#   func.testAssertReturn(value): Checks if the next normal function pointer which will be called returns that value (Strict equals)
 
-func.langTestAssertReturn(0) # Will pass
+func.testAssertReturn(0) # Will pass
 fp.xyz_ret(0)
 
-func.langTestAssertReturn(0) # Will not pass
+func.testAssertReturn(0) # Will not pass
 fp.xyz_ret({{{0}}})
 
-func.langTestAssertReturn({{{0}}}) # Will not pass
+func.testAssertReturn({{{0}}}) # Will not pass
 fp.xyz_ret(0)
 
-func.langTestAssertReturn(42) # Will not pass
+func.testAssertReturn(42) # Will not pass
 fp.xyz_noRet()
 
-func.langTestAssertReturn($LANG_ERROR_DIV_BY_ZERO) # Will pass
+func.testAssertReturn($LANG_ERROR_DIV_BY_ZERO) # Will pass
 fp.xyz_ret($LANG_ERROR_DIV_BY_ZERO)
 
-func.langTestAssertReturn($LANG_ERROR_DIV_BY_ZERO) # Will not pass
+func.testAssertReturn($LANG_ERROR_DIV_BY_ZERO) # Will not pass
 fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
 # Assert no return:
-#   func.langTestAssertNoReturn(value): Checks if the next normal function pointer which will be called returns no value
+#   func.testAssertNoReturn(value): Checks if the next normal function pointer which will be called returns no value
 
-func.langTestAssertNoReturn() # Will not pass
+func.testAssertNoReturn() # Will not pass
 fp.xyz_ret(0)
 
-func.langTestAssertNoReturn() # Will not pass
+func.testAssertNoReturn() # Will not pass
 fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
-func.langTestAssertNoReturn() # Will pass
+func.testAssertNoReturn() # Will pass
 fp.xyz_noRet()
 
-func.langTestAssertNoReturn(No return failed for {{{fp.xyz_ret(0)}}}) # Will not pass and will print message
+func.testAssertNoReturn(No return failed for {{{fp.xyz_ret(0)}}}) # Will not pass and will print message
 fp.xyz_ret(0)
 
-func.langTestAssertNoReturn(No return failed for {{{fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)}}}) # Will not pass and will print message
+func.testAssertNoReturn(No return failed for {{{fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)}}}) # Will not pass and will print message
 fp.xyz_throw($LANG_ERROR_DIV_BY_ZERO)
 
-func.langTestAssertNoReturn(No return failed for {{{fp.xyz_noRet()}}}) # Will pass and will not print message
+func.testAssertNoReturn(No return failed for {{{fp.xyz_noRet()}}}) # Will pass and will not print message
 fp.xyz_noRet()
 
 lang.errorOutput = 1 # Re-enable error output
 
 # New Unit
-func.langTestUnit(Null & Void)
+func.testUnit(Null & Void)
 
 # Assert null:
-#   func.langTestAssertNull(value): Checks if value.type == NULL
-func.langTestAssertNull(null) # Will pass
-func.langTestAssertNull($xyz_null) # Will pass
-func.langTestAssertNull($xyz_void) # Will not pass
-func.langTestAssertNull({{{null}}}) # Will not pass
+#   func.testAssertNull(value): Checks if value.type == NULL
+func.testAssertNull(null) # Will pass
+func.testAssertNull($xyz_null) # Will pass
+func.testAssertNull($xyz_void) # Will not pass
+func.testAssertNull({{{null}}}) # Will not pass
 
 # Assert not null:
-#   func.langTestAssertNotNull(value): Checks if value.type == NULL
-func.langTestAssertNotNull(null) # Will not pass
-func.langTestAssertNotNull($xyz_null) # Will not pass
-func.langTestAssertNotNull($xyz_void) # Will pass
-func.langTestAssertNotNull({{{null}}}) # Will pass
+#   func.testAssertNotNull(value): Checks if value.type == NULL
+func.testAssertNotNull(null) # Will not pass
+func.testAssertNotNull($xyz_null) # Will not pass
+func.testAssertNotNull($xyz_void) # Will pass
+func.testAssertNotNull({{{null}}}) # Will pass
 
 # Assert void:
-#   func.langTestAssertVoid(value): Checks if value.type == VOID
-func.langTestAssertVoid(null) # Will not pass
-func.langTestAssertVoid($xyz_null) # Will not pass
-func.langTestAssertVoid($xyz_void) # Will pass
-func.langTestAssertVoid({{{}}}) # Will not pass
+#   func.testAssertVoid(value): Checks if value.type == VOID
+func.testAssertVoid(null) # Will not pass
+func.testAssertVoid($xyz_null) # Will not pass
+func.testAssertVoid($xyz_void) # Will pass
+func.testAssertVoid({{{}}}) # Will not pass
 
 # Assert not void:
-#   func.langTestAssertNotVoid(value): Checks if value.type != VOID
-func.langTestAssertNotVoid(null) # Will pass
-func.langTestAssertNotVoid($xyz_null) # Will pass
-func.langTestAssertNotVoid($xyz_void) # Will not pass
-func.langTestAssertNotVoid({{{}}}) # Will pass
+#   func.testAssertNotVoid(value): Checks if value.type != VOID
+func.testAssertNotVoid(null) # Will pass
+func.testAssertNotVoid($xyz_null) # Will pass
+func.testAssertNotVoid($xyz_void) # Will not pass
+func.testAssertNotVoid({{{}}}) # Will pass
 
-func.langTestPrintResults() # Prints langTest results (Only units/subUnits with at least one test will be printed)
+func.testPrintResults() # Prints test results (Only units/subUnits with at least one test will be printed)
