@@ -855,6 +855,51 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
+					}else if(collectionOrTextNode.getType() == DataType.STRUCT) {
+						StructObject struct = collectionOrTextNode.getStruct();
+						if(struct.isDefinition()) {
+							for(int i = 0;i < struct.getMemberNames().length;i++) {
+								flag = true;
+								
+								if(var != null) {
+									if(var.isFinalData() || var.isLangVar())
+										setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
+									else
+										var.setText(struct.getMemberNames()[i]);
+								}
+								
+								interpretAST(node.getLoopBody(), SCOPE_ID);
+								Boolean ret = interpretLoopContinueAndBreak();
+								if(ret != null) {
+									if(ret)
+										return true;
+									else
+										continue;
+								}
+							}
+						}else {
+							for(int i = 0;i < struct.getMemberNames().length;i++) {
+								flag = true;
+								
+								String memberName = struct.getMemberNames()[i];
+								
+								if(var != null) {
+									if(var.isFinalData() || var.isLangVar())
+										setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
+									else
+										var.setStruct(LangCompositeTypes.createPair(new DataObject(memberName), struct.getMember(memberName)));
+								}
+								
+								interpretAST(node.getLoopBody(), SCOPE_ID);
+								Boolean ret = interpretLoopContinueAndBreak();
+								if(ret != null) {
+									if(ret)
+										return true;
+									else
+										continue;
+								}
+							}
+						}
 					}else if(collectionOrTextNode.getType() == DataType.TEXT) {
 						String text = collectionOrTextNode.getText();
 						for(int i = 0;i < text.length();i++) {
