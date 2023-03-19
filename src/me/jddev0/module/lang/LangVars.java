@@ -100,5 +100,6 @@ final class LangVars {
 	private void addCompositeLangVars(final int SCOPE_ID) {
 		addStaticLangVar("&StackTraceElement", new DataObject().setStruct(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT).setFinalData(true), SCOPE_ID);
 		addStaticLangVar("&Complex", new DataObject().setStruct(LangCompositeTypes.STRUCT_COMPLEX).setFinalData(true), SCOPE_ID);
+		addStaticLangVar("&Pair", new DataObject().setStruct(LangCompositeTypes.STRUCT_PAIR).setFinalData(true), SCOPE_ID);
 	}
 }

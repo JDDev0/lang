@@ -53,5 +53,16 @@ public class LangCompositeTypes {
 		});
 	}
 	
+	public static final StructObject STRUCT_PAIR = new StructObject(new String[] {
+			"$first",
+			"$second"
+	});
+	public static StructObject creatPair(DataObject first, DataObject second) {
+		return new StructObject(LangCompositeTypes.STRUCT_PAIR, new DataObject[] {
+				first,
+				second
+		});
+	}
+	
 	private LangCompositeTypes() {}
 }
