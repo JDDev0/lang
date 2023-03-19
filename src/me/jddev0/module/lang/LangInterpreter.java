@@ -855,7 +855,7 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
-					}else {
+					}else if(collectionOrTextNode.getType() == DataType.TEXT) {
 						String text = collectionOrTextNode.getText();
 						for(int i = 0;i < text.length();i++) {
 							flag = true;
@@ -878,6 +878,9 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
+					}else {
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach needs a collection or a text node to iterate over", SCOPE_ID);
+						return false;
 					}
 					
 					break;
