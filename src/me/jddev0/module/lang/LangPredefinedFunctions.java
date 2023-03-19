@@ -438,6 +438,7 @@ final class LangPredefinedFunctions {
 		addPredefinedListFunctions(funcs);
 		addPredefinedStructFunctions(funcs);
 		addPredefinedComplexStructFunctions(funcs);
+		addPredefinedPairStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
 	}
@@ -7249,6 +7250,61 @@ final class LangPredefinedFunctions {
 			
 			try {
 				return new DataObject().setStruct(LangCompositeTypes.createComplex(realNumerator / denominator, imagNumerator / denominator));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+	}
+	private void addPredefinedPairStructFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.put("pair", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject firstObject = combinedArgumentList.get(0);
+			DataObject secondObject = combinedArgumentList.get(1);
+			
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("pfirst", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject pairStructObject = combinedArgumentList.get(0);
+			
+			StructObject pairStruct = pairStructObject.getStruct();
+			
+			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Pair"), SCOPE_ID);
+			
+			try {
+				return new DataObject(pairStruct.getMember("$first"));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		});
+		funcs.put("psecond", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
+				return error;
+			
+			DataObject pairStructObject = combinedArgumentList.get(0);
+			
+			StructObject pairStruct = pairStructObject.getStruct();
+			
+			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Pair"), SCOPE_ID);
+			
+			try {
+				return new DataObject(pairStruct.getMember("$second"));
 			}catch(DataTypeConstraintException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
 			}
