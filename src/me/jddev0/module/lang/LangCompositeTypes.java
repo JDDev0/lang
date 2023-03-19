@@ -57,7 +57,7 @@ public class LangCompositeTypes {
 			"$first",
 			"$second"
 	});
-	public static StructObject creatPair(DataObject first, DataObject second) {
+	public static StructObject createPair(DataObject first, DataObject second) {
 		return new StructObject(LangCompositeTypes.STRUCT_PAIR, new DataObject[] {
 				first,
 				second
