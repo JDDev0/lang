@@ -815,12 +815,12 @@ public final class LangInterpreter {
 							flag = true;
 							
 							if(var != null) {
-								if(var.isFinalData() || var.isLangVar())
+								if(var.isFinalData() || var.isLangVar()) {
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
-								else if(var.getTypeConstraint().isTypeAllowed(arr[i].getType()))
+									return false;
+								}else {
 									var.setData(arr[i]);
-								else
-									setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach current element value can not be set", SCOPE_ID);
+								}
 							}
 							
 							interpretAST(node.getLoopBody(), SCOPE_ID);
@@ -838,10 +838,12 @@ public final class LangInterpreter {
 							flag = true;
 							
 							if(var != null) {
-								if(var.isFinalData() || var.isLangVar())
+								if(var.isFinalData() || var.isLangVar()) {
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
-								else
+									return false;
+								}else {
 									var.setData(list.get(i));
+								}
 							}
 							
 							interpretAST(node.getLoopBody(), SCOPE_ID);
@@ -859,10 +861,12 @@ public final class LangInterpreter {
 							flag = true;
 							
 							if(var != null) {
-								if(var.isFinalData() || var.isLangVar())
+								if(var.isFinalData() || var.isLangVar()) {
 									setErrno(InterpretingError.FINAL_VAR_CHANGE, "con.foreach current element value can not be set", SCOPE_ID);
-								else
+									return false;
+								}else {
 									var.setChar(text.charAt(i));
+								}
 							}
 							
 							interpretAST(node.getLoopBody(), SCOPE_ID);
@@ -887,6 +891,9 @@ public final class LangInterpreter {
 			}
 		}catch(ClassCastException e) {
 			setErrno(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
+		}catch(DataTypeConstraintException e) {
+			setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			return false;
 		}
 		
 		return flag;
