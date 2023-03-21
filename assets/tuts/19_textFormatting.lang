@@ -156,7 +156,7 @@ func.println()
 #       - Counts are not allowed to be less then 0
 #     - If the provided count was not defined by any pluralization token, an error will be thrown
 #     - If the provided count was defined more then once, the first token including the count will be returned
-#  - Pluralization templates can be requested and used with "func.getTranslationValueTemplatePluralization($count, $translationKey)" and "func.formatTranslationTemplatePluralization($count, $text)"
+#  - Pluralization templates can be requested and used with "func.getTranslationValueTemplatePluralization($count, $translationKey)" and "func.formatTemplatePluralization($count, $text)"
 plural.example.0 = [0+]{count}x orange
 func.println(func.getTranslationValueTemplatePluralization(0, plural.example.0))
 func.println(func.getTranslationValueTemplatePluralization(1, plural.example.0))
