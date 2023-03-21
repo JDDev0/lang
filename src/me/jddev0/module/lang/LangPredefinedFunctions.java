@@ -1663,7 +1663,7 @@ final class LangPredefinedFunctions {
 			DataObject formatObject = combinedArgumentList.remove(0);
 			return interpreter.formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
 		});
-		funcs.put("formatTranslationTemplatePluralization", (argumentList, SCOPE_ID) -> {
+		funcs.put("formatTemplatePluralization", (argumentList, SCOPE_ID) -> {
 			if(LangUtils.countDataObjects(argumentList) < 2)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
 			
