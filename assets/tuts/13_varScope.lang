@@ -90,4 +90,4 @@ fp.a = () -> {
 fp.a()
 
 func.println(\s)
-func.println(global.translation \= func.getTranslationValue(global.translation))
+func.println(global.translation = func.getTranslationValue(global.translation))
