@@ -11,7 +11,7 @@ fp.factorial = ($num) -> {
 	return func.mull($num, fp.factorial(func.subi($num, 1)))
 }
 fp.printFactorial = ($i) -> {
-	func.println($i! \= fp.factorial($i))
+	func.println($i! = fp.factorial($i))
 }
 func.repeat(fp.printFactorial, 25) # Long precision is not enough for 21! and beyond
 
