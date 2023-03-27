@@ -169,9 +169,9 @@ final class LangPatterns {
 	 */
 	public static final Pattern PARSING_STARTS_WITH_NON_WORD_CHAR = Pattern.compile("\\W.*");
 	/**
-	 * RegEx: &\w+\.\.\..{@literal *}
+	 * RegEx: (\[\[\w+\]\]::)?&\w+\.\.\..{@literal *}
 	 */
-	public static final Pattern PARSING_STARTS_WITH_ARRAY_UNPACKING = Pattern.compile("&\\w+\\.\\.\\..*");
+	public static final Pattern PARSING_STARTS_WITH_ARRAY_UNPACKING = Pattern.compile("(\\[\\[\\w+\\]\\]::)?&\\w+\\.\\.\\..*");
 	/**
 	 * RegEx: \{[?!]?([A-Z]+\|)*[A-Z]+\}.{@literal *}
 	 */

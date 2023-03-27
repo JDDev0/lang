@@ -2179,24 +2179,46 @@ public final class LangInterpreter {
 			if(argument.getNodeType() == NodeType.UNPROCESSED_VARIABLE_NAME) {
 				try {
 					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
-					if(variableName.startsWith("&") && variableName.endsWith("...")) {
-						DataObject dataObject = getOrCreateDataObjectFromVariableName(null, null, variableName.
-								substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
-						if(dataObject == null) {
-							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", SCOPE_ID));
+					if(variableName.contains("&") && variableName.endsWith("...")) {
+						boolean isModuleVariable = variableName.startsWith("[[");
+						String moduleName = null;
+						if(isModuleVariable) {
+							int indexModuleIdientifierEnd = variableName.indexOf("]]::");
+							if(indexModuleIdientifierEnd == -1) {
+								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid variable name", SCOPE_ID));
+								
+								continue;
+							}
+							
+							moduleName = variableName.substring(2, indexModuleIdientifierEnd);
+							if(!isAlphaNummericWithUnderline(moduleName)) {
+								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid module name", SCOPE_ID));
+								
+								continue;
+							}
+							
+							variableName = variableName.substring(indexModuleIdientifierEnd + 4);
+						}
+						
+						if(variableName.startsWith("&")) {
+							DataObject dataObject = getOrCreateDataObjectFromVariableName(null, moduleName, variableName.
+									substring(0, variableName.length() - 3), false, false, false, null, SCOPE_ID);
+							if(dataObject == null) {
+								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable", SCOPE_ID));
+								
+								continue;
+							}
+							
+							if(dataObject.getType() != DataType.ARRAY) {
+								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of non ARRAY type variable", SCOPE_ID));
+								
+								continue;
+							}
+							
+							argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(dataObject.getArray())));
 							
 							continue;
 						}
-						
-						if(dataObject.getType() != DataType.ARRAY) {
-							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of non ARRAY type variable", SCOPE_ID));
-							
-							continue;
-						}
-						
-						argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(dataObject.getArray())));
-						
-						continue;
 					}
 				}catch(ClassCastException e) {
 					argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, SCOPE_ID));
