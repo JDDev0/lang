@@ -824,6 +824,17 @@ public class LangTest {
 		}
 	}
 	
+	public static final class AssertResultTypeEquals extends AssertResultDataObjectString {
+		public AssertResultTypeEquals(boolean testPassed, String message, DataObject actualValue, DataObject.DataType expectedType) {
+			super(testPassed, message, actualValue, "Type: == " + expectedType);
+		}
+		
+		@Override
+		public String getAssertTestName() {
+			return "AssertResultTypeEquals";
+		}
+	}
+	
 	public static final class AssertResultNull extends AssertResultDataObjectString {
 		public AssertResultNull(boolean testPassed, String message, DataObject actualValue) {
 			super(testPassed, message, actualValue, "== null");
