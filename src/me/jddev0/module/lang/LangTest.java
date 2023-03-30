@@ -831,7 +831,7 @@ public class LangTest {
 		
 		@Override
 		public String getAssertTestName() {
-			return "AssertResultTypeEquals";
+			return "assertResultTypeEquals";
 		}
 	}
 	
