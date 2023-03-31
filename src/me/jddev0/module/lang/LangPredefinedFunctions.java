@@ -8008,6 +8008,29 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("testAssertTypeNotEquals", (argumentList, SCOPE_ID) -> {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject actualValueObject = combinedArgumentList.get(0);
+			DataObject expectedTypeObject = combinedArgumentList.get(1);
+			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
+			
+			if(expectedTypeObject.getType() != DataType.TYPE)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			DataType expectedType = expectedTypeObject.getTypeValue();
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeNotEquals(actualValueObject.getType() != expectedType,
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
+			
+			return null;
+		});
 		funcs.put("testAssertNull", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
