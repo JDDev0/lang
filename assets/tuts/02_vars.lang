@@ -77,7 +77,7 @@ func.println(\$a: $a)
 func.println(\$b: $b)
 func.println(\$c: $c)
 
-# A lang translation must come first
+# A Lang translation must come first
 lang.translation = $b = $c # Would be possible
 $a = lang.translation.2 = $c # Wouldn't be possible (Result: $a -> "lang.translation.2 = $c" ("$c": Value of $c))
 func.println(\$a: $a)

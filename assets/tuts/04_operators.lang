@@ -418,7 +418,7 @@ func.println(&a) # [1, 2, 3, 4, 5]
 func.println()
 
 # Evaluation order
-# Function pointer is only for output, Function pointers: See [05_functionPointer.lang]
+# Function pointer is only for output, Function pointers: See [06_functionPointer.lang]
 fp.printAndRet = ($name, $num) -> {
 	func.println(Evaluation: $num ($name))
 	

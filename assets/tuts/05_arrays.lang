@@ -86,7 +86,7 @@ $count = func.arrayCountOf(&arr, value1) # Will return 1
 func.println($count)
 $count = func.arrayCountOf(&arr, 5) # Will return 1
 func.println($count)
-$count = func.arrayCountOf(&arr, {{{5}}}) # Will return 0 (Uses strict equals internally See [06_if.lang: strict equals])
+$count = func.arrayCountOf(&arr, {{{5}}}) # Will return 0 (Uses strict equals internally See [07_if.lang: strict equals])
 func.println($count)
 
 func.arraySet(&arr, 2, 2)
