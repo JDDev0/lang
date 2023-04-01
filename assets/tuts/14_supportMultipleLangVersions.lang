@@ -29,7 +29,7 @@ con.elif($ver == v0.2.0)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v0.2.1)
-	func.printTerminal(2, This is Code for the lang version v0.2.1!)
+	func.printTerminal(2, This is Code for Lang version v0.2.1!)
 	
 	$a = A final variable
 	func.makeFinal($[a])
@@ -38,7 +38,7 @@ con.elif($ver == v0.2.1)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v1.0.0)
-	func.println(This is Code for the lang version v1.0.0!)
+	func.println(This is Code for Lang version v1.0.0!)
 	
 	$a = func.asFinal(A final variable)
 	func.println($a)
@@ -46,10 +46,10 @@ con.elif($ver == v1.0.0)
 	func.println($a)
 	func.printError()
 con.else
-	func.printTerminal(5, The lang version $ver is not supported!)
+	func.printTerminal(5, Lang version $ver is not supported!)
 con.endif
 
-# Best practice: Use different lang files for different lang version dependent functions: # Example: Contains different version of function "fp.test"
+# Best practice: Use different Lang files for different Lang version dependent functions: # Example: Contains different version of function "fp.test"
 con.if($ver == v0.1.8)
 	linker.bindLibrary(14_utilsLibrary018.lang)
 con.elif($ver == v0.1.9)
@@ -61,7 +61,7 @@ con.elif($ver == v0.2.1)
 con.elif($ver == v1.0.0)
 	linker.bindLibrary(14_utilsLibrary100.lang)
 con.else
-	func.printTerminal(5, The lang version $ver is not supported!)
+	func.printTerminal(5, The Lang version $ver is not supported!)
 con.endif
 
 fp.test(A test text)

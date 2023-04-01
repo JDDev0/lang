@@ -171,7 +171,7 @@ func.freeAllVars()
 
 # Make variable static
 # func.makeStatic(varPtr)
-# -> If a variable is static, it will can be overriden in function and "func.exec" scopes. Static vars are not accessible in linked lang files.
+# -> If a variable is static, it will can be overriden in function and "func.exec" scopes. Static vars are not accessible in linked Lang files.
 
 # Static var
 $a = Static

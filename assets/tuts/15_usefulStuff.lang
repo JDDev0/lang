@@ -276,7 +276,7 @@ func.println()
 
 func.println()
 
-# Emulating loop types that are not directly supported by lang
+# Emulating loop types that are not directly supported by Lang
 {
 	# do-while loop
 	{

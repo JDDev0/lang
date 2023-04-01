@@ -1,12 +1,12 @@
 lang.name = Lang Test
 lang.version = v1.0.0
 
-lang.test = 1 # Enable langTest unit test
+lang.test = 1 # Enable LangTest unit test
 
 # Include library which should be tested
 $ret = linker.include(16_library.lang)
 
-# langTest Unit structure:
+# LangTest Unit structure:
 #   Unit a
 #   - SubUnit 1
 #   - SubUnit 2
@@ -15,7 +15,7 @@ $ret = linker.include(16_library.lang)
 #   Unit c
 #   - SubUnit 1
 
-# langTest assert functions:
+# LangTest assert functions:
 # - assert functions can be used in:
 #   - the noname unit (= Default unit if "func.testUnit()" was not called)
 #   - the noname subUnit (= Default SubUnit of an Unit if "func.testSubUnit()" was not called)
