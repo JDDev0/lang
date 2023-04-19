@@ -513,8 +513,13 @@ public final class LangInterpreter {
 	}
 	
 	private Node processFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
-		if(previousValue != null && previousValue.getType() == DataType.FUNCTION_POINTER)
-			return node;
+		if(previousValue != null) {
+			if(previousValue.getType() == DataType.FUNCTION_POINTER)
+				return node;
+			
+			if(previousValue.getType() == DataType.STRUCT && previousValue.getStruct().isDefinition())
+				return node;
+		}
 		
 		//Previous node value wasn't a function -> return children of node in between "(" and ")" as ListNode
 		List<Node> nodes = new ArrayList<>();
@@ -2371,10 +2376,31 @@ public final class LangInterpreter {
 	}
 	
 	private DataObject interpretFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
-		if(previousValue == null || previousValue.getType() != DataType.FUNCTION_POINTER)
-			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, SCOPE_ID);
+		if(previousValue == null)
+			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing previous value for FunctionCallPreviousNodeValueNode", SCOPE_ID);
 		
-		return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(), interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
+		if(previousValue.getType() == DataType.FUNCTION_POINTER)
+			return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(), interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
+		
+		if(previousValue.getType() == DataType.STRUCT && previousValue.getStruct().isDefinition()) {
+			List<DataObject> argumentList = interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
+			StructObject struct = previousValue.getStruct();
+			
+			String[] memberNames = struct.getMemberNames();
+			if(combinedArgumentList.size() != memberNames.length) {
+				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The array length is not equals to the count of member names (" + memberNames.length + ")", SCOPE_ID);
+			}
+			
+			try {
+				return new DataObject().setStruct(new StructObject(struct, combinedArgumentList.toArray(new DataObject[0])));
+			}catch(DataTypeConstraintException e) {
+				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid data type", SCOPE_ID);
 	}
 	
 	private DataObject interpretFunctionDefinitionNode(FunctionDefinitionNode node, final int SCOPE_ID) {
