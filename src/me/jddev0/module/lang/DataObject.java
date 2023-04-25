@@ -23,7 +23,9 @@ import me.jddev0.module.lang.LangInterpreter.InterpretingError;
  */
 public class DataObject {
 	public final static DataTypeConstraint CONSTRAINT_NORMAL = DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>());
+	@Deprecated
 	public final static DataTypeConstraint CONSTRAINT_COLLECTION = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.LIST, DataType.STRUCT, DataType.NULL));
+	public final static DataTypeConstraint CONSTRAINT_COMPOSITE = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.ARRAY, DataType.LIST, DataType.STRUCT, DataType.NULL));
 	public final static DataTypeConstraint CONSTRAINT_FUNCTION_POINTER = DataTypeConstraint.fromAllowedTypes(Arrays.asList(DataType.FUNCTION_POINTER, DataType.NULL));
 	
 	//Value
@@ -60,7 +62,7 @@ public class DataObject {
 			return CONSTRAINT_NORMAL;
 		
 		if(variableName.startsWith("&"))
-			return CONSTRAINT_COLLECTION;
+			return CONSTRAINT_COMPOSITE;
 		
 		if(variableName.startsWith("fp.") || variableName.startsWith("func.") || variableName.startsWith("fn.") || variableName.startsWith("linker.") || variableName.startsWith("ln."))
 			return CONSTRAINT_FUNCTION_POINTER;

@@ -7659,7 +7659,7 @@ final class LangPredefinedFunctions {
 			DataObject variableObject = combinedArgumentList.get(1);
 			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
 			
-			if(!DataObject.CONSTRAINT_COLLECTION.isTypeAllowed(variableObject.getType()))
+			if(!DataObject.CONSTRAINT_COMPOSITE.isTypeAllowed(variableObject.getType()))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "collection"), SCOPE_ID);
 			
 			String variableName = variableNameObject.getText();
