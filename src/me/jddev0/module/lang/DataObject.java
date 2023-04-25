@@ -540,7 +540,7 @@ public class DataObject {
 		return builder.toString();
 	}
 	
-	private void convertCollectionElementToText(DataObject ele, StringBuilder builder) {
+	private void convertCompositeElementToText(DataObject ele, StringBuilder builder) {
 		if(ele.getType() == DataType.ARRAY) {
 			builder.append("<Array[" + ele.getArray().length + "]>");
 		}else if(ele.getType() == DataType.LIST) {
@@ -572,7 +572,7 @@ public class DataObject {
 		StringBuilder builder = new StringBuilder("[");
 		if(arr.length > 0) {
 			for(DataObject ele:arr)
-				convertCollectionElementToText(ele, builder);
+				convertCompositeElementToText(ele, builder);
 			builder.delete(builder.length() - 2, builder.length());
 		}
 		builder.append(']');
@@ -583,7 +583,7 @@ public class DataObject {
 		StringBuilder builder = new StringBuilder("[");
 		if(list.size() > 0) {
 			for(DataObject ele:list)
-				convertCollectionElementToText(ele, builder);
+				convertCompositeElementToText(ele, builder);
 			builder.delete(builder.length() - 2, builder.length());
 		}
 		builder.append(']');
@@ -600,7 +600,7 @@ public class DataObject {
 			}else {
 				for(String memberName:memberNames) {
 					builder.append(memberName).append(": ");
-					convertCollectionElementToText(sp.getMember(memberName), builder);
+					convertCompositeElementToText(sp.getMember(memberName), builder);
 				}
 			}
 			
