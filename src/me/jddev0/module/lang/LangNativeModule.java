@@ -309,13 +309,13 @@ public abstract class LangNativeModule {
 		module.getExportedVariables().put(variableName, value);
 	}
 	
-	protected final void exportCollectionVariableFinal(String variableName, DataObject value) {
-		exportCollectionVariable(variableName, value, true);
+	protected final void exportCompositeVariableFinal(String variableName, DataObject value) {
+		exportCompositeVariable(variableName, value, true);
 	}
-	protected final void exportCollectionVariable(String variableName, DataObject value) {
-		exportCollectionVariable(variableName, value, false);
+	protected final void exportCompositeVariable(String variableName, DataObject value) {
+		exportCompositeVariable(variableName, value, false);
 	}
-	private void exportCollectionVariable(String variableName, DataObject value, boolean finalData) {
+	private void exportCompositeVariable(String variableName, DataObject value, boolean finalData) {
 		if(!module.isLoad())
 			throw new RuntimeException("This method may only be used inside a module which is in the \"load\" state");
 		
