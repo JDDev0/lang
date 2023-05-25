@@ -7452,7 +7452,7 @@ final class LangPredefinedFunctions {
 			
 			return variable;
 		});
-		funcs.put("getModuleVariableCollection", (argumentList, SCOPE_ID) -> {
+		funcs.put("getModuleVariableComposite", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
 			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
