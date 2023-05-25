@@ -7644,7 +7644,7 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
-		funcs.put("moduleExportCollectionVariable", (argumentList, SCOPE_ID) -> {
+		funcs.put("moduleExportCompositeVariable", (argumentList, SCOPE_ID) -> {
 			LangModule module = interpreter.getCurrentCallStackElement().getModule();
 			if(module == null || !module.isLoad())
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportCollectionVariable\" can only be used inside a module which "
