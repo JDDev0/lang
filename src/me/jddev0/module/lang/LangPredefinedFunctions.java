@@ -7647,7 +7647,7 @@ final class LangPredefinedFunctions {
 		funcs.put("moduleExportCompositeVariable", (argumentList, SCOPE_ID) -> {
 			LangModule module = interpreter.getCurrentCallStackElement().getModule();
 			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportCollectionVariable\" can only be used inside a module which "
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportCompositeVariable\" can only be used inside a module which "
 						+ "is in the \"load\" state", SCOPE_ID);
 			
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
