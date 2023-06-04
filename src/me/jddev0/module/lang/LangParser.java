@@ -19,9 +19,19 @@ import java.util.regex.Pattern;
  */
 public final class LangParser {
 	private String currentLine;
+	private int lineNumber;
 	
-	public void resetCurrentLine() {
+	public void resetPositionVars() {
 		currentLine = null;
+		lineNumber = 0;
+	}
+	
+	public int getLineNumber() {
+		return lineNumber;
+	}
+	
+	public void setLineNumber(int lineNumber) {
+		this.lineNumber = lineNumber;
 	}
 	
 	public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
@@ -32,7 +42,7 @@ public final class LangParser {
 		int blockPos = 0;
 		
 		do {
-			String line = lines.readLine();
+			String line = nextLine(lines);
 			if(line == null) {
 				currentLine = null;
 				
@@ -1568,7 +1578,7 @@ public final class LangParser {
 					boolean hasEndBrace = false;
 					
 					while(lines.ready()) {
-						String line = lines.readLine().trim();
+						String line = nextLine(lines).trim();
 						
 						List<AbstractSyntaxTree.Node> errorNodes = new LinkedList<>();
 						line = prepareNextLine(line, lines, errorNodes);
@@ -2223,7 +2233,7 @@ public final class LangParser {
 							return null;
 						}
 						
-						lineTmpString = lines.readLine();
+						lineTmpString = nextLine(lines);
 						if(lineTmpString == null) {
 							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
 							return null;
@@ -2248,7 +2258,7 @@ public final class LangParser {
 					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
 					return null;
 				}
-				String lineTmpString = lines.readLine();
+				String lineTmpString = nextLine(lines);
 				if(lineTmpString == null) {
 					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
 					return null;
@@ -2265,6 +2275,15 @@ public final class LangParser {
 		line = parseMultilineTextAndLineContinuation(line, lines, errorNodes);
 		
 		line = removeCommentsAndTrim(line);
+		
+		return line;
+	}
+	
+	private String nextLine(BufferedReader lines) throws IOException {
+		String line = lines.readLine();
+		
+		if(line != null)
+			lineNumber++;
 		
 		return line;
 	}

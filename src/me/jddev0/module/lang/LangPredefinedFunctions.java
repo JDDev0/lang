@@ -881,11 +881,15 @@ final class LangPredefinedFunctions {
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
 			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()));
 			
+			int originalLineNumber = interpreter.getParserLineNumber();
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
+				interpreter.resetParserPositionVars();
 				interpreter.interpretLines(lines, SCOPE_ID);
 			}catch(IOException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
 			}finally {
+				interpreter.setParserLineNumber(originalLineNumber);
+				
 				//Update call stack
 				interpreter.popStackElement();
 			}
@@ -8305,17 +8309,22 @@ final class LangPredefinedFunctions {
 		//Create an empty data map
 		interpreter.createDataMap(NEW_SCOPE_ID, langArgs);
 		if(insideModule) {
+			int originalLineNumber = interpreter.getParserLineNumber();
 			try(BufferedReader reader = LangModuleManager.readModuleLangFile(module, absolutePath)) {
+				interpreter.resetParserPositionVars();
 				interpreter.interpretLines(reader, NEW_SCOPE_ID);
 			}catch(IOException e) {
 				interpreter.data.remove(NEW_SCOPE_ID);
 				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
 			}finally {
+				interpreter.setParserLineNumber(originalLineNumber);
+				
 				//Update call stack
 				interpreter.popStackElement();
 			}
 		}else {
 			try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
+				interpreter.resetParserPositionVars();
 				interpreter.interpretLines(reader, NEW_SCOPE_ID);
 			}catch(IOException e) {
 				interpreter.data.remove(NEW_SCOPE_ID);

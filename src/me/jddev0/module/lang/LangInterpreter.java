@@ -198,6 +198,18 @@ public final class LangInterpreter {
 		return ret;
 	}
 	
+	int getParserLineNumber() {
+		return parser.getLineNumber();
+	}
+	
+	void setParserLineNumber(int lineNumber) {
+		parser.setLineNumber(lineNumber);
+	}
+	
+	void resetParserPositionVars() {
+		parser.resetPositionVars();
+	}
+	
 	/**
 	 * @return Might return null
 	 */
@@ -3662,6 +3674,18 @@ public final class LangInterpreter {
 		}
 		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) throws StoppedException {
 			return interpreter.callFunctionPointer(fp, functionName, interpreter.interpretFunctionPointerArguments(argumentList, SCOPE_ID), SCOPE_ID);
+		}
+		
+		public int getParserLineNumber() {
+			return interpreter.getParserLineNumber();
+		}
+		
+		public void setParserLineNumber(int lineNumber) {
+			interpreter.setParserLineNumber(lineNumber);
+		}
+		
+		public void resetParserPositionVars() {
+			interpreter.resetParserPositionVars();
 		}
 		
 		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) throws StoppedException {

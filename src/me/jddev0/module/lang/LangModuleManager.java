@@ -148,10 +148,14 @@ final class LangModuleManager {
 				}
 				
 				byte[] moduleLangBytes = zipData.get("lang/module.lang");
+				int originalLineNumber = interpreter.getParserLineNumber();
 				try(BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(moduleLangBytes), "UTF-8"))) {
+					interpreter.resetParserPositionVars();
 					interpreter.interpretLines(br, SCOPE_ID);
 				}catch(IOException e) {
 					return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+				}finally {
+					interpreter.setParserLineNumber(originalLineNumber);
 				}
 				
 				DataObject ret = null;
@@ -173,10 +177,14 @@ final class LangModuleManager {
 								+ " and \"lang/module.lang\" does not exist", SCOPE_ID);
 					
 					byte[] moduleLangBytes = zipData.get("lang/module.lang");
+					int originalLineNumber = interpreter.getParserLineNumber();
 					try(BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(moduleLangBytes), "UTF-8"))) {
+						interpreter.resetParserPositionVars();
 						interpreter.interpretLines(br, SCOPE_ID);
 					}catch(IOException e) {
 						return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+					}finally {
+						interpreter.setParserLineNumber(originalLineNumber);
 					}
 					
 					DataObject ret = null;
