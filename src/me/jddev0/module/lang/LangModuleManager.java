@@ -129,7 +129,8 @@ final class LangModuleManager {
 		final int SCOPE_ID = CALLER_SCOPE_ID + 1;
 		try {
 			//Update call stack (Path inside module archive)
-			interpreter.pushStackElement(new StackElement("<module:" + module.getFile()  + "[" + lmc.getName() + "]>", "<entryPoint>", null, module));
+			//TODO get line number
+			interpreter.pushStackElement(new StackElement("<module:" + module.getFile()  + "[" + lmc.getName() + "]>", "<entryPoint>", null, module), -1);
 			
 			String[] langArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(args).stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
 			
@@ -226,8 +227,9 @@ final class LangModuleManager {
 		
 		final int INNER_SCOPE_ID = SCOPE_ID + 1;
 		
+		//TODO get line number
 		interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>",
-				(moduleEntryPoint?"<entryPoint>":entryPoint), "<native:" + (load?"load":"unload") + ">", module));
+				(moduleEntryPoint?"<entryPoint>":entryPoint), "<native:" + (load?"load":"unload") + ">", module), -1);
 		
 		String[] langArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(args).stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
 		

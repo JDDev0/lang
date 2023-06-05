@@ -52,6 +52,8 @@ public final class LangInterpreter {
 	final LangModuleManager moduleManager = new LangModuleManager(this);
 	final Map<String, LangModule> modules = new HashMap<>();
 	
+	
+	private StackElement currentCallStackElement;
 	private final LinkedList<StackElement> callStack;
 	
 	final TerminalIO term;
@@ -110,7 +112,7 @@ public final class LangInterpreter {
 	 */
 	public LangInterpreter(String langPath, String langFile, TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) {
 		callStack = new LinkedList<>();
-		callStack.add(new StackElement(langPath, langFile, null, null));
+		currentCallStackElement = new StackElement(langPath, langFile, null, null);
 		this.term = term;
 		this.langPlatformAPI = langPlatformAPI;
 		
@@ -142,25 +144,33 @@ public final class LangInterpreter {
 	}
 	
 	public StackElement getCurrentCallStackElement() {
-		return callStack.peekLast();
+		return currentCallStackElement;
 	}
 	
 	List<StackElement> getCallStackElements() {
 		return new ArrayList<>(callStack);
 	}
 	
-	void pushStackElement(StackElement stackElement) {
-		callStack.addLast(stackElement);
+	void pushStackElement(StackElement stackElement, int parentLineNumber) {
+		callStack.addLast(currentCallStackElement.withLineNumber(parentLineNumber));
+		currentCallStackElement = stackElement;
 	}
 	
 	StackElement popStackElement() {
-		return callStack.pollLast();
+		currentCallStackElement = callStack.pollLast().withLineNumber(-1);
+		return currentCallStackElement;
 	}
 	
 	String printStackTrace() {
 		StringBuilder builder = new StringBuilder();
 		
 		ListIterator<StackElement> iter = callStack.listIterator(callStack.size());
+		//TODO get line number
+		builder.append(currentCallStackElement);
+		if(!iter.hasPrevious())
+			return builder.toString();
+		
+		builder.append("\n");
 		while(true) {
 			builder.append(iter.previous());
 			if(iter.hasPrevious())
@@ -2042,14 +2052,14 @@ public final class LangInterpreter {
 		
 		return retTmp == null?retTmp:new DataObject(retTmp);
 	}
-	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) {
+	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, int parentLineNumber, final int SCOPE_ID) {
 		argumentValueList = new ArrayList<>(argumentValueList);
 		
 		try {
 			//Update call stack
 			StackElement currentStackElement = getCurrentCallStackElement();
 			pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(),
-					functionName == null?fp.toString():functionName, currentStackElement.getModule()));
+					functionName == null?fp.toString():functionName, currentStackElement.getModule()), parentLineNumber);
 			
 			switch(fp.getFunctionPointerType()) {
 				case FunctionPointerObject.NORMAL:
@@ -2181,6 +2191,9 @@ public final class LangInterpreter {
 			//Update call stack
 			popStackElement();
 		}
+	}
+	DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) {
+		return callFunctionPointer(fp, functionName, argumentValueList, -1, SCOPE_ID);
 	}
 	private List<DataObject> interpretFunctionPointerArguments(List<Node> argumentList, final int SCOPE_ID) {
 		List<DataObject> argumentValueList = new LinkedList<>();
@@ -2396,7 +2409,7 @@ public final class LangInterpreter {
 			}
 		}
 		
-		return callFunctionPointer(fp, functionName, interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
+		return callFunctionPointer(fp, functionName, interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), node.getLineNumberFrom(), SCOPE_ID);
 	}
 	
 	private DataObject interpretFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
@@ -2404,7 +2417,8 @@ public final class LangInterpreter {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing previous value for FunctionCallPreviousNodeValueNode", SCOPE_ID);
 		
 		if(previousValue.getType() == DataType.FUNCTION_POINTER)
-			return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(), interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), SCOPE_ID);
+			return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(),
+					interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), node.getLineNumberFrom(), SCOPE_ID);
 		
 		if(previousValue.getType() == DataType.STRUCT && previousValue.getStruct().isDefinition()) {
 			List<DataObject> argumentList = interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID);
@@ -3282,10 +3296,11 @@ public final class LangInterpreter {
 			langFile = langFile == null?"<shell>":langFile;
 			
 			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + langFile;
+			int lineNumber = currentStackElement.getLineNumber(); //TODO get line number from parameter
 			String langFunctionName = currentStackElement.getLangFunctionName();
 			
-			String output = String.format("A%s %s occured in \"%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
-					newErrno < 0?"warning":"error", langPathWithFile, langFunctionName == null?"main":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
+			String output = String.format("A%s %s occured in \"%s:%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
+					newErrno < 0?"warning":"error", langPathWithFile, lineNumber > 0?lineNumber:"x", langFunctionName == null?"main":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
 					error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message, printStackTrace());
 			if(term == null)
 				System.err.println(output);
@@ -3327,14 +3342,23 @@ public final class LangInterpreter {
 	public static final class StackElement {
 		private final String langPath;
 		private final String langFile;
+		private final int lineNumber;
 		private final String langFunctionName;
 		final LangModule module;
 		
-		public StackElement(String langPath, String langFile, String langFunctionName, LangModule module) {
+		public StackElement(String langPath, String langFile, int lineNumber, String langFunctionName, LangModule module) {
 			this.langPath = langPath;
 			this.langFile = langFile;
 			this.langFunctionName = langFunctionName;
+			this.lineNumber = lineNumber;
 			this.module = module;
+		}
+		public StackElement(String langPath, String langFile, String langFunctionName, LangModule module) {
+			this(langPath, langFile, -1, langFunctionName, module);
+		}
+		
+		public StackElement withLineNumber(int lineNumber) {
+			return new StackElement(langPath, langFile, lineNumber, langFunctionName, module);
 		}
 		
 		public String getLangPath() {
@@ -3343,6 +3367,10 @@ public final class LangInterpreter {
 		
 		public String getLangFile() {
 			return langFile;
+		}
+		
+		public int getLineNumber() {
+			return lineNumber;
 		}
 		
 		public String getLangFunctionName() {
@@ -3356,7 +3384,7 @@ public final class LangInterpreter {
 		@Override
 		public String toString() {
 			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + (langFile == null?"<shell>":langFile);
-			return String.format("    at \"%s\" in function \"%s\"", langPathWithFile, langFunctionName == null?"main":langFunctionName);
+			return String.format("    at \"%s:%s\" in function \"%s\"", langPathWithFile, lineNumber > 0?lineNumber:"x", langFunctionName == null?"main":langFunctionName);
 		}
 	}
 	
@@ -3684,6 +3712,10 @@ public final class LangInterpreter {
 		public DataObject interpretFunctionCallNode(final int SCOPE_ID, FunctionCallNode node) throws StoppedException {
 			return interpreter.interpretFunctionCallNode(null, node, SCOPE_ID);
 		}
+		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList,
+				int parentLineNumber, final int SCOPE_ID) throws StoppedException {
+			return interpreter.callFunctionPointer(fp, functionName, interpreter.interpretFunctionPointerArguments(argumentList, SCOPE_ID), parentLineNumber, SCOPE_ID);
+		}
 		public DataObject interpretFunctionPointer(FunctionPointerObject fp, String functionName, List<Node> argumentList, final int SCOPE_ID) throws StoppedException {
 			return interpreter.callFunctionPointer(fp, functionName, interpreter.interpretFunctionPointerArguments(argumentList, SCOPE_ID), SCOPE_ID);
 		}
@@ -3700,6 +3732,10 @@ public final class LangInterpreter {
 			interpreter.resetParserPositionVars();
 		}
 		
+		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList,
+				int parentLineNumber, final int SCOPE_ID) throws StoppedException {
+			return interpreter.callFunctionPointer(fp, functionName, argumentValueList, parentLineNumber, SCOPE_ID);
+		}
 		public DataObject callFunctionPointer(FunctionPointerObject fp, String functionName, List<DataObject> argumentValueList, final int SCOPE_ID) throws StoppedException {
 			return interpreter.callFunctionPointer(fp, functionName, argumentValueList, SCOPE_ID);
 		}

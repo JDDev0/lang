@@ -879,7 +879,8 @@ final class LangPredefinedFunctions {
 			
 			//Update call stack
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()));
+			//TODO get line number
+			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()), -1);
 			
 			int originalLineNumber = interpreter.getParserLineNumber();
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
@@ -947,8 +948,8 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
 				return error;
 			
-			//Get second to last element (Last element would always be this function)
-			StackElement currentStackElement = interpreter.getCallStackElements().get(interpreter.getCallStackElements().size() - 2);
+			//Get last element (Current element would always be this function)
+			StackElement currentStackElement = interpreter.getCallStackElements().get(interpreter.getCallStackElements().size() - 1);
 			
 			String modulePath = null;
 			String moduleFile = null;
@@ -8297,13 +8298,15 @@ final class LangPredefinedFunctions {
 			langPathTmp = absolutePath.substring(0, absolutePath.lastIndexOf('/'));
 			
 			//Update call stack
+			//TODO get line number
 			interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>" + langPathTmp,
-					langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module));
+					langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module), -1);
 		}else {
 			langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
 			
 			//Update call stack
-			interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null));
+			//TODO get line number
+			interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null), -1);
 		}
 		
 		//Create an empty data map
