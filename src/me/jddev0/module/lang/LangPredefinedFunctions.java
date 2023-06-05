@@ -964,7 +964,8 @@ final class LangPredefinedFunctions {
 			}
 			
 			return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(currentStackElement.getLangPath(),
-					currentStackElement.getLangFile(), currentStackElement.getLangFunctionName(), modulePath, moduleFile));
+					currentStackElement.getLangFile(), currentStackElement.getLineNumber(), currentStackElement.getLangFunctionName(),
+					modulePath, moduleFile));
 		});
 		funcs.put("getStackTraceElements", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -988,7 +989,7 @@ final class LangPredefinedFunctions {
 				}
 				
 				return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(ele.getLangPath(),
-						ele.getLangFile(), ele.getLangFunctionName(), modulePath, moduleFile));
+						ele.getLangFile(), ele.getLineNumber(), ele.getLangFunctionName(), modulePath, moduleFile));
 			}).toArray(DataObject[]::new));
 		});
 		funcs.put("getStackTrace", (argumentList, SCOPE_ID) -> {

@@ -15,24 +15,31 @@ public class LangCompositeTypes {
 			DataType.DOUBLE
 	));
 	
+	private static final DataTypeConstraint TYPE_CONSTRAINT_INT_ONLY = DataTypeConstraint.fromAllowedTypes(Arrays.asList(
+			DataType.INT
+	));
+	
 	public static final StructObject STRUCT_STACK_TRACE_ELEMENT = new StructObject(new String[] {
 			"$path",
 			"$file",
+			"$lineNumber",
 			"$functionName",
 			"$modulePath",
 			"$moduleFile"
 	}, new DataTypeConstraint[] {
 			TYPE_CONSTRAINT_OPTIONAL_TEXT,
 			TYPE_CONSTRAINT_OPTIONAL_TEXT,
+			TYPE_CONSTRAINT_INT_ONLY,
 			TYPE_CONSTRAINT_OPTIONAL_TEXT,
 			TYPE_CONSTRAINT_OPTIONAL_TEXT,
 			TYPE_CONSTRAINT_OPTIONAL_TEXT
 	});
-	public static StructObject createStackTraceElement(String path, String file, String functionName, String modulePath,
-			String moduleFile) {
+	public static StructObject createStackTraceElement(String path, String file, int lineNumber, String functionName,
+			String modulePath, String moduleFile) {
 		return new StructObject(LangCompositeTypes.STRUCT_STACK_TRACE_ELEMENT, new DataObject[] {
 				new DataObject(path),
 				new DataObject(file),
+				new DataObject().setInt(lineNumber),
 				new DataObject(functionName),
 				new DataObject(modulePath),
 				new DataObject(moduleFile)
