@@ -998,7 +998,7 @@ final class LangPredefinedFunctions {
 			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
 				return error;
 			
-			return new DataObject(interpreter.printStackTrace());
+			return new DataObject(interpreter.printStackTrace(-1));
 		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
