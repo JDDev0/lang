@@ -21,6 +21,10 @@ public final class LangParser {
 	private String currentLine;
 	private int lineNumber;
 	
+	public LangParser() {
+		resetPositionVars();
+	}
+	
 	public void resetPositionVars() {
 		currentLine = null;
 		lineNumber = 0;
@@ -163,7 +167,7 @@ public final class LangParser {
 				if(token.length() == 1)
 					break;
 				
-				leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(token.charAt(1)));
+				leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, token.charAt(1)));
 				
 				if(token.length() == 2)
 					break;
@@ -229,7 +233,7 @@ public final class LangParser {
 			if(token.startsWith("(")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
 					
 					break;
 				}
@@ -254,7 +258,7 @@ public final class LangParser {
 						builder.delete(0, builder.length());
 					}
 					
-					leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(token.charAt(0)));
+					leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, token.charAt(0)));
 					token = token.substring(1);
 					
 					continue;
@@ -262,7 +266,7 @@ public final class LangParser {
 			}else if(token.startsWith("[")) {
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
 					
 					break;
 				}
@@ -801,7 +805,7 @@ public final class LangParser {
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
 					
 					break;
 				}
@@ -832,7 +836,7 @@ public final class LangParser {
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
 					break;
 				}
 				
@@ -912,7 +916,7 @@ public final class LangParser {
 				nodes.add(leftSideOperand);
 			
 			//Add argument separator
-			nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(","));
+			nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(lineNumber, ","));
 			
 			//Add right side operand
 			nodes.add(operatorNode.getRightSideOperand());
@@ -934,12 +938,13 @@ public final class LangParser {
 			String[] tokens = line.split("=", 2);
 			
 			//The translation value for empty simple translation will be set to empty text ""
-			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.TextValueNode(tokens[0]), parseSimpleAssignmentValue(tokens[1]).convertToNode());
+			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.TextValueNode(lineNumber, tokens[0]), parseSimpleAssignmentValue(tokens[1]).convertToNode());
 		}else if(LangPatterns.matches(line, LangPatterns.PARSING_SIMPLE_ASSIGNMENT)) {
 			String[] tokens = line.split("=", 2);
 			
 			//The assignment value for empty simple assignments will be set to empty text ""
-			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.UnprocessedVariableNameNode(tokens[0]), parseSimpleAssignmentValue(tokens[1]).convertToNode());
+			return new AbstractSyntaxTree.AssignmentNode(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, tokens[0]),
+					parseSimpleAssignmentValue(tokens[1]).convertToNode());
 		}
 		
 		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
@@ -1038,7 +1043,7 @@ public final class LangParser {
 				}
 				
 				if(operator == null)
-					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT);
+					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT);
 				else if(operator == AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON)
 					rvalueNode = parseCondition(tokens[1]);
 				else if(operator == AbstractSyntaxTree.OperationNode.Operator.MATH_NON)
@@ -1060,7 +1065,8 @@ public final class LangParser {
 			//Empty translation/assignment ("<var/translation key> =" or "$varName")
 			if(line.endsWith(" ="))
 				line = line.substring(0, line.length() - 2);
-			return new AbstractSyntaxTree.AssignmentNode((isVariableAssignment?parseLRvalue(line, null, false):parseTranslationKey(line)).convertToNode(), new AbstractSyntaxTree.NullValueNode());
+			return new AbstractSyntaxTree.AssignmentNode((isVariableAssignment?parseLRvalue(line, null, false):parseTranslationKey(line)).convertToNode(),
+					new AbstractSyntaxTree.NullValueNode(lineNumber));
 		}
 		
 		return null;
@@ -1084,16 +1090,17 @@ public final class LangParser {
 					int argumentsStartIndex = token.indexOf('(');
 					int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(token, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(argumentsEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for con.break or con.continue is missing"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket for con.break or con.continue is missing"));
 						return ast;
 					}
 					argumentNodes = parseFunctionParameterList(token.substring(argumentsStartIndex + 1, argumentsEndIndex), false).getChildren();
 				}
 				
 				AbstractSyntaxTree.Node numberNode = argumentNodes == null?null:(argumentNodes.size() == 1?argumentNodes.get(0):new AbstractSyntaxTree.ListNode(argumentNodes));
-				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, token.startsWith("con.continue")));
+				ast.addChild(new AbstractSyntaxTree.LoopStatementContinueBreakStatement(numberNode, lineNumber, token.startsWith("con.continue")));
 				return ast;
 			}else if(token.startsWith("con.try") || token.startsWith("con.softtry") || token.startsWith("con.nontry")) {
+				int tryStatementLineNumberFrom = lineNumber;
 				List<AbstractSyntaxTree.TryStatementPartNode> tryStatmentParts = new ArrayList<>();
 				
 				boolean blockBracketFlag = token.endsWith("{");
@@ -1105,12 +1112,12 @@ public final class LangParser {
 						//Remove "{" and "}" for the curly brackets if statement syntax
 						if(firstStatement) {
 							if(!tryStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							tryStatement = tryStatement.substring(0, tryStatement.length() - 1).trim();
 						}else if(!tryStatement.equals("}")) {
 							if(!tryStatement.startsWith("}") || !tryStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							tryStatement = tryStatement.substring(1, tryStatement.length() - 1).trim();
 							
@@ -1126,9 +1133,9 @@ public final class LangParser {
 						!tryStatement.equals("con.finally")) {
 							if(tryStatement.startsWith("con.try(") || tryStatement.startsWith("con.softtry(") || tryStatement.startsWith("con.nontry(") || tryStatement.startsWith("con.else(") ||
 							tryStatement.startsWith("con.finally("))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try/Softtry/Nontry/Finally/Else part with arguments"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Try/Softtry/Nontry/Finally/Else part with arguments"));
 							else
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							return ast;
 						}
 						
@@ -1140,50 +1147,53 @@ public final class LangParser {
 							int argumentsStartIndex = tryStatement.indexOf('(');
 							int argumentsEndIndex = LangUtils.getIndexOfMatchingBracket(tryStatement, argumentsStartIndex, Integer.MAX_VALUE, '(', ')');
 							if(argumentsEndIndex == -1) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Missing catch statement arguments"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Missing catch statement arguments"));
 								return ast;
 							}
 							if(argumentsEndIndex != tryStatement.length() - 1) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind arguments"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Trailing stuff behind arguments"));
 								return ast;
 							}
 							tryArguments = tryStatement.substring(argumentsStartIndex + 1, argumentsEndIndex);
 						}
 					}else {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Try statement part is invalid"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Try statement part is invalid"));
 						return ast;
 					}
 					
+					int lineNumberFrom = lineNumber;
 					AbstractSyntaxTree tryBody = parseLines(lines);
 					if(tryBody == null) {
-						nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In try body"));
+						nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts, tryStatementLineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "In try body"));
 						
 						return ast;
 					}
 					
 					if(tryStatement.startsWith("con.try")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody, lineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.softtry")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartSoftTryNode(tryBody));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartSoftTryNode(tryBody, lineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.nontry")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartNonTryNode(tryBody));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartNonTryNode(tryBody, lineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.catch")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, tryArguments == null?null:parseFunctionParameterList(tryArguments, false).getChildren()));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, lineNumberFrom, lineNumber,
+								tryArguments == null?null:parseFunctionParameterList(tryArguments, false).getChildren()));
 					}else if(tryStatement.startsWith("con.else")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartElseNode(tryBody));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartElseNode(tryBody, lineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.finally")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartFinallyNode(tryBody));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartFinallyNode(tryBody, lineNumberFrom, lineNumber));
 					}
 					
 					firstStatement = false;
 					tryStatement = currentLine;
 				}while(tryStatement != null && !(blockBracketFlag?tryStatement.equals("}"):tryStatement.equals("con.endtry")));
 				
-				nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts));
+				nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts, tryStatementLineNumberFrom, lineNumber));
 				return ast;
 			}else if(token.startsWith("con.loop") || token.startsWith("con.while") || token.startsWith("con.until") ||
 					token.startsWith("con.repeat") || token.startsWith("con.foreach")) {
+				int loopStatementLineNumberFrom = lineNumber;
 				List<AbstractSyntaxTree.LoopStatementPartNode> loopStatmentParts = new ArrayList<>();
 				
 				boolean blockBracketFlag = token.endsWith("{");
@@ -1195,12 +1205,12 @@ public final class LangParser {
 						//Remove "{" and "}" for the curly brackets loop statement syntax
 						if(firstStatement) {
 							if(!loopStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							loopStatement = loopStatement.substring(0, loopStatement.length() - 1).trim();
 						}else if(!loopStatement.equals("}")) {
 							if(!loopStatement.startsWith("}") || !loopStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							loopStatement = loopStatement.substring(1, loopStatement.length() - 1).trim();
 							
@@ -1213,54 +1223,55 @@ public final class LangParser {
 					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
 						if(!loopStatement.equals("con.else") && !loopStatement.equals("con.loop")) {
 							if(loopStatement.startsWith("con.else(") || loopStatement.startsWith("con.loop("))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else/Loop part with condition"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Else/Loop part with condition"));
 							else
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							return ast;
 						}
 						
 						loopCondition = null;
 					}else if(!loopStatement.contains("(") || !loopStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONT_FLOW_ARG_MISSING, "Missing loop statement arguments"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.CONT_FLOW_ARG_MISSING, "Missing loop statement arguments"));
 						return ast;
 					}else if(loopStatement.startsWith("con.while(") || loopStatement.startsWith("con.until(") ||
 							loopStatement.startsWith("con.repeat(") || loopStatement.startsWith("con.foreach(")) {
 						int conditionStartIndex = loopStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(loopStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket for loop statement is missing"));
 							return ast;
 						}
 						if(conditionEndIndex != loopStatement.length() - 1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
 							return ast;
 						}
 						loopCondition = loopStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}else {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Loop statement part is invalid"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Loop statement part is invalid"));
 						return ast;
 					}
 					
+					int lineNumberFrom = lineNumber;
 					AbstractSyntaxTree loopBody = parseLines(lines);
 					if(loopBody == null) {
-						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In loop body"));
+						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts, loopStatementLineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "In loop body"));
 						
 						return ast;
 					}
 					
 					if(loopStatement.startsWith("con.else")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartElseNode(loopBody));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartElseNode(loopBody, lineNumberFrom, lineNumber));
 					}else if(loopStatement.startsWith("con.loop")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody, lineNumberFrom, lineNumber));
 					}else if(loopStatement.startsWith("con.while")) {
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, conNonNode));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, lineNumberFrom, lineNumber, conNonNode));
 					}else if(loopStatement.startsWith("con.until")) {
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, conNonNode));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, lineNumberFrom, lineNumber, conNonNode));
 					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
 						List<AbstractSyntaxTree.Node> arguments = convertCommaOperatorsToArgumentSeparators(parseOperationExpr(loopCondition));
 						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
@@ -1278,7 +1289,7 @@ public final class LangParser {
 							varPointerNode = node;
 						}
 						if(!flag) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 							return ast;
 						}
 						
@@ -1287,7 +1298,7 @@ public final class LangParser {
 							AbstractSyntaxTree.Node node = argumentIter.next();
 							
 							if(node.getNodeType() == AbstractSyntaxTree.NodeType.ARGUMENT_SEPARATOR) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 								return ast;
 							}
 							
@@ -1297,19 +1308,22 @@ public final class LangParser {
 						AbstractSyntaxTree.Node repeatCountOrArrayOrTextNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
 						
 						if(loopStatement.startsWith("con.repeat"))
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, varPointerNode, repeatCountOrArrayOrTextNode));
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, lineNumberFrom, lineNumber,
+									varPointerNode, repeatCountOrArrayOrTextNode));
 						else
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, varPointerNode, repeatCountOrArrayOrTextNode));
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, lineNumberFrom, lineNumber,
+									varPointerNode, repeatCountOrArrayOrTextNode));
 					}
 					
 					firstStatement = false;
 					loopStatement = currentLine;
 				}while(loopStatement != null && !(blockBracketFlag?loopStatement.equals("}"):loopStatement.equals("con.endloop")));
 				
-				nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts));
+				nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts, loopStatementLineNumberFrom, lineNumber));
 				
 				return ast;
 			}else if(token.startsWith("con.if")) {
+				int ifStatementLineNumberFrom = lineNumber;
 				List<AbstractSyntaxTree.IfStatementPartNode> ifStatmentParts = new ArrayList<>();
 				
 				boolean blockBracketFlag = token.endsWith("{");
@@ -1321,12 +1335,12 @@ public final class LangParser {
 						//Remove "{" and "}" for the curly brackets if statement syntax
 						if(firstStatement) {
 							if(!ifStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							ifStatement = ifStatement.substring(0, ifStatement.length() - 1).trim();
 						}else if(!ifStatement.equals("}")) {
 							if(!ifStatement.startsWith("}") || !ifStatement.endsWith("{"))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							
 							ifStatement = ifStatement.substring(1, ifStatement.length() - 1).trim();
 							
@@ -1339,55 +1353,56 @@ public final class LangParser {
 					if(ifStatement.startsWith("con.else")) {
 						if(!ifStatement.equals("con.else")) {
 							if(ifStatement.startsWith("con.else("))
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Else part with condition"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Else part with condition"));
 							else
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART));
 							return ast;
 						}
 						
 						ifCondition = null;
 					}else if(!ifStatement.contains("(") || !ifStatement.contains(")")) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.CONT_FLOW_ARG_MISSING, "Missing if statement condition"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.CONT_FLOW_ARG_MISSING, "Missing if statement condition"));
 						
 						ifCondition = null;
 					}else if(ifStatement.startsWith("con.if(") || ifStatement.startsWith("con.elif(")) {
 						int conditionStartIndex = ifStatement.indexOf('(');
 						int conditionEndIndex = LangUtils.getIndexOfMatchingBracket(ifStatement, conditionStartIndex, Integer.MAX_VALUE, '(', ')');
 						if(conditionEndIndex == -1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Missing if statement condition"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Missing if statement condition"));
 							return ast;
 						}
 						if(conditionEndIndex != ifStatement.length() - 1) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "Trailing stuff behind condition"));
 							return ast;
 						}
 						ifCondition = ifStatement.substring(conditionStartIndex + 1, conditionEndIndex);
 					}else {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_CON_PART, "If statement part is invalid"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "If statement part is invalid"));
 						return ast;
 					}
 					
+					int lineNumberFrom = lineNumber;
 					AbstractSyntaxTree ifBody = parseLines(lines);
 					if(ifBody == null) {
-						nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts));
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "In if body"));
+						nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts, ifStatementLineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "In if body"));
 						
 						return ast;
 					}
 					if(ifCondition == null) {
-						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartElseNode(ifBody));
+						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartElseNode(ifBody, lineNumberFrom, lineNumber));
 					}else {
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(ifCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
 						
-						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, conNonNode));
+						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, lineNumberFrom, lineNumber, conNonNode));
 					}
 					
 					firstStatement = false;
 					ifStatement = currentLine;
 				}while(ifStatement != null && !(blockBracketFlag?ifStatement.equals("}"):ifStatement.equals("con.endif")));
 				
-				nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts));
+				nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts, ifStatementLineNumberFrom, lineNumber));
 				
 				return ast;
 			}else if(!originalToken.startsWith("con.")) {
@@ -1401,7 +1416,7 @@ public final class LangParser {
 		if(token.startsWith("return")) {
 			//Return without value
 			if(token.equals("return")) {
-				nodes.add(new AbstractSyntaxTree.ReturnNode());
+				nodes.add(new AbstractSyntaxTree.ReturnNode(lineNumber));
 				
 				return ast;
 			}
@@ -1454,7 +1469,7 @@ public final class LangParser {
 				if(translationKey.length() == 1)
 					break;
 				
-				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(translationKey.charAt(1)));
+				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, translationKey.charAt(1)));
 				
 				if(translationKey.length() < 3)
 					break;
@@ -1470,7 +1485,7 @@ public final class LangParser {
 				int parameterStartIndex = translationKey.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(translationKey, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
 					return ast;
 				}
 				
@@ -1527,13 +1542,13 @@ public final class LangParser {
 		
 		//Vars
 		if(LangPatterns.matches(token, LangPatterns.VAR_NAME_NORMAL)) {
-			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(token));
+			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, token));
 			
 			return;
 		}
 		
 		//TEXT
-		nodes.add(new AbstractSyntaxTree.TextValueNode(token));
+		nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, token));
 	}
 	private AbstractSyntaxTree parseLRvalue(String lrvalue, BufferedReader lines, boolean isRvalue) throws IOException {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
@@ -1546,7 +1561,7 @@ public final class LangParser {
 					
 					int parameterListEndIndex = LangUtils.getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterListEndIndex < 1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function definition"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in function definition"));
 						
 						return ast;
 					}
@@ -1568,11 +1583,12 @@ public final class LangParser {
 				}else if(LangPatterns.matches(lrvalue, LangPatterns.VAR_NAME_FUNC_PTR_WITH_FUNCS)) {
 					//Function pointer copying
 					
-					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lrvalue));
+					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, lrvalue));
 					return ast;
 				}else if(lrvalue.trim().equals("{")) { 
 					//Struct definition
 					
+					int lineNumberFrom = lineNumber;
 					List<String> memberNames = new LinkedList<>();
 					List<String> typeConstraints = new LinkedList<>();
 					boolean hasEndBrace = false;
@@ -1603,7 +1619,7 @@ public final class LangParser {
 							line = line.substring(0, braceIndex);
 							
 							if(!LangPatterns.matches(rawTypeConstraint, LangPatterns.TYPE_CONSTRAINT)) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid type constraint: \"" + rawTypeConstraint + "\""));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT, "Invalid type constraint: \"" + rawTypeConstraint + "\""));
 								
 								return ast;
 							}
@@ -1612,13 +1628,13 @@ public final class LangParser {
 						}
 						
 						if(!LangPatterns.matches(line, LangPatterns.VAR_NAME_WITHOUT_PREFIX)) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT, "Invalid struct member name: \"" + line + "\""));
 							
 							return ast;
 						}
 						
 						if(memberNames.contains(line)) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.INVALID_ASSIGNMENT, "Duplicated struct member name: \"" + line + "\""));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT, "Duplicated struct member name: \"" + line + "\""));
 							
 							return ast;
 						}
@@ -1628,12 +1644,12 @@ public final class LangParser {
 					}
 					
 					if(!hasEndBrace) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "\"}\" is missing in struct definition"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "\"}\" is missing in struct definition"));
 						
 						return ast;
 					}
 					
-					nodes.add(new AbstractSyntaxTree.StructDefinitionNode(memberNames, typeConstraints));
+					nodes.add(new AbstractSyntaxTree.StructDefinitionNode(lineNumberFrom, lineNumber, memberNames, typeConstraints));
 					
 					return ast;
 				}
@@ -1658,7 +1674,7 @@ public final class LangParser {
 				if(token.length() == 1)
 					break;
 				
-				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(token.charAt(1)));
+				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, token.charAt(1)));
 				
 				if(token.length() < 3)
 					break;
@@ -1674,7 +1690,7 @@ public final class LangParser {
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
 					return ast;
 				}
 				
@@ -1717,7 +1733,7 @@ public final class LangParser {
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
 					return ast;
 				}
 				
@@ -1744,13 +1760,13 @@ public final class LangParser {
 				
 				int endIndex = LangUtils.getIndexOfMatchingBracket(token, token.indexOf('$') + 1, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
-					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in variable pointer"));
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in variable pointer"));
 					return ast;
 				}
 				String varPtr = token.substring(0, endIndex + 1);
 				token = token.substring(endIndex + 1);
 				
-				nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(varPtr));
+				nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, varPtr));
 				continue;
 			}
 			
@@ -1791,14 +1807,14 @@ public final class LangParser {
 			//Unescaping
 			if(translationValue.startsWith("\\")) {
 				if(builder.length() > 0) {
-					nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
+					nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, builder.toString()));
 					builder.delete(0, builder.length());
 				}
 				
 				if(translationValue.length() == 1)
 					break;
 				
-				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(translationValue.charAt(1)));
+				nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, translationValue.charAt(1)));
 				
 				if(translationValue.length() < 3)
 					break;
@@ -1815,7 +1831,7 @@ public final class LangParser {
 			}
 		}
 		
-		nodes.add(new AbstractSyntaxTree.TextValueNode(builder.toString()));
+		nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, builder.toString()));
 		
 		return ast;
 	}
@@ -1829,7 +1845,7 @@ public final class LangParser {
 		
 		//Vars & FuncPtrs
 		if(LangPatterns.matches(token, LangPatterns.VAR_NAME_FULL_WITH_FUNCS)) {
-			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(token));
+			nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, token));
 			
 			return;
 		}
@@ -1837,7 +1853,7 @@ public final class LangParser {
 		if(!LangPatterns.matches(token, LangPatterns.PARSING_LEADING_OR_TRAILING_WHITSPACE) && !LangPatterns.matches(token, LangPatterns.PARSING_INVALID_FLOATING_POINT_NUMBER)) {
 			//INT
 			try {
-				nodes.add(new AbstractSyntaxTree.IntValueNode(Integer.parseInt(token)));
+				nodes.add(new AbstractSyntaxTree.IntValueNode(lineNumber, Integer.parseInt(token)));
 				
 				return;
 			}catch(NumberFormatException ignore) {}
@@ -1845,9 +1861,9 @@ public final class LangParser {
 			//LONG
 			try {
 				if(token.endsWith("l") || token.endsWith("L"))
-					nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token.substring(0, token.length() - 1))));
+					nodes.add(new AbstractSyntaxTree.LongValueNode(lineNumber, Long.parseLong(token.substring(0, token.length() - 1))));
 				else
-					nodes.add(new AbstractSyntaxTree.LongValueNode(Long.parseLong(token)));
+					nodes.add(new AbstractSyntaxTree.LongValueNode(lineNumber, Long.parseLong(token)));
 				
 				
 				return;
@@ -1856,7 +1872,7 @@ public final class LangParser {
 			//FLOAT
 			if(token.endsWith("f") || token.endsWith("F")) {
 				try {
-					nodes.add(new AbstractSyntaxTree.FloatValueNode(Float.parseFloat(token.substring(0, token.length() - 1))));
+					nodes.add(new AbstractSyntaxTree.FloatValueNode(lineNumber, Float.parseFloat(token.substring(0, token.length() - 1))));
 					
 					return;
 				}catch(NumberFormatException ignore) {}
@@ -1864,7 +1880,7 @@ public final class LangParser {
 			
 			//DOUBLE
 			try {
-				nodes.add(new AbstractSyntaxTree.DoubleValueNode(Double.parseDouble(token)));
+				nodes.add(new AbstractSyntaxTree.DoubleValueNode(lineNumber, Double.parseDouble(token)));
 				
 				return;
 			}catch(NumberFormatException ignore) {}
@@ -1872,20 +1888,20 @@ public final class LangParser {
 		
 		//CHAR
 		if(token.length() == 1) {
-			nodes.add(new AbstractSyntaxTree.CharValueNode(token.charAt(0)));
+			nodes.add(new AbstractSyntaxTree.CharValueNode(lineNumber, token.charAt(0)));
 			
 			return;
 		}
 		
 		//NULL
 		if(token.equals("null")) {
-			nodes.add(new AbstractSyntaxTree.NullValueNode());
+			nodes.add(new AbstractSyntaxTree.NullValueNode(lineNumber));
 			
 			return;
 		}
 		
 		//TEXT
-		nodes.add(new AbstractSyntaxTree.TextValueNode(token));
+		nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, token));
 	}
 	
 	private AbstractSyntaxTree parseFunctionParameterList(String parameterList, boolean functionDefinition) throws IOException {
@@ -1897,7 +1913,7 @@ public final class LangParser {
 			
 			for(String token:tokens)
 				if(!token.isEmpty())
-					nodes.add(new AbstractSyntaxTree.VariableNameNode(token.trim()));
+					nodes.add(new AbstractSyntaxTree.VariableNameNode(lineNumber, token.trim()));
 		}else {
 			StringBuilder builder = new StringBuilder();
 			boolean hasNodesFlag = false;
@@ -1913,7 +1929,7 @@ public final class LangParser {
 					if(parameterList.length() == 1)
 						break;
 					
-					nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(parameterList.charAt(1)));
+					nodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, parameterList.charAt(1)));
 					hasNodesFlag = true;
 					
 					if(parameterList.length() < 3)
@@ -1930,7 +1946,7 @@ public final class LangParser {
 					int parameterStartIndex = parameterList.indexOf('(');
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in function call"));
 						return ast;
 					}
 					
@@ -1976,7 +1992,7 @@ public final class LangParser {
 					int parameterStartIndex = parameterList.indexOf('(');
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex == -1) {
-						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket is missing in parser function call"));
 						return ast;
 					}
 					
@@ -2005,7 +2021,7 @@ public final class LangParser {
 						if(nodes.size() == 0 || nodes.get(nodes.size() - 1) instanceof AbstractSyntaxTree.ArgumentSeparatorNode) {
 							//Add empty TextObject in between two ","
 							if(!hasNodesFlag)
-								nodes.add(new AbstractSyntaxTree.TextValueNode(""));
+								nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, ""));
 						}
 					}else {
 						nodes.add(parseToken(builder.toString(), null).convertToNode());
@@ -2020,20 +2036,20 @@ public final class LangParser {
 						if(parameterList.length() > 1) {
 							parameterList = parameterList.substring(1);
 						}else {
-							nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(builder.toString()));
+							nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(lineNumber, builder.toString()));
 							
 							//Add empty TextObject after last ","
-							nodes.add(new AbstractSyntaxTree.TextValueNode(""));
+							nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, ""));
 							
 							break loop;
 						}
 					}
 					
-					nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(builder.toString()));
+					nodes.add(new AbstractSyntaxTree.ArgumentSeparatorNode(lineNumber, builder.toString()));
 					builder.delete(0, builder.length());
 					if(parameterList.length() == 0) {
 						//Add empty TextObject after last ","
-						nodes.add(new AbstractSyntaxTree.TextValueNode(""));
+						nodes.add(new AbstractSyntaxTree.TextValueNode(lineNumber, ""));
 						
 						break;
 					}
@@ -2051,7 +2067,7 @@ public final class LangParser {
 						String varPtr = parameterList.substring(0, endIndex + 1);
 						parameterList = parameterList.substring(endIndex + 1);
 						
-						nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(varPtr));
+						nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, varPtr));
 						hasNodesFlag = true;
 						continue;
 					}
@@ -2065,7 +2081,7 @@ public final class LangParser {
 					String varName = parameterList.substring(0, index);
 					parameterList = parameterList.substring(index);
 					
-					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(varName));
+					nodes.add(new AbstractSyntaxTree.UnprocessedVariableNameNode(lineNumber, varName));
 					hasNodesFlag = true;
 					continue;
 				}
@@ -2229,13 +2245,13 @@ public final class LangParser {
 					String lineTmpString;
 					while(true) {
 						if(!lines.ready()) {
-							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
+							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Multiline Text end is missing"));
 							return null;
 						}
 						
 						lineTmpString = nextLine(lines);
 						if(lineTmpString == null) {
-							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Multiline Text end is missing"));
+							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Multiline Text end is missing"));
 							return null;
 						}
 						lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
@@ -2255,12 +2271,12 @@ public final class LangParser {
 				line = line.substring(0, line.length() - 1);
 				
 				if(!lines.ready()) {
-					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
+					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Line continuation has no second line"));
 					return null;
 				}
 				String lineTmpString = nextLine(lines);
 				if(lineTmpString == null) {
-					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(ParsingError.EOF, "Line continuation has no second line"));
+					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Line continuation has no second line"));
 					return null;
 				}
 				lineTmpString = maskEscapedMultilineStringStartSequences(lineTmpString);
