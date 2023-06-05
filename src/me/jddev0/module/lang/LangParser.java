@@ -788,6 +788,8 @@ public final class LangParser {
 					whitespaces.delete(0, whitespaces.length());
 				}
 				
+				int lineNumberFrom = lineNumber;
+				
 				String modulePrefix = "";
 				if(LangPatterns.matches(builder.toString(), LangPatterns.PARSING_ENDS_WITH_MODULE_VAR_IDENTIFIER)) {
 					String builderStr = builder.toString();
@@ -817,7 +819,7 @@ public final class LangParser {
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
 				leftNodes.add(new AbstractSyntaxTree.FunctionCallNode(convertCommaOperatorsToArgumentSeparators(
-						parseOperationExpr(functionParameterList, type)), functionName));
+						parseOperationExpr(functionParameterList, type)), lineNumberFrom, lineNumber, functionName));
 				continue;
 			}
 			
@@ -1126,6 +1128,7 @@ public final class LangParser {
 						}
 					}
 					
+					int tryArgumentsLineNumberFrom = lineNumber;
 					String tryArguments;
 					if(tryStatement.startsWith("con.try") || tryStatement.startsWith("con.softtry") || tryStatement.startsWith("con.nontry") || tryStatement.startsWith("con.else") ||
 					tryStatement.startsWith("con.finally")) {
@@ -1161,7 +1164,7 @@ public final class LangParser {
 						return ast;
 					}
 					
-					int lineNumberFrom = lineNumber;
+					//TODO Fix and use: int tryArgumentsLineNumberTo = lineNumber;
 					AbstractSyntaxTree tryBody = parseLines(lines);
 					if(tryBody == null) {
 						nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts, tryStatementLineNumberFrom, lineNumber));
@@ -1171,18 +1174,21 @@ public final class LangParser {
 					}
 					
 					if(tryStatement.startsWith("con.try")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody, lineNumberFrom, lineNumber));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartTryNode(tryBody, tryArgumentsLineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.softtry")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartSoftTryNode(tryBody, lineNumberFrom, lineNumber));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartSoftTryNode(tryBody, tryArgumentsLineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.nontry")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartNonTryNode(tryBody, lineNumberFrom, lineNumber));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartNonTryNode(tryBody, tryArgumentsLineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.catch")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, lineNumberFrom, lineNumber,
+						int originalLineNumber = lineNumber;
+						lineNumber = tryArgumentsLineNumberFrom;
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartCatchNode(tryBody, tryArgumentsLineNumberFrom, originalLineNumber,
 								tryArguments == null?null:parseFunctionParameterList(tryArguments, false).getChildren()));
+						lineNumber = originalLineNumber;
 					}else if(tryStatement.startsWith("con.else")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartElseNode(tryBody, lineNumberFrom, lineNumber));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartElseNode(tryBody, tryArgumentsLineNumberFrom, lineNumber));
 					}else if(tryStatement.startsWith("con.finally")) {
-						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartFinallyNode(tryBody, lineNumberFrom, lineNumber));
+						tryStatmentParts.add(new AbstractSyntaxTree.TryStatementPartFinallyNode(tryBody, tryArgumentsLineNumberFrom, lineNumber));
 					}
 					
 					firstStatement = false;
@@ -1219,6 +1225,7 @@ public final class LangParser {
 						}
 					}
 					
+					int loopConditionLineNumberFrom = lineNumber;
 					String loopCondition = null;
 					if(loopStatement.startsWith("con.else") || loopStatement.startsWith("con.loop")) {
 						if(!loopStatement.equals("con.else") && !loopStatement.equals("con.loop")) {
@@ -1251,7 +1258,7 @@ public final class LangParser {
 						return ast;
 					}
 					
-					int lineNumberFrom = lineNumber;
+					//TODO Fix and use: int loopConditionLineNumberTo = lineNumber;
 					AbstractSyntaxTree loopBody = parseLines(lines);
 					if(loopBody == null) {
 						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts, loopStatementLineNumberFrom, lineNumber));
@@ -1261,20 +1268,29 @@ public final class LangParser {
 					}
 					
 					if(loopStatement.startsWith("con.else")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartElseNode(loopBody, lineNumberFrom, lineNumber));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartElseNode(loopBody, loopConditionLineNumberFrom, lineNumber));
 					}else if(loopStatement.startsWith("con.loop")) {
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody, lineNumberFrom, lineNumber));
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartLoopNode(loopBody, loopConditionLineNumberFrom, lineNumber));
 					}else if(loopStatement.startsWith("con.while")) {
+						int originalLineNumber = lineNumber;
+						lineNumber = loopConditionLineNumberFrom;
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, lineNumberFrom, lineNumber, conNonNode));
+						lineNumber = originalLineNumber;
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartWhileNode(loopBody, loopConditionLineNumberFrom, lineNumber, conNonNode));
 					}else if(loopStatement.startsWith("con.until")) {
+						int originalLineNumber = lineNumber;
+						lineNumber = loopConditionLineNumberFrom;
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(loopCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
-						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, lineNumberFrom, lineNumber, conNonNode));
+						lineNumber = originalLineNumber;
+						loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartUntilNode(loopBody, loopConditionLineNumberFrom, lineNumber, conNonNode));
 					}else if(loopStatement.startsWith("con.repeat") || loopStatement.startsWith("con.foreach")) {
+						int originalLineNumber = lineNumber;
+						lineNumber = loopConditionLineNumberFrom;
 						List<AbstractSyntaxTree.Node> arguments = convertCommaOperatorsToArgumentSeparators(parseOperationExpr(loopCondition));
 						Iterator<AbstractSyntaxTree.Node> argumentIter = arguments.iterator();
+						lineNumber = originalLineNumber;
 						
 						AbstractSyntaxTree.Node varPointerNode = null;
 						boolean flag = false;
@@ -1289,7 +1305,7 @@ public final class LangParser {
 							varPointerNode = node;
 						}
 						if(!flag) {
-							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(loopConditionLineNumberFrom, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 							return ast;
 						}
 						
@@ -1298,7 +1314,7 @@ public final class LangParser {
 							AbstractSyntaxTree.Node node = argumentIter.next();
 							
 							if(node.getNodeType() == AbstractSyntaxTree.NodeType.ARGUMENT_SEPARATOR) {
-								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
+								nodes.add(new AbstractSyntaxTree.ParsingErrorNode(loopConditionLineNumberFrom, ParsingError.INVALID_CON_PART, "con.repeat or con.foreach arguments are invalid"));
 								return ast;
 							}
 							
@@ -1308,10 +1324,10 @@ public final class LangParser {
 						AbstractSyntaxTree.Node repeatCountOrArrayOrTextNode = repeatCountArgument.size() == 1?repeatCountArgument.get(0):new AbstractSyntaxTree.ListNode(repeatCountArgument);
 						
 						if(loopStatement.startsWith("con.repeat"))
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, lineNumberFrom, lineNumber,
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartRepeatNode(loopBody, loopConditionLineNumberFrom, lineNumber,
 									varPointerNode, repeatCountOrArrayOrTextNode));
 						else
-							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, lineNumberFrom, lineNumber,
+							loopStatmentParts.add(new AbstractSyntaxTree.LoopStatementPartForEachNode(loopBody, loopConditionLineNumberFrom, lineNumber,
 									varPointerNode, repeatCountOrArrayOrTextNode));
 					}
 					
@@ -1349,6 +1365,7 @@ public final class LangParser {
 						}
 					}
 					
+					int ifConditionLineNumberFrom = lineNumber;
 					String ifCondition;
 					if(ifStatement.startsWith("con.else")) {
 						if(!ifStatement.equals("con.else")) {
@@ -1381,7 +1398,7 @@ public final class LangParser {
 						return ast;
 					}
 					
-					int lineNumberFrom = lineNumber;
+					//TODO Fix and use: int ifConditionLineNumberTo = lineNumber;
 					AbstractSyntaxTree ifBody = parseLines(lines);
 					if(ifBody == null) {
 						nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts, ifStatementLineNumberFrom, lineNumber));
@@ -1390,12 +1407,15 @@ public final class LangParser {
 						return ast;
 					}
 					if(ifCondition == null) {
-						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartElseNode(ifBody, lineNumberFrom, lineNumber));
+						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartElseNode(ifBody, ifConditionLineNumberFrom, lineNumber));
 					}else {
+						int originalLineNumber = lineNumber;
+						lineNumber = ifConditionLineNumberFrom;
 						AbstractSyntaxTree.OperationNode conNonNode = new AbstractSyntaxTree.OperationNode(parseOperationExpr(ifCondition),
 						AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
+						lineNumber = originalLineNumber;
 						
-						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, lineNumberFrom, lineNumber, conNonNode));
+						ifStatmentParts.add(new AbstractSyntaxTree.IfStatementPartIfNode(ifBody, ifConditionLineNumberFrom, lineNumber, conNonNode));
 					}
 					
 					firstStatement = false;
@@ -1566,16 +1586,19 @@ public final class LangParser {
 						return ast;
 					}
 					
+					int lineNumberFrom = lineNumber;
+					
 					String functionHead = lrvalue.substring(1, parameterListEndIndex);
 					List<AbstractSyntaxTree.Node> parameterList = parseFunctionParameterList(functionHead, true).getChildren();
 					
 					String functionBody = lrvalue.substring(parameterListEndIndex + 5);
 					
 					if(lrvalue.endsWith("{")) {
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines)));
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines), lineNumberFrom, lineNumber));
 					}else {
+						lineNumber--; //LineNumber will be increased in the "parseLines()" call
 						try(BufferedReader reader = new BufferedReader(new StringReader(functionBody))) {
-							nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(reader)));
+							nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(reader), lineNumberFrom, lineNumber));
 						}
 					}
 					
@@ -1687,6 +1710,8 @@ public final class LangParser {
 			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL)) {
 				clearAndParseStringBuilder(builder, nodes);
 				
+				int lineNumberFrom = lineNumber;
+				
 				int parameterStartIndex = token.indexOf('(');
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex == -1) {
@@ -1700,13 +1725,15 @@ public final class LangParser {
 				String functionName = functionCall.substring(0, parameterStartIndex);
 				String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 				
-				nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+				nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), lineNumberFrom, lineNumber, functionName));
 				continue;
 			}
 			
 			//Function call of previous value
 			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE)) {
 				clearAndParseStringBuilder(builder, nodes);
+				
+				int lineNumberFrom = lineNumber;
 				
 				int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
 				if(parameterEndIndex != -1) {
@@ -1721,7 +1748,7 @@ public final class LangParser {
 					String trailingWhitespace = functionParameterList.substring(tmp.length() + leadingWhitespaceCount, functionParameterList.length());
 					
 					nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(leadingWhitespace, trailingWhitespace, parseFunctionParameterList(functionParameterList, false).
-							getChildren()));
+							getChildren(), lineNumberFrom, lineNumber));
 					continue;
 				}
 			}
@@ -1943,6 +1970,8 @@ public final class LangParser {
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL)) {
 					clearAndParseStringBuilder(builder, nodes);
 					
+					int lineNumberFrom = lineNumber;
+					
 					int parameterStartIndex = parameterList.indexOf('(');
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, parameterStartIndex, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex == -1) {
@@ -1956,7 +1985,7 @@ public final class LangParser {
 					String functionName = functionCall.substring(0, parameterStartIndex);
 					String functionParameterList = functionCall.substring(parameterStartIndex + 1, functionCall.length() - 1);
 					
-					nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), functionName));
+					nodes.add(new AbstractSyntaxTree.FunctionCallNode(parseFunctionParameterList(functionParameterList, false).getChildren(), lineNumberFrom, lineNumber, functionName));
 					
 					hasNodesFlag = true;
 					continue;
@@ -1964,6 +1993,8 @@ public final class LangParser {
 				//Function call of previous value
 				if(LangPatterns.matches(parameterList, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_PREVIOUS_VALUE)) {
 					clearAndParseStringBuilder(builder, nodes);
+					
+					int lineNumberFrom = lineNumber;
 					
 					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(parameterList, 0, Integer.MAX_VALUE, '(', ')');
 					if(parameterEndIndex != -1) {
@@ -1978,7 +2009,7 @@ public final class LangParser {
 						String trailingWhitespace = functionParameterList.substring(tmp.length() + leadingWhitespaceCount, functionParameterList.length());
 						
 						nodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode(leadingWhitespace, trailingWhitespace, parseFunctionParameterList(functionParameterList, false).
-								getChildren()));
+								getChildren(), lineNumberFrom, lineNumber));
 						
 						hasNodesFlag = true;
 						continue;

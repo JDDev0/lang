@@ -313,7 +313,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			this.lineNumberTo = lineNumberTo;
 		}
 		public AssignmentNode(Node lvalue, Node rvalue) {
-			this(lvalue, rvalue, lvalue.getLineNumberFrom(), lvalue.getLineNumberTo());
+			this(lvalue, rvalue, lvalue.getLineNumberFrom(), rvalue.getLineNumberTo());
 		}
 		
 		@Override
@@ -637,10 +637,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			this.functionName = functionName;
 		}
-		public FunctionCallNode(List<Node> argumentList, String functionName) {
-			this(argumentList, argumentList.isEmpty()?-1:argumentList.get(0).getLineNumberFrom(),
-					argumentList.isEmpty()?-1:argumentList.get(argumentList.size() - 1).getLineNumberTo(), functionName);
-		}
 		
 		@Override
 		public List<Node> getChildren() {
@@ -723,10 +719,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			this.argumentList = new ArrayList<>(argumentList);
 			this.lineNumberFrom = lineNumberFrom;
 			this.lineNumberTo = lineNumberTo;
-		}
-		public FunctionCallPreviousNodeValueNode(String leadingWhitespace, String trailingWhitespace, List<Node> argumentList) {
-			this(leadingWhitespace, trailingWhitespace, argumentList, argumentList.isEmpty()?-1:argumentList.get(0).getLineNumberFrom(),
-					argumentList.isEmpty()?-1:argumentList.get(argumentList.size() - 1).getLineNumberTo());
 		}
 		
 		public String getLeadingWhitespace() {
@@ -815,10 +807,6 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			this.functionBody = functionBody;
 			this.lineNumberFrom = lineNumberFrom;
 			this.lineNumberTo = lineNumberTo;
-		}
-		public FunctionDefinitionNode(List<Node> parameterList, AbstractSyntaxTree functionBody) {
-			this(parameterList, functionBody, parameterList.isEmpty()?-1:parameterList.get(0).getLineNumberFrom(),
-					functionBody.getLineNumberTo());
 		}
 		
 		@Override
