@@ -1020,11 +1020,13 @@ public final class LangInterpreter {
 		savedExecutionState.stopExecutionFlag = executionState.stopExecutionFlag;
 		savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
 		savedExecutionState.isThrownValue = executionState.isThrownValue;
+		savedExecutionState.throwStatementLineNumber = executionState.throwStatementLineNumber;
 		savedExecutionState.breakContinueCount = executionState.breakContinueCount;
 		savedExecutionState.isContinueStatement = executionState.isContinueStatement;
 		executionState.stopExecutionFlag = false;
 		executionState.returnedOrThrownValue = null;
 		executionState.isThrownValue = false;
+		executionState.throwStatementLineNumber = -1;
 		executionState.breakContinueCount = 0;
 		executionState.isContinueStatement = false;
 	}
@@ -1110,6 +1112,7 @@ public final class LangInterpreter {
 			executionState.stopExecutionFlag = savedExecutionState.stopExecutionFlag;
 			executionState.returnedOrThrownValue = savedExecutionState.returnedOrThrownValue;
 			executionState.isThrownValue = savedExecutionState.isThrownValue;
+			executionState.throwStatementLineNumber = savedExecutionState.throwStatementLineNumber;
 			executionState.breakContinueCount = savedExecutionState.breakContinueCount;
 			executionState.isContinueStatement = savedExecutionState.isContinueStatement;
 		}
@@ -1571,6 +1574,7 @@ public final class LangInterpreter {
 		else
 			executionState.returnedOrThrownValue = errorObject;
 		executionState.isThrownValue = true;
+		executionState.throwStatementLineNumber = node.getLineNumberFrom();
 		executionState.stopExecutionFlag = true;
 		
 		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0 && (!executionState.isSoftTry || executionState.tryBodyScopeID == SCOPE_ID)) {
@@ -2036,7 +2040,8 @@ public final class LangInterpreter {
 		executionState.returnedOrThrownValue = null;
 		
 		if(executionState.isThrownValue && SCOPE_ID > -1)
-			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(), SCOPE_ID);
+			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(),
+					executionState.throwStatementLineNumber, SCOPE_ID);
 		
 		if(executionFlags.langTest && SCOPE_ID == langTestExpectedReturnValueScopeID) {
 			if(langTestExpectedThrowValue != null) {
@@ -3473,6 +3478,7 @@ public final class LangInterpreter {
 		//Fields for return statements
 		private DataObject returnedOrThrownValue;
 		private boolean isThrownValue;
+		private int throwStatementLineNumber = -1;
 		
 		//Fields for continue & break statements
 		/**
@@ -3743,6 +3749,9 @@ public final class LangInterpreter {
 		 */
 		public boolean isReturnedValueThrowValue() {
 			return interpreter.executionState.isThrownValue;
+		}
+		public int getThrowStatementLineNumber() {
+			return interpreter.executionState.throwStatementLineNumber;
 		}
 		public DataObject getAndResetReturnValue() {
 			return interpreter.getAndResetReturnValue(-1);
