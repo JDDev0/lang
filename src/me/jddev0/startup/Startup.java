@@ -95,15 +95,15 @@ public class Startup {
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		is4k = dim.height > 1440;
 		
-		boolean noLog = false;
-		if(args.length > 0 && args[0].equals("-nolog")) {
+		boolean log = false;
+		if(args.length > 0 && args[0].equals("-log")) {
 			args = Arrays.copyOfRange(args, 1, args.length);
 			
-			noLog = true;
+			log = true;
 		}
 		
 		TerminalWindow termWin = new TerminalWindow(getFontSize());
-		TerminalIO term = new TerminalIO(noLog?null:new File("log.txt"));
+		TerminalIO term = new TerminalIO(log?new File("log.txt"):null);
 		term.addCommand("executeLang", input -> {
 			if(input.length < 1) {
 				term.logf(Level.ERROR, "To few arguments: %d/1+!\n", Startup.class, input.length);
@@ -248,7 +248,7 @@ public class Startup {
 		System.out.println("================================");
 		System.out.println("Interprets Lang code & files");
 		System.out.println();
-		System.out.println("Usage: lang COMMAND [ARGs]... | lang -nolog COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
+		System.out.println("Usage: lang COMMAND [ARGs]... | lang -log COMMAND [ARGs]... | lang -e CODE [EXECUTION_ARGs]... [LANG_ARGs]... | lang FILE [EXECUTION_ARGs]... [LANG_ARGs]...");
 		System.out.println();
 		System.out.println("COMMANDs");
 		System.out.println("--------");
@@ -262,7 +262,7 @@ public class Startup {
 		System.out.println("    -exit                             Exits the \"TermIO-Control\" window");
 		System.out.println("    -commands                         Lists all \"TermIO-Control\" window commands");
 		System.out.println("");
-		System.out.println("    -nolog                            Disables log file output");
+		System.out.println("    -log                              Enables log file output");
 		System.out.println("");
 		System.out.println("    -h, --help                        Prints this help page");
 		System.out.println();
