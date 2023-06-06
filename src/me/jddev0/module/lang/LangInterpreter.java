@@ -2073,9 +2073,13 @@ public final class LangInterpreter {
 		argumentValueList = new ArrayList<>(argumentValueList);
 		
 		try {
+			String functionLangPath = fp.getLangPath();
+			String functionLangFile = fp.getLangFile();
+			
 			//Update call stack
 			StackElement currentStackElement = getCurrentCallStackElement();
-			pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(),
+			pushStackElement(new StackElement(functionLangPath == null?currentStackElement.getLangPath():functionLangPath,
+					(functionLangPath == null && functionLangFile == null)?currentStackElement.getLangFile():functionLangFile,
 					functionName == null?fp.toString():functionName, currentStackElement.getModule()), parentLineNumber);
 			
 			switch(fp.getFunctionPointerType()) {
@@ -2494,7 +2498,9 @@ public final class LangInterpreter {
 			}
 		}
 		
-		return new DataObject().setFunctionPointer(new FunctionPointerObject(parameterList, node.getFunctionBody()));
+		StackElement currentStackElement = getCurrentCallStackElement();
+		return new DataObject().setFunctionPointer(new FunctionPointerObject(currentStackElement.getLangPath(),
+				currentStackElement.getLangFile(), parameterList, node.getFunctionBody()));
 	}
 	
 	private DataObject interpretArrayNode(ArrayNode node, final int SCOPE_ID) {
