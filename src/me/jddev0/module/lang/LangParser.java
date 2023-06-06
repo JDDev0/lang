@@ -95,7 +95,7 @@ public final class LangParser {
 		return ast;
 	}
 	
-	AbstractSyntaxTree.OperationNode parseCondition(String condition) throws IOException {
+	private AbstractSyntaxTree.OperationNode parseCondition(String condition) throws IOException {
 		return parseOperationExpr(condition, AbstractSyntaxTree.OperationNode.OperatorType.CONDITION);
 	}
 	
