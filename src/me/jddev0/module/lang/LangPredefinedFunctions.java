@@ -4525,8 +4525,8 @@ final class LangPredefinedFunctions {
 					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argumentList, INNER_INNER_SCOPE_ID);
 				};
 				
-				return new DataObject().setFunctionPointer(new FunctionPointerObject("<combX:anon:inner-func(" + xFunc + ")>", func));
-			}, "combX:anon");
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<combY:anon:inner-func(" + xFunc + ")>", func));
+			}, "combY:anon");
 			
 			DataObject retAnonFunc1 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID);
 			FunctionPointerObject retAnonFunc1Func = retAnonFunc1.getFunctionPointer();
