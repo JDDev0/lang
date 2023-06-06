@@ -43,5 +43,5 @@ Lang modules can contain native code (In the standard lang implementation native
 You can also run "java -jar Lang.jar -**command** **args**" in a terminal or console.<br>
 If "-e CODE" is used in Linux single quotes should be used for the CODE argument to prevent the shell from parsing $-shell variables and to enable multiline code execution (e.g. "java -jar Lang.jar -e '$a = test<br>
 func.println($a)')<br>
-You can use the "-nolog" argument to disable log file logging<br>
+You can use the "-log" argument to enable log file logging<br>
 
