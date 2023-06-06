@@ -678,6 +678,10 @@ public class LangShellWindow extends JDialog {
 				break;
 			
 			case FUNCTION_POINTER:
+				builder.append("\nLang-Path: ");
+				builder.append(dataObject.getFunctionPointer().getLangPath());
+				builder.append("\nLang-File: ");
+				builder.append(dataObject.getFunctionPointer().getLangFile());
 				builder.append("\nFunction-Name: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionName());
 				builder.append("\nFunction-Type: ");
