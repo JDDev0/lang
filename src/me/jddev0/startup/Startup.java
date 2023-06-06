@@ -24,7 +24,7 @@ import me.jddev0.module.lang.ILangPlatformAPI;
 
 public class Startup {
 	private static boolean is4k;
-	private static ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
+	private static final ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	
 	public static void main(String[] args) {
 		if(args.length > 0 && (!args[0].startsWith("-") || args[0].equals("-e") || args[0].startsWith("--") || args[0].startsWith("-h"))) {
