@@ -8351,6 +8351,7 @@ final class LangPredefinedFunctions {
 				interpreter.popStackElement();
 			}
 		}else {
+			int originalLineNumber = interpreter.getParserLineNumber();
 			try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
 				interpreter.resetParserPositionVars();
 				interpreter.interpretLines(reader, NEW_SCOPE_ID);
@@ -8358,6 +8359,8 @@ final class LangPredefinedFunctions {
 				interpreter.data.remove(NEW_SCOPE_ID);
 				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
 			}finally {
+				interpreter.setParserLineNumber(originalLineNumber);
+				
 				//Update call stack
 				interpreter.popStackElement();
 			}
