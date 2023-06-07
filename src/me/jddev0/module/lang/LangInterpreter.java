@@ -2123,7 +2123,8 @@ public final class LangInterpreter {
 								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
 								new DataObject().setVoid().getText()).setVariableName(variableName));
 								if(old != null && old.isStaticData())
-									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+											parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 							}else {
 								//Array varargs
 								List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
@@ -2133,7 +2134,8 @@ public final class LangInterpreter {
 								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
 								toArray(new DataObject[0])).setVariableName(variableName));
 								if(old != null && old.isStaticData())
-									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+											parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 							}
 							
 							break;
@@ -2148,13 +2150,14 @@ public final class LangInterpreter {
 								lastDataObject = new DataObject().setVoid();
 							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
 							if(old != null && old.isStaticData())
-								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 							
 							continue;
 						}
 						
 						if(!isVarNameWithoutPrefix(variableName) || isLangVarWithoutPrefix(variableName)) {
-							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", NEW_SCOPE_ID);
+							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 							
 							continue;
 						}
@@ -2167,7 +2170,8 @@ public final class LangInterpreter {
 						try {
 							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
 							if(old != null && old.isStaticData())
-								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable", NEW_SCOPE_ID);
+								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 						}catch(DataTypeConstraintViolatedException e) {
 							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", parentLineNumber, SCOPE_ID);
 							
@@ -2197,7 +2201,7 @@ public final class LangInterpreter {
 						String message = String.format("Use of deprecated function \"%s\". This function will no longer be supported in \"%s\"!%s", functionName,
 						function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
 						function.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + function.getDeprecatedReplacementFunction() + "\" instead!"));
-						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, SCOPE_ID);
+						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, parentLineNumber, SCOPE_ID);
 					}
 					
 					//Return non copy if copyStaticAndFinalModifiers flag is set for "func.asStatic()" and "func.asFinal()"
