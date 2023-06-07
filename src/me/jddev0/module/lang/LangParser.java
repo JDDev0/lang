@@ -1164,7 +1164,6 @@ public final class LangParser {
 						return ast;
 					}
 					
-					//TODO Fix and use: int tryArgumentsLineNumberTo = lineNumber;
 					AbstractSyntaxTree tryBody = parseLines(lines);
 					if(tryBody == null) {
 						nodes.add(new AbstractSyntaxTree.TryStatementNode(tryStatmentParts, tryStatementLineNumberFrom, lineNumber));
@@ -1258,7 +1257,6 @@ public final class LangParser {
 						return ast;
 					}
 					
-					//TODO Fix and use: int loopConditionLineNumberTo = lineNumber;
 					AbstractSyntaxTree loopBody = parseLines(lines);
 					if(loopBody == null) {
 						nodes.add(new AbstractSyntaxTree.LoopStatementNode(loopStatmentParts, loopStatementLineNumberFrom, lineNumber));
@@ -1398,7 +1396,6 @@ public final class LangParser {
 						return ast;
 					}
 					
-					//TODO Fix and use: int ifConditionLineNumberTo = lineNumber;
 					AbstractSyntaxTree ifBody = parseLines(lines);
 					if(ifBody == null) {
 						nodes.add(new AbstractSyntaxTree.IfStatementNode(ifStatmentParts, ifStatementLineNumberFrom, lineNumber));

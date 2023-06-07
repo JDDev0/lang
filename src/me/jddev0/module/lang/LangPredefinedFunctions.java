@@ -903,7 +903,6 @@ final class LangPredefinedFunctions {
 			
 			//Update call stack
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-			//TODO get line number
 			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()), -1);
 			
 			int originalLineNumber = interpreter.getParserLineNumber();
@@ -8323,14 +8322,12 @@ final class LangPredefinedFunctions {
 			langPathTmp = absolutePath.substring(0, absolutePath.lastIndexOf('/'));
 			
 			//Update call stack
-			//TODO get line number
 			interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>" + langPathTmp,
 					langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module), -1);
 		}else {
 			langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
 			
 			//Update call stack
-			//TODO get line number
 			interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null), -1);
 		}
 		
