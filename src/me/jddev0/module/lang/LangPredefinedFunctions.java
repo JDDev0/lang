@@ -910,6 +910,8 @@ final class LangPredefinedFunctions {
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
 				interpreter.resetParserPositionVars();
 				interpreter.interpretLines(lines, SCOPE_ID);
+				
+				return interpreter.getAndResetReturnValue(SCOPE_ID);
 			}catch(IOException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
 			}finally {
@@ -918,8 +920,6 @@ final class LangPredefinedFunctions {
 				//Update call stack
 				interpreter.popStackElement();
 			}
-			
-			return interpreter.getAndResetReturnValue(SCOPE_ID);
 		});
 		funcs.put("isTerminalAvailable", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
