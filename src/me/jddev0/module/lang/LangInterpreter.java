@@ -3310,7 +3310,7 @@ public final class LangInterpreter {
 	}
 	
 	void setErrno(InterpretingError error, final int SCOPE_ID) {
-		setErrno(error, null, -1, SCOPE_ID);
+		setErrno(error, null, SCOPE_ID);
 	}
 	void setErrno(InterpretingError error, int lineNumber, final int SCOPE_ID) {
 		setErrno(error, null, lineNumber, SCOPE_ID);
@@ -3356,7 +3356,7 @@ public final class LangInterpreter {
 	}
 	
 	DataObject setErrnoErrorObject(InterpretingError error, final int SCOPE_ID) {
-		return setErrnoErrorObject(error, null, -1, SCOPE_ID);
+		return setErrnoErrorObject(error, null, SCOPE_ID);
 	}
 	DataObject setErrnoErrorObject(InterpretingError error, int lineNumber, final int SCOPE_ID) {
 		return setErrnoErrorObject(error, null, lineNumber, SCOPE_ID);
