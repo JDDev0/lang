@@ -903,7 +903,7 @@ final class LangPredefinedFunctions {
 			
 			//Update call stack
 			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "func.exec", currentStackElement.getModule()), -1);
+			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "<exec-code>", currentStackElement.getModule()), -1);
 			
 			int originalLineNumber = interpreter.getParserLineNumber();
 			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
