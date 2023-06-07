@@ -136,6 +136,9 @@ final class LangOperators {
 			case TEXT:
 				return new DataObject(leftSideOperand.getText() + rightSideOperand.getText());
 			case BYTE_BUFFER:
+				if(rightSideOperand.getType() != DataType.BYTE_BUFFER)
+					return null;
+				
 				byte[] newByteBuf = new byte[leftSideOperand.getByteBuffer().length + rightSideOperand.getByteBuffer().length];
 				
 				System.arraycopy(leftSideOperand.getByteBuffer(), 0, newByteBuf, 0, leftSideOperand.getByteBuffer().length);
