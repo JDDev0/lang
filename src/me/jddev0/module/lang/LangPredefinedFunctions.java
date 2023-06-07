@@ -8336,43 +8336,32 @@ final class LangPredefinedFunctions {
 		
 		//Create an empty data map
 		interpreter.createDataMap(NEW_SCOPE_ID, langArgs);
-		if(insideModule) {
-			int originalLineNumber = interpreter.getParserLineNumber();
-			try(BufferedReader reader = LangModuleManager.readModuleLangFile(module, absolutePath)) {
-				interpreter.resetParserPositionVars();
-				interpreter.interpretLines(reader, NEW_SCOPE_ID);
-			}catch(IOException e) {
-				interpreter.data.remove(NEW_SCOPE_ID);
-				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
-			}finally {
-				interpreter.setParserLineNumber(originalLineNumber);
-				
-				//Update call stack
-				interpreter.popStackElement();
-			}
-		}else {
-			int originalLineNumber = interpreter.getParserLineNumber();
-			try(BufferedReader reader = interpreter.langPlatformAPI.getLangReader(absolutePath)) {
-				interpreter.resetParserPositionVars();
-				interpreter.interpretLines(reader, NEW_SCOPE_ID);
-			}catch(IOException e) {
-				interpreter.data.remove(NEW_SCOPE_ID);
-				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
-			}finally {
-				interpreter.setParserLineNumber(originalLineNumber);
-				
-				//Update call stack
-				interpreter.popStackElement();
-			}
+		
+		DataObject retTmp;
+		
+		int originalLineNumber = interpreter.getParserLineNumber();
+		try(BufferedReader reader = insideModule?LangModuleManager.readModuleLangFile(module, absolutePath):interpreter.langPlatformAPI.getLangReader(absolutePath)) {
+			interpreter.resetParserPositionVars();
+			interpreter.interpretLines(reader, NEW_SCOPE_ID);
+		}catch(IOException e) {
+			interpreter.data.remove(NEW_SCOPE_ID);
+			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+		}finally {
+			interpreter.setParserLineNumber(originalLineNumber);
+			
+			function.accept(NEW_SCOPE_ID);
+			
+			//Remove data map
+			interpreter.data.remove(NEW_SCOPE_ID);
+			
+			//Get returned value from executed lang file
+			retTmp = interpreter.getAndResetReturnValue(SCOPE_ID);
+			
+			//Update call stack
+			interpreter.popStackElement();
 		}
 		
-		function.accept(NEW_SCOPE_ID);
-		
-		//Remove data map
-		interpreter.data.remove(NEW_SCOPE_ID);
-		
-		//Get returned value from executed lang file
-		return interpreter.getAndResetReturnValue(SCOPE_ID);
+		return retTmp;
 	}
 	
 	public void addLinkerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
