@@ -3340,9 +3340,11 @@ public final class LangInterpreter {
 			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + langFile;
 			String langFunctionName = currentStackElement.getLangFunctionName();
 			
-			String output = String.format("A%s %s occured in \"%s:%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s", newErrno < 0?"":"n",
-					newErrno < 0?"warning":"error", langPathWithFile, lineNumber > 0?lineNumber:"x", langFunctionName == null?"main":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
-					error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message, printStackTrace(lineNumber));
+			String output = String.format("A%s %s occured in \"%s:%s\" (FUNCTION: \"%s\", SCOPE_ID: \"%d\")!\n%s: %s (%d)%s\nStack trace:\n%s",
+					newErrno < 0?"":"n", newErrno < 0?"warning":"error", langPathWithFile, lineNumber > 0?lineNumber:"x",
+							langFunctionName == null?"<main>":langFunctionName, SCOPE_ID, newErrno < 0?"Warning":"Error",
+									error.getErrorText(), error.getErrorCode(), message.isEmpty()?"":"\nMessage: " + message,
+											printStackTrace(lineNumber));
 			if(term == null)
 				System.err.println(output);
 			else
@@ -3431,7 +3433,7 @@ public final class LangInterpreter {
 		@Override
 		public String toString() {
 			String langPathWithFile = langPath + (langPath.endsWith("/")?"":"/") + (langFile == null?"<shell>":langFile);
-			return String.format("    at \"%s:%s\" in function \"%s\"", langPathWithFile, lineNumber > 0?lineNumber:"x", langFunctionName == null?"main":langFunctionName);
+			return String.format("    at \"%s:%s\" in function \"%s\"", langPathWithFile, lineNumber > 0?lineNumber:"x", langFunctionName == null?"<main>":langFunctionName);
 		}
 	}
 	
