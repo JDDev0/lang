@@ -7791,7 +7791,9 @@ final class LangPredefinedFunctions {
 			InterpretingError langErrno = interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
 			InterpretingError expectedError = errorObject.getError().getInterprettingError();
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultError(langErrno == expectedError, messageObject == null?null:messageObject.getText(), langErrno, expectedError));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultError(langErrno == expectedError,
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(), langErrno,
+							expectedError));
 			
 			return null;
 		});
@@ -7808,8 +7810,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(actualValueObject.isEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
-					actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultEquals(
+					actualValueObject.isEquals(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7826,8 +7829,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(!actualValueObject.isEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
-					actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotEquals(
+					!actualValueObject.isEquals(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7844,8 +7848,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(actualValueObject.isLessThan(expectedValueObject), messageObject == null?null:messageObject.getText(),
-					actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThan(
+					actualValueObject.isLessThan(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7862,7 +7867,8 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(actualValueObject.isLessThanOrEquals(expectedValueObject),
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultLessThanOrEquals(
+					actualValueObject.isLessThanOrEquals(expectedValueObject), interpreter.printStackTrace(-1),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
@@ -7880,8 +7886,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(actualValueObject.isGreaterThan(expectedValueObject), messageObject == null?null:messageObject.getText(),
-					actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThan(
+					actualValueObject.isGreaterThan(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7898,9 +7905,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(actualValueObject.isGreaterThanOrEquals(expectedValueObject),
-					messageObject == null?null:messageObject.getText(), actualValueObject,
-					expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultGreaterThanOrEquals(
+					actualValueObject.isGreaterThanOrEquals(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7917,8 +7924,9 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(actualValueObject.isStrictEquals(expectedValueObject), messageObject == null?null:messageObject.getText(),
-					actualValueObject, expectedValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictEquals(
+					actualValueObject.isStrictEquals(expectedValueObject), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
 		});
@@ -7935,7 +7943,8 @@ final class LangPredefinedFunctions {
 			DataObject expectedValueObject = combinedArgumentList.get(1);
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(!actualValueObject.isStrictEquals(expectedValueObject),
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStrictNotEquals(
+					!actualValueObject.isStrictEquals(expectedValueObject), interpreter.printStackTrace(-1),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedValueObject));
 			
 			return null;
@@ -7954,8 +7963,10 @@ final class LangPredefinedFunctions {
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueEquals(translationValue != null && translationValue.equals(expectedValueObject.getText()),
-					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue, expectedValueObject.getText()));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueEquals(
+					translationValue != null && translationValue.equals(expectedValueObject.getText()),
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
+							translationKey.getText(), translationValue, expectedValueObject.getText()));
 			
 			return null;
 		});
@@ -7973,8 +7984,10 @@ final class LangPredefinedFunctions {
 			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(translationValue != null && !translationValue.equals(expectedValueObject.getText()),
-					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue, expectedValueObject.getText()));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(
+					translationValue != null && !translationValue.equals(expectedValueObject.getText()),
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
+							translationKey.getText(), translationValue, expectedValueObject.getText()));
 			
 			return null;
 		});
@@ -7991,8 +8004,9 @@ final class LangPredefinedFunctions {
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(translationValue != null, messageObject == null?null:messageObject.getText(),
-					translationKey.getText(), translationValue));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(
+					translationValue != null, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue));
 			
 			return null;
 		});
@@ -8009,8 +8023,9 @@ final class LangPredefinedFunctions {
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
 			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(translationValue == null, messageObject == null?null:messageObject.getText(),
-					translationKey.getText(), translationValue));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(
+					translationValue == null, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue));
 			
 			return null;
 		});
@@ -8032,7 +8047,8 @@ final class LangPredefinedFunctions {
 			
 			DataType expectedType = expectedTypeObject.getTypeValue();
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeEquals(actualValueObject.getType() == expectedType,
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeEquals(
+					actualValueObject.getType() == expectedType, interpreter.printStackTrace(-1),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
 			
 			return null;
@@ -8055,7 +8071,8 @@ final class LangPredefinedFunctions {
 			
 			DataType expectedType = expectedTypeObject.getTypeValue();
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeNotEquals(actualValueObject.getType() != expectedType,
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeNotEquals(
+					actualValueObject.getType() != expectedType, interpreter.printStackTrace(-1),
 					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
 			
 			return null;
@@ -8072,8 +8089,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(actualValueObject.getType() == DataType.NULL, messageObject == null?null:messageObject.getText(),
-					actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNull(
+					actualValueObject.getType() == DataType.NULL, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8089,8 +8107,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(actualValueObject.getType() != DataType.NULL, messageObject == null?null:messageObject.getText(),
-					actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotNull(
+					actualValueObject.getType() != DataType.NULL, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8106,8 +8125,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(actualValueObject.getType() == DataType.VOID, messageObject == null?null:messageObject.getText(),
-					actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultVoid(
+					actualValueObject.getType() == DataType.VOID, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8123,8 +8143,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(actualValueObject.getType() != DataType.VOID, messageObject == null?null:messageObject.getText(),
-					actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(
+					actualValueObject.getType() != DataType.VOID, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8140,7 +8161,8 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFinal(actualValueObject.isFinalData(), messageObject == null?null:messageObject.getText(),
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFinal(actualValueObject.isFinalData(),
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
 					actualValueObject));
 			
 			return null;
@@ -8157,7 +8179,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotFinal(!actualValueObject.isFinalData(), messageObject == null?null:messageObject.getText(), actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotFinal(
+					!actualValueObject.isFinalData(), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8173,8 +8197,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(),
-					actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(
+					actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8190,7 +8215,9 @@ final class LangPredefinedFunctions {
 			DataObject actualValueObject = combinedArgumentList.get(0);
 			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(!actualValueObject.isStaticData(), messageObject == null?null:messageObject.getText(), actualValueObject));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(
+					!actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
 		});
@@ -8260,7 +8287,8 @@ final class LangPredefinedFunctions {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
 			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFail(messageObject.getText()));
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFail(interpreter.printStackTrace(-1),
+					messageObject.getText()));
 			
 			return null;
 		});
