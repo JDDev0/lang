@@ -2397,6 +2397,79 @@ final class LangOperators {
 	}
 	
 	//All operation functions
+	public DataObject opCast(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(leftSideOperand.getType() != DataType.TYPE)
+			return null;
+		
+		switch(leftSideOperand.getTypeValue()) {
+			case TEXT:
+				String txt = rightSideOperand.toText();
+				if(txt == null)
+					return null;
+				
+				return new DataObject(txt);
+			case CHAR:
+				Character chr = rightSideOperand.toChar();
+				if(chr == null)
+					return null;
+				
+				return new DataObject().setChar(chr);
+			case INT:
+				Integer i = rightSideOperand.toInt();
+				if(i == null)
+					return null;
+				
+				return new DataObject().setInt(i);
+			case LONG:
+				Long l = rightSideOperand.toLong();
+				if(l == null)
+					return null;
+				
+				return new DataObject().setLong(l);
+			case FLOAT:
+				Float f = rightSideOperand.toFloat();
+				if(f == null)
+					return null;
+				
+				return new DataObject().setFloat(f);
+			case DOUBLE:
+				Double d = rightSideOperand.toDouble();
+				if(d == null)
+					return null;
+				
+				return new DataObject().setDouble(d);
+			case BYTE_BUFFER:
+				byte[] byteBuffer = rightSideOperand.toByteBuffer();
+				if(byteBuffer == null)
+					return null;
+				
+				return new DataObject().setByteBuffer(byteBuffer);
+			case ARRAY:
+				DataObject[] arr = rightSideOperand.toArray();
+				if(arr == null)
+					return null;
+				
+				return new DataObject().setArray(arr);
+			case LIST:
+				LinkedList<DataObject> list = rightSideOperand.toList();
+				if(list == null)
+					return null;
+				
+				return new DataObject().setList(list);
+			
+			case ARGUMENT_SEPARATOR:
+			case ERROR:
+			case FUNCTION_POINTER:
+			case NULL:
+			case STRUCT:
+			case TYPE:
+			case VAR_POINTER:
+			case VOID:
+				break;
+		}
+		
+		return null;
+	}
 	/**
 	 * For "[...]"
 	 */

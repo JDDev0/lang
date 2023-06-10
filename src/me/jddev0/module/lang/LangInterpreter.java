@@ -547,7 +547,7 @@ public final class LangInterpreter {
 	
 	private Node processFunctionCallPreviousNodeValueNode(FunctionCallPreviousNodeValueNode node, DataObject previousValue, final int SCOPE_ID) {
 		if(previousValue != null) {
-			if(previousValue.getType() == DataType.FUNCTION_POINTER)
+			if(previousValue.getType() == DataType.FUNCTION_POINTER || previousValue.getType() == DataType.TYPE)
 				return node;
 			
 			if(previousValue.getType() == DataType.STRUCT && previousValue.getStruct().isDefinition())
@@ -2455,6 +2455,25 @@ public final class LangInterpreter {
 		if(previousValue.getType() == DataType.FUNCTION_POINTER)
 			return callFunctionPointer(previousValue.getFunctionPointer(), previousValue.getVariableName(),
 					interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID), node.getLineNumberFrom(), SCOPE_ID);
+		
+		if(previousValue.getType() == DataType.TYPE) {
+			List<DataObject> argumentList = interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID);
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			
+			if(combinedArgumentList.size() < 1)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Not enough arguments (1 needed)", SCOPE_ID);
+			if(combinedArgumentList.size() > 1)
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too many arguments (1 needed)", SCOPE_ID);
+			
+			DataObject arg = combinedArgumentList.get(0);
+			
+			DataObject output = operators.opCast(previousValue, arg, SCOPE_ID);
+			if(output == null)
+				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Data type \"" + arg.getType() +
+						"\" can not be casted to \"" + previousValue.getTypeValue() + "\"!", node.getLineNumberFrom(), SCOPE_ID);
+			
+			return output;
+		}
 		
 		if(previousValue.getType() == DataType.STRUCT && previousValue.getStruct().isDefinition()) {
 			List<DataObject> argumentList = interpretFunctionPointerArguments(node.getChildren(), SCOPE_ID);
