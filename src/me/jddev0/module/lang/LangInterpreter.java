@@ -2461,16 +2461,19 @@ public final class LangInterpreter {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			
 			if(combinedArgumentList.size() < 1)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Not enough arguments (1 needed)", SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Not enough arguments (1 needed)",
+						node.getLineNumberFrom(), SCOPE_ID);
 			if(combinedArgumentList.size() > 1)
-				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too many arguments (1 needed)", SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, "Too many arguments (1 needed)",
+						node.getLineNumberFrom(), SCOPE_ID);
 			
 			DataObject arg = combinedArgumentList.get(0);
 			
 			DataObject output = operators.opCast(previousValue, arg, SCOPE_ID);
 			if(output == null)
 				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Data type \"" + arg.getType() +
-						"\" can not be casted to \"" + previousValue.getTypeValue() + "\"!", node.getLineNumberFrom(), SCOPE_ID);
+						"\" can not be casted to \"" + previousValue.getTypeValue() + "\"!", node.getLineNumberFrom(),
+						SCOPE_ID);
 			
 			return output;
 		}
