@@ -238,8 +238,8 @@ public final class LangParser {
 					break;
 				}
 				
-				//Ignore "()" if something was before (=> "Escaped" "()") -> Add "(" to builder (below outer if)
-				if(builder.length() == 0) {
+				//Parse "()" as function call previous value if something was before
+				if(builder.length() == 0 && leftNodes.isEmpty()) {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
@@ -258,8 +258,22 @@ public final class LangParser {
 						builder.delete(0, builder.length());
 					}
 					
-					leftNodes.add(new AbstractSyntaxTree.EscapeSequenceNode(lineNumber, token.charAt(0)));
-					token = token.substring(1);
+					int lineNumberFrom = lineNumber;
+					
+					int parameterEndIndex = LangUtils.getIndexOfMatchingBracket(token, 0, Integer.MAX_VALUE, '(', ')');
+					if(parameterEndIndex == -1) {
+						leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket in condition is missing"));
+						
+						break;
+					}
+					
+					String functionCall = token.substring(0, parameterEndIndex + 1);
+					token = token.substring(parameterEndIndex + 1);
+					
+					String functionParameterList = functionCall.substring(1, functionCall.length() - 1);
+					
+					leftNodes.add(new AbstractSyntaxTree.FunctionCallPreviousNodeValueNode("", "", convertCommaOperatorsToArgumentSeparators(
+							parseOperationExpr(functionParameterList, type)), lineNumberFrom, lineNumber));
 					
 					continue;
 				}
@@ -781,8 +795,9 @@ public final class LangParser {
 			}
 			
 			//Function calls
-			if(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL) ||
-			(AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type) && LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_WITHOUT_PREFIX))) {
+			if(!LangPatterns.matches(builder.toString(), LangPatterns.VAR_NAME_PREFIX_ARRAY_AND_NORMAL_WITH_PTR_AND_DEREFERENCE_WITH_OPTIONAL_NAME) &&
+					(LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL) ||
+							LangPatterns.matches(token, LangPatterns.PARSING_STARTS_WITH_FUNCTION_CALL_WITHOUT_PREFIX))) {
 				if(whitespaces.length() > 0) {
 					builder.append(whitespaces.toString());
 					whitespaces.delete(0, whitespaces.length());
