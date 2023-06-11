@@ -1672,7 +1672,7 @@ public final class LangInterpreter {
 		try {
 			if(lvalueNode.getNodeType() == NodeType.OPERATION || lvalueNode.getNodeType() == NodeType.CONDITION ||
 			lvalueNode.getNodeType() == NodeType.MATH) {
-				//Composite type lvalue assignment (MEMBER_ACCESS)
+				//Composite type lvalue assignment (MEMBER_ACCESS and SET_ITEM)
 				OperationNode operationNode = (OperationNode)lvalueNode;
 				while((operationNode.getOperator() == Operator.NON ||
 				operationNode.getOperator() == Operator.CONDITIONAL_NON ||
@@ -1682,18 +1682,40 @@ public final class LangInterpreter {
 				
 				if(operationNode.getOperator() == Operator.MEMBER_ACCESS) {
 					DataObject lvalue = interpretOperationNode(operationNode, SCOPE_ID);
+					if(lvalue == null)
+						lvalue = new DataObject().setVoid();
+					
 					String variableName = lvalue.getVariableName();
 					if(variableName == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT, "Anonymous values can not be changed", node.getLineNumberFrom(), SCOPE_ID);
+						return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT,
+								"Anonymous values can not be changed", node.getLineNumberFrom(), SCOPE_ID);
 					
 					if(lvalue.isFinalData() || lvalue.isLangVar())
-						return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, node.getLineNumberFrom(), SCOPE_ID);
+						return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE,
+								node.getLineNumberFrom(), SCOPE_ID);
 					
 					try {
 						lvalue.setData(rvalue);
 					}catch(DataTypeConstraintViolatedException e) {
-						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", node.getLineNumberFrom(), SCOPE_ID);
+						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+								"Incompatible type for rvalue in assignment", node.getLineNumberFrom(), SCOPE_ID);
 					}
+					
+					return rvalue;
+				}else if(operationNode.getOperator() == Operator.GET_ITEM) {
+					DataObject compositeTypeObject = interpretNode(null, operationNode.getLeftSideOperand(), SCOPE_ID);
+					if(compositeTypeObject == null)
+						compositeTypeObject = new DataObject().setVoid();
+					
+					DataObject indexObject = interpretNode(null, operationNode.getRightSideOperand(), SCOPE_ID);
+					if(indexObject == null)
+						indexObject = new DataObject().setVoid();
+					
+					DataObject ret = operators.opSetItem(compositeTypeObject, indexObject, rvalue, SCOPE_ID);
+					if(ret == null)
+						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+								"Incompatible type for lvalue (composite type + index) or rvalue in assignment",
+								node.getLineNumberFrom(), SCOPE_ID);
 					
 					return rvalue;
 				}
