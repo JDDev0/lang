@@ -20,9 +20,9 @@ fp.interpretCode = ($code...) -> {
 		}elif($c === \<) {
 			$ptr -= 1
 		}elif($c === \+) {
-			fn.arraySet(&mem, $ptr, parser.op(&mem[$ptr] + 1))
+			&mem[$ptr] += 1
 		}elif($c === \-) {
-			fn.arraySet(&mem, $ptr, parser.op(&mem[$ptr] - 1))
+			&mem[$ptr] -= 1
 		}elif($c === \.) {
 			fn.print(fn.toChar(parser.op(&mem[$ptr])))
 		}elif($c === \,) {
@@ -32,7 +32,7 @@ fp.interpretCode = ($code...) -> {
 			}else {
 				$val = fn.toValue(fn.charAt($input, 0))
 			}
-			fn.arraySet(&mem, $ptr, $val)
+			&mem[$ptr] ::= $val
 		}elif($c === \[) {
 			if(&mem[$ptr] === 0) {
 				$bracketCount += 1
