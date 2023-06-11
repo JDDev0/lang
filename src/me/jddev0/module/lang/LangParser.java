@@ -1081,7 +1081,7 @@ public final class LangParser {
 			
 			AbstractSyntaxTree.Node rvalueNode;
 			
-			if(assignmentOperator.isEmpty()) {
+			if(assignmentOperator.isEmpty() || assignmentOperator.equals("::")) {
 				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
 				rvalueNode = returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode();
 			}else {
