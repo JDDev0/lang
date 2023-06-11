@@ -1717,6 +1717,9 @@ public final class LangInterpreter {
 								"Incompatible type for lvalue (composite type + index) or rvalue in assignment",
 								node.getLineNumberFrom(), SCOPE_ID);
 					
+					if(ret.getType() == DataType.ERROR)
+						setErrno(ret.getError().getInterprettingError(), ret.getError().getMessage(), SCOPE_ID);
+					
 					return rvalue;
 				}
 				
