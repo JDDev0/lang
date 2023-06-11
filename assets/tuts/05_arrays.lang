@@ -2,19 +2,16 @@ lang.name = Arrays
 lang.version = v1.0.0
 
 # Creation of an array
-# func.arrayMake(arrPtr, int)
-func.arrayMake(&arr, 10) # Will create the array &arr with the lenght of 10
 # func.arrayMake(int)
-&b = func.arrayMake(10) # Will also create an array of length 10
-func.arrayMake(&c, 0) # Will create an empty array
-&d = func.arrayMake(0) # Will also create an empty array
+&arr = func.arrayMake(10) # Will also create an array of length 10
+&a = func.arrayMake(0) # Will create an empty array
 
 # Creation of an array with setting values in one line
-&e = func.arrayOf() # Will create an empty array
-&f = func.arrayOf(1, 2, test)
-&g = func.arrayOf({{{1}}}, func.ttoc(1), 1, func.toLong(1))
-&h = func.arrayOf(null, &e, 1, 2, , test)
-&i = func.arrayOf(func.arrayOf(1, 2, 3), func.arrayOf(a, b, c), func.arrayOf(A, B, C)) # Will create an array with anonymous array elements
+&b = func.arrayOf() # Will create an empty array
+&c = func.arrayOf(1, 2, test)
+&d = func.arrayOf({{{1}}}, func.ttoc(1), 1, func.toLong(1))
+&e = func.arrayOf(null, &e, 1, 2, , test)
+&f = func.arrayOf(func.arrayOf(1, 2, 3), func.arrayOf(a, b, c), func.arrayOf(A, B, C)) # Will create an array with anonymous array elements
 
 # Get the lenght of an array
 # func.arrayLength(arrPtr)
@@ -33,6 +30,16 @@ func.println(func.arrayGetAll(func.arrayOf(1, 2, A, B, null))) # Will print the 
 func.arraySet(&arr, 7, THIS IS A CAPS TEST!) # Will set the element at the index 7 of the array &arr to "THIS IS A CAPS TEST!"
 func.println(func.arrayGetAll(&arr))
 
+# Also possible with the SET_ITEM operator
+&arr[7] ::= This is a non-caps test # This is only possible, if a assignment operator is used (It is not possible in simple nor normal assignments)
+func.println(func.arrayGetAll(&arr))
+
+&arr[3] $= 2 ** 4
+func.println(func.arrayGetAll(&arr))
+
+&arr[3] += -3
+func.println(func.arrayGetAll(&arr))
+
 # Set all elements of an array
 # func.arraySetAll(arrPtr, Text)
 func.arraySetAll(&arr, value) # Will set all elements of the array &arr to "value"
@@ -45,6 +52,10 @@ func.println(func.arrayGetAll(&arr))
 # Get an element of an array
 # func.arrayGet(arrPtr, int)
 $ele = func.arrayGet(&arr, 7) # Will return the element at the index 7 from the array &arr
+func.println($ele)
+
+# Also possible with the GET_ITEM operator
+$ele $= &arr[0]
 func.println($ele)
 
 # Get a random element of an array
@@ -89,7 +100,7 @@ func.println($count)
 $count = func.arrayCountOf(&arr, {{{5}}}) # Will return 0 (Uses strict equals internally See [07_if.lang: strict equals])
 func.println($count)
 
-func.arraySet(&arr, 2, 2)
+&arr[2] $= 2
 $count = func.arrayCountOf(&arr, 2) # Will return 2
 func.println($count)
 
@@ -193,8 +204,8 @@ func.println(func.arrayGetAll(&aR2))
 func.println(func.arrayGetAll(&aR3))
 
 # Set all elements to null
-# func.arrayDelete(arrPtr)
-func.arrayDelete(&arr)
+# func.arrayReset(arrPtr)
+func.arrayReset(&arr)
 func.println(func.arrayGetAll(&arr))
 
 func.println()
