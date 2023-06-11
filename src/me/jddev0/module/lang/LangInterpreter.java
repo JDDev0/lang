@@ -1295,9 +1295,6 @@ public final class LangInterpreter {
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""),
 						node.getLineNumberFrom(), SCOPE_ID);
 			
-			if(output.getType() == DataType.ERROR)
-				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), node.getLineNumberFrom(), SCOPE_ID);
-			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.GENERAL) {
 			DataObject output;
@@ -1352,9 +1349,6 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The \"" + node.getOperator().getSymbol() + "\" operator is not defined for " + leftSideOperand.getType().name() + (
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""),
 						node.getLineNumberFrom(), SCOPE_ID);
-			
-			if(output.getType() == DataType.ERROR)
-				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), node.getLineNumberFrom(), SCOPE_ID);
 			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.MATH) {
@@ -1436,9 +1430,6 @@ public final class LangInterpreter {
 				return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The \"" + node.getOperator().getSymbol() + "\" operator is not defined for " + leftSideOperand.getType().name() + (
 					node.getOperator().isTernary()?", " + middleOperand.getType().name() + ",":"") + (!node.getOperator().isUnary()?" and " + rightSideOperand.getType().name():""),
 						node.getLineNumberFrom(), SCOPE_ID);
-			
-			if(output.getType() == DataType.ERROR)
-				return setErrnoErrorObject(output.getError().getInterprettingError(), output.getError().getMessage(), node.getLineNumberFrom(), SCOPE_ID);
 			
 			return output;
 		}else if(node.getOperatorType() == OperatorType.CONDITION) {
@@ -1716,9 +1707,6 @@ public final class LangInterpreter {
 						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
 								"Incompatible type for lvalue (composite type + index) or rvalue in assignment",
 								node.getLineNumberFrom(), SCOPE_ID);
-					
-					if(ret.getType() == DataType.ERROR)
-						setErrno(ret.getError().getInterprettingError(), ret.getError().getMessage(), SCOPE_ID);
 					
 					return rvalue;
 				}

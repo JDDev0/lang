@@ -7,7 +7,6 @@ import java.util.List;
 
 import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
-import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
@@ -826,7 +825,7 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() < 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Integer value must be larger than or equals to 0"));
+							return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Integer value must be larger than or equals to 0", SCOPE_ID);
 						
 						StringBuilder builder = new StringBuilder();
 						for(int i = 0;i < rightSideOperand.getInt();i++)
@@ -994,7 +993,7 @@ final class LangOperators {
 				
 				final int count = rightSideOperand.getInt();
 				if(count < 0)
-					return new DataObject().setError(new ErrorObject(InterpretingError.INVALID_ARGUMENTS, "Number must not be less than 0!"));
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Number must not be less than 0!", SCOPE_ID);
 				
 				final FunctionPointerObject func = leftSideOperand.getFunctionPointer();
 				
@@ -1199,17 +1198,17 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setInt(leftSideOperand.getInt() / rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getInt() / rightSideOperand.getLong());
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						float tmpF = leftSideOperand.getInt() / rightSideOperand.getFloat();
 						if(tmpF > 0)
@@ -1219,7 +1218,7 @@ final class LangOperators {
 						return new DataObject().setFloat(tmpF);
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						double tmpD = leftSideOperand.getInt() / rightSideOperand.getDouble();
 						if(tmpD > 0)
@@ -1248,17 +1247,17 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getLong() / rightSideOperand.getLong());
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						float tmpF = leftSideOperand.getLong() / rightSideOperand.getFloat();
 						if(tmpF > 0)
@@ -1268,7 +1267,7 @@ final class LangOperators {
 						return new DataObject().setFloat(tmpF);
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						double tmpD = leftSideOperand.getLong() / rightSideOperand.getDouble();
 						if(tmpD > 0)
@@ -1297,7 +1296,7 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						float tmpF = leftSideOperand.getFloat() / rightSideOperand.getInt();
 						if(tmpF > 0)
@@ -1307,7 +1306,7 @@ final class LangOperators {
 						return new DataObject().setFloat(tmpF);
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						tmpF = leftSideOperand.getFloat() / rightSideOperand.getLong();
 						if(tmpF > 0)
@@ -1317,7 +1316,7 @@ final class LangOperators {
 						return new DataObject().setFloat(tmpF);
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						tmpF = leftSideOperand.getFloat() / rightSideOperand.getFloat();
 						if(tmpF > 0)
@@ -1327,7 +1326,7 @@ final class LangOperators {
 						return new DataObject().setFloat(tmpF);
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						double tmpD = leftSideOperand.getFloat() / rightSideOperand.getDouble();
 						if(tmpD > 0)
@@ -1357,7 +1356,7 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						double tmpD = leftSideOperand.getDouble() / rightSideOperand.getInt();
 						if(tmpD > 0)
@@ -1367,7 +1366,7 @@ final class LangOperators {
 						return new DataObject().setDouble(tmpD);
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						tmpD = leftSideOperand.getDouble() / rightSideOperand.getLong();
 						if(tmpD > 0)
@@ -1377,7 +1376,7 @@ final class LangOperators {
 						return new DataObject().setDouble(tmpD);
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						tmpD = leftSideOperand.getDouble() / rightSideOperand.getFloat();
 						if(tmpD > 0)
@@ -1387,7 +1386,7 @@ final class LangOperators {
 						return new DataObject().setDouble(tmpD);
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						tmpD = leftSideOperand.getDouble() / rightSideOperand.getDouble();
 						if(tmpD > 0)
@@ -1440,22 +1439,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setInt(Math.floorDiv(leftSideOperand.getInt(), rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getInt(), rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getInt() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getInt() / rightSideOperand.getDouble()));
 					
@@ -1479,22 +1478,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getLong(), rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(Math.floorDiv(leftSideOperand.getLong(), rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getLong() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getLong() / rightSideOperand.getDouble()));
 					
@@ -1518,22 +1517,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.floor(leftSideOperand.getFloat() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getFloat() / rightSideOperand.getDouble()));
 					
@@ -1558,22 +1557,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.floor(leftSideOperand.getDouble() / rightSideOperand.getDouble()));
 					
@@ -1621,22 +1620,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setInt(-Math.floorDiv(-leftSideOperand.getInt(), rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(-Math.floorDiv(-leftSideOperand.getInt(), rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.ceil(leftSideOperand.getInt() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getInt() / rightSideOperand.getDouble()));
 					
@@ -1660,22 +1659,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(-Math.floorDiv(-leftSideOperand.getLong(), rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(-Math.floorDiv(-leftSideOperand.getLong(), rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.ceil(leftSideOperand.getLong() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getLong() / rightSideOperand.getDouble()));
 					
@@ -1699,22 +1698,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.ceil(leftSideOperand.getFloat() / rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.ceil(leftSideOperand.getFloat() / rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setFloat((float)Math.ceil(leftSideOperand.getFloat() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getFloat() / rightSideOperand.getDouble()));
 					
@@ -1739,22 +1738,22 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getDouble() / rightSideOperand.getInt()));
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getDouble() / rightSideOperand.getLong()));
 					case FLOAT:
 						if(rightSideOperand.getFloat() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getDouble() / rightSideOperand.getFloat()));
 					case DOUBLE:
 						if(rightSideOperand.getDouble() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setDouble(Math.ceil(leftSideOperand.getDouble() / rightSideOperand.getDouble()));
 					
@@ -1802,12 +1801,12 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setInt(leftSideOperand.getInt() % rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getInt() % rightSideOperand.getLong());
 					
@@ -1833,12 +1832,12 @@ final class LangOperators {
 				switch(rightSideOperand.getType()) {
 					case INT:
 						if(rightSideOperand.getInt() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getLong() % rightSideOperand.getInt());
 					case LONG:
 						if(rightSideOperand.getLong() == 0)
-							return new DataObject().setError(new ErrorObject(InterpretingError.DIV_BY_ZERO));
+							return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
 						
 						return new DataObject().setLong(leftSideOperand.getLong() % rightSideOperand.getLong());
 					
@@ -2483,7 +2482,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					return new DataObject().setInt(leftSideOperand.getByteBuffer()[index]);
 				}
@@ -2497,7 +2496,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					return new DataObject(leftSideOperand.getArray()[index]);
 				}
@@ -2511,7 +2510,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					return new DataObject(leftSideOperand.getList().get(index));
 				}
@@ -2525,7 +2524,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					return new DataObject().setChar(leftSideOperand.getText().charAt(index));
 				}
@@ -2538,7 +2537,7 @@ final class LangOperators {
 						index++;
 					
 					if(index != 0)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					return new DataObject().setChar(leftSideOperand.getChar());
 				}
@@ -2581,7 +2580,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					Number valueNumber = rightSideOperand.toNumber();
 					if(valueNumber == null)
@@ -2602,7 +2601,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					leftSideOperand.getArray()[index] = new DataObject(rightSideOperand);
 					
@@ -2618,7 +2617,7 @@ final class LangOperators {
 						index += len;
 					
 					if(index < 0 || index >= len)
-						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+						return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 					
 					leftSideOperand.getList().set(index, new DataObject(rightSideOperand));
 					
