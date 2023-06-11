@@ -1672,7 +1672,7 @@ public final class LangInterpreter {
 		try {
 			if(lvalueNode.getNodeType() == NodeType.OPERATION || lvalueNode.getNodeType() == NodeType.CONDITION ||
 			lvalueNode.getNodeType() == NodeType.MATH) {
-				//Composite type lvalue assignment (MEMBER_ACCESS and SET_ITEM)
+				//Composite type lvalue assignment (MEMBER_ACCESS and GET_ITEM)
 				OperationNode operationNode = (OperationNode)lvalueNode;
 				while((operationNode.getOperator() == Operator.NON ||
 				operationNode.getOperator() == Operator.CONDITIONAL_NON ||
