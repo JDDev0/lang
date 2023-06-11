@@ -215,18 +215,18 @@ func.println(\&a: &a) # [1, 2]
 &b = func.arrayOf(2, 3)
 func.println(\&b: &b) # [2, 3]
 
-func.arraySet(&a, 1, test)
+&a[1] ::= test
 func.println(\&a: &a) # [1, test]
-func.arraySet(&b, 1, test2)
+&b[1] ::= test2
 func.println(\&b: &b) # [2, test2]
 
 fp.function = () -> {
 	func.println(\&a [In function]: &a) # [1, test]
 	func.println(\&b [In function]: &b) # [2, test2]
 	
-	func.arraySet(&a, 1, 42)
+	&a[1] ::= 42
 	func.println(\&a [In function]: &a) # [1, 42]
-	func.arraySet(&b, 1, 422)
+	&b[1] ::= 422
 	func.println(\&b [In function]: &b) # [2, 422]
 	
 	&a = func.arrayOf(1, 2, 3)
