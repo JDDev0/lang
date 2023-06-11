@@ -54,6 +54,7 @@ lang.version = v1.0.0
 # All
 # (opr)               - Grouping
 # opr1 , opr2         - Comma
+# opr1[opr2]          - Get item
 # opr1::opr2          - Member access
 
 # Assignments
@@ -91,6 +92,7 @@ lang.version = v1.0.0
 # Precedence | Operator           | Associativity | Operator name
 # ===========|====================|===============|==========================================
 #  0         | (opr)              | -             | Grouping
+#            | opr1[opr2]         | left-to-right | Get item
 #            | opr1::opr2         | left-to-right | Member access [1]
 # -----------|--------------------|---------------|------------------------------------------
 #  0.5       | opr1(opr2)         | -             | Function calls
