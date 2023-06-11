@@ -326,7 +326,7 @@ public final class LangParser {
 						operator = null;
 						continue;
 					}
-				}else if(AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
+				}else if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
