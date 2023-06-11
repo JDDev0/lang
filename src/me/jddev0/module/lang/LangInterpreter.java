@@ -1670,6 +1670,37 @@ public final class LangInterpreter {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Assignment without lvalue", node.getLineNumberFrom(), SCOPE_ID);
 		
 		try {
+			if(lvalueNode.getNodeType() == NodeType.OPERATION || lvalueNode.getNodeType() == NodeType.CONDITION ||
+			lvalueNode.getNodeType() == NodeType.MATH) {
+				//Composite type lvalue assignment (MEMBER_ACCESS)
+				OperationNode operationNode = (OperationNode)lvalueNode;
+				while((operationNode.getOperator() == Operator.NON ||
+				operationNode.getOperator() == Operator.CONDITIONAL_NON ||
+				operationNode.getOperator() == Operator.MATH_NON) &&
+				operationNode.getLeftSideOperand() instanceof OperationNode)
+					operationNode = (OperationNode)operationNode.getLeftSideOperand();
+				
+				if(operationNode.getOperator() == Operator.MEMBER_ACCESS) {
+					DataObject lvalue = interpretOperationNode(operationNode, SCOPE_ID);
+					String variableName = lvalue.getVariableName();
+					if(variableName == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_ASSIGNMENT, "Anonymous values can not be changed", node.getLineNumberFrom(), SCOPE_ID);
+					
+					if(lvalue.isFinalData() || lvalue.isLangVar())
+						return setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, node.getLineNumberFrom(), SCOPE_ID);
+					
+					try {
+						lvalue.setData(rvalue);
+					}catch(DataTypeConstraintViolatedException e) {
+						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Incompatible type for rvalue in assignment", node.getLineNumberFrom(), SCOPE_ID);
+					}
+					
+					return rvalue;
+				}
+				
+				//Continue in "Lang translation" in the switch statement below
+			}
+			
 			switch(lvalueNode.getNodeType()) {
 				//Variable assignment
 				case UNPROCESSED_VARIABLE_NAME:
@@ -1740,6 +1771,8 @@ public final class LangInterpreter {
 				case ASSIGNMENT:
 				case CHAR_VALUE:
 				case CONDITION:
+				case MATH:
+				case OPERATION:
 				case DOUBLE_VALUE:
 				case ESCAPE_SEQUENCE:
 				case FLOAT_VALUE:
@@ -1764,8 +1797,6 @@ public final class LangInterpreter {
 				case TRY_STATEMENT_PART_CATCH:
 				case TRY_STATEMENT_PART_ELSE:
 				case TRY_STATEMENT_PART_FINALLY:
-				case MATH:
-				case OPERATION:
 				case INT_VALUE:
 				case LIST:
 				case LONG_VALUE:
