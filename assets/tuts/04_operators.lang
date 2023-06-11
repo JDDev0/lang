@@ -61,27 +61,31 @@ lang.version = v1.0.0
 # opr1=opr2           - Simple translation
 # opr1 = opr2         - Normal assignment
 # opr1 = opr2         - Normal translation
-# opr1 ?= opr2        - Condition operator assignment  (Is equivalent to "opr1 = parser.con(opr2)")
-# opr1 := opr2        - Math operator assignment       (Is equivalent to "opr1 = parser.math(opr2)")
-# opr1 $= opr2        - Operation operator assignment  (Is equivalent to "opr1 = parser.op(opr2)")
-# opr1 += opr2        - Addition assignment            (Is equivalent to "opr1 = parser.op((opr1) + (opr2))")
-# opr1 -= opr2        - Subtract assignment            (Is equivalent to "opr1 = parser.op((opr1) - (opr2))")
-# opr1 *= opr2        - Multiplication assignment      (Is equivalent to "opr1 = parser.op((opr1) * (opr2))")
-# opr1 /= opr2        - Division assignment            (Is equivalent to "opr1 = parser.op((opr1) / (opr2))")
-# opr1 ~/= opr2       - Truncation division assignment (Is equivalent to "opr1 = parser.op((opr1) ~/ (opr2))")
-# opr1 //= opr2       - Floor division assignment      (Is equivalent to "opr1 = parser.op((opr1) // (opr2))")
-# opr1 ^/= opr2       - Ceil division assignment       (Is equivalent to "opr1 = parser.op((opr1) ^/ (opr2))")
-# opr1 **= opr2       - Power assignment               (Is equivalent to "opr1 = parser.op((opr1) ** (opr2))")
-# opr1 %= opr2        - Modulo assignment              (Is equivalent to "opr1 = parser.op((opr1) % (opr2))")
-# opr1 >>= opr2       - Right shift assignment         (Is equivalent to "opr1 = parser.op((opr1) >> (opr2))")
-# opr1 >>>= opr2      - Right shift zero assignment    (Is equivalent to "opr1 = parser.op((opr1) >>> (opr2))")
-# opr1 <<= opr2       - Left shift assignment          (Is equivalent to "opr1 = parser.op((opr1) << (opr2))")
-# opr1 &= opr2        - Bitwise and assignment         (Is equivalent to "opr1 = parser.op((opr1) & (opr2))")
-# opr1 ^= opr2        - Bitwise xor assignment         (Is equivalent to "opr1 = parser.op((opr1) ^ (opr2))")
-# opr1 |= opr2        - Bitwise or assignment          (Is equivalent to "opr1 = parser.op((opr1) | (opr2))")
-# opr1 |||= opr2      - Concat assignment              (Is equivalent to "opr1 = parser.op((opr1) ||| (opr2))")
-# opr1 ?:= opr2       - Elvis assignment               (Is equivalent to "opr1 = parser.op((opr1) ?: (opr2))")
-# opr1 ??= opr2       - Null coalescing assignment     (Is equivalent to "opr1 = parser.op((opr1) ?? (opr2))")
+# opr1 ::= opr2       - Lvalue operation assignment [1]    (Is equivalent to "parser.op(opr1) = opr2")
+# opr1 ?= opr2        - Condition operator assignment [1]  (Is equivalent to "parser.con(opr1) = parser.con(opr2)")
+# opr1 := opr2        - Math operator assignment [1]       (Is equivalent to "parser.math(opr1) = parser.math(opr2)")
+# opr1 $= opr2        - Operation operator assignment [1]  (Is equivalent to "parser.op(opr1) = parser.op(opr2)")
+# opr1 += opr2        - Addition assignment [1]            (Is equivalent to "parser.op(opr1) = parser.op((opr1) + (opr2))")
+# opr1 -= opr2        - Subtract assignment [1]            (Is equivalent to "parser.op(opr1) = parser.op((opr1) - (opr2))")
+# opr1 *= opr2        - Multiplication assignment [1]      (Is equivalent to "parser.op(opr1) = parser.op((opr1) * (opr2))")
+# opr1 /= opr2        - Division assignment [1]            (Is equivalent to "parser.op(opr1) = parser.op((opr1) / (opr2))")
+# opr1 ~/= opr2       - Truncation division assignment [1] (Is equivalent to "parser.op(opr1) = parser.op((opr1) ~/ (opr2))")
+# opr1 //= opr2       - Floor division assignment [1]      (Is equivalent to "parser.op(opr1) = parser.op((opr1) // (opr2))")
+# opr1 ^/= opr2       - Ceil division assignment [1]       (Is equivalent to "parser.op(opr1) = parser.op((opr1) ^/ (opr2))")
+# opr1 **= opr2       - Power assignment [1]               (Is equivalent to "parser.op(opr1) = parser.op((opr1) ** (opr2))")
+# opr1 %= opr2        - Modulo assignment [1]              (Is equivalent to "parser.op(opr1) = parser.op((opr1) % (opr2))")
+# opr1 >>= opr2       - Right shift assignment [1]         (Is equivalent to "parser.op(opr1) = parser.op((opr1) >> (opr2))")
+# opr1 >>>= opr2      - Right shift zero assignment [1]    (Is equivalent to "parser.op(opr1) = parser.op((opr1) >>> (opr2))")
+# opr1 <<= opr2       - Left shift assignment [1]          (Is equivalent to "parser.op(opr1) = parser.op((opr1) << (opr2))")
+# opr1 &= opr2        - Bitwise and assignment [1]         (Is equivalent to "parser.op(opr1) = parser.op((opr1) & (opr2))")
+# opr1 ^= opr2        - Bitwise xor assignment [1]         (Is equivalent to "parser.op(opr1) = parser.op((opr1) ^ (opr2))")
+# opr1 |= opr2        - Bitwise or assignment [1]          (Is equivalent to "parser.op(opr1) = parser.op((opr1) | (opr2))")
+# opr1 |||= opr2      - Concat assignment [1]              (Is equivalent to "parser.op(opr1) = parser.op((opr1) ||| (opr2))")
+# opr1 ?:= opr2       - Elvis assignment [1]               (Is equivalent to "parser.op(opr1) = parser.op((opr1) ?: (opr2))")
+# opr1 ??= opr2       - Null coalescing assignment [1]     (Is equivalent to "parser.op(opr1) = parser.op((opr1) ?? (opr2))")
+#
+# Footnotes:
+# 1) The lvalue will only be parsed as an operation statement if it is not a valid variable name (with or without module prefix)
 
 # Operator precedence/associativity
 # Precedence | Operator           | Associativity | Operator name
@@ -152,6 +156,7 @@ lang.version = v1.0.0
 # -----------|--------------------|---------------|------------------------------------------
 # 16         | opr1 = opr2        | right-to-left | Normal assignment
 #            | opr1 = opr2        |               | Translation
+#            | opr1 ::= opr2      |               | Lvalue operation assignment
 #            | opr1 ?= opr2       |               | Condition operator assignment
 #            | opr1 := opr2       |               | Math operator assignment
 #            | opr1 $= opr2       |               | Operation operator assignment
@@ -293,6 +298,15 @@ func.println()
 # Normal assignment
 $a = 42
 func.println($a)
+
+func.println()
+
+# Lvalue operation assignment
+$arr $= [1, 2, 3]
+$arr[0] ::= test-abc # Will set $arr[0] to a text value
+# $arr[0] = test-abc # Would be parsed as a translation
+# $arr[0] $= test-abc # Would throw an error ("-" is not defined for TEXT and TEXT)
+func.println($arr)
 
 func.println()
 
