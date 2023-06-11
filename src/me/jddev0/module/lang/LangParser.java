@@ -978,10 +978,9 @@ public final class LangParser {
 		}
 		
 		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME);
-		boolean isNonLvalueOperationAssignment = isInnerAssignment?isVariableAssignment:
-			LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION);
-		if(LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_OPERATION_WITH_OPERATOR) ||
-				isNonLvalueOperationAssignment) {
+		boolean isNonLvalueOperationAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION);
+		if(isInnerAssignment?isVariableAssignment:(isNonLvalueOperationAssignment ||
+				LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_OPERATION_WITH_OPERATOR))) {
 			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
 			
 			//If lvalue contains "(", "[", or "{" which are not closed -> do not parse as assignment
