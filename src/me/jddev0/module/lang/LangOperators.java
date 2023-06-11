@@ -2571,4 +2571,88 @@ final class LangOperators {
 		
 		return null;
 	}
+	public DataObject opSetItem(DataObject leftSideOperand, DataObject middleOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		switch(leftSideOperand.getType()) {
+			case BYTE_BUFFER:
+				if(middleOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getByteBuffer().length;
+					int index = middleOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					Number valueNumber = rightSideOperand.toNumber();
+					if(valueNumber == null)
+						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+					byte value = valueNumber.byteValue();
+					
+					leftSideOperand.getByteBuffer()[index] = value;
+					
+					return new DataObject().setVoid();
+				}
+				
+				return null;
+			case ARRAY:
+				if(middleOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getArray().length;
+					int index = middleOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					leftSideOperand.getArray()[index] = new DataObject(rightSideOperand);
+					
+					return new DataObject().setVoid();
+				}
+				
+				return null;
+			case LIST:
+				if(middleOperand.getType() == DataType.INT) {
+					int len = leftSideOperand.getList().size();
+					int index = middleOperand.getInt();
+					if(index < 0)
+						index += len;
+					
+					if(index < 0 || index >= len)
+						return new DataObject().setError(new ErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS));
+					
+					leftSideOperand.getList().set(index, new DataObject(rightSideOperand));
+					
+					return new DataObject().setVoid();
+				}
+			case STRUCT:
+				if(middleOperand.getType() == DataType.TEXT) {
+					try {
+						leftSideOperand.getStruct().setMember(middleOperand.getText(), rightSideOperand);
+						
+						return new DataObject().setVoid();
+					}catch(DataTypeConstraintException e) {
+						return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+					}
+				}
+				
+				return null;
+			
+			case TEXT:
+			case CHAR:
+			case INT:
+			case LONG:
+			case FLOAT:
+			case DOUBLE:
+			case ERROR:
+			case VAR_POINTER:
+			case FUNCTION_POINTER:
+			case NULL:
+			case VOID:
+			case ARGUMENT_SEPARATOR:
+			case TYPE:
+				return null;
+		}
+		
+		return null;
+	}
 }
