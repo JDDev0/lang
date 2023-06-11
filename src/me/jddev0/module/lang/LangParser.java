@@ -286,7 +286,20 @@ public final class LangParser {
 				}
 				//Binary operator if something was before else unary operator
 				if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
+					AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
+					
 					operator = AbstractSyntaxTree.OperationNode.Operator.GET_ITEM;
+					
+					if(tokensLeft != null && currentOperatorPrecedence <= operator.getPrecedence()) {
+						tokensLeft.append(token.trim());
+						
+						if(whitespaces.length() > 0)
+							whitespaces.delete(0, whitespaces.length());
+						
+						operator = oldOperator;
+						
+						break;
+					}
 					
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
