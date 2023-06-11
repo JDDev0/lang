@@ -189,7 +189,11 @@ final class LangPatterns {
 	/**
 	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .{@literal *}
 	 */
-	public static final Pattern PARSING_ASSIGNMENT = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
+	public static final Pattern PARSING_ASSIGNMENT_VAR_NAME = Pattern.compile("(\\[\\[\\w+\\]\\]::)?(\\$\\**|&|fp\\.)\\w+ [^\\\\= ]{0,3}= .*");
+	/**
+	 * RegEx: [^=]+ [^\\= ]{0,3}= .{@literal *}
+	 */
+	public static final Pattern PARSING_ASSIGNMENT_OPERATION_WITH_OPERATOR = Pattern.compile("[^=]+ [^\\\\= ]{1,3}= .*");
 	/**
 	 * RegEx: (\[\[\w+\]\]::)?(\$\**|&|fp\.)\w+ [^\\= ]{0,3}= .*|[^=]+ = .{@literal *}
 	 */

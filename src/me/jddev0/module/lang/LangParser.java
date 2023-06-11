@@ -977,8 +977,11 @@ public final class LangParser {
 					parseSimpleAssignmentValue(tokens[1]).convertToNode());
 		}
 		
-		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT);
-		if(isInnerAssignment?isVariableAssignment:LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION)) {
+		boolean isVariableAssignment = LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME);
+		boolean isNonLvalueOperationAssignment = isInnerAssignment?isVariableAssignment:
+			LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_VAR_NAME_OR_TRANSLATION);
+		if(LangPatterns.matches(line, LangPatterns.PARSING_ASSIGNMENT_OPERATION_WITH_OPERATOR) ||
+				isNonLvalueOperationAssignment) {
 			String[] tokens = LangPatterns.PARSING_ASSIGNMENT_OPERATOR.split(line, 2);
 			
 			//If lvalue contains "(", "[", or "{" which are not closed -> do not parse as assignment
@@ -994,15 +997,8 @@ public final class LangParser {
 			
 			String assignmentOperator = line.substring(tokens[0].length() + 1, line.indexOf('=', tokens[0].length()));
 			
-			AbstractSyntaxTree.Node lvalueNode = ((isVariableAssignment || !assignmentOperator.isEmpty())?parseLRvalue(tokens[0], null, false):parseTranslationKey(tokens[0])).convertToNode();
-			AbstractSyntaxTree.Node rvalueNode;
-			
-			if(assignmentOperator.isEmpty()) {
-				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
-				rvalueNode = returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode();
-			}else {
-				AbstractSyntaxTree.OperationNode.Operator operator;
-				
+			AbstractSyntaxTree.OperationNode.Operator operator = null;
+			if(!assignmentOperator.isEmpty()) {
 				switch(assignmentOperator) {
 					case "**":
 						operator = AbstractSyntaxTree.OperationNode.Operator.POW;
@@ -1067,11 +1063,28 @@ public final class LangParser {
 					case "$":
 						operator = AbstractSyntaxTree.OperationNode.Operator.NON;
 						break;
-					
-					default:
-						operator = null;
 				}
-				
+			}
+			
+			AbstractSyntaxTree.Node lvalueNode;
+			if(isNonLvalueOperationAssignment) {
+				lvalueNode = ((isVariableAssignment || !assignmentOperator.isEmpty())?
+						parseLRvalue(tokens[0], null, false):parseTranslationKey(tokens[0])).convertToNode();
+			}else {
+				if(operator == AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON)
+					lvalueNode = parseCondition(tokens[0]);
+				else if(operator == AbstractSyntaxTree.OperationNode.Operator.MATH_NON)
+					lvalueNode = parseMathExpr(tokens[0]);
+				else
+					lvalueNode = parseOperationExpr(tokens[0]);
+			}
+			
+			AbstractSyntaxTree.Node rvalueNode;
+			
+			if(assignmentOperator.isEmpty()) {
+				AbstractSyntaxTree.AssignmentNode returnedNode = parseAssignment(tokens[1], lines, true);
+				rvalueNode = returnedNode != null?returnedNode:parseLRvalue(tokens[1], lines, true).convertToNode();
+			}else {
 				if(operator == null)
 					rvalueNode = new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT);
 				else if(operator == AbstractSyntaxTree.OperationNode.Operator.CONDITIONAL_NON)
