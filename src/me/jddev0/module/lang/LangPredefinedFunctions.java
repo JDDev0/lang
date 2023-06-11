@@ -2122,6 +2122,19 @@ final class LangPredefinedFunctions {
 				opCast(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("getItem", (argumentList, SCOPE_ID) -> throwErrorOnNullOrErrorTypeHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
 				opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+		funcs.put("setItem", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject leftSideOperand = combinedArgumentList.get(0);
+			DataObject middleOperand = combinedArgumentList.get(1);
+			DataObject rightSideOperand = combinedArgumentList.get(2);
+			
+			return throwErrorOnNullOrErrorTypeHelper(interpreter.operators.
+					opSetItem(leftSideOperand, middleOperand, rightSideOperand, SCOPE_ID), SCOPE_ID);
+		});
 		
 		//Condition operator functions
 		funcs.put("conNot", (argumentList, SCOPE_ID) -> unaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::toBoolean, SCOPE_ID));
