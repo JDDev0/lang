@@ -224,7 +224,7 @@ final class LangOperators {
 	
 	//Math operation functions
 	/**
-	 * For "▲"
+	 * For "+|"
 	 */
 	public DataObject opInc(DataObject operand, final int SCOPE_ID) {
 		switch(operand.getType()) {
@@ -275,7 +275,7 @@ final class LangOperators {
 		return null;
 	}
 	/**
-	 * For "▼"
+	 * For "-|"
 	 */
 	public DataObject opDec(DataObject operand, final int SCOPE_ID) {
 		switch(operand.getType()) {
