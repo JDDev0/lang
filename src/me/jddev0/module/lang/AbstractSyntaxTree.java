@@ -2403,7 +2403,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			 */
 			COMMA                 (",",        15,       OperatorType.ALL),
 			GET_ITEM              ("[...]",     0,       OperatorType.ALL),
-			MEMBER_ACCESS         ("::",        0, true, OperatorType.ALL);
+			MEMBER_ACCESS         ("::",        0, true, OperatorType.ALL),
+			MEMBER_ACCESS_POINTER ("->",        0, true, OperatorType.ALL);
 			
 			private final String symbol;
 			private final int arity;

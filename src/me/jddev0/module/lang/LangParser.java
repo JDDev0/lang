@@ -478,6 +478,12 @@ public final class LangParser {
 				}else if(token.startsWith("==") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.EQUALS;
+				}else if(token.startsWith("::") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.MEMBER_ACCESS;
+				}else if(token.startsWith("->") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
+					operatorLength = 2;
+					operator = AbstractSyntaxTree.OperationNode.Operator.MEMBER_ACCESS_POINTER;
 				}else if(token.startsWith("<<") && AbstractSyntaxTree.OperationNode.OperatorType.MATH.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.LSHIFT;
@@ -565,9 +571,6 @@ public final class LangParser {
 					operator = AbstractSyntaxTree.OperationNode.Operator.NULL_COALESCING;
 				}else if(token.startsWith(",") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
 					operator = AbstractSyntaxTree.OperationNode.Operator.COMMA;
-				}else if(token.startsWith("::") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
-					operatorLength = 2;
-					operator = AbstractSyntaxTree.OperationNode.Operator.MEMBER_ACCESS;
 				}else {
 					operator = null;
 				}

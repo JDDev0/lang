@@ -1278,10 +1278,26 @@ public final class LangInterpreter {
 				case GET_ITEM:
 					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
+				case MEMBER_ACCESS_POINTER:
+					if(leftSideOperand.getType() != DataType.VAR_POINTER)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+								"The left side operand of the member access pointer operator (\"" + node.getOperator().getSymbol() + "\") must be a pointer",
+								node.getLineNumberFrom(), SCOPE_ID);
+					
+					leftSideOperand = leftSideOperand.getVarPointer().getVar();
+					if(leftSideOperand == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_PTR, node.getLineNumberFrom(), SCOPE_ID);
+					
+					if(leftSideOperand.getType() != DataType.STRUCT)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+								"The left side operand of the member access pointer operator (\"" + node.getOperator().getSymbol() + "\") must be a pointer pointing to a composite type",
+								node.getLineNumberFrom(), SCOPE_ID);
+					
+					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
 				case MEMBER_ACCESS:
 					if(leftSideOperand.getType() != DataType.STRUCT)
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
-								"The left side operant of the member access operator (\"" + node.getOperator().getSymbol() + "\") must be a composite type",
+								"The left side operand of the member access operator (\"" + node.getOperator().getSymbol() + "\") must be a composite type",
 								node.getLineNumberFrom(), SCOPE_ID);
 					
 					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
@@ -1671,10 +1687,12 @@ public final class LangInterpreter {
 				operationNode.getLeftSideOperand() instanceof OperationNode)
 					operationNode = (OperationNode)operationNode.getLeftSideOperand();
 				
-				if(operationNode.getOperator() == Operator.MEMBER_ACCESS) {
+				boolean isMemberAccessPointerOperator = operationNode.getOperator() == Operator.MEMBER_ACCESS_POINTER;
+				if(isMemberAccessPointerOperator || operationNode.getOperator() == Operator.MEMBER_ACCESS) {
 					DataObject lvalue = interpretOperationNode(operationNode, SCOPE_ID);
 					if(lvalue == null)
-						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid arguments for member access",
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+								"Invalid arguments for member access" + (isMemberAccessPointerOperator?" pointer":""),
 								node.getLineNumberFrom(), SCOPE_ID);
 					
 					String variableName = lvalue.getVariableName();
@@ -1781,7 +1799,7 @@ public final class LangInterpreter {
 							break;
 						}
 					}
-					//Fall through to "Lang translation" if variableName is not valid
+					//Fall-through to "Lang translation" if variableName is not valid
 				
 				//Lang translation
 				case ASSIGNMENT:
@@ -2831,14 +2849,14 @@ public final class LangInterpreter {
 				if(valueSpecifiedIndex != null || sizeInArgument || size != null)
 					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
-				//Fall-trough
+				//Fall-through
 			case 'c':
 			case 's':
 			case '?':
 				if(forceSign || signSpace || leadingZeros)
 					return FORMAT_SEQUENCE_ERROR_INVALID_FORMAT_SEQUENCE;
 				
-				//Fall-trough
+				//Fall-through
 			case 'b':
 			case 'd':
 			case 'o':
