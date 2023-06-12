@@ -1674,7 +1674,8 @@ public final class LangInterpreter {
 				if(operationNode.getOperator() == Operator.MEMBER_ACCESS) {
 					DataObject lvalue = interpretOperationNode(operationNode, SCOPE_ID);
 					if(lvalue == null)
-						lvalue = new DataObject().setVoid();
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid arguments for member access",
+								node.getLineNumberFrom(), SCOPE_ID);
 					
 					String variableName = lvalue.getVariableName();
 					if(variableName == null)
@@ -1696,11 +1697,13 @@ public final class LangInterpreter {
 				}else if(operationNode.getOperator() == Operator.GET_ITEM) {
 					DataObject compositeTypeObject = interpretNode(null, operationNode.getLeftSideOperand(), SCOPE_ID);
 					if(compositeTypeObject == null)
-						compositeTypeObject = new DataObject().setVoid();
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing composite type operand for set item",
+								node.getLineNumberFrom(), SCOPE_ID);
 					
 					DataObject indexObject = interpretNode(null, operationNode.getRightSideOperand(), SCOPE_ID);
 					if(indexObject == null)
-						indexObject = new DataObject().setVoid();
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing index operand for set item",
+								node.getLineNumberFrom(), SCOPE_ID);
 					
 					DataObject ret = operators.opSetItem(compositeTypeObject, indexObject, rvalue, SCOPE_ID);
 					if(ret == null)
