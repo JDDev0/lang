@@ -186,7 +186,7 @@ lang.version = v1.0.0
 # 1) The unary operators (@, ^, +, -, ~, +|, ▲, -|, ▼, and !) have a higher binding than the member access operators if they are on the right of the member access operator.
 # 2) The unary operators (+, -, ~, +|, ▲, -|, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
 # 
-# Some operators have multiple meanings but will have the same precedence and associativity
+# Some operators have multiple meanings but they keep the same precedence and associativity
 
 # Parser functions
 # parser.con(opr) # Condition
