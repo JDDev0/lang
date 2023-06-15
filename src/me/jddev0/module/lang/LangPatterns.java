@@ -87,7 +87,7 @@ final class LangPatterns {
 	/**
 	 * RegEx: \{[?!]?([A-Z]+\|)*[A-Z]+\}
 	 */
-	public static final Pattern TYPE_CONSTRAINT = Pattern.compile("\\{[?!]?([A-Z]+\\|)*[A-Z]+\\}");
+	public static final Pattern TYPE_CONSTRAINT = Pattern.compile("\\{[?!]?([A-Z_]+\\|)*[A-Z_]+\\}");
 	
 	//Function call specific
 	/**
