@@ -2224,11 +2224,10 @@ public final class LangInterpreter {
 							continue;
 						}
 						
-						if(!isVarNameWithoutPrefix(variableName) || isLangVarWithoutPrefix(variableName)) {
-							setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter variable name", parameter.getLineNumberFrom(), NEW_SCOPE_ID);
-							
-							continue;
-						}
+						if(!isVarNameWithoutPrefix(variableName) || isLangVarWithoutPrefix(variableName))
+							return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+									"Invalid parameter variable name: \"" + variableName + "\"",
+									parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 						
 						if(argumentValueList.size() > 0)
 							lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
@@ -2241,9 +2240,9 @@ public final class LangInterpreter {
 								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
 										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 						}catch(DataTypeConstraintViolatedException e) {
-							setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Invalid argument value for parameter variable", parentLineNumber, SCOPE_ID);
-							
-							continue;
+							return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+									"Invalid argument value for function parameter \"" + variableName + "\"",
+									parentLineNumber, SCOPE_ID);
 						}
 					}
 					
