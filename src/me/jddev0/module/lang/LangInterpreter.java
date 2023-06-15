@@ -2216,7 +2216,8 @@ public final class LangInterpreter {
 								lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 							else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
 								lastDataObject = new DataObject().setVoid();
-							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
+							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName,
+									new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
 							if(old != null && old.isStaticData())
 								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
 										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
@@ -2242,7 +2243,7 @@ public final class LangInterpreter {
 						}catch(DataTypeConstraintViolatedException e) {
 							return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
 									"Invalid argument value for function parameter \"" + variableName + "\"",
-									parentLineNumber, SCOPE_ID);
+									parameter.getLineNumberFrom(), SCOPE_ID);
 						}
 					}
 					
