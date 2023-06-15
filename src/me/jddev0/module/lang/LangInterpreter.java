@@ -650,11 +650,16 @@ public final class LangInterpreter {
 			case INVALID_ASSIGNMENT:
 				error = InterpretingError.INVALID_ASSIGNMENT;
 				break;
+			
+			case INVALID_PARAMETER:
+				error = InterpretingError.INVALID_AST_NODE;
+				break;
 		}
 		
 		if(error == null)
 			error = InterpretingError.INVALID_AST_NODE;
-		return setErrnoErrorObject(error, node.getMessage() == null?"":node.getMessage(), node.getLineNumberFrom(), SCOPE_ID);
+		return setErrnoErrorObject(error, node.getMessage() == null?node.getError().getErrorText():node.getMessage(),
+				node.getLineNumberFrom(), SCOPE_ID);
 	}
 	
 	/**
@@ -2182,28 +2187,62 @@ public final class LangInterpreter {
 					while(parameterListIterator.hasNext()) {
 						VariableNameNode parameter = parameterListIterator.next();
 						String variableName = parameter.getVariableName();
+						String rawTypeConstraint = parameter.getTypeConstraint();
+						DataTypeConstraint typeConstraint;
+						if(rawTypeConstraint == null) {
+							typeConstraint = null;
+						}else {
+							DataObject errorOut = new DataObject().setVoid();
+							typeConstraint = interpretTypeConstraint(rawTypeConstraint, errorOut, parameter.getLineNumberFrom(), SCOPE_ID);
+							
+							if(errorOut.getType() == DataType.ERROR)
+								return errorOut;
+						}
+						
 						if(!parameterListIterator.hasNext() && !isLangVarWithoutPrefix(variableName) && isFuncCallVarArgs(variableName)) {
 							//Varargs (only the last parameter can be a varargs parameter)
 							variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 							if(variableName.startsWith("$")) {
 								//Text varargs
 								DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
-								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(dataObject != null?dataObject.getText():
-								new DataObject().setVoid().getText()).setVariableName(variableName));
-								if(old != null && old.isStaticData())
-									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
-											parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+								try {
+									DataObject newDataObject = new DataObject(dataObject != null?dataObject.getText():
+										new DataObject().setVoid().getText()).setVariableName(variableName);
+									if(typeConstraint != null)
+										newDataObject.setTypeConstraint(typeConstraint);
+									
+									
+									DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
+									if(old != null && old.isStaticData())
+										setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+												parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+								}catch(DataTypeConstraintException e) {
+									return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+											"Invalid argument value for function parameter \"" + variableName + "\" (" + e.getMessage() + ")",
+											parameter.getLineNumberFrom(), SCOPE_ID);
+								}
 							}else {
 								//Array varargs
 								List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
 								if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
 									varArgsTmpList.add(new DataObject().setVoid());
 								
-								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject().setArray(varArgsTmpList.
-								toArray(new DataObject[0])).setVariableName(variableName));
-								if(old != null && old.isStaticData())
-									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
-											parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+								try {
+									DataObject newDataObject = new DataObject().
+											setArray(varArgsTmpList.toArray(new DataObject[0])).
+											setVariableName(variableName);
+									if(typeConstraint != null)
+										newDataObject.setTypeConstraint(typeConstraint);
+									
+									DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
+									if(old != null && old.isStaticData())
+										setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+												parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+								}catch(DataTypeConstraintException e) {
+									return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+											"Invalid argument value for function parameter \"" + variableName + "\" (" + e.getMessage() + ")",
+											parameter.getLineNumberFrom(), SCOPE_ID);
+								}
 							}
 							
 							break;
@@ -2216,11 +2255,23 @@ public final class LangInterpreter {
 								lastDataObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentValueList, true);
 							else if(isLastDataObjectArgumentSeparator && lastDataObject.getType() != DataType.VOID)
 								lastDataObject = new DataObject().setVoid();
-							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName,
-									new DataObject().setVarPointer(new VarPointerObject(lastDataObject)).setVariableName(variableName));
-							if(old != null && old.isStaticData())
-								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
-										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+							
+							try {
+								DataObject newDataObject = new DataObject().
+										setVarPointer(new VarPointerObject(lastDataObject)).
+										setVariableName(variableName);
+								if(typeConstraint != null)
+									newDataObject.setTypeConstraint(typeConstraint);
+								
+								DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
+								if(old != null && old.isStaticData())
+									setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
+											parameter.getLineNumberFrom(), NEW_SCOPE_ID);
+							}catch(DataTypeConstraintException e) {
+								return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+										"Invalid argument value for function parameter \"" + variableName + "\" (" + e.getMessage() + ")",
+										parameter.getLineNumberFrom(), SCOPE_ID);
+							}
 							
 							continue;
 						}
@@ -2236,13 +2287,18 @@ public final class LangInterpreter {
 							lastDataObject = new DataObject().setVoid();
 						
 						try {
-							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, new DataObject(lastDataObject).setVariableName(variableName));
+							DataObject newDataObject = new DataObject(lastDataObject).
+									setVariableName(variableName);
+							if(typeConstraint != null)
+								newDataObject.setTypeConstraint(typeConstraint);
+							
+							DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
 							if(old != null && old.isStaticData())
 								setErrno(InterpretingError.VAR_SHADOWING_WARNING, "Parameter \"" + variableName + "\" shadows a static variable",
 										parameter.getLineNumberFrom(), NEW_SCOPE_ID);
 						}catch(DataTypeConstraintViolatedException e) {
 							return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
-									"Invalid argument value for function parameter \"" + variableName + "\"",
+									"Invalid argument value for function parameter \"" + variableName + "\" (" + e.getMessage() + ")",
 									parameter.getLineNumberFrom(), SCOPE_ID);
 						}
 					}
@@ -2573,9 +2629,11 @@ public final class LangInterpreter {
 			Node child = childrenIterator.next();
 			try {
 				if(child.getNodeType() != NodeType.VARIABLE_NAME) {
-					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid AST node type for parameter", node.getLineNumberFrom(), SCOPE_ID);
-					
-					continue;
+					if(child.getNodeType() == NodeType.PARSING_ERROR)
+						return interpretNode(null, child, SCOPE_ID);
+					else
+						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+								"Invalid AST node type for parameter", node.getLineNumberFrom(), SCOPE_ID);
 				}
 				
 				VariableNameNode parameter = (VariableNameNode)child;
@@ -2586,11 +2644,11 @@ public final class LangInterpreter {
 					break;
 				}
 				
-				if((!isVarNameWithoutPrefix(variableName) && !isFuncCallCallByPtr(variableName)) || isLangVarWithoutPrefix(variableName)) {
-					setErrno(InterpretingError.INVALID_AST_NODE, "Invalid parameter: \"" + variableName + "\"", node.getLineNumberFrom(), SCOPE_ID);
-					
-					continue;
-				}
+				if((!isVarNameWithoutPrefix(variableName) && !isFuncCallCallByPtr(variableName)) ||
+						isLangVarWithoutPrefix(variableName))
+					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+							"Invalid parameter: \"" + variableName + "\"", node.getLineNumberFrom(), SCOPE_ID);
+				
 				parameterList.add(parameter);
 			}catch(ClassCastException e) {
 				setErrno(InterpretingError.INVALID_AST_NODE, node.getLineNumberFrom(), SCOPE_ID);
@@ -2636,42 +2694,11 @@ public final class LangInterpreter {
 			if(typeConstraint == null)
 				continue;
 			
-			if(typeConstraint.isEmpty())
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", node.getLineNumberFrom(), SCOPE_ID);
+			DataObject errorOut = new DataObject().setVoid();
+			typeConstraintsArray[i] = interpretTypeConstraint(typeConstraint, errorOut, node.getLineNumberFrom(), SCOPE_ID);
 			
-			boolean nullable = typeConstraint.charAt(0) == '?';
-			boolean inverted = typeConstraint.charAt(0) == '!';
-			List<DataType> typeValues = new LinkedList<>(); 
-			
-			if(nullable || inverted)
-				typeConstraint = typeConstraint.substring(1);
-			
-			int pipeIndex;
-			do {
-				pipeIndex = typeConstraint.indexOf('|');
-				
-				String type = pipeIndex > -1?typeConstraint.substring(0, pipeIndex):typeConstraint;
-				
-				if(type.isEmpty() || pipeIndex == typeConstraint.length() - 1)
-					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", node.getLineNumberFrom(), SCOPE_ID);
-				
-				typeConstraint = pipeIndex > -1?typeConstraint.substring(pipeIndex + 1):"";
-				
-				try {
-					DataType typeValue = DataType.valueOf(type);
-					typeValues.add(typeValue);
-				}catch(IllegalArgumentException e) {
-					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid type: \"" + type + "\"", node.getLineNumberFrom(), SCOPE_ID);
-				}
-			}while(pipeIndex > -1);
-			
-			if(nullable)
-				typeValues.add(DataType.NULL);
-			
-			if(inverted)
-				typeConstraintsArray[i] = DataTypeConstraint.fromNotAllowedTypes(typeValues);
-			else
-				typeConstraintsArray[i] = DataTypeConstraint.fromAllowedTypes(typeValues);
+			if(errorOut.getType() == DataType.ERROR)
+				return errorOut;
 		}
 		
 		try {
@@ -2679,6 +2706,45 @@ public final class LangInterpreter {
 		}catch(DataTypeConstraintException e) {
 			return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, e.getMessage(), node.getLineNumberFrom(), SCOPE_ID);
 		}
+	}
+	
+	private DataTypeConstraint interpretTypeConstraint(String typeConstraint, DataObject errorOut, int lineNumber, final int SCOPE_ID) {
+		if(typeConstraint.isEmpty())
+			errorOut.setData(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", lineNumber, SCOPE_ID));
+		
+		boolean nullable = typeConstraint.charAt(0) == '?';
+		boolean inverted = typeConstraint.charAt(0) == '!';
+		List<DataType> typeValues = new LinkedList<>(); 
+		
+		if(nullable || inverted)
+			typeConstraint = typeConstraint.substring(1);
+		
+		int pipeIndex;
+		do {
+			pipeIndex = typeConstraint.indexOf('|');
+			
+			String type = pipeIndex > -1?typeConstraint.substring(0, pipeIndex):typeConstraint;
+			
+			if(type.isEmpty() || pipeIndex == typeConstraint.length() - 1)
+				errorOut.setData(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Empty type constraint is not allowed", lineNumber, SCOPE_ID));
+			
+			typeConstraint = pipeIndex > -1?typeConstraint.substring(pipeIndex + 1):"";
+			
+			try {
+				DataType typeValue = DataType.valueOf(type);
+				typeValues.add(typeValue);
+			}catch(IllegalArgumentException e) {
+				errorOut.setData(setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid type: \"" + type + "\"", lineNumber, SCOPE_ID));
+			}
+		}while(pipeIndex > -1);
+		
+		if(nullable)
+			typeValues.add(DataType.NULL);
+		
+		if(inverted)
+			return DataTypeConstraint.fromNotAllowedTypes(typeValues);
+		else
+			return DataTypeConstraint.fromAllowedTypes(typeValues);
 	}
 	
 	//Return values for format sequence errors

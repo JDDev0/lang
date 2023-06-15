@@ -1975,17 +1975,48 @@ public final class LangParser {
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		List<AbstractSyntaxTree.Node> nodes = ast.getChildren();
 		
+		parameterList = parameterList.trim();
+		
 		if(functionDefinition) {
-			String[] tokens = parameterList.split(",");
-			
-			for(String token:tokens)
-				if(!token.isEmpty())
-					nodes.add(new AbstractSyntaxTree.VariableNameNode(lineNumber, token.trim()));
+			if(!parameterList.isEmpty()) {
+				String[] tokens = parameterList.split(",");
+				
+				if(tokens.length == 0 || parameterList.startsWith(",") || parameterList.endsWith(",")) {
+					nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_PARAMETER,
+							"Empty function parameter"));
+				}
+				
+				for(String token:tokens) {
+					token = token.trim();
+					
+					if(token.isEmpty()) {
+						nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_PARAMETER,
+								"Empty function parameter"));
+						
+						continue;
+					}
+					
+					String typeConstraint = null;
+					int braceIndex = token.indexOf('{');
+					if(braceIndex != -1) {
+						String rawTypeConstraint = token.substring(braceIndex);
+						token = token.substring(0, braceIndex);
+						
+						if(!LangPatterns.matches(rawTypeConstraint, LangPatterns.TYPE_CONSTRAINT)) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT, "Invalid type constraint: \"" + rawTypeConstraint + "\""));
+							
+							continue;
+						}
+						
+						typeConstraint = rawTypeConstraint.substring(1, rawTypeConstraint.length() - 1);
+					}
+					
+					nodes.add(new AbstractSyntaxTree.VariableNameNode(lineNumber, token, typeConstraint));
+				}
+			}
 		}else {
 			StringBuilder builder = new StringBuilder();
 			boolean hasNodesFlag = false;
-			
-			parameterList = parameterList.trim();
 			
 			loop:
 			while(parameterList.length() > 0) {
@@ -2380,7 +2411,8 @@ public final class LangParser {
 		CONT_FLOW_ARG_MISSING(-2, "Control flow statement condition(s) or argument(s) is/are missing"),
 		EOF                  (-3, "End of file was reached early"),
 		INVALID_CON_PART     (-4, "Invalid statement part in control flow statement"),
-		INVALID_ASSIGNMENT   (-5, "Invalid assignment operation");
+		INVALID_ASSIGNMENT   (-5, "Invalid assignment operation"),
+		INVALID_PARAMETER    (-6, "Invalid function parameter");
 		
 		private final int errorCode;
 		private final String errorText;

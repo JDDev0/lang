@@ -510,11 +510,19 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	
 	public static final class VariableNameNode extends ChildlessNode {
 		private final String variableName;
+		private final String typeConstraint;
 		
-		public VariableNameNode(int lineNumberFrom, int lineNumberTo, String variableName) {
+		public VariableNameNode(int lineNumberFrom, int lineNumberTo, String variableName, String typeConstraint) {
 			super(lineNumberFrom, lineNumberTo);
 			
 			this.variableName = variableName;
+			this.typeConstraint = typeConstraint;
+		}
+		public VariableNameNode(int lineNumber, String variableName, String typeConstraint) {
+			this(lineNumber, lineNumber, variableName, typeConstraint);
+		}
+		public VariableNameNode(int lineNumberFrom, int lineNumberTo, String variableName) {
+			this(lineNumberFrom, lineNumberTo, variableName, null);
 		}
 		public VariableNameNode(int lineNumber, String variableName) {
 			this(lineNumber, lineNumber, variableName);
@@ -529,6 +537,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return variableName;
 		}
 		
+		public String getTypeConstraint() {
+			return typeConstraint;
+		}
+		
 		@Override
 		public String toString() {
 			StringBuilder builder = new StringBuilder();
@@ -538,6 +550,8 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			builder.append(lineNumberTo);
 			builder.append(", VariableName: \"");
 			builder.append(variableName);
+			builder.append(", TypeConstraint: \"");
+			builder.append(typeConstraint);
 			builder.append("\"\n");
 			
 			return builder.toString();
@@ -555,12 +569,13 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 				return false;
 			
 			VariableNameNode that = (VariableNameNode)obj;
-			return this.getNodeType().equals(that.getNodeType()) && this.variableName.equals(that.variableName);
+			return this.getNodeType().equals(that.getNodeType()) && this.variableName.equals(that.variableName) &&
+					Objects.equals(this.typeConstraint, that.typeConstraint);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getNodeType(), this.variableName);
+			return Objects.hash(this.getNodeType(), this.variableName, this.typeConstraint);
 		}
 	}
 	
