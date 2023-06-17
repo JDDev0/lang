@@ -4833,7 +4833,47 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayMake", (argumentList, SCOPE_ID) -> {
+		funcs.put("arrayMake", new LangPredefinedFunctionObject() {
+			@Override
+			public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
+				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+				DataObject error;
+				if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
+					return error;
+				
+				DataObject lengthObject = combinedArgumentList.get(0);
+				
+				Number lengthNumber = lengthObject.toNumber();
+				if(lengthNumber == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, SCOPE_ID);
+				int length = lengthNumber.intValue();
+				
+				if(length < 0)
+					return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
+				
+				DataObject[] arr = new DataObject[length];
+				for(int i = 0;i < arr.length;i++)
+					arr[i] = new DataObject();
+				
+				return new DataObject().setArray(arr);
+			}
+			
+			@Override
+			public boolean isDeprecated() {
+				return true;
+			}
+			
+			@Override
+			public String getDeprecatedRemoveVersion() {
+				return "v1.0.0";
+			}
+			
+			@Override
+			public String getDeprecatedReplacementFunction() {
+				return "func.arrayCreate";
+			}
+		});
+		funcs.put("arrayCreate", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
 			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
