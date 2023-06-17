@@ -196,6 +196,9 @@ public final class LangUtils {
 	 * @return Returns the index of the matching bracket (Escaped chars will be ignored (escape char: '\')) or -1 if no matching bracket was found
 	 */
 	public static int getIndexOfMatchingBracket(String string, int startIndex, int endIndex, char openedBracket, char closedBracket) {
+		if(startIndex < 0)
+			return -1;
+		
 		int bracketCount = 0;
 		for(int i = startIndex;i < endIndex && i < string.length();i++) {
 			char c = string.charAt(i);
