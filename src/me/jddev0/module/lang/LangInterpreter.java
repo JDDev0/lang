@@ -1089,6 +1089,11 @@ public final class LangInterpreter {
 			}
 		}
 		
+		//Cancel execution stop because of error if most outer try block is reached or if inside a nontry statement
+		if(savedExecutionState.stopExecutionFlag && (savedExecutionState.tryThrownError == null || savedExecutionState.tryBlockLevel == 0 ||
+				(savedExecutionState.isSoftTry && savedExecutionState.tryBodyScopeID != SCOPE_ID)))
+			savedExecutionState.stopExecutionFlag = false;
+		
 		if(!flag && !savedExecutionState.stopExecutionFlag) {
 			TryStatementPartNode elsePart = null;
 			if(!flag && tryPartNodes.size() > 1) {
@@ -1148,11 +1153,6 @@ public final class LangInterpreter {
 						executionState.tryBlockLevel--;
 						executionState.isSoftTry = isSoftTryOld;
 						executionState.tryBodyScopeID = oldTryBlockScopeID;
-						
-						//Cancel execution stop because of error if most outer try block is reached or if inside a nontry statement
-						if(executionState.stopExecutionFlag && (executionState.tryThrownError == null || executionState.tryBlockLevel == 0 ||
-								(executionState.isSoftTry && executionState.tryBodyScopeID != SCOPE_ID)))
-							executionState.stopExecutionFlag = false;
 					}
 					break;
 				case TRY_STATEMENT_PART_NON_TRY:
@@ -1167,10 +1167,6 @@ public final class LangInterpreter {
 					try {
 						interpretAST(node.getTryBody(), SCOPE_ID);
 					}finally {
-						//Cancel execution stop because of error
-						if(executionState.stopExecutionFlag && executionState.tryThrownError == null)
-							executionState.stopExecutionFlag = false;
-						
 						executionState.tryBlockLevel = oldTryBlockLevel;
 						executionState.isSoftTry = isSoftTryOld;
 						executionState.tryBodyScopeID = oldTryBlockScopeID;
