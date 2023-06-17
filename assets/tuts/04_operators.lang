@@ -562,7 +562,7 @@ func.println()
 
 # ARRAY + ARRAY: The second array will be added as one element in the first array
 &a = func.arrayOf(42, abc, null, test)
-&e = func.arrayMake(0)
+&e = func.arrayCreate(0)
 func.println(&e+&e = parser.op(&e+&e))
 func.println(&a+&e = parser.op(&a+&e))
 func.println(&e+&a = parser.op(&e+&a))

@@ -324,7 +324,7 @@ func.println(-----------------)
 # Advanced conditions
 {
 	# Check the length of an array
-	&arr = func.arrayMake(3)
+	&arr = func.arrayCreate(3)
 	
 	func.println(Check with normal equals)
 	func.println(parser.con(&arr == 3))

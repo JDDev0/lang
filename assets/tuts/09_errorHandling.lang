@@ -114,7 +114,7 @@ if($LANG_ERRNO != 0) { # "if($LANG_ERRNO)" would also be possible
 
 func.println()
 
-func.arrayMake(&a, -1)
+func.arrayCreate(&a, -1)
 if($LANG_ERRNO) {
 	$errCode = $LANG_ERRNO
 	func.printTerminal(5, An error occurred: func.getErrorText() [Code: $errCode])

@@ -95,7 +95,7 @@ func.println(func.typeOf($LANG_DOUBLE_NAN)) # DOUBLE
 
 func.println()
 
-func.println(func.typeOf(func.arrayMake(0))) # ARRAY
+func.println(func.typeOf(func.arrayCreate(0))) # ARRAY
 func.println(func.typeOf(func.arrayOf())) # ARRAY
 func.println(func.typeOf(func.arrayOf(1, abc, test))) # ARRAY
 
@@ -158,7 +158,7 @@ func.println(func.isInstanceOf(a, $LANG_TYPE_CHAR)) # 1
 func.println(func.isInstanceOf(42, $LANG_TYPE_TEXT)) # 0
 func.println(func.isInstanceOf(42, $LANG_TYPE_INT)) # 1
 func.println(func.isInstanceOf(\!, $LANG_TYPE_VOID)) # 1
-&a = func.arrayMake(0)
+&a = func.arrayCreate(0)
 func.println(func.isInstanceOf(&a, $LANG_TYPE_ARRAY)) # 1
 func.println(func.isInstanceOf(&a, $LANG_TYPE_NULL)) # 0
 &e = null

@@ -75,7 +75,7 @@ func.arraySetAll(&a, 42, 40) # No Error
 func.printTerminal(3, func.arrayGetAll(&a))
 func.printError()
 
-func.arrayMake(&a, 3) # Will result in an error
+func.arrayCreate(&a, 3) # Will result in an error
 func.printError()
 func.printTerminal(3, func.arrayGetAll(&a))
 

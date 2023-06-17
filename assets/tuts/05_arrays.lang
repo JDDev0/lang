@@ -2,9 +2,9 @@ lang.name = Arrays
 lang.version = v1.0.0
 
 # Creation of an array
-# func.arrayMake(int)
-&arr = func.arrayMake(10) # Will also create an array of length 10
-&a = func.arrayMake(0) # Will create an empty array
+# func.arrayCreate(int)
+&arr = func.arrayCreate(10) # Will also create an array of length 10
+&a = func.arrayCreate(0) # Will create an empty array
 
 # Creation of an array with setting values in one line
 &b = func.arrayOf() # Will create an empty array
@@ -192,9 +192,9 @@ func.printError() # Will print "&LANG arrays can't be copied"
 func.println(&langArray) # "&langArray" won't be defined
 
 # Combining arrays
-&a1 = func.arrayMake(2)
+&a1 = func.arrayCreate(2)
 func.arraySetAll(&a1, 1, 2)
-&a2 = func.arrayMake(3)
+&a2 = func.arrayCreate(3)
 func.arraySetAll(&a2, test, -1, .42)
 &aR1 = func.arrayCombine(&a1, &a2)
 func.println(func.arrayGetAll(&aR1))
