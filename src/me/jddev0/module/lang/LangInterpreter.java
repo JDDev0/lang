@@ -1089,12 +1089,14 @@ public final class LangInterpreter {
 			}
 		}
 		
+		boolean savedStopExecutionFlagForElseBlock = savedExecutionState.stopExecutionFlag;
+		
 		//Cancel execution stop because of error if most outer try block is reached or if inside a nontry statement
 		if(savedExecutionState.stopExecutionFlag && (savedExecutionState.tryThrownError == null || savedExecutionState.tryBlockLevel == 0 ||
 				(savedExecutionState.isSoftTry && savedExecutionState.tryBodyScopeID != SCOPE_ID)))
 			savedExecutionState.stopExecutionFlag = false;
 		
-		if(!flag && !savedExecutionState.stopExecutionFlag) {
+		if(!flag && !savedStopExecutionFlagForElseBlock) {
 			TryStatementPartNode elsePart = null;
 			if(!flag && tryPartNodes.size() > 1) {
 				if(tryPartNodes.get(tryPartNodes.size() - 2).getNodeType() == NodeType.TRY_STATEMENT_PART_ELSE)
