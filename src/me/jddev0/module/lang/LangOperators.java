@@ -94,6 +94,8 @@ final class LangOperators {
 						StructObject structCopy = new StructObject(struct.getStructBaseDefinition());
 						for(String memberName:struct.getMemberNames())
 							structCopy.setMember(memberName, opDeepCopy(struct.getMember(memberName), SCOPE_ID));
+						
+						return new DataObject().setStruct(structCopy);
 					}
 				}catch(DataTypeConstraintException e) {
 					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
