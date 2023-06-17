@@ -2,7 +2,7 @@ lang.name = Brainfuck
 lang.version = v1.0.0
 
 fp.interpretCode = ($code...) -> {
-	&mem = fn.arrayMake(30000)
+	&mem = fn.arrayCreate(30000)
 	fn.arraySetAll(&mem, 0)
 	
 	$ptr = 0

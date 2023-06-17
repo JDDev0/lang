@@ -40,7 +40,7 @@ repeat($[i], 2) {
 				fp.test()
 			}
 			fp.arrayCreation = () -> {
-				&a = func.arrayMake(100)
+				&a = func.arrayCreate(100)
 				func.arraySetAll(&a, 42)
 			}
 			fp.linker = () -> {
