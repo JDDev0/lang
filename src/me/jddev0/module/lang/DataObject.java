@@ -95,7 +95,7 @@ public class DataObject {
 		this.type = checkAndRetType(dataObject.type);
 		
 		this.txt = dataObject.txt;
-		this.byteBuf = dataObject.byteBuf; //Array: copy reference only
+		this.byteBuf = dataObject.byteBuf; //ByteBuffer: copy reference only
 		this.arr = dataObject.arr; //Array: copy reference only
 		this.list = dataObject.list; //List: copy reference only
 		this.vp = dataObject.vp; //Var pointer: copy reference only
