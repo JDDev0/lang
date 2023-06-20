@@ -504,6 +504,16 @@ final class LangPredefinedFunctions {
 			interpreter.resetVars(SCOPE_ID);
 			return null;
 		});
+		funcs.put("resetErrno", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
+				return error;
+			
+			interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
+			
+			return null;
+		});
 	}
 	private void addPredefinedErrorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getErrorText", (argumentList, SCOPE_ID) -> {
