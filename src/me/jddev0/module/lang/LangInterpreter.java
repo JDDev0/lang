@@ -1618,10 +1618,10 @@ public final class LangInterpreter {
 				}
 				
 				if(compVer > 0)
-					setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be interpreted correctly",
+					setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be executed correctly",
 							lineNumber, SCOPE_ID);
 				else if(compVer < 0)
-					setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be interpreted correctly!",
+					setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be executed correctly!",
 							lineNumber, SCOPE_ID);
 				
 				break;
