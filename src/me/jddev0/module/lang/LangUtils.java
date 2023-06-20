@@ -128,6 +128,9 @@ public final class LangUtils {
 		if(version.charAt(0) != 'v')
 			return null;
 		
+		if(version.contains("-0"))
+			return null;
+		
 		int majorMinorSeparatorIndex = version.indexOf('.');
 		if(majorMinorSeparatorIndex == -1)
 			return null;
@@ -145,6 +148,9 @@ public final class LangUtils {
 			int minor = Integer.parseInt(minorStr);
 			int bugfix = Integer.parseInt(bugfixStr);
 			
+			if(major < 0 || minor < 0 || bugfix < 0)
+				return null;
+			
 			return new int[] {major, minor, bugfix};
 		}catch(NumberFormatException e) {
 			return null;
@@ -159,6 +165,10 @@ public final class LangUtils {
 	 */
 	public static Integer compareVersions(int[] versionA, int[] versionB) {
 		if(versionA == null || versionA.length != 3 || versionB == null || versionB.length != 3)
+			return null;
+		
+		if(versionA[0] < 0 || versionA[1] < 0 || versionA[2] < 0 ||
+				versionB[0] < 0 || versionB[1] < 0 || versionB[2] < 0)
 			return null;
 		
 		if(versionA[0] != versionB[0])
