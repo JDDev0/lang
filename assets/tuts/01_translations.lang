@@ -45,7 +45,7 @@ esc.cb.2 = \} # "}"
 esc.eq = \= # "="
 esc.lt = \< # "<"
 esc.gt = \> # ">"
-esc.fns = \! # Force node split (Will force the parse to split the current node)
+esc.fns = \! # Forced node split (Will force the parse to split the current node)
 esc.backslash = \\ # "\"
 
 # Empty translation
