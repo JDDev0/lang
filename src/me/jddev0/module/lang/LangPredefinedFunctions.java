@@ -8389,13 +8389,13 @@ final class LangPredefinedFunctions {
 		try(BufferedReader reader = insideModule?LangModuleManager.readModuleLangFile(module, absolutePath):interpreter.langPlatformAPI.getLangReader(absolutePath)) {
 			interpreter.resetParserPositionVars();
 			interpreter.interpretLines(reader, NEW_SCOPE_ID);
+			
+			function.accept(NEW_SCOPE_ID);
 		}catch(IOException e) {
 			interpreter.data.remove(NEW_SCOPE_ID);
 			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
 		}finally {
 			interpreter.setParserLineNumber(originalLineNumber);
-			
-			function.accept(NEW_SCOPE_ID);
 			
 			//Remove data map
 			interpreter.data.remove(NEW_SCOPE_ID);
