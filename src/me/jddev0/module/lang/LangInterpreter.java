@@ -1313,6 +1313,16 @@ public final class LangInterpreter {
 								node.getLineNumberFrom(), SCOPE_ID);
 					
 					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
+				case OPTIONAL_MEMBER_ACCESS:
+					if(leftSideOperand.getType() == DataType.NULL || leftSideOperand.getType() == DataType.VOID)
+						return leftSideOperand;
+					
+					if(leftSideOperand.getType() != DataType.STRUCT)
+						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+								"The left side operand of the member access operator (\"" + node.getOperator().getSymbol() + "\") must be a composite type",
+								node.getLineNumberFrom(), SCOPE_ID);
+					
+					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
 				
 				default:
 					return null;

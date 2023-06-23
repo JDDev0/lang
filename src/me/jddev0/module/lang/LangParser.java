@@ -455,7 +455,7 @@ public final class LangParser {
 			token.startsWith("!") || token.startsWith("&") || token.startsWith("~~") || token.startsWith("~/") || token.startsWith("~") || token.startsWith("▲") || token.startsWith("▼") ||
 			token.startsWith("*") || token.startsWith("//") || token.startsWith("^/") || token.startsWith("/") || token.startsWith("%") || token.startsWith("^") || token.startsWith("|") ||
 			token.startsWith("<<") || token.startsWith(">>>") || token.startsWith(">>") || token.startsWith("+|") || token.startsWith("-|") || token.startsWith("+") || token.startsWith("-") ||
-			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??") || token.startsWith(",") || token.startsWith("::")) {
+			token.startsWith("@") || token.startsWith("?:") || token.startsWith("??") || token.startsWith(",") || token.startsWith("?::") || token.startsWith("::")) {
 				boolean somethingBeforeOperator = builder.length() > 0 || leftNodes.size() > 0;
 				
 				AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
@@ -478,6 +478,9 @@ public final class LangParser {
 				}else if(token.startsWith("==") && AbstractSyntaxTree.OperationNode.OperatorType.CONDITION.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.EQUALS;
+				}else if(token.startsWith("?::") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
+					operatorLength = 3;
+					operator = AbstractSyntaxTree.OperationNode.Operator.OPTIONAL_MEMBER_ACCESS;
 				}else if(token.startsWith("::") && AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type)) {
 					operatorLength = 2;
 					operator = AbstractSyntaxTree.OperationNode.Operator.MEMBER_ACCESS;
