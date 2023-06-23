@@ -1315,7 +1315,7 @@ public final class LangInterpreter {
 					return interpretNode(leftSideOperand, node.getRightSideOperand(), SCOPE_ID);
 				case OPTIONAL_MEMBER_ACCESS:
 					if(leftSideOperand.getType() == DataType.NULL || leftSideOperand.getType() == DataType.VOID)
-						return leftSideOperand;
+						return new DataObject().setVoid();
 					
 					if(leftSideOperand.getType() != DataType.STRUCT)
 						return setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
