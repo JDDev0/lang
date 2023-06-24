@@ -277,10 +277,10 @@ public final class LangParser {
 					
 					continue;
 				}
-			}else if(token.startsWith("[") || token.startsWith("?[")) {
-				boolean startsWithQuestionMark = token.charAt(0) == '?';
+			}else if(token.startsWith("[") || token.startsWith("?.[")) {
+				boolean startsWithOptionalMarker = token.startsWith("?.");
 				
-				int endIndex = LangUtils.getIndexOfMatchingBracket(token, startsWithQuestionMark?1:0, Integer.MAX_VALUE, '[', ']');
+				int endIndex = LangUtils.getIndexOfMatchingBracket(token, startsWithOptionalMarker?2:0, Integer.MAX_VALUE, '[', ']');
 				if(endIndex == -1) {
 					leftNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.BRACKET_MISMATCH, "Bracket in operator expression is missing"));
 					
@@ -290,7 +290,7 @@ public final class LangParser {
 				if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type) && (builder.length() > 0 || leftNodes.size() > 0)) {
 					AbstractSyntaxTree.OperationNode.Operator oldOperator = operator;
 					
-					if(startsWithQuestionMark)
+					if(startsWithOptionalMarker)
 						operator = AbstractSyntaxTree.OperationNode.Operator.OPTIONAL_GET_ITEM;
 					else
 						operator = AbstractSyntaxTree.OperationNode.Operator.GET_ITEM;
@@ -315,7 +315,7 @@ public final class LangParser {
 					}
 					
 					AbstractSyntaxTree.OperationNode node = parseOperationExpr(
-							token.substring(startsWithQuestionMark?2:1, endIndex), type);
+							token.substring(startsWithOptionalMarker?3:1, endIndex), type);
 					token = token.substring(endIndex + 1);
 					if(token.isEmpty()) {
 						//Add node directly if node has NON operator
@@ -345,7 +345,7 @@ public final class LangParser {
 						operator = null;
 						continue;
 					}
-				}else if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type) && !startsWithQuestionMark) {
+				}else if(AbstractSyntaxTree.OperationNode.OperatorType.ALL.isCompatibleWith(type) && !startsWithOptionalMarker) {
 					if(whitespaces.length() > 0)
 						whitespaces.delete(0, whitespaces.length());
 					
