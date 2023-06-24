@@ -2138,6 +2138,8 @@ final class LangPredefinedFunctions {
 				opCast(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("getItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
 				opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+		funcs.put("optionalGetItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
+				opOptionalGetItem(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("setItem", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
