@@ -55,6 +55,7 @@ lang.version = v1.0.0
 # (opr)               - Grouping
 # opr1 , opr2         - Comma
 # opr1[opr2]          - Get item
+# opr1?[opr2]         - Optional get item
 # opr1::opr2          - Member access
 # opr1?::opr2         - Optional member access
 # opr1->opr2          - Member access pointer
@@ -96,6 +97,7 @@ lang.version = v1.0.0
 #  0         | (opr)              | -             | Grouping
 #            | opr1(opr2)         | left-to-right | Function calls
 #            | opr1[opr2]         | left-to-right | Get item
+#            | opr1?[opr2]        | left-to-right | Optional get item
 #            | opr1::opr2         | left-to-right | Member access [1]
 #            | opr1?::opr2        | left-to-right | Optional member access [1]
 #            | opr1->opr2         | left-to-right | Member access pointer [1]
