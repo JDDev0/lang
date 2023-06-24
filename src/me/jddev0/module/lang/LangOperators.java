@@ -2572,6 +2572,15 @@ final class LangOperators {
 		
 		return null;
 	}
+	/**
+	 * For "?[...]"
+	 */
+	public DataObject opOptionalGetItem(DataObject leftSideOperand, DataObject rightSideOperand, final int SCOPE_ID) {
+		if(leftSideOperand.getType() == DataType.NULL || leftSideOperand.getType() == DataType.VOID)
+			return new DataObject().setVoid();
+		
+		return opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
+	}
 	public DataObject opSetItem(DataObject leftSideOperand, DataObject middleOperand, DataObject rightSideOperand, final int SCOPE_ID) {
 		switch(leftSideOperand.getType()) {
 			case BYTE_BUFFER:

@@ -1287,6 +1287,9 @@ public final class LangInterpreter {
 					return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
 							"The COMMA operator is parser-only (If you meant the text value of \",\", you must escape the COMMA operator: \"\\,\")",
 							node.getLineNumberFrom(), SCOPE_ID);
+				case OPTIONAL_GET_ITEM:
+					output = operators.opOptionalGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
+					break;
 				case GET_ITEM:
 					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
 					break;
