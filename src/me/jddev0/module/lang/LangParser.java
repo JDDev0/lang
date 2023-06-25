@@ -1642,7 +1642,7 @@ public final class LangParser {
 					
 					String functionBody = lrvalue.substring(parameterListEndIndex + 5);
 					
-					if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 1))) {
+					if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines), lineNumberFrom, lineNumber));
 					}else {
 						lineNumber--; //LineNumber will be increased in the "parseLines()" call
