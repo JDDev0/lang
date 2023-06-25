@@ -1650,7 +1650,6 @@ public final class LangParser {
 					if(functionBody.trim().equals("{")) {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines), lineNumberFrom, lineNumber));
 					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
-						lineNumber--; //LineNumber will be increased in the "parseLines()" call
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, lines), lineNumberFrom, lineNumber));
 					}else {
 						lineNumber--; //LineNumber will be increased in the "parseLines()" call
