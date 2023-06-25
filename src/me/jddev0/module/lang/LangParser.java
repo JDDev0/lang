@@ -39,17 +39,26 @@ public final class LangParser {
 	}
 	
 	public AbstractSyntaxTree parseLines(BufferedReader lines) throws IOException {
-		return parseLines(null, lines);
+		return parseLines(null, false, lines);
 	}
 	
-	public AbstractSyntaxTree parseLines(String firstLine, BufferedReader lines) throws IOException {
+	public AbstractSyntaxTree parseLines(String firstLine, boolean endBlockBeforeSecondLineOfCurrentBlock, BufferedReader lines) throws IOException {
 		if(lines == null || (firstLine == null && !lines.ready()))
 			return null;
+		
+		boolean hasFirstLine = firstLine != null;
 		
 		AbstractSyntaxTree ast = new AbstractSyntaxTree();
 		int blockPos = 0;
 		
 		do {
+			if(firstLine == null && hasFirstLine && endBlockBeforeSecondLineOfCurrentBlock) {
+				blockPos--;
+				
+				if(blockPos < 0)
+					break;
+			}
+			
 			String line = firstLine == null?nextLine(lines):firstLine;
 			firstLine = null;
 			if(line == null) {
@@ -1650,7 +1659,7 @@ public final class LangParser {
 					if(functionBody.trim().equals("{")) {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines), lineNumberFrom, lineNumber));
 					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, lines), lineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, true, lines), lineNumberFrom, lineNumber));
 					}else {
 						lineNumber--; //LineNumber will be increased in the "parseLines()" call
 						try(BufferedReader reader = new BufferedReader(new StringReader(functionBody))) {
