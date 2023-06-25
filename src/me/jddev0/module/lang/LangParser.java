@@ -2,7 +2,6 @@ package me.jddev0.module.lang;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,7 +42,7 @@ public final class LangParser {
 	}
 	
 	public AbstractSyntaxTree parseLines(String firstLine, boolean endBlockBeforeSecondLineOfCurrentBlock, BufferedReader lines) throws IOException {
-		if(lines == null || (firstLine == null && !lines.ready()))
+		if(firstLine == null && (lines == null || !lines.ready()))
 			return null;
 		
 		boolean hasFirstLine = firstLine != null;
@@ -104,7 +103,7 @@ public final class LangParser {
 				
 				ast.addChild(returnedAst.convertToNode());
 			}
-		}while(lines.ready());
+		}while(lines != null && lines.ready());
 		
 		return ast;
 	}
@@ -1661,10 +1660,7 @@ public final class LangParser {
 					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, true, lines), lineNumberFrom, lineNumber));
 					}else {
-						lineNumber--; //LineNumber will be increased in the "parseLines()" call
-						try(BufferedReader reader = new BufferedReader(new StringReader(functionBody))) {
-							nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(reader), lineNumberFrom, lineNumber));
-						}
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, true, null), lineNumberFrom, lineNumber));
 					}
 					
 					return ast;
@@ -1681,7 +1677,7 @@ public final class LangParser {
 					List<String> typeConstraints = new LinkedList<>();
 					boolean hasEndBrace = false;
 					
-					while(lines.ready()) {
+					while(lines != null && lines.ready()) {
 						String line = nextLine(lines).trim();
 						
 						List<AbstractSyntaxTree.Node> errorNodes = new LinkedList<>();
@@ -2371,7 +2367,7 @@ public final class LangParser {
 					line = line.substring(0, startIndex);
 					String lineTmpString;
 					while(true) {
-						if(!lines.ready()) {
+						if(lines == null || !lines.ready()) {
 							errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Multiline Text end is missing"));
 							return null;
 						}
@@ -2397,7 +2393,7 @@ public final class LangParser {
 			}else { //Line continuation
 				line = line.substring(0, line.length() - 1);
 				
-				if(!lines.ready()) {
+				if(lines == null || !lines.ready()) {
 					errorNodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.EOF, "Line continuation has no second line"));
 					return null;
 				}
@@ -2423,6 +2419,9 @@ public final class LangParser {
 	}
 	
 	private String nextLine(BufferedReader lines) throws IOException {
+		if(lines == null)
+			return null;
+		
 		String line = lines.readLine();
 		
 		if(line != null)
