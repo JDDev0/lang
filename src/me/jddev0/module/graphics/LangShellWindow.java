@@ -688,6 +688,8 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
 				builder.append("\nParameter List: ");
 				builder.append(String.valueOf(dataObject.getFunctionPointer().getParameterList()).replace("\n", ""));
+				builder.append("\nReturn Value Type Constraint: ");
+				builder.append(dataObject.getFunctionPointer().getReturnValueTypeConstraint().toTypeConstraintSyntax());
 				builder.append("\nFunction Body: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionBody());
 				builder.append("\nPredefined Function: ");
