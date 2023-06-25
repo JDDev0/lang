@@ -1025,13 +1025,13 @@ public final class LangInterpreter {
 		savedExecutionState.stopExecutionFlag = executionState.stopExecutionFlag;
 		savedExecutionState.returnedOrThrownValue = executionState.returnedOrThrownValue;
 		savedExecutionState.isThrownValue = executionState.isThrownValue;
-		savedExecutionState.throwStatementLineNumber = executionState.throwStatementLineNumber;
+		savedExecutionState.returnOrThrowStatementLineNumber = executionState.returnOrThrowStatementLineNumber;
 		savedExecutionState.breakContinueCount = executionState.breakContinueCount;
 		savedExecutionState.isContinueStatement = executionState.isContinueStatement;
 		executionState.stopExecutionFlag = false;
 		executionState.returnedOrThrownValue = null;
 		executionState.isThrownValue = false;
-		executionState.throwStatementLineNumber = -1;
+		executionState.returnOrThrowStatementLineNumber = -1;
 		executionState.breakContinueCount = 0;
 		executionState.isContinueStatement = false;
 	}
@@ -1124,7 +1124,7 @@ public final class LangInterpreter {
 			executionState.stopExecutionFlag = savedExecutionState.stopExecutionFlag;
 			executionState.returnedOrThrownValue = savedExecutionState.returnedOrThrownValue;
 			executionState.isThrownValue = savedExecutionState.isThrownValue;
-			executionState.throwStatementLineNumber = savedExecutionState.throwStatementLineNumber;
+			executionState.returnOrThrowStatementLineNumber = savedExecutionState.returnOrThrowStatementLineNumber;
 			executionState.breakContinueCount = savedExecutionState.breakContinueCount;
 			executionState.isContinueStatement = savedExecutionState.isContinueStatement;
 		}
@@ -1594,6 +1594,7 @@ public final class LangInterpreter {
 		
 		executionState.returnedOrThrownValue = returnValueNode == null?null:interpretNode(null, returnValueNode, SCOPE_ID);
 		executionState.isThrownValue = false;
+		executionState.returnOrThrowStatementLineNumber = node.getLineNumberFrom();
 		executionState.stopExecutionFlag = true;
 	}
 	
@@ -1606,7 +1607,7 @@ public final class LangInterpreter {
 		else
 			executionState.returnedOrThrownValue = errorObject;
 		executionState.isThrownValue = true;
-		executionState.throwStatementLineNumber = node.getLineNumberFrom();
+		executionState.returnOrThrowStatementLineNumber = node.getLineNumberFrom();
 		executionState.stopExecutionFlag = true;
 		
 		if(executionState.returnedOrThrownValue.getError().getErrno() > 0 && executionState.tryBlockLevel > 0 && (!executionState.isSoftTry || executionState.tryBodyScopeID == SCOPE_ID)) {
@@ -2131,7 +2132,7 @@ public final class LangInterpreter {
 		
 		if(executionState.isThrownValue && SCOPE_ID > -1)
 			setErrno(retTmp.getError().getInterprettingError(), retTmp.getError().getMessage(),
-					executionState.throwStatementLineNumber, SCOPE_ID);
+					executionState.returnOrThrowStatementLineNumber, SCOPE_ID);
 		
 		if(executionFlags.langTest && SCOPE_ID == langTestExpectedReturnValueScopeID) {
 			if(langTestExpectedThrowValue != null) {
@@ -2332,8 +2333,26 @@ public final class LangInterpreter {
 					//Remove data map
 					data.remove(NEW_SCOPE_ID);
 					
+					DataTypeConstraint returnValueTypeConstraint = fp.getReturnValueTypeConstraint();
+					
+					boolean isReturnValueThrownError = executionState.isThrownValue ||
+							(executionState.tryThrownError != null && executionState.tryBlockLevel > 0 &&
+									(!executionState.isSoftTry || executionState.tryBodyScopeID == SCOPE_ID));
+					int returnOrThrowStatementLineNumber = executionState.returnOrThrowStatementLineNumber;
+					
 					DataObject retTmp = getAndResetReturnValue(SCOPE_ID);
-					return retTmp == null?new DataObject().setVoid():retTmp;
+					retTmp = retTmp == null?new DataObject().setVoid():retTmp;
+					
+					if(returnValueTypeConstraint != null && !isReturnValueThrownError) {
+						//Thrown values are always allowed
+						
+						if(!returnValueTypeConstraint.isTypeAllowed(retTmp.getType()))
+							return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+									"Invalid return value type \"" + retTmp.getType() + "\"",
+									returnOrThrowStatementLineNumber, SCOPE_ID);
+					}
+					
+					return retTmp;
 				
 				case FunctionPointerObject.PREDEFINED:
 					LangPredefinedFunctionObject function = fp.getPredefinedFunction();
@@ -2675,9 +2694,21 @@ public final class LangInterpreter {
 			}
 		}
 		
+		String rawTypeConstraint = node.getReturnValueTypeConstraint();
+		DataTypeConstraint typeConstraint;
+		if(rawTypeConstraint == null) {
+			typeConstraint = null;
+		}else {
+			DataObject errorOut = new DataObject().setVoid();
+			typeConstraint = interpretTypeConstraint(rawTypeConstraint, errorOut, node.getLineNumberFrom(), SCOPE_ID);
+			
+			if(errorOut.getType() == DataType.ERROR)
+				return errorOut;
+		}
+		
 		StackElement currentStackElement = getCurrentCallStackElement();
 		return new DataObject().setFunctionPointer(new FunctionPointerObject(currentStackElement.getLangPath(),
-				currentStackElement.getLangFile(), parameterList, node.getFunctionBody()));
+				currentStackElement.getLangFile(), parameterList, typeConstraint, node.getFunctionBody()));
 	}
 	
 	private DataObject interpretArrayNode(ArrayNode node, final int SCOPE_ID) {
@@ -3660,7 +3691,7 @@ public final class LangInterpreter {
 		//Fields for return statements
 		private DataObject returnedOrThrownValue;
 		private boolean isThrownValue;
-		private int throwStatementLineNumber = -1;
+		private int returnOrThrowStatementLineNumber = -1;
 		
 		//Fields for continue & break statements
 		/**
@@ -3933,7 +3964,7 @@ public final class LangInterpreter {
 			return interpreter.executionState.isThrownValue;
 		}
 		public int getThrowStatementLineNumber() {
-			return interpreter.executionState.throwStatementLineNumber;
+			return interpreter.executionState.returnOrThrowStatementLineNumber;
 		}
 		public DataObject getAndResetReturnValue() {
 			return interpreter.getAndResetReturnValue(-1);

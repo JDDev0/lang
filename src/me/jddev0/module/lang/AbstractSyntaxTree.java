@@ -813,12 +813,15 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 	
 	public static final class FunctionDefinitionNode implements Node {
 		private final List<Node> parameterList;
+		private final String returnValueTypeConstraint;
 		private final AbstractSyntaxTree functionBody;
 		private final int lineNumberFrom;
 		private final int lineNumberTo;
 		
-		public FunctionDefinitionNode(List<Node> parameterList, AbstractSyntaxTree functionBody, int lineNumberFrom, int lineNumberTo) {
+		public FunctionDefinitionNode(List<Node> parameterList, String returnValueTypeConstraint,
+				AbstractSyntaxTree functionBody, int lineNumberFrom, int lineNumberTo) {
 			this.parameterList = new ArrayList<>(parameterList);
+			this.returnValueTypeConstraint = returnValueTypeConstraint;
 			this.functionBody = functionBody;
 			this.lineNumberFrom = lineNumberFrom;
 			this.lineNumberTo = lineNumberTo;
@@ -844,6 +847,10 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			return lineNumberTo;
 		}
 		
+		public String getReturnValueTypeConstraint() {
+			return returnValueTypeConstraint;
+		}
+		
 		public AbstractSyntaxTree getFunctionBody() {
 			return functionBody;
 		}
@@ -864,7 +871,9 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 					builder.append("\n");
 				}
 			});
-			builder.append("}, FunctionBody: {\n");
+			builder.append("}, ReturnValueTypeConstraint: ");
+			builder.append(returnValueTypeConstraint);
+			builder.append(", FunctionBody: {\n");
 			String[] tokens = functionBody.toString().split("\\n");
 			for(String token:tokens) {
 				builder.append("\t");

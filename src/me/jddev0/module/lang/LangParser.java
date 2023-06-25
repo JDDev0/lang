@@ -1638,7 +1638,7 @@ public final class LangParser {
 		
 		if(isRvalue) {
 			if(lines != null) {
-				if(lrvalue.startsWith("(") && lrvalue.contains(") -> ")) {
+				if(lrvalue.startsWith("(") && LangPatterns.matches(lrvalue, LangPatterns.PARSING_CONTAINS_WITH_FUNC_DEFINITION_END_WITH_OR_WITHOUT_TYPE_CONSTRAINT)) {
 					//Function definition
 					
 					int parameterListEndIndex = LangUtils.getIndexOfMatchingBracket(lrvalue, 0, Integer.MAX_VALUE, '(', ')');
@@ -1653,14 +1653,37 @@ public final class LangParser {
 					String functionHead = lrvalue.substring(1, parameterListEndIndex);
 					List<AbstractSyntaxTree.Node> parameterList = parseFunctionParameterList(functionHead, true).getChildren();
 					
-					String functionBody = lrvalue.substring(parameterListEndIndex + 5);
+					String functionReturnValueTypeConstraint;
+					String functionBody;
+					if(lrvalue.charAt(parameterListEndIndex + 1) == ':') {
+						int endIndex = lrvalue.indexOf('}');
+						String rawTypeConstraint = lrvalue.substring(parameterListEndIndex + 2, endIndex + 1);
+						
+						if(!LangPatterns.matches(rawTypeConstraint, LangPatterns.TYPE_CONSTRAINT)) {
+							nodes.add(new AbstractSyntaxTree.ParsingErrorNode(lineNumber, ParsingError.INVALID_ASSIGNMENT, "Invalid type constraint: \"" + rawTypeConstraint + "\""));
+							
+							return ast;
+						}
+						
+						functionReturnValueTypeConstraint = rawTypeConstraint.substring(1, rawTypeConstraint.length() - 1);
+						functionBody = lrvalue.substring(endIndex + 5);
+					}else {
+						functionReturnValueTypeConstraint = null;
+						functionBody = lrvalue.substring(parameterListEndIndex + 5);
+					}
 					
 					if(functionBody.trim().equals("{")) {
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(lines), lineNumberFrom, lineNumber));
-					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' || LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, true, lines), lineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList,
+								functionReturnValueTypeConstraint, parseLines(lines), lineNumberFrom, lineNumber));
+					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' ||
+							LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList,
+								functionReturnValueTypeConstraint, parseLines(functionBody, true, lines),
+								lineNumberFrom, lineNumber));
 					}else {
-						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList, parseLines(functionBody, true, null), lineNumberFrom, lineNumber));
+						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList,
+								functionReturnValueTypeConstraint, parseLines(functionBody, true, null),
+								lineNumberFrom, lineNumber));
 					}
 					
 					return ast;

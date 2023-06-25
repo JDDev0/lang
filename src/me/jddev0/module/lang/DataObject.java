@@ -2043,20 +2043,21 @@ public class DataObject {
 		public static final int EXTERNAL = 2;
 		
 		/**
-		 * If langPath is set, the lang path from the stack frame element which is created for the function call will be overriden
+		 * If langPath is set, the Lang path from the stack frame element which is created for the function call will be overridden
 		 */
 		private final String langPath;
 		/**
-		 * If langFile or langPath is set, the lang file from the stack frame element which is created for the function call will be overriden<br>
-		 * This behavior allows for keeping the "&lt;shell&gt;" special case - when the lang file is null - if a function whitin a stack frame element where the lang file is null is
-		 * called from within a stack frame element where lang file is not null.
+		 * If langFile or langPath is set, the Lang file from the stack frame element which is created for the function call will be overridden<br>
+		 * This behavior allows for keeping the "&lt;shell&gt;" special case - when the Lang file is null - if a function within a stack frame element where the Lang file is null is
+		 * called from within a stack frame element where Lang file is not null.
 		 */
 		private final String langFile;
 		/**
-		 * If functionName is set, the function name from the stack frame element which is created for the function call will be overriden
+		 * If functionName is set, the function name from the stack frame element which is created for the function call will be overridden
 		 */
 		private final String functionName;
 		private final List<VariableNameNode> parameterList;
+		private final DataTypeConstraint returnValueTypeConstraint;
 		private final AbstractSyntaxTree functionBody;
 		private final LangPredefinedFunctionObject predefinedFunction;
 		private final LangExternalFunctionObject externalFunction;
@@ -2065,11 +2066,13 @@ public class DataObject {
 		/**
 		 * For normal function pointer definition
 		 */
-		public FunctionPointerObject(String langPath, String langFile, String functionName, List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+		public FunctionPointerObject(String langPath, String langFile, String functionName,
+				List<VariableNameNode> parameterList, DataTypeConstraint returnValueTypeConstraint, AbstractSyntaxTree functionBody) {
 			this.langPath = langPath;
 			this.langFile = langFile;
 			this.functionName = functionName;
 			this.parameterList = parameterList == null?null:new ArrayList<>(parameterList);
+			this.returnValueTypeConstraint = returnValueTypeConstraint;
 			this.functionBody = functionBody;
 			this.predefinedFunction = null;
 			this.externalFunction = null;
@@ -2078,14 +2081,44 @@ public class DataObject {
 		/**
 		 * For normal function pointer definition
 		 */
-		public FunctionPointerObject(String langPath, String langFile, List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+		public FunctionPointerObject(String langPath, String langFile, String functionName,
+				List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+			this(langPath, langFile, functionName, parameterList, null, functionBody);
+		}
+		/**
+		 * For normal function pointer definition
+		 */
+		public FunctionPointerObject(String langPath, String langFile, List<VariableNameNode> parameterList,
+				DataTypeConstraint returnValueTypeConstraint, AbstractSyntaxTree functionBody) {
+			this(langPath, langFile, null, parameterList, returnValueTypeConstraint, functionBody);
+		}
+		/**
+		 * For normal function pointer definition
+		 */
+		public FunctionPointerObject(String langPath, String langFile, List<VariableNameNode> parameterList,
+				AbstractSyntaxTree functionBody) {
 			this(langPath, langFile, null, parameterList, functionBody);
 		}
 		/**
 		 * For normal function pointer definition
 		 */
-		public FunctionPointerObject(String functionName, List<VariableNameNode> parameterList, AbstractSyntaxTree functionBody) {
+		public FunctionPointerObject(String functionName, List<VariableNameNode> parameterList,
+				DataTypeConstraint returnValueTypeConstraint, AbstractSyntaxTree functionBody) {
+			this(null, null, functionName, parameterList, returnValueTypeConstraint, functionBody);
+		}
+		/**
+		 * For normal function pointer definition
+		 */
+		public FunctionPointerObject(String functionName, List<VariableNameNode> parameterList,
+				AbstractSyntaxTree functionBody) {
 			this(null, null, functionName, parameterList, functionBody);
+		}
+		/**
+		 * For normal function pointer definition
+		 */
+		public FunctionPointerObject(List<VariableNameNode> parameterList, DataTypeConstraint returnValueTypeConstraint,
+				AbstractSyntaxTree functionBody) {
+			this(null, parameterList, returnValueTypeConstraint, functionBody);
 		}
 		/**
 		 * For normal function pointer definition
@@ -2102,6 +2135,7 @@ public class DataObject {
 			this.langFile = langFile;
 			this.functionName = functionName;
 			this.parameterList = null;
+			this.returnValueTypeConstraint = null;
 			this.functionBody = null;
 			this.predefinedFunction = predefinedFunction;
 			this.externalFunction = null;
@@ -2134,6 +2168,7 @@ public class DataObject {
 			this.langFile = langFile;
 			this.functionName = functionName;
 			this.parameterList = null;
+			this.returnValueTypeConstraint = null;
 			this.functionBody = null;
 			this.predefinedFunction = null;
 			this.externalFunction = externalFunction;
@@ -2161,7 +2196,8 @@ public class DataObject {
 		public FunctionPointerObject withFunctionName(String functionName) {
 			switch(functionPointerType) {
 				case NORMAL:
-					return new FunctionPointerObject(langPath, langFile, functionName, parameterList, functionBody);
+					return new FunctionPointerObject(langPath, langFile, functionName, parameterList,
+							returnValueTypeConstraint, functionBody);
 				case PREDEFINED:
 					return new FunctionPointerObject(langPath, langFile, functionName, predefinedFunction);
 				case EXTERNAL:
@@ -2185,6 +2221,10 @@ public class DataObject {
 		
 		public List<VariableNameNode> getParameterList() {
 			return parameterList;
+		}
+		
+		public DataTypeConstraint getReturnValueTypeConstraint() {
+			return returnValueTypeConstraint;
 		}
 		
 		public AbstractSyntaxTree getFunctionBody() {
