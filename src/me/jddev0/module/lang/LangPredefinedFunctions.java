@@ -2071,13 +2071,13 @@ final class LangPredefinedFunctions {
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//General operator functions
 		funcs.put("len", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opLen(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opLen(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("deepCopy", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opDeepCopy(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opDeepCopy(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opConcat(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opConcat(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opSpaceship(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opSpaceship(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("elvis", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
 			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
 		}, SCOPE_ID));
@@ -2095,51 +2095,51 @@ final class LangPredefinedFunctions {
 		
 		//Math operator functions
 		funcs.put("inc", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opInc(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opInc(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("dec", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opDec(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opDec(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("pos", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opPos(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opPos(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("inv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opInv(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opInv(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("add", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opAdd(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opAdd(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("sub", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opSub(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opSub(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("mul", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opMul(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opMul(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("pow", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opPow(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opPow(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("div", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opDiv(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("truncDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opTruncDiv(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opTruncDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("floorDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opFloorDiv(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opFloorDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("ceilDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opCeilDiv(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opCeilDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("mod", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opMod(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opMod(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("and", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opAnd(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opAnd(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("or", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opOr(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opOr(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("xor", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opXor(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opXor(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("not", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opNot(operand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opNot(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("lshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opLshift(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opLshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("rshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opRshift(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opRshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("rzshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opRzshift(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opRzshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("cast", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opCast(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opCast(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("getItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opGetItem(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("optionalGetItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opOptionalGetItem(leftSideOperand, rightSideOperand, SCOPE_ID), SCOPE_ID), SCOPE_ID));
+				opOptionalGetItem(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
 		funcs.put("setItem", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -2151,7 +2151,7 @@ final class LangPredefinedFunctions {
 			DataObject rightSideOperand = combinedArgumentList.get(2);
 			
 			return throwErrorOnNullHelper(interpreter.operators.
-					opSetItem(leftSideOperand, middleOperand, rightSideOperand, SCOPE_ID), SCOPE_ID);
+					opSetItem(leftSideOperand, middleOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID);
 		});
 		
 		//Condition operator functions

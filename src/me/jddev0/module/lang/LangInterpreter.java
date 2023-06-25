@@ -1288,10 +1288,10 @@ public final class LangInterpreter {
 							"The COMMA operator is parser-only (If you meant the text value of \",\", you must escape the COMMA operator: \"\\,\")",
 							node.getLineNumberFrom(), SCOPE_ID);
 				case OPTIONAL_GET_ITEM:
-					output = operators.opOptionalGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opOptionalGetItem(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case GET_ITEM:
-					output = operators.opGetItem(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opGetItem(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case MEMBER_ACCESS_POINTER:
 					if(leftSideOperand.getType() != DataType.VAR_POINTER)
@@ -1344,18 +1344,18 @@ public final class LangInterpreter {
 				case NON:
 					return leftSideOperand;
 				case LEN:
-					output = operators.opLen(leftSideOperand, SCOPE_ID);
+					output = operators.opLen(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case DEEP_COPY:
-					output = operators.opDeepCopy(leftSideOperand, SCOPE_ID);
+					output = operators.opDeepCopy(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				
 				//Binary
 				case CONCAT:
-					output = operators.opConcat(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opConcat(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case SPACESHIP:
-					output = operators.opSpaceship(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opSpaceship(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case ELVIS:
 					if(leftSideOperand.getBoolean())
@@ -1401,66 +1401,66 @@ public final class LangInterpreter {
 					output = leftSideOperand;
 					break;
 				case POS:
-					output = operators.opPos(leftSideOperand, SCOPE_ID);
+					output = operators.opPos(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case INV:
-					output = operators.opInv(leftSideOperand, SCOPE_ID);
+					output = operators.opInv(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case BITWISE_NOT:
-					output = operators.opNot(leftSideOperand, SCOPE_ID);
+					output = operators.opNot(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case INC:
-					output = operators.opInc(leftSideOperand, SCOPE_ID);
+					output = operators.opInc(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case DEC:
-					output = operators.opDec(leftSideOperand, SCOPE_ID);
+					output = operators.opDec(leftSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				
 				//Binary
 				case POW:
-					output = operators.opPow(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opPow(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case MUL:
-					output = operators.opMul(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opMul(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case DIV:
-					output = operators.opDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opDiv(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case TRUNC_DIV:
-					output = operators.opTruncDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opTruncDiv(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case FLOOR_DIV:
-					output = operators.opFloorDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opFloorDiv(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case CEIL_DIV:
-					output = operators.opCeilDiv(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opCeilDiv(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case MOD:
-					output = operators.opMod(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opMod(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case ADD:
-					output = operators.opAdd(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opAdd(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case SUB:
-					output = operators.opSub(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opSub(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case LSHIFT:
-					output = operators.opLshift(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opLshift(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case RSHIFT:
-					output = operators.opRshift(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opRshift(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case RZSHIFT:
-					output = operators.opRzshift(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opRzshift(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case BITWISE_AND:
-					output = operators.opAnd(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opAnd(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case BITWISE_XOR:
-					output = operators.opXor(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opXor(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				case BITWISE_OR:
-					output = operators.opOr(leftSideOperand, rightSideOperand, SCOPE_ID);
+					output = operators.opOr(leftSideOperand, rightSideOperand, node.getLineNumberFrom(), SCOPE_ID);
 					break;
 				
 				default:
@@ -1748,7 +1748,7 @@ public final class LangInterpreter {
 						return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Missing index operand for set item",
 								node.getLineNumberFrom(), SCOPE_ID);
 					
-					DataObject ret = operators.opSetItem(compositeTypeObject, indexObject, rvalue, SCOPE_ID);
+					DataObject ret = operators.opSetItem(compositeTypeObject, indexObject, rvalue, operationNode.getLineNumberFrom(), SCOPE_ID);
 					if(ret == null)
 						return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
 								"Incompatible type for lvalue (composite type + index) or rvalue in assignment",
@@ -2610,7 +2610,7 @@ public final class LangInterpreter {
 			
 			DataObject arg = combinedArgumentList.get(0);
 			
-			DataObject output = operators.opCast(previousValue, arg, SCOPE_ID);
+			DataObject output = operators.opCast(previousValue, arg, node.getLineNumberFrom(), SCOPE_ID);
 			if(output == null)
 				return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "Data type \"" + arg.getType() +
 						"\" can not be casted to \"" + previousValue.getTypeValue() + "\"!", node.getLineNumberFrom(),
