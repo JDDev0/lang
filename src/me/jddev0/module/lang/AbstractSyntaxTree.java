@@ -2414,7 +2414,7 @@ public final class AbstractSyntaxTree implements Iterable<AbstractSyntaxTree.Nod
 			
 			//ALL
 			/**
-			 * COMMA is a temporary parser-only operator (This operator can only be used during parsing)
+			 * COMMA is a parser-only operator (This operator can only be used during parsing)
 			 */
 			COMMA                 (",",         15,       OperatorType.ALL),
 			GET_ITEM              ("[...]",      0,       OperatorType.ALL),
