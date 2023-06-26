@@ -58,7 +58,6 @@ import me.jddev0.platform.desktop.swing.LangPlatformAPI;
 import me.jddev0.module.lang.ILangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
 import me.jddev0.module.lang.LangUtils;
-import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 
 /**
  * Uses the io module<br>
