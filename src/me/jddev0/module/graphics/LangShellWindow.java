@@ -25,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +58,7 @@ import me.jddev0.platform.desktop.swing.LangPlatformAPI;
 import me.jddev0.module.lang.ILangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
 import me.jddev0.module.lang.LangUtils;
+import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 
 /**
  * Uses the io module<br>
@@ -689,7 +691,10 @@ public class LangShellWindow extends JDialog {
 				builder.append("\nParameter List: ");
 				builder.append(String.valueOf(dataObject.getFunctionPointer().getParameterList()).replace("\n", ""));
 				builder.append("\nReturn Value Type Constraint: ");
-				builder.append(dataObject.getFunctionPointer().getReturnValueTypeConstraint().toTypeConstraintSyntax());
+				if(dataObject.getFunctionPointer().getReturnValueTypeConstraint() == null)
+					builder.append(DataObject.DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>()).toTypeConstraintSyntax());
+				else
+					builder.append(dataObject.getFunctionPointer().getReturnValueTypeConstraint().toTypeConstraintSyntax());
 				builder.append("\nFunction Body: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionBody());
 				builder.append("\nPredefined Function: ");
