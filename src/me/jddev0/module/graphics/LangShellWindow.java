@@ -620,7 +620,10 @@ public class LangShellWindow extends JDialog {
 					builder.append(memberName);
 					
 					if(isStructDefinition) {
-						builder.append(dataObject.getStruct().getTypeConstraint(memberName).toTypeConstraintSyntax());
+						if(dataObject.getStruct().getTypeConstraint(memberName) == null)
+							builder.append(DataObject.DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>()).toTypeConstraintSyntax());
+						else
+							builder.append(dataObject.getStruct().getTypeConstraint(memberName).toTypeConstraintSyntax());
 					}else {
 						DataObject member = dataObject.getStruct().getMember(memberName);
 						
