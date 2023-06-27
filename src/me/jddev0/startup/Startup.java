@@ -122,7 +122,7 @@ public class Startup {
 			int langFileIndex = warnings?1:0;
 			File lang = new File(input[langFileIndex]);
 			if(!lang.exists()) {
-				term.logf(Level.ERROR, "The lang file %s wasn't found!\n", Startup.class, input[0]);
+				term.logf(Level.ERROR, "The Lang file %s wasn't found!\n", Startup.class, input[0]);
 				
 				return;
 			}
@@ -161,7 +161,7 @@ public class Startup {
 			
 			File lang = new File(input[0]);
 			if(!lang.exists()) {
-				term.logf(Level.ERROR, "The lang file %s wasn't found!\n", Startup.class, input[0]);
+				term.logf(Level.ERROR, "The Lang file %s wasn't found!\n", Startup.class, input[0]);
 				
 				return;
 			}
@@ -273,9 +273,9 @@ public class Startup {
 		System.out.println("EXECUTION_ARGs");
 		System.out.println("--------------");
 		System.out.println("    -printTranslations                Prints all Translations after the execution of the Lang file finished to standard output");
-		System.out.println("    -printReturnedValue               Prints the returned or thrown value of the lang file if any");
+		System.out.println("    -printReturnedValue               Prints the returned or thrown value of the Lang file if any");
 		System.out.println("    -warnings                         Enables the output of warnings which occur");
-		System.out.println("    -langArgs                         Indicates the start of the lang args arguments (Everything after this argument will be interpreted as langArgs)");
+		System.out.println("    -langArgs                         Indicates the start of the Lang args arguments (Everything after this argument will be interpreted as Lang args)");
 		System.out.println("    --                                Alias for \"-langArgs\"");
 	}
 	
@@ -295,7 +295,7 @@ public class Startup {
 	private static void executeLangFile(String langFile, boolean printTranslations, boolean printReturnedValue, boolean warnings, String[] langArgs) {
 		File lang = new File(langFile);
 		if(!lang.exists()) {
-			System.err.printf("The lang file %s wasn't found!\n", langFile);
+			System.err.printf("The Lang file %s wasn't found!\n", langFile);
 			
 			return;
 		}
