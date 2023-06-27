@@ -1,9 +1,9 @@
 # Comments: Starts with "#"
 
 # Setup
-# Name of the lang file
+# Name of the Lang file
 lang.name = Hello World
-# The version the lang file is written for (Short: lang file version)
+# The version the Lang file is written for (= Lang file version)
 lang.version = v1.0.0
 
 # Code

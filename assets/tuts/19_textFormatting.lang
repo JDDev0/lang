@@ -49,7 +49,7 @@ test.value = A value in a translation
 func.println(func.format(Simple "%%" sign!))
 func.printf(A simple text: "%s"%n, TEST - ABC)
 func.printf(A simple translation value: "%t"%n, test.value)
-func.printf(Lang name "%15t"\, lang file version "%-15t"%n, lang.name, lang.version)
+func.printf(Lang name "%15t"\, Lang file version "%-15t"%n, lang.name, lang.version)
 func.printf(Numbers: %04d %04d %04d%n, 42, 43, 44)
 func.printf(Numbers: %0*d %0*d %0*d%n, 2, 42, 3, 43, 4, 44)
 func.printf(Bin numbers: %08b %08b%n, 42, -42)

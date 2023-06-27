@@ -139,7 +139,7 @@ func.printTerminal(-1, \n\n\n)
 
 # Execution flags
 {
-	# Execution flags can only be changed globally and will also affect linked lang files
+	# Execution flags can only be changed globally and will also affect linked Lang files
 	# Execution flags can be changed at any point of the code (Inside functions, inside if statments, ...)
 	
 	# Allow terminal redirect

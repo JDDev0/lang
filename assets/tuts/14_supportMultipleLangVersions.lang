@@ -1,18 +1,18 @@
 lang.name = Support Multiple Lang Versions
 lang.version = v0.1.8 # Set to the lowest supported version
 
-# Get lang version
+# Get Lang version
 $ver = $LANG_VERSION
 # {{{
 $ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0 because multiline comments were introduced in v1.0.0
 # }}}
 
 con.if($ver == v0.1.8)
-	func.printTerminal(2, This is Code for the lang version v0.1.8!)
+	func.printTerminal(2, This is Code for the Lang version v0.1.8!)
 	
-	func.printTerminal(2, Are you crazy? This version of lang isn't even public!)
+	func.printTerminal(2, Are you crazy? This version of Lang isn't even public!)
 con.elif($ver == v0.1.9)
-	func.printTerminal(2, This is Code for the lang version v0.1.9!)
+	func.printTerminal(2, This is Code for the Lang version v0.1.9!)
 	
 	$a = A non final variable
 	func.printTerminal(2, $a)
@@ -20,7 +20,7 @@ con.elif($ver == v0.1.9)
 	func.printTerminal(2, $a)
 	func.printError()
 con.elif($ver == v0.2.0)
-	func.printTerminal(2, This is Code for the lang version v0.2.0!)
+	func.printTerminal(2, This is Code for the Lang version v0.2.0!)
 	
 	$a = A final variable
 	func.makeFinal($[a])

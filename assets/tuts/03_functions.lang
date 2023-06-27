@@ -13,11 +13,11 @@ fn.println()
 fn.println(abc)
 
 # Lang functions
-# func.isLangVersionNewer(void) # Returns 1 if the Lang version is newer than the lang file version else 0
+# func.isLangVersionNewer(void) # Returns 1 if the Lang version is newer than the Lang file version else 0
 $isLVN = func.isLangVersionNewer()
 func.println($isLVN)
 
-# func.isLangVersionOlder(void) # Returns 1 if the Lang version is older than the lang file version else 0
+# func.isLangVersionOlder(void) # Returns 1 if the Lang version is older than the Lang file version else 0
 $isLVO = func.isLangVersionOlder()
 func.println($isLVO)
 
