@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Lang-Module<br>
- * Parsing of lang files into an AST structure for LangInterpreter
+ * Parsing of Lang files into an AST structure for LangInterpreter
  * 
  * @author JDDev0
  * @version v1.0.0
