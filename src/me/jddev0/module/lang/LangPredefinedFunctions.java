@@ -1109,7 +1109,7 @@ final class LangPredefinedFunctions {
 				stream.println(messageObject.getText());
 				return null;
 			}else {
-				interpreter.term.logln(level, "[From lang file]: " + messageObject.getText(), LangInterpreter.class);
+				interpreter.term.logln(level, "[From Lang file]: " + messageObject.getText(), LangInterpreter.class);
 			}
 			
 			return null;

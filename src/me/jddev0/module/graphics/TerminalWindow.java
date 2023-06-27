@@ -306,7 +306,7 @@ public class TerminalWindow extends JFrame {
 				//Extract message from debug output
 				output = output.split("]: ", 2)[1];
 				
-				if(output.startsWith("[From lang file]: ")) { //Drop "[From lang file]: " prefix
+				if(output.startsWith("[From Lang file]: ")) { //Drop "[From Lang file]: " prefix
 					output = output.substring(18);
 					
 					charsLeftInLogOutput -= 18;
