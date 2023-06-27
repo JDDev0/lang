@@ -5,6 +5,13 @@ import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 
+/**
+ * Lang-Module<br>
+ * Definition of Lang vars
+ * 
+ * @author JDDev0
+ * @version v1.0.0
+ */
 final class LangVars {
 	private final LangInterpreter interpreter;
 	

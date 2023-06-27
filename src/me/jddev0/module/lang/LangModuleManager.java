@@ -24,7 +24,7 @@ import me.jddev0.module.lang.LangModuleConfiguration.ModuleType;
 
 /**
  * Lang-Module<br>
- * Loads and unloads lang modules
+ * Loads and unloads Lang modules
  * 
  * @author JDDev0
  * @version v1.0.0
@@ -111,12 +111,12 @@ final class LangModuleManager {
 			module = new LangModule(moduleFileOrName, load, zipEntries, zipData, lmc);
 			
 			if(interpreter.modules.get(lmc.getName()) != null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + lmc.getName() + "\" was already loaded", CALLER_SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The Lang module \"" + lmc.getName() + "\" was already loaded", CALLER_SCOPE_ID);
 			
 			interpreter.modules.put(lmc.getName(), module);
 		}else {
 			if(interpreter.modules.get(moduleFileOrName) == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The lang module \"" + moduleFileOrName + "\" was not loaded", CALLER_SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The Lang module \"" + moduleFileOrName + "\" was not loaded", CALLER_SCOPE_ID);
 			
 			module = interpreter.modules.remove(moduleFileOrName);
 			zipEntries = module.getZipEntries();

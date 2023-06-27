@@ -6,6 +6,13 @@ import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 import me.jddev0.module.lang.DataObject.StructObject;
 
+/**
+ * Lang-Module<br>
+ * Definition of Lang composite types
+ * 
+ * @author JDDev0
+ * @version v1.0.0
+ */
 public class LangCompositeTypes {
 	private static final DataTypeConstraint TYPE_CONSTRAINT_OPTIONAL_TEXT = DataTypeConstraint.fromAllowedTypes(Arrays.asList(
 			DataType.NULL, DataType.TEXT

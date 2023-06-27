@@ -1632,10 +1632,10 @@ public final class LangInterpreter {
 				}
 				
 				if(compVer > 0)
-					setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The lang file could not be executed correctly",
+					setErrno(InterpretingError.LANG_VER_WARNING, "Lang file's version is older than this version! The Lang file could not be executed correctly",
 							lineNumber, SCOPE_ID);
 				else if(compVer < 0)
-					setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The lang file will not be executed correctly!",
+					setErrno(InterpretingError.LANG_VER_ERROR, "Lang file's version is newer than this version! The Lang file will not be executed correctly!",
 							lineNumber, SCOPE_ID);
 				
 				break;
@@ -1690,7 +1690,7 @@ public final class LangInterpreter {
 				executionFlags.rawVariableNames = number.intValue() != 0;
 				break;
 			default:
-				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither lang data nor an execution flag", lineNumber, SCOPE_ID);
+				setErrno(InterpretingError.INVALID_EXEC_FLAG_DATA, "\"" + langDataExecutionFlag + "\" is neither Lang data nor an execution flag", lineNumber, SCOPE_ID);
 		}
 	}
 	private DataObject interpretAssignmentNode(AssignmentNode node, final int SCOPE_ID) {
@@ -2197,7 +2197,7 @@ public final class LangInterpreter {
 						if(!val.isLangVar())
 							data.get(NEW_SCOPE_ID).var.put(key, new DataObject(val).setVariableName(val.getVariableName()));
 						
-						if(val.isStaticData()) //Static lang vars should also be copied
+						if(val.isStaticData()) //Static Lang vars should also be copied
 							data.get(NEW_SCOPE_ID).var.put(key, val);
 					});
 					
@@ -2327,7 +2327,7 @@ public final class LangInterpreter {
 					//Call function
 					interpretAST(functionBody, NEW_SCOPE_ID);
 					
-					//Add lang after call
+					//Add translations after call
 					data.get(SCOPE_ID).lang.putAll(data.get(NEW_SCOPE_ID).lang);
 					
 					//Remove data map
@@ -3764,7 +3764,7 @@ public final class LangInterpreter {
 		DEPRECATED_FUNC_CALL   (-1, "A deprecated predefined function was called"),
 		NO_TERMINAL_WARNING    (-2, "No terminal available"),
 		LANG_VER_WARNING       (-3, "Lang file's version is not compatible with this version"),
-		INVALID_EXEC_FLAG_DATA (-4, "Execution flag or lang data is invalid"),
+		INVALID_EXEC_FLAG_DATA (-4, "Execution flag or Lang data is invalid"),
 		VAR_SHADOWING_WARNING  (-5, "Variable name shadows an other variable"),
 		UNDEF_ESCAPE_SEQUENCE  (-6, "An undefined escape sequence was used");
 		
@@ -3913,7 +3913,7 @@ public final class LangInterpreter {
 		/**
 		 * Creates an function which is accessible globally in the Interpreter (= in all SCOPE_IDs)<br>
 		 * If function already exists, it will be overridden<br>
-		 * Function can be accessed with "func.[funcName]"/"fn.[funcName]" or with "linker.[funcName]"/"ln.[funcName]" and can't be removed nor changed by the lang file
+		 * Function can be accessed with "func.[funcName]"/"fn.[funcName]" or with "linker.[funcName]"/"ln.[funcName]" and can't be removed nor changed by the Lang file
 		 */
 		public void addPredefinedFunction(String funcName, LangPredefinedFunctionObject function) {
 			interpreter.funcs.put(funcName, function);

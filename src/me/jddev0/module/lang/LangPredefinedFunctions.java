@@ -1135,7 +1135,7 @@ final class LangPredefinedFunctions {
 				stream.printf("[%-8s]: ", level.getLevelName());
 				stream.println(((messageObject == null || messageObject.getType() == DataType.VOID)?"":(messageObject.getText() + ": ")) + error.getErrorText());
 			}else {
-				interpreter.term.logln(level, "[From lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
+				interpreter.term.logln(level, "[From Lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
 				"":(messageObject.getText() + ": ")) + error.getErrorText(), LangInterpreter.class);
 			}
 			return null;
@@ -8412,7 +8412,7 @@ final class LangPredefinedFunctions {
 			//Remove data map
 			interpreter.data.remove(NEW_SCOPE_ID);
 			
-			//Get returned value from executed lang file
+			//Get returned value from executed Lang file
 			retTmp = interpreter.getAndResetReturnValue(SCOPE_ID);
 			
 			//Update call stack

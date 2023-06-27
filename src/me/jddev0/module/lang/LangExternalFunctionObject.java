@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Lang-Module<br>
- * Helper class for external lang functions
+ * Helper class for external Lang functions
  * 
  * @author JDDev0
  * @version v1.0.0

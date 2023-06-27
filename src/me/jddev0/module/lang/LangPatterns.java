@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 /**
  * Lang-Module<br>
- * RegEx patterns for other lang classes
+ * RegEx patterns for other Lang classes
  * 
  * @author JDDev0
  * @version v1.0.0
