@@ -25,7 +25,7 @@ public final class Lang {
 	 */
 	private final static Map<String, String> LANG_CACHE = new HashMap<>();
 	/**
-	 * The name of the lang file which was cached previously
+	 * The name of the Lang file which was cached previously
 	 */
 	private static String lastCachedLangFileName;
 	
@@ -102,7 +102,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache<br>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache<br>
 	 * Null will be returned if the translationKey does not exist
 	 */
 	private static String getCachedRawTranslation(String translationKey) {
@@ -110,15 +110,15 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns all available lang files in the folder <b>langPath</b>
+	 * @return Returns all available Lang files in the folder <b>langPath</b>
 	 */
 	public static List<String> getLangFiles(String langPath, ILangPlatformAPI langPlatformAPI) {
 		return langPlatformAPI.getLangFiles(langPath);
 	}
 	
 	/**
-	 * Without interpreter: Only lang translations will be read without any other features (Used for reading written lang file)<br>
-	 * Call getCached... methods afterwards for retrieving certain lang translations
+	 * Without interpreter: Only Lang translations will be read without any other features (Used for reading written Lang file)<br>
+	 * Call getCached... methods afterwards for retrieving certain Lang translations
 	 * @return Returns all translations of <b>langFile</b>
 	 */
 	public static Map<String, String> getTranslationMapWithoutInterpreter(String langFile, boolean reloadNotFromChache, TerminalIO term, ILangPlatformAPI langPlatformAPI) throws IOException {
@@ -129,7 +129,7 @@ public final class Lang {
 			clearCache();
 			
 			try(BufferedReader reader = langPlatformAPI.getLangReader(langFile)) {
-				//Cache lang translations
+				//Cache Lang translations
 				reader.lines().filter(line -> line.contains(" = ")).forEach(line -> {
 					String[] translation = line.split(" = ", 2);
 					LANG_CACHE.put(translation[0], translation[1].replace("\\n", "\n"));
@@ -167,7 +167,7 @@ public final class Lang {
 				interpreter.interpretLines(reader);
 			}
 			
-			//Cache lang translations
+			//Cache Lang translations
 			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
 			lastCachedLangFileName = langFile;
 			return new HashMap<>(LANG_CACHE);
@@ -175,10 +175,10 @@ public final class Lang {
 	}
 	
 	/**
-	 * Call getCached... methods afterwards for retrieving certain lang translations
+	 * Call getCached... methods afterwards for retrieving certain Lang translations
 	 * @return Returns all translations of <b>langFile</b> with a timeout
-	 * @param timeout Will cancel the execution of the lang file after timeout milliseconds
-	 * @throws StoppedException if the execution of the lang file was force stopped
+	 * @param timeout Will cancel the execution of the Lang file after timeout milliseconds
+	 * @throws StoppedException if the execution of the Lang file was force stopped
 	 */
 	public static Map<String, String> getTranslationMapTimeout(String langFile, boolean reloadNotFromChache, int timeout, TerminalIO term, ILangPlatformAPI langPlatformAPI)
 	throws IOException, LangInterpreter.StoppedException {
@@ -186,10 +186,10 @@ public final class Lang {
 	}
 
 	/**
-	 * Call getCached... methods afterwards for retrieving certain lang translations
+	 * Call getCached... methods afterwards for retrieving certain Lang translations
 	 * @return Returns all translations of <b>langFile</b> with a timeout
-	 * @param timeout Will cancel the execution of the lang file after timeout milliseconds
-	 * @throws StoppedException if the execution of the lang file was force stopped
+	 * @param timeout Will cancel the execution of the Lang file after timeout milliseconds
+	 * @throws StoppedException if the execution of the Lang file was force stopped
 	 */
 	public static Map<String, String> getTranslationMapTimeout(String langFile, boolean reloadNotFromChache, int timeout, TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs)
 	throws IOException, LangInterpreter.StoppedException {
@@ -217,7 +217,7 @@ public final class Lang {
 				timer.cancel();
 			}
 			
-			//Cache lang translations
+			//Cache Lang translations
 			LANG_CACHE.putAll(interpreter.getData().get(0).lang);
 			lastCachedLangFileName = langFile;
 			return new HashMap<>(LANG_CACHE);
@@ -269,14 +269,14 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the lang file's of <b>langFile</b><br>
+	 * @return Returns the Lang file's of <b>langFile</b><br>
 	 */
 	public static String getLangName(String langFile, ILangPlatformAPI langPlatformAPI) throws IOException {
 		return getTranslation(langFile, "lang.name", langPlatformAPI);
 	}
 	
 	/**
-	 * @return Returns the lang file's of <b>langFile</b><br>
+	 * @return Returns the Lang file's of <b>langFile</b><br>
 	 */
 	public static String getLangVersion(String langFile, ILangPlatformAPI langPlatformAPI) throws IOException {
 		return getTranslation(langFile, "lang.version", langPlatformAPI);
@@ -305,7 +305,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache<br>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache<br>
 	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslation(String translationKey) {
@@ -314,7 +314,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with {@link String#format(String, Object...) String.format(String, Object...)}<br>
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache formatted with {@link String#format(String, Object...) String.format(String, Object...)}<br>
 	 * The translation key will be returned if the translationKey does not exist
 	 */
 	public static String getCachedTranslationFormat(String translationKey, Object... args) {
@@ -322,7 +322,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache formatted with
 	 * {@link LangUtils#formatTranslationTemplate(String, Map) LangUtils.formatTranslationTemplate(String, Map)}<br>
 	 * The translation key will be returned if the translationKey does not exist
 	 */
@@ -331,7 +331,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache formatted with
 	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int) LangUtils.formatTranslationTemplatePluralization(String, int)}<br>
 	 * The translation key will be returned if the translationKey does not exist
 	 */
@@ -340,7 +340,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the lang translation cache formatted with
+	 * @return Returns the <b>translationValue</b> for <b>translationKey</b> from the Lang translation cache formatted with
 	 * {@link LangUtils#formatTranslationTemplatePluralization(String, int, Map) LangUtils.formatTranslationTemplatePluralization(String, int, Map)}<br>
 	 * The translation key will be returned if the translationKey does not exist
 	 */
@@ -349,21 +349,21 @@ public final class Lang {
 	}
 	
 	/**
-	 * @return Returns the lang file's name from the lang translation cache<br>
+	 * @return Returns the Lang file's name from the Lang translation cache<br>
 	 */
 	public static String getCachedLangName() {
 		return getCachedTranslation("lang.name");
 	}
 	
 	/**
-	 * @return Returns the lang file's version from the lang translation cache<br>
+	 * @return Returns the Lang file's version from the Lang translation cache<br>
 	 */
 	public static String getCachedLangVersion() {
 		return getCachedTranslation("lang.version");
 	}
 	
 	/**
-	 * Writes all translations from the lang translation cache to <b>langFile</b>
+	 * Writes all translations from the Lang translation cache to <b>langFile</b>
 	 * 
 	 * @return Returns true if successful, false otherwise
 	 */
@@ -372,7 +372,7 @@ public final class Lang {
 	}
 	
 	/**
-	 * Clears the lang translation cache
+	 * Clears the Lang translation cache
 	 */
 	public static void clearCache() {
 		synchronized(LANG_CACHE) {
@@ -382,8 +382,8 @@ public final class Lang {
 	}
 	
 	/**
-	 * Will execute the lang file
-	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 * Will execute the Lang file
+	 * @return The LII for the Lang interpreter which was used to execute the Lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
 	TerminalIO term, ILangPlatformAPI langPlatformAPI, LangInterpreter.ExecutionFlags.ErrorOutputFlag errorOutput, String[] langArgs) throws IOException {
@@ -411,44 +411,44 @@ public final class Lang {
 		return new LangInterpreter.LangInterpreterInterface(interpreter);
 	}
 	/**
-	 * Will execute the lang file without warnings output
-	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 * Will execute the Lang file without warnings output
+	 * @return The LII for the Lang interpreter which was used to execute the Lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache,
 	TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null, langArgs);
 	}
 	/**
-	 * Will execute the lang file without warnings output and lang args
-	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 * Will execute the Lang file without warnings output and Lang args
+	 * @return The LII for the Lang interpreter which was used to execute the Lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, boolean writeToCache, TerminalIO term, ILangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, writeToCache, term, langPlatformAPI, null);
 	}
 	/**
-	 * Will execute the lang file without warnings output and the use of the lang translation cache
-	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 * Will execute the Lang file without warnings output and the use of the Lang translation cache
+	 * @return The LII for the Lang interpreter which was used to execute the Lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI, langArgs);
 	}
 	/**
-	 * Will execute the lang file without warnings output, lang args, and the use of the lang translation cache
-	 * @return The LII for the lang interpreter which was used to execute the lang file
+	 * Will execute the Lang file without warnings output, Lang args, and the use of the Lang translation cache
+	 * @return The LII for the Lang interpreter which was used to execute the Lang file
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(String langFile, TerminalIO term, ILangPlatformAPI langPlatformAPI) throws IOException {
 		return createInterpreterInterface(langFile, false, term, langPlatformAPI);
 	}
 	/**
-	 * Will create a new lang interpreter without warnings output and the use of the lang translation cache
-	 * @return The LII for the lang interpreter which was created
+	 * Will create a new Lang interpreter without warnings output and the use of the Lang translation cache
+	 * @return The LII for the Lang interpreter which was created
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, ILangPlatformAPI langPlatformAPI, String[] langArgs) {
 		return new LangInterpreter.LangInterpreterInterface(new LangInterpreter(new File("").getAbsolutePath(), term, langPlatformAPI, langArgs));
 	}
 	/**
-	 * Will create a new lang interpreter without warnings output, lang args, and the use of the lang translation cache
-	 * @return The LII for the lang interpreter which was created
+	 * Will create a new Lang interpreter without warnings output, Lang args, and the use of the Lang translation cache
+	 * @return The LII for the Lang interpreter which was created
 	 */
 	public static LangInterpreter.LangInterpreterInterface createInterpreterInterface(TerminalIO term, ILangPlatformAPI langPlatformAPI) {
 		return createInterpreterInterface(term, langPlatformAPI, null);
