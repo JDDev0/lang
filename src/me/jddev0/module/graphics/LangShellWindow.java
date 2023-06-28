@@ -551,6 +551,14 @@ public class LangShellWindow extends JDialog {
 			
 			return new DataObject().setInt(lii.getParserLineNumber());
 		});
+		lii.addPredefinedFunction("resetParserLineNumber", (argumentList, SCOPE_ID) -> {
+			if(argumentList.size() > 0)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			lii.resetParserPositionVars();
+			
+			return null;
+		});
 		
 		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
 		lii.addPredefinedFunction("input", (argumentList, SCOPE_ID) -> {
