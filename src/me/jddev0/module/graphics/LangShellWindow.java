@@ -551,6 +551,25 @@ public class LangShellWindow extends JDialog {
 			
 			return new DataObject().setInt(lii.getParserLineNumber());
 		});
+		lii.addPredefinedFunction("setParserLineNumber", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			if(combinedArgumentList.size() != 1)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
+			
+			DataObject dataObject = combinedArgumentList.get(0);
+			Number number = dataObject.toNumber();
+			if(number == null)
+				return lii.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
+			
+			int lineNumber = number.intValue();
+			
+			if(lineNumber < 0)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The line number must be >= 0", SCOPE_ID);
+			
+			lii.setParserLineNumber(lineNumber);
+			
+			return null;
+		});
 		lii.addPredefinedFunction("resetParserLineNumber", (argumentList, SCOPE_ID) -> {
 			if(argumentList.size() > 0)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
