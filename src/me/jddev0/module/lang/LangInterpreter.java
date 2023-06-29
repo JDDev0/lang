@@ -569,7 +569,6 @@ public final class LangInterpreter {
 		List<DataObject> dataObjects = new LinkedList<>();
 		DataObject previousDataObject = null;
 		
-		boolean isFirstNode = true;
 		for(Node childNode:node.getChildren()) {
 			if(childNode.getNodeType() == NodeType.FUNCTION_CALL_PREVIOUS_NODE_VALUE && previousDataObject != null) {
 				try {
@@ -586,16 +585,16 @@ public final class LangInterpreter {
 				
 				previousDataObject = dataObjects.get(dataObjects.size() - 1);
 				
-				isFirstNode = false;
+				compositeType = null;
 				
 				continue;
 			}
 			
-			DataObject ret = interpretNode(isFirstNode?compositeType:null, childNode, SCOPE_ID);
+			DataObject ret = interpretNode(compositeType, childNode, SCOPE_ID);
 			if(ret != null)
 				dataObjects.add(ret);
 			
-			isFirstNode = false;
+			compositeType = null;
 			
 			previousDataObject = ret;
 		}
