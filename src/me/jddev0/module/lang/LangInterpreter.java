@@ -246,7 +246,7 @@ public final class LangInterpreter {
 					
 					case LIST:
 						//Interpret a group of nodes
-						return interpretListNode((ListNode)node, SCOPE_ID);
+						return interpretListNode(compositeType, (ListNode)node, SCOPE_ID);
 					
 					case CHAR_VALUE:
 					case TEXT_VALUE:
@@ -565,9 +565,11 @@ public final class LangInterpreter {
 	/**
 	 * @return Might return null
 	 */
-	private DataObject interpretListNode(ListNode node, final int SCOPE_ID) {
+	private DataObject interpretListNode(DataObject compositeType, ListNode node, final int SCOPE_ID) {
 		List<DataObject> dataObjects = new LinkedList<>();
 		DataObject previousDataObject = null;
+		
+		boolean isFirstNode = true;
 		for(Node childNode:node.getChildren()) {
 			if(childNode.getNodeType() == NodeType.FUNCTION_CALL_PREVIOUS_NODE_VALUE && previousDataObject != null) {
 				try {
@@ -584,12 +586,16 @@ public final class LangInterpreter {
 				
 				previousDataObject = dataObjects.get(dataObjects.size() - 1);
 				
+				isFirstNode = false;
+				
 				continue;
 			}
 			
-			DataObject ret = interpretNode(null, childNode, SCOPE_ID);
+			DataObject ret = interpretNode(isFirstNode?compositeType:null, childNode, SCOPE_ID);
 			if(ret != null)
 				dataObjects.add(ret);
+			
+			isFirstNode = false;
 			
 			previousDataObject = ret;
 		}
