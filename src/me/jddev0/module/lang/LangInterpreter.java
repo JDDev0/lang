@@ -977,7 +977,7 @@ public final class LangInterpreter {
 							}
 						}
 					}else {
-						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach needs a collection or a text node to iterate over", node.getLineNumberFrom(), SCOPE_ID);
+						setErrno(InterpretingError.INCOMPATIBLE_DATA_TYPE, "con.foreach needs a composite or a text value to iterate over", node.getLineNumberFrom(), SCOPE_ID);
 						return false;
 					}
 					
