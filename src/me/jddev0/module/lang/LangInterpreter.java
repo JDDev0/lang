@@ -861,9 +861,9 @@ public final class LangInterpreter {
 					
 					var = varPointer.getVarPointer().getVar();
 					
-					DataObject collectionOrTextNode = interpretNode(null, forEachNode.getCompositeOrTextNode(), SCOPE_ID);
-					if(collectionOrTextNode.getType() == DataType.ARRAY) {
-						DataObject[] arr = collectionOrTextNode.getArray();
+					DataObject compositeOrText = interpretNode(null, forEachNode.getCompositeOrTextNode(), SCOPE_ID);
+					if(compositeOrText.getType() == DataType.ARRAY) {
+						DataObject[] arr = compositeOrText.getArray();
 						for(int i = 0;i < arr.length;i++) {
 							flag = true;
 							
@@ -885,8 +885,8 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
-					}else if(collectionOrTextNode.getType() == DataType.LIST) {
-						List<DataObject> list = collectionOrTextNode.getList();
+					}else if(compositeOrText.getType() == DataType.LIST) {
+						List<DataObject> list = compositeOrText.getList();
 						for(int i = 0;i < list.size();i++) {
 							flag = true;
 							
@@ -908,8 +908,8 @@ public final class LangInterpreter {
 									continue;
 							}
 						}
-					}else if(collectionOrTextNode.getType() == DataType.STRUCT) {
-						StructObject struct = collectionOrTextNode.getStruct();
+					}else if(compositeOrText.getType() == DataType.STRUCT) {
+						StructObject struct = compositeOrText.getStruct();
 						if(struct.isDefinition()) {
 							for(int i = 0;i < struct.getMemberNames().length;i++) {
 								flag = true;
@@ -953,8 +953,8 @@ public final class LangInterpreter {
 								}
 							}
 						}
-					}else if(collectionOrTextNode.getType() == DataType.TEXT) {
-						String text = collectionOrTextNode.getText();
+					}else if(compositeOrText.getType() == DataType.TEXT) {
+						String text = compositeOrText.getText();
 						for(int i = 0;i < text.length();i++) {
 							flag = true;
 							
