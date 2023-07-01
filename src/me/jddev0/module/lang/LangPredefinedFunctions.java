@@ -677,11 +677,12 @@ final class LangPredefinedFunctions {
 				}));
 				
 				for(int i = 0;i < repeatCount;i++) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(
-							new DataObject().setInt(i),
-							breakFunc
-					)), SCOPE_ID);
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+								new DataObject().setInt(i),
+								breakFunc
+							)
+					), SCOPE_ID);
 					
 					if(shouldBreak[0])
 						break;
@@ -5687,10 +5688,12 @@ final class LangPredefinedFunctions {
 				
 				for(DataObject ele:arr) {
 					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(
-							ele,
-							breakFunc
-					)), SCOPE_ID);
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									ele,
+									breakFunc
+							)
+					), SCOPE_ID);
 					
 					if(shouldBreak[0])
 						break;
@@ -6853,10 +6856,12 @@ final class LangPredefinedFunctions {
 				
 				for(int i = 0;i < list.size();i++) {
 					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(
-							list.get(i),
-							breakFunc
-					)), SCOPE_ID);
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									list.get(i),
+									breakFunc
+							)
+					), SCOPE_ID);
 					
 					if(shouldBreak[0])
 						break;
