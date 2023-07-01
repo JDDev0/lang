@@ -5889,10 +5889,10 @@ final class LangPredefinedFunctions {
 			int count = countNumber.intValue();
 			
 			if(count < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be less than 0!", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 must not be less than 0!", SCOPE_ID);
 			
 			if(count > arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be greater than the array!", SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 must not be greater than the array!", SCOPE_ID);
 			
 			if(arr.length == 0 || count == 0)
 				return null;
