@@ -640,7 +640,7 @@ final class LangPredefinedFunctions {
 		funcs.put("repeat", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject loopFunctionObject = combinedArgumentList.get(0);
@@ -648,6 +648,8 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
 			
 			DataObject repeatCountObject = combinedArgumentList.get(1);
+			
+			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
 			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			
@@ -659,10 +661,37 @@ final class LangPredefinedFunctions {
 			if(repeatCount < 0)
 				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_REPEAT_COUNT, SCOPE_ID);
 			
-			for(int i = 0;i < repeatCount;i++) {
-				interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
-						new DataObject().setInt(i)
-				), SCOPE_ID);
+			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
+			if(isBreakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					DataObject innerError;
+					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
+						return innerError;
+					
+					shouldBreak[0] = true;
+					
+					return null;
+				}));
+				
+				for(int i = 0;i < repeatCount;i++) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(
+							new DataObject().setInt(i),
+							breakFunc
+					)), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < repeatCount;i++) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+							new DataObject().setInt(i)
+					), SCOPE_ID);
+				}
 			}
 			
 			return null;
@@ -670,7 +699,7 @@ final class LangPredefinedFunctions {
 		funcs.put("repeatWhile", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject loopFunctionObject = combinedArgumentList.get(0);
@@ -681,18 +710,45 @@ final class LangPredefinedFunctions {
 			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
 			
+			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
+			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
 			
-			while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-				interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
+			if(isBreakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					DataObject innerError;
+					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
+						return innerError;
+					
+					shouldBreak[0] = true;
+					
+					return null;
+				}));
+				
+				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+						breakFunc
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			}
 			
 			return null;
 		});
 		funcs.put("repeatUntil", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject loopFunctionObject = combinedArgumentList.get(0);
@@ -703,11 +759,38 @@ final class LangPredefinedFunctions {
 			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
 			
+			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
+			
 			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
 			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
 			
-			while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-				interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
+			if(isBreakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					DataObject innerError;
+					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
+						return innerError;
+					
+					shouldBreak[0] = true;
+					
+					return null;
+				}));
+				
+				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+						breakFunc
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			}
 			
 			return null;
 		});
