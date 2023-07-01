@@ -5711,11 +5711,13 @@ final class LangPredefinedFunctions {
 		funcs.put("arrayEnumerate", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject arrPointerObject = combinedArgumentList.get(0);
 			DataObject funcPointerObject = combinedArgumentList.get(1);
+			
+			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
 			
 			if(arrPointerObject.getType() != DataType.ARRAY)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
@@ -5723,15 +5725,46 @@ final class LangPredefinedFunctions {
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
 			
+			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
+			
 			DataObject[] arr = arrPointerObject.getArray();
-			for(int i = 0;i < arr.length;i++) {
-				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								new DataObject().setInt(i),
-								arr[i]
-						)
-				), SCOPE_ID);
+			
+			if(isBreakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					DataObject innerError;
+					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
+						return innerError;
+					
+					shouldBreak[0] = true;
+					
+					return null;
+				}));
+				for(int i = 0;i < arr.length;i++) {
+					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									arr[i],
+									breakFunc
+							)
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < arr.length;i++) {
+					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									arr[i]
+							)
+					), SCOPE_ID);
+				}
 			}
 			
 			return null;
@@ -6879,11 +6912,13 @@ final class LangPredefinedFunctions {
 		funcs.put("listEnumerate", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
 				return error;
 			
 			DataObject listObject = combinedArgumentList.get(0);
 			DataObject funcPointerObject = combinedArgumentList.get(1);
+			
+			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
 			
 			if(listObject.getType() != DataType.LIST)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
@@ -6891,15 +6926,45 @@ final class LangPredefinedFunctions {
 			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
 			
+			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
+			
 			List<DataObject> list = listObject.getList();
-			for(int i = 0;i < list.size();i++) {
-				interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								new DataObject().setInt(i),
-								list.get(i)
-						)
-				), SCOPE_ID);
+			if(isBreakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
+					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
+					DataObject innerError;
+					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
+						return innerError;
+					
+					shouldBreak[0] = true;
+					
+					return null;
+				}));
+				for(int i = 0;i < list.size();i++) {
+					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									list.get(i),
+									breakFunc
+							)
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < list.size();i++) {
+					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									list.get(i)
+							)
+					), SCOPE_ID);
+				}
 			}
 			
 			return null;
