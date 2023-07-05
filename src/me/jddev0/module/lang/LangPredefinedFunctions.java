@@ -5148,6 +5148,24 @@ final class LangPredefinedFunctions {
 			
 			return null;
 		});
+		funcs.put("arrayFill", (argumentList, SCOPE_ID) -> {
+			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
+			DataObject error;
+			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
+				return error;
+			
+			DataObject arrPointerObject = combinedArgumentList.get(0);
+			DataObject valueObject = combinedArgumentList.get(1);
+			
+			if(arrPointerObject.getType() != DataType.ARRAY)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
+			
+			DataObject[] arr = arrPointerObject.getArray();
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(valueObject);
+			
+			return null;
+		});
 		funcs.put("arrayFillFrom", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
