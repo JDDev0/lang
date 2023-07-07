@@ -2278,7 +2278,7 @@ public class DataObject {
 			FunctionPointerObject that = (FunctionPointerObject)obj;
 			return this.functionPointerType == that.functionPointerType && Objects.equals(this.parameterList, that.parameterList) &&
 			Objects.equals(this.functionBody, that.functionBody) && Objects.equals(this.predefinedFunction, that.predefinedFunction) &&
-			Objects.equals(this.externalFunction, externalFunction);
+			Objects.equals(this.externalFunction, that.externalFunction);
 		}
 		
 		@Override
