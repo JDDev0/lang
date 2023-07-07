@@ -1939,6 +1939,10 @@ public class DataObject {
 			return new DataTypeConstraint(notAllowedTypes, false);
 		}
 		
+		public static DataTypeConstraint fromSingleAllowedType(DataType allowedType) {
+			return new DataTypeConstraint(Arrays.asList(allowedType), false);
+		}
+		
 		private DataTypeConstraint(Collection<DataType> types, boolean allowed) {
 			this.types = new HashSet<>(types);
 			this.allowed = allowed;
