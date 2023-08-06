@@ -1131,7 +1131,7 @@ public class LangShellWindow extends JDialog {
 		while(line.contains("{{{")) {
 			//Ignore escaped multiline text start sequences
 			int startIndex = line.indexOf("{{{");
-			if(startIndex > 0 && !LangUtils.isBackshlashAtIndexEscaped(line, startIndex - 1)) {
+			if(startIndex > 0 && !LangUtils.isBackslashAtIndexEscaped(line, startIndex - 1)) {
 				line = line.substring(startIndex + 3);
 				continue;
 			}

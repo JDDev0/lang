@@ -264,7 +264,7 @@ public final class LangUtils {
 	/**
 	 * @return Returns true if the backslash at the index index is escaped else false
 	 */
-	public static boolean isBackshlashAtIndexEscaped(String str, int index) {
+	public static boolean isBackslashAtIndexEscaped(String str, int index) {
 		if(str == null || str.length() <= index || index < 0 || str.charAt(index) != '\\')
 			return false;
 		

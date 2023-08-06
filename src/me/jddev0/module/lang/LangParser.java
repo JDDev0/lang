@@ -1676,7 +1676,7 @@ public final class LangParser {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList,
 								functionReturnValueTypeConstraint, parseLines(lines), lineNumberFrom, lineNumber));
 					}else if(lrvalue.endsWith("{") && (lrvalue.charAt(lrvalue.length() - 2) != '\\' ||
-							LangUtils.isBackshlashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
+							LangUtils.isBackslashAtIndexEscaped(lrvalue, lrvalue.length() - 2))) {
 						nodes.add(new AbstractSyntaxTree.FunctionDefinitionNode(parameterList,
 								functionReturnValueTypeConstraint, parseLines(functionBody, true, lines),
 								lineNumberFrom, lineNumber));
@@ -2285,7 +2285,7 @@ public final class LangParser {
 			if(i == -1)
 				break;
 			
-			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+			if(!LangUtils.isBackslashAtIndexEscaped(line, i)) {
 				i += 2;
 				line = line.substring(0, i) + "\\e" + line.substring(i); //Add "\e" after "\{"
 				continue;
@@ -2306,7 +2306,7 @@ public final class LangParser {
 			if(i == -1)
 				break;
 			
-			if(!LangUtils.isBackshlashAtIndexEscaped(line, i)) {
+			if(!LangUtils.isBackslashAtIndexEscaped(line, i)) {
 				i += 2;
 				line = line.substring(0, i) + line.substring(i + 2); //Remove "\e" after "\{"
 				continue;
