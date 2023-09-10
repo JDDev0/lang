@@ -28,11 +28,17 @@ import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.DataObject.VarPointerObject;
+import me.jddev0.module.lang.LangFunction.AllowedTypes;
+import me.jddev0.module.lang.LangFunction.LangParameter;
+import me.jddev0.module.lang.LangFunction.LangParameter.NumberValue;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangInterpreter.StackElement;
 import me.jddev0.module.lang.LangUtils.InvalidTranslationTemplateSyntaxException;
 import me.jddev0.module.lang.regex.InvalidPaternSyntaxException;
 import me.jddev0.module.lang.regex.LangRegEx;
+
+import static me.jddev0.module.lang.LangFunction.*;
+import static me.jddev0.module.lang.LangFunction.LangParameter.*;
 
 /**
  * Lang-Module<br>
@@ -450,6 +456,13 @@ final class LangPredefinedFunctions {
 	}
 	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		//Add non-static @LangNativeFunction functions
+		//TODO
+		
+		//Add static @LangNativeFunction functions
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
+		
+		//Add non @LangNativeFunction functions
 		addPredefinedResetFunctions(funcs);
 		addPredefinedErrorFunctions(funcs);
 		addPredefinedLangFunctions(funcs);
@@ -1695,94 +1708,6 @@ final class LangPredefinedFunctions {
 			}catch(StringIndexOutOfBoundsException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 			}
-		});
-		funcs.put("charAt", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			String txt = textObject.getText();
-			int len = txt.length();
-			int index = indexNumber.intValue();
-			if(index < 0)
-				index += len;
-			
-			if(index < 0 || index >= len)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			return new DataObject().setChar(txt.charAt(index));
-		});
-		funcs.put("lpad", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject paddingTextObject = combinedArgumentList.get(1);
-			DataObject lenObject = combinedArgumentList.get(2);
-			Number lenNum = lenObject.toNumber();
-			if(lenNum == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int len = lenNum.intValue();
-			
-			String text = textObject.getText();
-			String paddingText = paddingTextObject.getText();
-			
-			if(paddingText.length() == 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
-			
-			if(text.length() >= len)
-				return new DataObject(textObject);
-			
-			StringBuilder builder = new StringBuilder(text);
-			while(builder.length() < len)
-				builder.insert(0, paddingText);
-			
-			if(builder.length() > len)
-				builder.delete(0, builder.length() - len);
-			
-			return new DataObject(builder.toString());
-		});
-		funcs.put("rpad", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject paddingTextObject = combinedArgumentList.get(1);
-			DataObject lenObject = combinedArgumentList.get(2);
-			Number lenNum = lenObject.toNumber();
-			if(lenNum == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int len = lenNum.intValue();
-			
-			String text = textObject.getText();
-			String paddingText = paddingTextObject.getText();
-			
-			if(paddingText.length() == 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
-			
-			if(text.length() >= len)
-				return new DataObject(textObject);
-			
-			StringBuilder builder = new StringBuilder(text);
-			while(builder.length() < len)
-				builder.append(paddingText);
-			
-			if(builder.length() >= len)
-				builder.delete(len, builder.length());
-			
-			return new DataObject(builder.toString());
 		});
 		funcs.put("format", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -8817,7 +8742,6 @@ final class LangPredefinedFunctions {
 				
 				DataObject entryPointObject = combinedArgumentList.remove(0);
 				String entryPoint = entryPointObject.getText();
-				
 				return interpreter.moduleManager.unloadNative(entryPoint, module, argumentList, SCOPE_ID);
 			}
 			
@@ -8826,5 +8750,84 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+	}
+	
+	public static final class LangPredefinedTextFunctions {
+		private LangPredefinedTextFunctions() {}
+		
+		@LangFunction("charAt")
+		@AllowedTypes(DataObject.DataType.CHAR)
+		public static DataObject charAtFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$index") @NumberValue DataObject indexObject) {
+			String txt = textObject.getText();
+			int len = txt.length();
+			
+			Number indexNumber = indexObject.toNumber();
+			int index = indexNumber.intValue();
+			if(index < 0)
+				index += len;
+			
+			if(index < 0 || index >= len)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setChar(txt.charAt(index));
+		}
+		
+		@LangFunction("lpad")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject lpadFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$paddingText") DataObject paddingTextObject,
+				@LangParameter("$len") @NumberValue DataObject lenObject) {
+			Number lenNum = lenObject.toNumber();
+			int len = lenNum.intValue();
+			
+			String text = textObject.getText();
+			String paddingText = paddingTextObject.getText();
+			
+			if(paddingText.length() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
+			
+			if(text.length() >= len)
+				return new DataObject(textObject);
+			
+			StringBuilder builder = new StringBuilder(text);
+			while(builder.length() < len)
+				builder.insert(0, paddingText);
+			
+			if(builder.length() > len)
+				builder.delete(0, builder.length() - len);
+			
+			return new DataObject(builder.toString());
+		}
+		
+		@LangFunction("rpad")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject rpadFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$paddingText") DataObject paddingTextObject,
+				@LangParameter("$len") @NumberValue DataObject lenObject) {
+			Number lenNum = lenObject.toNumber();
+			int len = lenNum.intValue();
+			
+			String text = textObject.getText();
+			String paddingText = paddingTextObject.getText();
+			
+			if(paddingText.length() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The padding text must not be empty", SCOPE_ID);
+			
+			if(text.length() >= len)
+				return new DataObject(textObject);
+			
+			StringBuilder builder = new StringBuilder(text);
+			while(builder.length() < len)
+				builder.append(paddingText);
+			
+			if(builder.length() >= len)
+				builder.delete(len, builder.length());
+			
+			return new DataObject(builder.toString());
+		}
 	}
 }
