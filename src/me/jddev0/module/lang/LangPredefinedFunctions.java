@@ -2310,22 +2310,36 @@ final class LangPredefinedFunctions {
 		funcs.put("randChoice", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() == 0)
-				return new DataObject().setVoid();
+				return null;
 			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			if(arrPointerObject.getType() == DataType.ARRAY) {
+			DataObject firstArgument = combinedArgumentList.get(0);
+			if(firstArgument.getType() == DataType.ARRAY) {
 				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a collection"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
 				
-				DataObject[] arr = arrPointerObject.getArray();
+				DataObject[] arr = firstArgument.getArray();
 				return arr.length == 0?null:arr[interpreter.RAN.nextInt(arr.length)];
 			}
-			if(arrPointerObject.getType() == DataType.LIST) {
+			
+			if(firstArgument.getType() == DataType.LIST) {
 				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a collection"), SCOPE_ID);
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
 				
-				List<DataObject> list = arrPointerObject.getList();
+				List<DataObject> list = firstArgument.getList();
 				return list.size() == 0?null:list.get(interpreter.RAN.nextInt(list.size()));
+			}
+			
+			if(firstArgument.getType() == DataType.STRUCT) {
+				if(combinedArgumentList.size() > 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
+				
+				StructObject struct = firstArgument.getStruct();
+				String[] memberNames = struct.getMemberNames();
+				
+				if(struct.isDefinition())
+					return memberNames.length == 0?null:new DataObject(memberNames[interpreter.RAN.nextInt(memberNames.length)]);
+				
+				return memberNames.length == 0?null:struct.getMember(memberNames[interpreter.RAN.nextInt(memberNames.length)]);
 			}
 			
 			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(interpreter.RAN.nextInt(combinedArgumentList.size()));
