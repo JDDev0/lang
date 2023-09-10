@@ -460,6 +460,7 @@ final class LangPredefinedFunctions {
 		//TODO
 		
 		//Add static @LangNativeFunction functions
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
 		
 		//Add non @LangNativeFunction functions
@@ -469,7 +470,6 @@ final class LangPredefinedFunctions {
 		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
 		addPredefinedNumberFunctions(funcs);
-		addPredefinedCharacterFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
@@ -1611,49 +1611,6 @@ final class LangPredefinedFunctions {
 			return unaryMathOperationHelper(argumentList, number -> {
 				return new DataObject().setBoolean(number.longValue() % 2 == 1);
 			}, SCOPE_ID);
-		});
-	}
-	private void addPredefinedCharacterFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("toValue", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject charObject = combinedArgumentList.get(0);
-			
-			if(charObject.getType() != DataType.CHAR)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_CHAR, SCOPE_ID);
-			
-			return new DataObject().setInt(charObject.getChar());
-		});
-		funcs.put("toChar", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject asciiValueObject = combinedArgumentList.get(0);
-			
-			Number asciiValue = asciiValueObject.toNumber();
-			if(asciiValue == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			return new DataObject().setChar((char)asciiValue.intValue());
-		});
-		funcs.put("ttoc", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			
-			String str = textObject.getText();
-			if(str.length() == 1)
-				return new DataObject().setChar(str.charAt(0));
-			
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
 		});
 	}
 	private void addPredefinedTextFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -8750,6 +8707,36 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+	}
+	
+	public static final class LangPredefinedCharacterFunctions {
+		private LangPredefinedCharacterFunctions() {}
+		
+		@LangFunction("toValue")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject toValueFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$char") @AllowedTypes(DataObject.DataType.CHAR) DataObject charObject) {
+			return new DataObject().setInt(charObject.getChar());
+		}
+		
+		@LangFunction("toChar")
+		@AllowedTypes(DataObject.DataType.CHAR)
+		public static DataObject toCharFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$asciiValue") @NumberValue DataObject asciiValueObject) {
+			Number asciiValue = asciiValueObject.toNumber();
+			return new DataObject().setChar((char)asciiValue.intValue());
+		}
+		
+		@LangFunction("ttoc")
+		@AllowedTypes(DataObject.DataType.CHAR)
+		public static DataObject ttocFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject) {
+			String str = textObject.getText();
+			if(str.length() == 1)
+				return new DataObject().setChar(str.charAt(0));
+			
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument 1 (\"%s\") must be of length 1", textObject.getVariableName()), SCOPE_ID);
+		}
 	}
 	
 	public static final class LangPredefinedTextFunctions {
