@@ -2462,6 +2462,19 @@ public final class LangInterpreter {
 								continue;
 							}
 							
+							if(dataObject.getType() == DataType.STRUCT) {
+								StructObject struct = dataObject.getStruct();
+								
+								if(struct.isDefinition())
+									argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.stream(struct.getMemberNames()).
+											map(DataObject::new).collect(Collectors.toList())));
+								else
+									argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.stream(struct.getMemberNames()).
+											map(struct::getMember).collect(Collectors.toList())));
+								
+								continue;
+							}
+							
 							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Unpacking of unsupported composite type variable",
 									argument.getLineNumberFrom(), SCOPE_ID));
 							
