@@ -2415,7 +2415,7 @@ public final class LangInterpreter {
 				continue;
 			}
 			
-			//Array unpacking
+			//Composite type unpacking
 			if(argument.getNodeType() == NodeType.UNPROCESSED_VARIABLE_NAME) {
 				try {
 					String variableName = ((UnprocessedVariableNameNode)argument).getVariableName();
@@ -2444,20 +2444,26 @@ public final class LangInterpreter {
 							DataObject dataObject = getOrCreateDataObjectFromVariableName(null, moduleName, variableName.
 									substring(0, variableName.length() - 3), false, false, false, null, argument.getLineNumberFrom(), SCOPE_ID);
 							if(dataObject == null) {
-								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of undefined variable",
+								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Unpacking of undefined variable",
 										argument.getLineNumberFrom(), SCOPE_ID));
 								
 								continue;
 							}
 							
-							if(dataObject.getType() != DataType.ARRAY) {
-								argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Array unpacking of non ARRAY type variable",
-										argument.getLineNumberFrom(), SCOPE_ID));
+							if(dataObject.getType() == DataType.ARRAY) {
+								argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(dataObject.getArray())));
 								
 								continue;
 							}
 							
-							argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(Arrays.asList(dataObject.getArray())));
+							if(dataObject.getType() == DataType.LIST) {
+								argumentValueList.addAll(LangUtils.separateArgumentsWithArgumentSeparators(dataObject.getList()));
+								
+								continue;
+							}
+							
+							argumentValueList.add(setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, "Unpacking of unsupported composite type variable",
+									argument.getLineNumberFrom(), SCOPE_ID));
 							
 							continue;
 						}
