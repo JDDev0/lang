@@ -8722,8 +8722,7 @@ final class LangPredefinedFunctions {
 		@LangFunction("toChar")
 		@AllowedTypes(DataObject.DataType.CHAR)
 		public static DataObject toCharFunction(LangInterpreter interpreter, int SCOPE_ID,
-				@LangParameter("$asciiValue") @NumberValue DataObject asciiValueObject) {
-			Number asciiValue = asciiValueObject.toNumber();
+				@LangParameter("$asciiValue") @NumberValue Number asciiValue) {
 			return new DataObject().setChar((char)asciiValue.intValue());
 		}
 		
@@ -8746,11 +8745,10 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.CHAR)
 		public static DataObject charAtFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
-				@LangParameter("$index") @NumberValue DataObject indexObject) {
+				@LangParameter("$index") @NumberValue Number indexNumber) {
 			String txt = textObject.getText();
 			int len = txt.length();
 			
-			Number indexNumber = indexObject.toNumber();
 			int index = indexNumber.intValue();
 			if(index < 0)
 				index += len;
@@ -8767,8 +8765,7 @@ final class LangPredefinedFunctions {
 		public static DataObject lpadFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
 				@LangParameter("$paddingText") DataObject paddingTextObject,
-				@LangParameter("$len") @NumberValue DataObject lenObject) {
-			Number lenNum = lenObject.toNumber();
+				@LangParameter("$len") @NumberValue Number lenNum) {
 			int len = lenNum.intValue();
 			
 			String text = textObject.getText();
@@ -8796,8 +8793,7 @@ final class LangPredefinedFunctions {
 		public static DataObject rpadFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
 				@LangParameter("$paddingText") DataObject paddingTextObject,
-				@LangParameter("$len") @NumberValue DataObject lenObject) {
-			Number lenNum = lenObject.toNumber();
+				@LangParameter("$len") @NumberValue Number lenNum) {
 			int len = lenNum.intValue();
 			
 			String text = textObject.getText();
