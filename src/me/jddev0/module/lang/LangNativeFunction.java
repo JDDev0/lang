@@ -12,6 +12,7 @@ import java.util.Map;
 
 import me.jddev0.module.lang.DataObject.DataTypeConstraint;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
+import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangFunction.*;
 import me.jddev0.module.lang.LangFunction.LangParameter.*;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
@@ -128,12 +129,26 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			
 			ParameterAnnotation parameterAnnotation;
 			
-			boolean isNumberValue = parameter.isAnnotationPresent(NumberValue.class);
+			//If parameterCount > 1 -> Multiple type constraining annotations where used
+			int typeConstraintingParameterCount = 0;
+			
+			boolean isNumberValue = parameter.isAnnotationPresent(NumberValue.class) && typeConstraintingParameterCount++ >= 0;
+			
+			//Call by pointer can be used with additional @AllowedTypes or @NotAllowedTypes type constraint
+			boolean isCallByPointer = parameter.isAnnotationPresent(CallByPointer.class);
+			if(isNumberValue && isCallByPointer)
+				throw new IllegalArgumentException("@LangParameter must not be annotated with both @NumberValue and @CallByPointer");
+			
 			if(isNumberValue) {
 				parameterAnnotation = ParameterAnnotation.NUMBER;
 				
 				if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(Number.class))
 					throw new IllegalArgumentException("@LangParameter which are annotated with @NumberValue must be of type DataObject or Number");
+			}else if(isCallByPointer) {
+				parameterAnnotation = ParameterAnnotation.CALL_BY_POINTER;
+				
+				if(!parameter.getType().isAssignableFrom(DataObject.class))
+					throw new IllegalArgumentException("@LangParameter which are annotated with @CallByPointer must be of type DataObject");
 			}else {
 				parameterAnnotation = ParameterAnnotation.NORMAL;
 				
@@ -146,21 +161,21 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			DataTypeConstraint typeConstraint = null;
 			
 			allowedTypes = parameter.getAnnotation(AllowedTypes.class);
-			if(allowedTypes != null)
+			if(allowedTypes != null && typeConstraintingParameterCount++ >= 0)
 				typeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
 			
 			notAllowedTypes = parameter.getAnnotation(NotAllowedTypes.class);
-			if(notAllowedTypes != null)
+			if(notAllowedTypes != null && typeConstraintingParameterCount++ >= 0)
 				typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
 			
-			if((allowedTypes != null && notAllowedTypes != null) || (isNumberValue && (allowedTypes != null || notAllowedTypes != null)))
+			if(typeConstraintingParameterCount > 1)
 				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, or @NumberValue");
 			
 			langInfo = parameter.getAnnotation(LangInfo.class);
 			String paramaterInfo = langInfo == null?null:langInfo.value();
 			
 			if(typeConstraint == null)
-				typeConstraint = DataObject.getTypeConstraintFor(variableName); //TODO use variable name without "..." and without "$[...]" 
+				typeConstraint = DataObject.getTypeConstraintFor(variableName);
 			
 			parameterAnnotationList.add(parameterAnnotation);
 			methodParameterTypeList.add(parameter.getType());
@@ -205,7 +220,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	@Override
 	public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
 		//TODO remove checks from this method and move to directly to interpreter
-		//TODO add varargs support (If variable name ends with "...") [Type will be array or text]
+		//TODO add varargs support @VarArgs(includeSeparetors) [Type will be array or text]
 		
 		int argCount = parameterList.size();
 		
@@ -224,10 +239,11 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			methodArgumentList[0] = SCOPE_ID;
 		}
 		for(int i = 0;i < argCount;i++) {
-			//TODO remove varargs "..." and call by pointer
 			String variableName = parameterList.get(i).getVariableName();
 			
-			if(!paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(i).getType()))
+			boolean ignoreTypeCheck = parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER;
+			
+			if(!ignoreTypeCheck && !paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(i).getType()))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d (\"%s\") must be one of %s", i + 1,
 						variableName, paramaterDataTypeConstraintList.get(i).getAllowedTypes()), SCOPE_ID);
 			
@@ -237,17 +253,28 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			
 			Class<?> methodParameterType = methodParameterTypeList.get(i);
 			
-			Object argument;
-			if(methodParameterType.isAssignableFrom(DataObject.class)) {
-				argument = new DataObject(combinedArgumentList.get(i)).setVariableName(variableName).
-						setTypeConstraint(paramaterDataTypeConstraintList.get(i));
-			}else if(methodParameterType.isAssignableFrom(Number.class)) {
-				argument = argumentNumberValue;
-			}else {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid method parameter argument type", SCOPE_ID);
+			try {
+				Object argument;
+				if(methodParameterType.isAssignableFrom(DataObject.class)) {
+					if(parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER) {
+						argument = new DataObject().setVariableName(variableName).
+								setVarPointer(new VarPointerObject(combinedArgumentList.get(i))).
+								setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+					}else {
+						argument = new DataObject(combinedArgumentList.get(i)).setVariableName(variableName).
+								setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+					}
+				}else if(methodParameterType.isAssignableFrom(Number.class)) {
+					argument = argumentNumberValue;
+				}else {
+					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid native method parameter argument type", SCOPE_ID);
+				}
+				
+				methodArgumentList[i + diff] = argument;
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
+						String.format("Native method contains invalid type constraint combinations for Argument %d (\"%s\"): %s", i + 1, variableName, e.getMessage()), SCOPE_ID);
 			}
-			
-			methodArgumentList[i + diff] = argument;
 		}
 		
 		try {
@@ -315,6 +342,6 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	}
 	
 	public static enum ParameterAnnotation {
-		NORMAL, NUMBER;
+		NORMAL, NUMBER, CALL_BY_POINTER;
 	}
 }
