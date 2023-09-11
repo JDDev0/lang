@@ -71,6 +71,9 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		if(langFunction == null)
 			throw new IllegalArgumentException("Method must be annotated with @LangFunction");
 		
+		if(!DataObject.class.isAssignableFrom(functionBody.getReturnType()))
+			throw new IllegalArgumentException("Method must be annotated with @LangFunction must return a DataObject");
+		
 		String functionName = langFunction.value();
 		
 		boolean linkerFunction = langFunction.isLinkerFunction();
