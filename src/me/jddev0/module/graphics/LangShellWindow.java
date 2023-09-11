@@ -54,6 +54,7 @@ import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
 import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
+import me.jddev0.module.lang.LangNativeFunction;
 import me.jddev0.platform.desktop.swing.LangPlatformAPI;
 import me.jddev0.module.lang.ILangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
@@ -732,6 +733,46 @@ public class LangShellWindow extends JDialog {
 					builder.append(dataObject.getFunctionPointer().getReturnValueTypeConstraint().toTypeConstraintSyntax());
 				builder.append("\nFunction Body: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionBody());
+				builder.append("\nNative Function: ");
+				LangNativeFunction nativeFunction = dataObject.getFunctionPointer().getNativeFunction();
+				if(nativeFunction == null) {
+					builder.append(nativeFunction);
+				}else {
+					builder.append("{");
+					builder.append("\n    Raw String: ");
+					builder.append(nativeFunction);
+					builder.append("\n    Function name: ");
+					builder.append(nativeFunction.getFunctionName());
+					builder.append("\n    Function info: ");
+					builder.append(nativeFunction.getFunctionInfo());
+					List<DataObject> parameterList = nativeFunction.getParameterList();
+					List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = nativeFunction.getParamaterDataTypeConstraintList();
+					List<String> parameterInfoList = nativeFunction.getParamaterInfoList();
+					builder.append("\n    Parameters: ");
+					for(int i = 0;i < parameterList.size();i++) {
+						builder.append("\n        Parameter ");
+						builder.append(i + 1);
+						builder.append(" (\"");
+						builder.append(parameterList.get(i).getVariableName());
+						builder.append("\"): ");
+						builder.append("\n            Data type constraint: ");
+						builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+						builder.append("\n            Parameter info: ");
+						builder.append(parameterInfoList.get(i));
+					}
+					builder.append("\n    Return Value Type Constraint: ");
+					builder.append(nativeFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
+					builder.append("\n    Deprecated: ");
+					boolean deprecated = nativeFunction.isDeprecated();
+					builder.append(deprecated);
+					if(deprecated) {
+						builder.append("\n        Will be removed in: ");
+						builder.append(nativeFunction.getDeprecatedRemoveVersion());
+						builder.append("\n        Replacement function: ");
+						builder.append(nativeFunction.getDeprecatedReplacementFunction());
+					}
+					builder.append("\n}");
+				}
 				builder.append("\nPredefined Function: ");
 				LangPredefinedFunctionObject predefinedFunction = dataObject.getFunctionPointer().getPredefinedFunction();
 				if(predefinedFunction == null) {
