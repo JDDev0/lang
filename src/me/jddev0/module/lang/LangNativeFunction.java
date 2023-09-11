@@ -23,8 +23,10 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	public final LangInterpreter interpreter;
 	
 	public final String functionName;
+	public final String functionInfo;
 	public final List<DataObject> parameterList;
 	public final List<DataTypeConstraint> paramaterDataTypeConstraintList;
+	public final List<String> paramaterInfoList;
 	public final List<Integer> numberTypeIndices;
 	public final DataTypeConstraint returnValueTypeConstraint;
 	public final Object instance;
@@ -79,6 +81,9 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		if(deprecatedReplacementFunction.equals(""))
 			deprecatedReplacementFunction = null;
 		
+		LangInfo langInfo = functionBody.getAnnotation(LangInfo.class);
+		String functionInfo = langInfo == null?null:langInfo.value();
+		
 		DataTypeConstraint returnValueTypeConstraint = DataObject.CONSTRAINT_NORMAL;
 		
 		AllowedTypes allowedTypes = functionBody.getAnnotation(AllowedTypes.class);
@@ -109,6 +114,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		int diff = hasInterpreterParameter?2:1;
 		List<DataObject> parameterList = new ArrayList<>(parameters.length - diff);
 		List<DataTypeConstraint> paramaterDataTypeConstraintList = new ArrayList<>(parameters.length - diff);
+		List<String> paramaterInfoList = new ArrayList<>(parameters.length - diff);
 		List<Integer> numberTypeIndices = new ArrayList<>();
 		
 		for(int i = diff;i < parameters.length;i++) {
@@ -137,13 +143,17 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			if((allowedTypes != null && notAllowedTypes != null) || (isNumberValue && (allowedTypes != null || notAllowedTypes != null)))
 				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, or @NumberValue");
 			
+			langInfo = parameter.getAnnotation(LangInfo.class);
+			String paramaterInfo = langInfo == null?null:langInfo.value();
+			
 			parameterList.add(new DataObject().setVariableName(variableName));
 			paramaterDataTypeConstraintList.add(typeConstraint);
+			paramaterInfoList.add(paramaterInfo);
 			
-			//TODO error if parameter if name already exists or if name is invalid
+			//TODO error if parameter name already exists or if name is invalid
 		}
 		
-		return new LangNativeFunction(interpreter, functionName, parameterList, paramaterDataTypeConstraintList,
+		return new LangNativeFunction(interpreter, functionName, functionInfo, parameterList, paramaterDataTypeConstraintList, paramaterInfoList,
 				numberTypeIndices, returnValueTypeConstraint, instance, functionBody, hasInterpreterParameter, linkerFunction, deprecated,
 				deprecatedRemoveVersion, deprecatedReplacementFunction);
 	}
@@ -153,14 +163,16 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	/**
 	 * @param instance Null for static method
 	 */
-	private LangNativeFunction(LangInterpreter interpreter, String functionName, List<DataObject> parameterList,
-			List<DataTypeConstraint> paramaterDataTypeConstraintList, List<Integer> numberTypeIndices,
+	private LangNativeFunction(LangInterpreter interpreter, String functionName, String functionInfo, List<DataObject> parameterList,
+			List<DataTypeConstraint> paramaterDataTypeConstraintList, List<String> paramaterInfoList, List<Integer> numberTypeIndices,
 			DataTypeConstraint returnValueTypeConstraint, Object instance, Method functionBody, boolean hasInterpreterParameter,
 			boolean linkerFunction, boolean deprecated, String deprecatedRemoveVersion, String deprecatedReplacementFunction) {
 		this.interpreter = interpreter;
 		this.functionName = functionName;
+		this.functionInfo = functionInfo;
 		this.parameterList = parameterList;
 		this.paramaterDataTypeConstraintList = paramaterDataTypeConstraintList;
+		this.paramaterInfoList = paramaterInfoList;
 		this.numberTypeIndices = numberTypeIndices;
 		this.returnValueTypeConstraint = returnValueTypeConstraint;
 		this.instance = instance;
@@ -195,15 +207,15 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			methodArgumentList[0] = SCOPE_ID;
 		}
 		for(int i = 0;i < argCount;i++) {
-			if(!paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(i).getType()))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d must be one of %s", i + 1,
-						paramaterDataTypeConstraintList.get(i).getAllowedTypes()), SCOPE_ID);
-			
-			if(numberTypeIndices.contains(i) && combinedArgumentList.get(i).toNumber() == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, String.format("Argument %d must be a number", i + 1), SCOPE_ID);
-			
 			//TODO remove varargs "..." and call by pointer
 			String variableName = parameterList.get(i).getVariableName();
+			
+			if(!paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(i).getType()))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d (\"%s\") must be one of %s", i + 1,
+						variableName, paramaterDataTypeConstraintList.get(i).getAllowedTypes()), SCOPE_ID);
+			
+			if(numberTypeIndices.contains(i) && combinedArgumentList.get(i).toNumber() == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, String.format("Argument %d (\"%s\") must be a number", i + 1, variableName), SCOPE_ID);
 			
 			methodArgumentList[i + diff] = new DataObject(combinedArgumentList.get(i)).setVariableName(variableName).
 					setTypeConstraint(paramaterDataTypeConstraintList.get(i));
@@ -229,12 +241,20 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		return functionName;
 	}
 	
+	public String getFunctionInfo() {
+		return functionInfo;
+	}
+	
 	public List<DataObject> getParameterList() {
 		return parameterList;
 	}
 	
 	public List<DataTypeConstraint> getParamaterDataTypeConstraintList() {
 		return paramaterDataTypeConstraintList;
+	}
+	
+	public List<String> getParamaterInfoList() {
+		return paramaterInfoList;
 	}
 	
 	public List<Integer> getNumberTypeIndices() {

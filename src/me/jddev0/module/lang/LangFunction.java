@@ -32,7 +32,7 @@ public @interface LangFunction {
 	
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ElementType.PARAMETER, ElementType.METHOD})
+	@Target({ElementType.METHOD, ElementType.PARAMETER})
 	/**
 	 * If used in method -> return value type constraint
 	 */
@@ -42,11 +42,18 @@ public @interface LangFunction {
 	
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ElementType.PARAMETER, ElementType.METHOD})
+	@Target({ElementType.METHOD, ElementType.PARAMETER})
 	/**
 	 * If used in method -> return value type constraint
 	 */
 	public static @interface NotAllowedTypes {
 		DataObject.DataType[] value();
+	}
+	
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.METHOD, ElementType.PARAMETER})
+	public static @interface LangInfo {
+		String value();
 	}
 }

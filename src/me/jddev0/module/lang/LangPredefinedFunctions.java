@@ -8762,6 +8762,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("lpad")
+		@LangInfo("Adds padding to the left of the $text value if needed")
 		@AllowedTypes(DataObject.DataType.TEXT)
 		public static DataObject lpadFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
@@ -8790,6 +8791,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("rpad")
+		@LangInfo("Adds padding to the right of the $text value if needed")
 		@AllowedTypes(DataObject.DataType.TEXT)
 		public static DataObject rpadFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
