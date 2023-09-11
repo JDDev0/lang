@@ -2060,7 +2060,12 @@ public final class LangInterpreter {
 		if(!ret.isPresent())
 			return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + variableName + "\" was not found", node.getLineNumberFrom(), SCOPE_ID);
 		
-		return new DataObject().setFunctionPointer(new FunctionPointerObject(node.getVariableName(), ret.get().getValue())).setVariableName(node.getVariableName());
+		LangPredefinedFunctionObject funcObj = ret.get().getValue();
+		
+		if(funcObj instanceof LangNativeFunction)
+			return new DataObject().setFunctionPointer(new FunctionPointerObject(node.getVariableName(), (LangNativeFunction)funcObj)).setVariableName(node.getVariableName());
+		
+		return new DataObject().setFunctionPointer(new FunctionPointerObject(node.getVariableName(), funcObj)).setVariableName(node.getVariableName());
 	}
 	
 	/**
@@ -2359,12 +2364,28 @@ public final class LangInterpreter {
 					
 					return retTmp;
 				
+				case FunctionPointerObject.NATIVE:
+					LangNativeFunction nativeFunction = fp.getNativeFunction();
+					if(nativeFunction == null)
+						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", parentLineNumber, SCOPE_ID);
+					
+					DataObject ret = nativeFunction.callFunc(argumentValueList, SCOPE_ID);
+					if(nativeFunction.isDeprecated()) {
+						String message = String.format("Use of deprecated function \"%s\". This function will no longer be supported in \"%s\"!%s", functionName,
+						nativeFunction.getDeprecatedRemoveVersion() == null?"the future":nativeFunction.getDeprecatedRemoveVersion(),
+						nativeFunction.getDeprecatedReplacementFunction() == null?"":("\nUse \"" + nativeFunction.getDeprecatedReplacementFunction() + "\" instead!"));
+						setErrno(InterpretingError.DEPRECATED_FUNC_CALL, message, parentLineNumber, SCOPE_ID);
+					}
+					
+					//Return non copy if copyStaticAndFinalModifiers flag is set for "func.asStatic()" and "func.asFinal()"
+					return ret == null?new DataObject().setVoid():(ret.isCopyStaticAndFinalModifiers()?ret:new DataObject(ret));
+				
 				case FunctionPointerObject.PREDEFINED:
 					LangPredefinedFunctionObject function = fp.getPredefinedFunction();
 					if(function == null)
 						return setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Function call of invalid FP", parentLineNumber, SCOPE_ID);
 					
-					DataObject ret = function.callFunc(argumentValueList, SCOPE_ID);
+					ret = function.callFunc(argumentValueList, SCOPE_ID);
 					if(function.isDeprecated()) {
 						String message = String.format("Use of deprecated function \"%s\". This function will no longer be supported in \"%s\"!%s", functionName,
 						function.getDeprecatedRemoveVersion() == null?"the future":function.getDeprecatedRemoveVersion(),
@@ -2569,7 +2590,7 @@ public final class LangInterpreter {
 				
 				functionName = functionName.substring(3);
 			}else {
-				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid predfined, linker, or external function name", node.getLineNumberFrom(), SCOPE_ID);
+				return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE, "Invalid native, predfined, or linker function name", node.getLineNumberFrom(), SCOPE_ID);
 			}
 			
 			final String functionNameCopy = functionName;
@@ -2579,7 +2600,7 @@ public final class LangInterpreter {
 			
 			if(!ret.isPresent())
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
-						"\": Predfined, linker, or external function was not found", node.getLineNumberFrom(), SCOPE_ID);
+						"\": Native, predfined, or linker function was not found", node.getLineNumberFrom(), SCOPE_ID);
 			
 			fp = new FunctionPointerObject(originalFunctionName, ret.get().getValue());
 		}else if(isVarNameFuncPtrWithoutPrefix(functionName)) {
@@ -2618,13 +2639,13 @@ public final class LangInterpreter {
 					
 					if(!retPredefinedFunction.isPresent())
 						return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
-								"\": Normal, predfined, linker, or external function was not found", node.getLineNumberFrom(), SCOPE_ID);
+								"\": Normal, native, predfined, linker, or external function was not found", node.getLineNumberFrom(), SCOPE_ID);
 					
 					fp = new FunctionPointerObject("linker." + functionName, retPredefinedFunction.get().getValue());
 				}
 			}else {
 				return setErrnoErrorObject(InterpretingError.FUNCTION_NOT_FOUND, "\"" + node.getFunctionName() +
-						"\": Normal, predfined, linker, or external function was not found", node.getLineNumberFrom(), SCOPE_ID);
+						"\": Normal, native, predfined, linker, or external function was not found", node.getLineNumberFrom(), SCOPE_ID);
 			}
 		}
 		
@@ -3934,6 +3955,14 @@ public final class LangInterpreter {
 			return interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
 		}
 		
+		/**
+		 * Creates an function which is accessible globally in the Interpreter (= in all SCOPE_IDs)<br>
+		 * If function already exists, it will be overridden<br>
+		 * Function can be accessed with "func.[funcName]"/"fn.[funcName]" or with "linker.[funcName]"/"ln.[funcName]" and can't be removed nor changed by the Lang file
+		 */
+		public void addNativeFunction(String funcName, LangNativeFunction function) {
+			interpreter.funcs.put(funcName, function);
+		}
 		/**
 		 * Creates an function which is accessible globally in the Interpreter (= in all SCOPE_IDs)<br>
 		 * If function already exists, it will be overridden<br>

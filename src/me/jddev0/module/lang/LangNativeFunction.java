@@ -130,7 +130,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			if(isNumberValue)
 				numberTypeIndices.add(i - diff);
 			
-			DataTypeConstraint typeConstraint = DataObject.CONSTRAINT_NORMAL;
+			DataTypeConstraint typeConstraint = null;
 			
 			allowedTypes = parameter.getAnnotation(AllowedTypes.class);
 			if(allowedTypes != null)
@@ -145,6 +145,9 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			
 			langInfo = parameter.getAnnotation(LangInfo.class);
 			String paramaterInfo = langInfo == null?null:langInfo.value();
+			
+			if(typeConstraint == null)
+				typeConstraint = DataObject.getTypeConstraintFor(variableName); //TODO use variable name without "..." and without "$[...]" 
 			
 			parameterList.add(new DataObject().setVariableName(variableName));
 			paramaterDataTypeConstraintList.add(typeConstraint);

@@ -2038,13 +2038,17 @@ public class DataObject {
 		 */
 		public static final int NORMAL = 0;
 		/**
+		 * Pointer to a native function
+		 */
+		public static final int NATIVE = 1;
+		/**
 		 * Pointer to a predefined function
 		 */
-		public static final int PREDEFINED = 1;
+		public static final int PREDEFINED = 2;
 		/**
 		 * Function which is defined in the language
 		 */
-		public static final int EXTERNAL = 2;
+		public static final int EXTERNAL = 3;
 		
 		/**
 		 * If langPath is set, the Lang path from the stack frame element which is created for the function call will be overridden
@@ -2063,6 +2067,7 @@ public class DataObject {
 		private final List<VariableNameNode> parameterList;
 		private final DataTypeConstraint returnValueTypeConstraint;
 		private final AbstractSyntaxTree functionBody;
+		private final LangNativeFunction nativeFunction;
 		private final LangPredefinedFunctionObject predefinedFunction;
 		private final LangExternalFunctionObject externalFunction;
 		private final int functionPointerType;
@@ -2078,6 +2083,7 @@ public class DataObject {
 			this.parameterList = parameterList == null?null:new ArrayList<>(parameterList);
 			this.returnValueTypeConstraint = returnValueTypeConstraint;
 			this.functionBody = functionBody;
+			this.nativeFunction = null;
 			this.predefinedFunction = null;
 			this.externalFunction = null;
 			this.functionPointerType = NORMAL;
@@ -2132,6 +2138,40 @@ public class DataObject {
 		}
 		
 		/**
+		 * For pointer to native function/linker function
+		 */
+		public FunctionPointerObject(String langPath, String langFile, String functionName, LangNativeFunction nativeFunction) {
+			this.langPath = langPath;
+			this.langFile = langFile;
+			this.functionName = functionName;
+			this.parameterList = null;
+			this.returnValueTypeConstraint = null;
+			this.functionBody = null;
+			this.nativeFunction = nativeFunction;
+			this.predefinedFunction = null;
+			this.externalFunction = null;
+			this.functionPointerType = NATIVE;
+		}
+		/**
+		 * For pointer to native function/linker function
+		 */
+		public FunctionPointerObject(String langPath, String langFile, LangNativeFunction nativeFunction) {
+			this(langPath, langFile, nativeFunction.getFunctionName(), nativeFunction);
+		}
+		/**
+		 * For pointer to native function/linker function
+		 */
+		public FunctionPointerObject(String functionName, LangNativeFunction nativeFunction) {
+			this(null, null, functionName, nativeFunction);
+		}
+		/**
+		 * For pointer to native function/linker function
+		 */
+		public FunctionPointerObject(LangNativeFunction nativeFunction) {
+			this(nativeFunction.getFunctionName(), nativeFunction);
+		}
+		
+		/**
 		 * For pointer to predefined function/linker function
 		 */
 		public FunctionPointerObject(String langPath, String langFile, String functionName, LangPredefinedFunctionObject predefinedFunction) {
@@ -2141,6 +2181,7 @@ public class DataObject {
 			this.parameterList = null;
 			this.returnValueTypeConstraint = null;
 			this.functionBody = null;
+			this.nativeFunction = null;
 			this.predefinedFunction = predefinedFunction;
 			this.externalFunction = null;
 			this.functionPointerType = PREDEFINED;
@@ -2174,6 +2215,7 @@ public class DataObject {
 			this.parameterList = null;
 			this.returnValueTypeConstraint = null;
 			this.functionBody = null;
+			this.nativeFunction = null;
 			this.predefinedFunction = null;
 			this.externalFunction = externalFunction;
 			this.functionPointerType = EXTERNAL;
@@ -2202,6 +2244,8 @@ public class DataObject {
 				case NORMAL:
 					return new FunctionPointerObject(langPath, langFile, functionName, parameterList,
 							returnValueTypeConstraint, functionBody);
+				case NATIVE:
+					return new FunctionPointerObject(langPath, langFile, functionName, nativeFunction);
 				case PREDEFINED:
 					return new FunctionPointerObject(langPath, langFile, functionName, predefinedFunction);
 				case EXTERNAL:
@@ -2235,6 +2279,10 @@ public class DataObject {
 			return functionBody;
 		}
 		
+		public LangNativeFunction getNativeFunction() {
+			return nativeFunction;
+		}
+		
 		public LangPredefinedFunctionObject getPredefinedFunction() {
 			return predefinedFunction;
 		}
@@ -2255,6 +2303,8 @@ public class DataObject {
 			switch(functionPointerType) {
 				case NORMAL:
 					return "<Normal FP>";
+				case NATIVE:
+					return "<Native Function>";
 				case PREDEFINED:
 					return "<Predefined Function>";
 				case EXTERNAL:

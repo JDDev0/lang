@@ -213,13 +213,17 @@ public abstract class LangNativeModule {
 	}
 	
 	protected final DataObject getPredefinedFunctionAsDataObject(String name) {
-		LangPredefinedFunctionObject predefinedFuncObj = interpreter.funcs.get(name);
-		if(predefinedFuncObj == null)
+		LangPredefinedFunctionObject funcObj = interpreter.funcs.get(name);
+		if(funcObj == null)
 			return null;
 		
-		String functionName = (predefinedFuncObj.isLinkerFunction()?"linker.":"func.") + name;
+		String functionName = (funcObj.isLinkerFunction()?"linker.":"func.") + name;
 		
-		return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(functionName, predefinedFuncObj)).
+		if(funcObj instanceof LangNativeFunction)
+			return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(functionName, (LangNativeFunction)funcObj)).
+					setVariableName(functionName);
+		
+		return new DataObject().setFunctionPointer(new DataObject.FunctionPointerObject(functionName, funcObj)).
 				setVariableName(functionName);
 	}
 	
