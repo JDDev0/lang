@@ -461,11 +461,11 @@ final class LangPredefinedFunctions {
 		
 		//Add static @LangNativeFunction functions
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedResetFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedErrorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedErrorFunctions(funcs);
 		addPredefinedLangFunctions(funcs);
 		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
@@ -484,58 +484,6 @@ final class LangPredefinedFunctions {
 		addPredefinedPairStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedErrorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("getErrorText", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject(interpreter.getAndClearErrnoErrorObject(SCOPE_ID).getErrorText());
-		});
-		funcs.put("errorText", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.ERROR), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject errorObject = combinedArgumentList.get(0);
-			return new DataObject(errorObject.getError().getErrtxt());
-		});
-		funcs.put("errorCode", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.ERROR), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject errorObject = combinedArgumentList.get(0);
-			return new DataObject().setInt(errorObject.getError().getErrno());
-		});
-		funcs.put("errorMessage", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.ERROR), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject errorObject = combinedArgumentList.get(0);
-			String msg = errorObject.getError().getMessage();
-			return msg == null?new DataObject().setNull():new DataObject().setText(msg);
-		});
-		funcs.put("withErrorMessage", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject errorObject = combinedArgumentList.get(0);
-			if(errorObject.getType() != DataType.ERROR)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.ERROR), SCOPE_ID);
-			
-			DataObject textObject = combinedArgumentList.get(1);
-			
-			return new DataObject().setError(new ErrorObject(errorObject.getError().getInterprettingError(), textObject.getText()));
-		});
 	}
 	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("isLangVersionNewer", (argumentList, SCOPE_ID) -> {
@@ -8703,6 +8651,46 @@ final class LangPredefinedFunctions {
 			interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
 			
 			return null;
+		}
+	}
+	
+	public static final class LangPredefinedErrorFunctions {
+		private LangPredefinedErrorFunctions() {}
+		
+		@LangFunction("getErrorText")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject getErrorTextFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject(interpreter.getAndClearErrnoErrorObject(SCOPE_ID).getErrorText());
+		}
+		
+		@LangFunction("errorText")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject errorTextFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$error") @AllowedTypes(DataObject.DataType.ERROR) DataObject errorObject) {
+			return new DataObject(errorObject.getError().getErrtxt());
+		}
+		
+		@LangFunction("errorCode")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject errorCodeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$error") @AllowedTypes(DataObject.DataType.ERROR) DataObject errorObject) {
+			return new DataObject().setInt(errorObject.getError().getErrno());
+		}
+		
+		@LangFunction("errorMessage")
+		@AllowedTypes({DataObject.DataType.NULL, DataObject.DataType.TEXT})
+		public static DataObject errorMessageFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$error") @AllowedTypes(DataObject.DataType.ERROR) DataObject errorObject) {
+			String msg = errorObject.getError().getMessage();
+			return msg == null?new DataObject().setNull():new DataObject().setText(msg);
+		}
+		
+		@LangFunction("withErrorMessage")
+		@AllowedTypes(DataObject.DataType.ERROR)
+		public static DataObject withErrorMessageFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$error") @AllowedTypes(DataObject.DataType.ERROR) DataObject errorObject,
+				@LangParameter("$text") DataObject textObject) {
+			return new DataObject().setError(new ErrorObject(errorObject.getError().getInterprettingError(), textObject.getText()));
 		}
 	}
 	
