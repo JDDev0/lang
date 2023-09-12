@@ -462,11 +462,11 @@ final class LangPredefinedFunctions {
 		//Add static @LangNativeFunction functions
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedResetFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedErrorFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedLangFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedLangFunctions(funcs);
 		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
 		addPredefinedNumberFunctions(funcs);
@@ -484,32 +484,6 @@ final class LangPredefinedFunctions {
 		addPredefinedPairStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedLangFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("isLangVersionNewer", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
-			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
-			if(compVer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
-			return new DataObject().setBoolean(compVer > 0);
-		});
-		funcs.put("isLangVersionOlder", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
-			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
-			if(compVer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
-			return new DataObject().setBoolean(compVer < 0);
-		});
 	}
 	private void addPredefinedSystemFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("sleep", (argumentList, SCOPE_ID) -> {
@@ -8691,6 +8665,30 @@ final class LangPredefinedFunctions {
 				@LangParameter("$error") @AllowedTypes(DataObject.DataType.ERROR) DataObject errorObject,
 				@LangParameter("$text") DataObject textObject) {
 			return new DataObject().setError(new ErrorObject(errorObject.getError().getInterprettingError(), textObject.getText()));
+		}
+	}
+	
+	public static final class LangPredefinedLangFunctions {
+		private LangPredefinedLangFunctions() {}
+		
+		@LangFunction("isLangVersionNewer")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isLangVersionNewerFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
+			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
+			if(compVer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
+			return new DataObject().setBoolean(compVer > 0);
+		}
+		
+		@LangFunction("isLangVersionOlder")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isLangVersionOlderFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			String langVer = interpreter.data.get(SCOPE_ID).lang.getOrDefault("lang.version", LangInterpreter.VERSION); //If lang.version = null -> return false
+			Integer compVer = LangUtils.compareVersions(LangInterpreter.VERSION, langVer);
+			if(compVer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
+			return new DataObject().setBoolean(compVer < 0);
 		}
 	}
 	
