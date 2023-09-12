@@ -460,11 +460,11 @@ final class LangPredefinedFunctions {
 		//TODO
 		
 		//Add static @LangNativeFunction functions
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedResetFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedResetFunctions(funcs);
 		addPredefinedErrorFunctions(funcs);
 		addPredefinedLangFunctions(funcs);
 		addPredefinedSystemFunctions(funcs);
@@ -484,49 +484,6 @@ final class LangPredefinedFunctions {
 		addPredefinedPairStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedResetFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("freeVar", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject pointerObject = combinedArgumentList.get(0);
-			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
-			if(dereferencedVarPointer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			String variableName = dereferencedVarPointer.getVariableName();
-			if(variableName == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			if(dereferencedVarPointer.isFinalData() || dereferencedVarPointer.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			interpreter.data.get(SCOPE_ID).var.remove(variableName);
-			
-			return null;
-		});
-		funcs.put("freeAllVars", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			interpreter.resetVars(SCOPE_ID);
-			return null;
-		});
-		funcs.put("resetErrno", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
-			
-			return null;
-		});
 	}
 	private void addPredefinedErrorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getErrorText", (argumentList, SCOPE_ID) -> {
@@ -8707,6 +8664,46 @@ final class LangPredefinedFunctions {
 				return true;
 			}
 		});
+	}
+	
+	public static final class LangPredefinedResetFunctions {
+		private LangPredefinedResetFunctions() {}
+		
+		@LangFunction("freeVar")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject freeVarFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$pointer") @AllowedTypes(DataObject.DataType.VAR_POINTER) DataObject pointerObject) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			if(dereferencedVarPointer == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
+			
+			if(dereferencedVarPointer.isFinalData() || dereferencedVarPointer.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			interpreter.data.get(SCOPE_ID).var.remove(variableName);
+			
+			return null;
+		}
+		
+		@LangFunction("freeAllVars")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject freeAllVarsFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			interpreter.resetVars(SCOPE_ID);
+			
+			return null;
+		}
+		
+		@LangFunction("resetErrno")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject resetErrnoFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
+			
+			return null;
+		}
 	}
 	
 	public static final class LangPredefinedCharacterFunctions {
