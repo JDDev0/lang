@@ -8751,7 +8751,7 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.STRUCT)
 		public static DataObject pairFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$first") DataObject firstObject,
-				@LangParameter("$second")  DataObject secondObject) {
+				@LangParameter("$second") DataObject secondObject) {
 			try {
 				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
 			}catch(DataTypeConstraintException e) {
