@@ -465,6 +465,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedLangFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
 		addPredefinedSystemFunctions(funcs);
@@ -481,7 +482,6 @@ final class LangPredefinedFunctions {
 		addPredefinedListFunctions(funcs);
 		addPredefinedStructFunctions(funcs);
 		addPredefinedComplexStructFunctions(funcs);
-		addPredefinedPairStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
 	}
@@ -7323,61 +7323,6 @@ final class LangPredefinedFunctions {
 			}
 		});
 	}
-	private void addPredefinedPairStructFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("pair", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject firstObject = combinedArgumentList.get(0);
-			DataObject secondObject = combinedArgumentList.get(1);
-			
-			try {
-				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
-			}catch(DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("pfirst", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject pairStructObject = combinedArgumentList.get(0);
-			
-			StructObject pairStruct = pairStructObject.getStruct();
-			
-			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Pair"), SCOPE_ID);
-			
-			try {
-				return new DataObject(pairStruct.getMember("$first"));
-			}catch(DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("psecond", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.STRUCT), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject pairStructObject = combinedArgumentList.get(0);
-			
-			StructObject pairStruct = pairStructObject.getStruct();
-			
-			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "&Pair"), SCOPE_ID);
-			
-			try {
-				return new DataObject(pairStruct.getMember("$second"));
-			}catch(DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
-			}
-		});
-	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getLoadedModules", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -8796,6 +8741,56 @@ final class LangPredefinedFunctions {
 				builder.delete(len, builder.length());
 			
 			return new DataObject(builder.toString());
+		}
+	}
+	
+	public static final class LangPredefinedPairStructFunctions {
+		private LangPredefinedPairStructFunctions() {}
+		
+		@LangFunction("pair")
+		@AllowedTypes(DataObject.DataType.STRUCT)
+		public static DataObject pairFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$first") DataObject firstObject,
+				@LangParameter("$second")  DataObject secondObject) {
+			try {
+				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("pfirst")
+		@LangInfo("Returns the first value of &pair")
+		public static DataObject pfirstFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&pair") @AllowedTypes(DataObject.DataType.STRUCT) DataObject pairStructObject) {
+			StructObject pairStruct = pairStructObject.getStruct();
+			
+			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument 1 (\"%s\") must be of type \"&Pair\"",
+						pairStructObject.getVariableName()), SCOPE_ID);
+			
+			try {
+				return new DataObject(pairStruct.getMember("$first"));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("psecond")
+		@LangInfo("Returns the second value of &pair")
+		public static DataObject psecondFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&pair") @AllowedTypes(DataObject.DataType.STRUCT) DataObject pairStructObject) {
+			StructObject pairStruct = pairStructObject.getStruct();
+			
+			if(pairStruct.isDefinition() || !pairStruct.getStructBaseDefinition().equals(LangCompositeTypes.STRUCT_PAIR))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument 1 (\"%s\") must be of type \"&Pair\"",
+						pairStructObject.getVariableName()), SCOPE_ID);
+			
+			try {
+				return new DataObject(pairStruct.getMember("$second"));
+			}catch(DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, e.getMessage(), SCOPE_ID);
+			}
 		}
 	}
 }
