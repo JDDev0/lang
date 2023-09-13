@@ -1940,7 +1940,7 @@ public class DataObject {
 		}
 		
 		public static DataTypeConstraint fromSingleAllowedType(DataType allowedType) {
-			return new DataTypeConstraint(Arrays.asList(allowedType), false);
+			return new DataTypeConstraint(Arrays.asList(allowedType), true);
 		}
 		
 		private DataTypeConstraint(Collection<DataType> types, boolean allowed) {
