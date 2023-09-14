@@ -2327,13 +2327,13 @@ public class DataObject {
 			
 			FunctionPointerObject that = (FunctionPointerObject)obj;
 			return this.functionPointerType == that.functionPointerType && Objects.equals(this.parameterList, that.parameterList) &&
-			Objects.equals(this.functionBody, that.functionBody) && Objects.equals(this.predefinedFunction, that.predefinedFunction) &&
-			Objects.equals(this.externalFunction, that.externalFunction);
+			Objects.equals(this.functionBody, that.functionBody) && Objects.equals(this.nativeFunction, that.nativeFunction) &&
+			Objects.equals(this.predefinedFunction, that.predefinedFunction) && Objects.equals(this.externalFunction, that.externalFunction);
 		}
 		
 		@Override
 		public int hashCode() {
-			return Objects.hash(functionPointerType, parameterList, functionBody, predefinedFunction, externalFunction);
+			return Objects.hash(functionPointerType, parameterList, functionBody, nativeFunction, predefinedFunction, externalFunction);
 		}
 	}
 	public static final class VarPointerObject {
