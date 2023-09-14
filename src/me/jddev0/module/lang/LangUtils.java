@@ -119,6 +119,58 @@ public final class LangUtils {
 	}
 	
 	/**
+	 * @param varArgsParameterIndices Index of the var args argument of the function signature, if there is no var args argument the value must be set to -1
+	 * @param argumentList The combined argument list
+	 * 
+	 * @return Returns the index of the most restrictive function signature for the provided arguments
+	 */
+	public static int getMostRestrictiveFunctionSignatureIndex(List<List<DataObject.DataTypeConstraint>> functionSignatures,
+			List<Integer> varArgsParameterIndices, List<DataObject> argumentList) {
+		final int VAR_ARGS_PENALTY = DataObject.DataType.values().length + 1;
+		
+		List<DataObject.DataTypeConstraint> bestFunctionSignature = null;
+		int bestFunctionIndex = -1;
+		int bestAllowedTypesCount = -1;
+		int bestVarArgsParameterIndex = -1;
+		
+		outer:
+		for(int i = 0;i < functionSignatures.size();i++) {
+			List<DataObject.DataTypeConstraint> functionSignature = functionSignatures.get(i);
+			int varArgsParameterIndex = varArgsParameterIndices.get(i);
+			if(varArgsParameterIndex == -1?functionSignature.size() != argumentList.size():functionSignature.size() - 1 > argumentList.size())
+				continue; //Argument count does not match
+			
+			int argumentIndex = 0;
+			for(int j = 0;j < functionSignature.size();j++) {
+				if(varArgsParameterIndex == j) {
+					argumentIndex = argumentList.size() - functionSignature.size() + j + 1;
+					
+					continue;
+				}
+				
+				if(!functionSignature.get(j).isTypeAllowed(argumentList.get(argumentIndex).getType()))
+					continue outer;
+				
+				argumentIndex++;
+			}
+			
+			int allowedTypesCount = functionSignature.stream().reduce(0, (cnt, arg) -> cnt + arg.getAllowedTypes().size(), Integer::sum);
+			int sizeDiff = bestFunctionSignature == null?0:(bestFunctionSignature.size() - functionSignature.size());
+			if(bestFunctionIndex == -1 || (varArgsParameterIndex == -1 && bestVarArgsParameterIndex != -1) ||
+					(varArgsParameterIndex == -1 && bestVarArgsParameterIndex == -1 && allowedTypesCount < bestAllowedTypesCount) ||
+					(varArgsParameterIndex != -1 && bestVarArgsParameterIndex != -1 && (sizeDiff < 0?
+							(allowedTypesCount < bestAllowedTypesCount + VAR_ARGS_PENALTY * -sizeDiff):(allowedTypesCount + VAR_ARGS_PENALTY * sizeDiff < bestAllowedTypesCount)))) {
+				bestFunctionSignature = functionSignature;
+				bestFunctionIndex = i;
+				bestAllowedTypesCount = allowedTypesCount;
+				bestVarArgsParameterIndex = varArgsParameterIndex;
+			}
+		}
+		
+		return bestFunctionIndex;
+	}
+	
+	/**
 	 * @return Returns the version as an integer array of length 3 or null if the version is invalid
 	 */
 	public static int[] getVersionComponents(String version) {
