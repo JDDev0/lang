@@ -217,19 +217,25 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			int specialTypeConstraintingParameterCount = 0;
 			
 			boolean isNumberValue = parameter.isAnnotationPresent(NumberValue.class) && typeConstraintingParameterCount++ >= 0 && specialTypeConstraintingParameterCount++ >= 0;
+			boolean isBooleanValue = parameter.isAnnotationPresent(BooleanValue.class) && typeConstraintingParameterCount++ >= 0 && specialTypeConstraintingParameterCount++ >= 0;
 			
 			//Call by pointer can be used with additional @AllowedTypes or @NotAllowedTypes type constraint
 			boolean isCallByPointer = parameter.isAnnotationPresent(CallByPointer.class) && specialTypeConstraintingParameterCount++ >= 0;
 			
 			boolean isContainsVarArgsParameter = parameter.isAnnotationPresent(VarArgs.class) && specialTypeConstraintingParameterCount++ >= 0;
 			if(specialTypeConstraintingParameterCount > 1)
-				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @NumberValue, @CallByPointer, or @VarArgs");
+				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @NumberValue, @BooleanValue, @CallByPointer, or @VarArgs");
 			
 			String variableName = langParameter.value();
 			
 			//TODO error if parameter name already exists or if name is invalid [Check for all cases: {NUMBER, CALL_BY_POINTER -> $, VAR_ARGS -> $, &, NORMAL -> $, &, fp.}]
 			
-			if(isNumberValue) {
+			if(isBooleanValue) {
+				parameterAnnotation = ParameterAnnotation.BOOLEAN;
+				
+				if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(boolean.class))
+					throw new IllegalArgumentException("@LangParameter which are annotated with @BooleanValue must be of type DataObject or boolean");
+			}else if(isNumberValue) {
 				parameterAnnotation = ParameterAnnotation.NUMBER;
 				
 				if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(Number.class))
@@ -292,7 +298,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
 			
 			if(typeConstraintingParameterCount > 1)
-				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, or @NumberValue");
+				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, @NumberValue, or @BooleanValue");
 			
 			langInfo = parameter.getAnnotation(LangInfo.class);
 			String paramaterInfo = langInfo == null?null:langInfo.value();
@@ -450,6 +456,8 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 						}
 					}else if(methodParameterType.isAssignableFrom(Number.class)) {
 						argument = argumentNumberValue;
+					}else if(methodParameterType.isAssignableFrom(boolean.class)) {
+						argument = combinedArgumentList.get(argumentIndex).toBoolean();
 					}else {
 						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid native method parameter argument type", SCOPE_ID);
 					}
@@ -516,8 +524,10 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				builder.append(variableName);
 				if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS)
 					builder.append("...");
-				else  if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER)
+				else if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER)
 					builder.append("{number}");
+				else if(parameterAnnotationList.get(i) == ParameterAnnotation.BOOLEAN)
+					builder.append("{boolean}");
 				else if(!paramaterDataTypeConstraintList.get(i).equals(DataObject.getTypeConstraintFor(variableName)))
 					builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
 				
@@ -605,6 +615,6 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	}
 	
 	public static enum ParameterAnnotation {
-		NORMAL, NUMBER, CALL_BY_POINTER, VAR_ARGS;
+		NORMAL, NUMBER, BOOLEAN, CALL_BY_POINTER, VAR_ARGS;
 	}
 }

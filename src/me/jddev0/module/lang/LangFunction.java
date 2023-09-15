@@ -42,6 +42,11 @@ public @interface LangFunction {
 		@Documented
 		@Retention(RetentionPolicy.RUNTIME)
 		@Target(ElementType.PARAMETER)
+		public static @interface BooleanValue {}
+		
+		@Documented
+		@Retention(RetentionPolicy.RUNTIME)
+		@Target(ElementType.PARAMETER)
 		public static @interface CallByPointer {}
 		
 		@Documented
