@@ -465,6 +465,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedLangFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
@@ -2581,18 +2582,6 @@ final class LangPredefinedFunctions {
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), new LinkedList<>(), SCOPE_ID);
 		});
-		putCombinatorFunctionInfiniteExternalFunctionObjectHelper(funcs, "combAN", 1, new int[] {0}, false, false, (args, SCOPE_ID) -> {
-			DataObject a = args.get(0);
-			
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			List<DataObject> argsA = new LinkedList<>();
-			argsA.addAll(args);
-			argsA.remove(0);
-			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
-		});
 		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combAV", 2, new int[] {0}, (Combinator2ArgFunction)(a, args, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
@@ -4031,21 +4020,6 @@ final class LangPredefinedFunctions {
 			return interpreter.callFunctionPointer(bFunc, b.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
 					Arrays.asList(
 							a, a
-					)
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combX1", 4, new int[] {0, 1}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			FunctionPointerObject bFunc = b.getFunctionPointer();
-			
-			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), Arrays.asList(
-					c
-			), SCOPE_ID);
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-					Arrays.asList(
-							retB == null?new DataObject().setVoid():retB,
-							d
 					)
 			), SCOPE_ID);
 		});
@@ -8708,6 +8682,45 @@ final class LangPredefinedFunctions {
 		}
 	}
 	
+	public static final class LangPredefinedCombinatorFunctions {
+		private LangPredefinedCombinatorFunctions() {}
+		
+		@LangFunction("combAN")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(args[0], args[1], ...) ")
+		public static DataObject combANFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			List<DataObject> argsA = LangUtils.separateArgumentsWithArgumentSeparators(args);
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+		}
+		
+		@LangFunction("combX1")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(b(c), d)")
+		public static DataObject combX1Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject b,
+				@LangParameter("$c") DataObject c,
+				@LangParameter("$d") DataObject d) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			FunctionPointerObject bFunc = b.getFunctionPointer();
+			
+			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), Arrays.asList(
+					c
+			), SCOPE_ID);
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(
+							retB == null?new DataObject().setVoid():retB,
+							d
+					)
+			), SCOPE_ID);
+		}
+	}
+	
 	public static final class LangPredefinedPairStructFunctions {
 		private LangPredefinedPairStructFunctions() {}
 		
@@ -8715,7 +8728,7 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.STRUCT)
 		public static DataObject pairFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$first") DataObject firstObject,
-				@LangParameter("$second")  DataObject secondObject) {
+				@LangParameter("$second") DataObject secondObject) {
 			try {
 				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
 			}catch(DataTypeConstraintException e) {

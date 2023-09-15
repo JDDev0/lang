@@ -25,6 +25,11 @@ public @interface LangFunction {
 	
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.METHOD)
+	public static @interface CombinatorFunction {}
+	
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
 	public static @interface LangParameter {
 		String value();

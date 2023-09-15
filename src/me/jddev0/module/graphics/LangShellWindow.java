@@ -750,6 +750,12 @@ public class LangShellWindow extends JDialog {
 						List<DataObject> parameterList = internalFunction.getParameterList();
 						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParamaterDataTypeConstraintList();
 						List<String> parameterInfoList = internalFunction.getParamaterInfoList();
+						builder.append("\n        Combinator Function: ");
+						builder.append(internalFunction.isCombinatorFunction());
+						builder.append("\n        Combinator Function Call Count: ");
+						builder.append(internalFunction.getCombinatorFunctionCallCount());
+						builder.append("\n        Combinator Function Arguments: ");
+						builder.append(internalFunction.getCombinatorProvidedArgumentList());
 						builder.append("\n        Function Signature: ");
 						builder.append(internalFunction.toFunctionSignatureSyntax());
 						builder.append("\n        Return Value Type Constraint: ");
