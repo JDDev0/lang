@@ -463,6 +463,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedResetFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedErrorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedLangFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedNumberFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCombinatorFunctions.class));
@@ -471,7 +472,6 @@ final class LangPredefinedFunctions {
 		//Add non @LangNativeFunction functions
 		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
-		addPredefinedNumberFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
@@ -1205,292 +1205,6 @@ final class LangPredefinedFunctions {
 			
 			System.err.print(out.getText());
 			return null;
-		});
-	}
-	private void addPredefinedNumberFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("binToDec", (argumentList, SCOPE_ID) -> {
-			DataObject binObject = LangUtils.combineDataObjects(argumentList);
-			if(binObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			String binString = binObject.getText();
-			if(!binString.startsWith("0b") && !binString.startsWith("0B"))
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, "Wrong prefix (Should be 0b or 0B)", SCOPE_ID);
-			
-			try {
-				return new DataObject().setInt(Integer.parseInt(binString.substring(2), 2));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("octToDec", (argumentList, SCOPE_ID) -> {
-			DataObject octObject = LangUtils.combineDataObjects(argumentList);
-			if(octObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			String octString = octObject.getText();
-			if(!octString.startsWith("0o") && !octString.startsWith("0O"))
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, "Wrong prefix (Should be 0o or 0O)", SCOPE_ID);
-			
-			try {
-				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("hexToDec", (argumentList, SCOPE_ID) -> {
-			DataObject hexObject = LangUtils.combineDataObjects(argumentList);
-			if(hexObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			String hexString = hexObject.getText();
-			if(!hexString.startsWith("0x") && !hexString.startsWith("0X"))
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, "Wrong prefix (Should be 0x or 0X)", SCOPE_ID);
-			
-			try {
-				return new DataObject().setInt(Integer.parseInt(hexString.substring(2), 16));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("toNumberBase", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject numberObject = combinedArgumentList.get(0);
-			DataObject baseObject = combinedArgumentList.get(1);
-			
-			String numberString = numberObject.getText();
-			Number base = baseObject.toNumber();
-			if(base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be a number", SCOPE_ID);
-			
-			if(base.intValue() < 2 || base.intValue() > 36)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
-			
-			try {
-				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
-			}catch(NumberFormatException e1) {
-				try {
-					return new DataObject().setLong(Long.parseLong(numberString, base.intValue()));
-				}catch(NumberFormatException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_BASE_N_NUM, "The text \"" + numberString + "\" is not in base \"" + base.intValue() + "\"", SCOPE_ID);
-				}
-			}
-		});
-		funcs.put("toTextBase", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject numberObject = combinedArgumentList.get(0);
-			DataObject baseObject = combinedArgumentList.get(1);
-			
-			Number number = numberObject.toNumber();
-			Number base = baseObject.toNumber();
-			if(number == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Number must be a number", SCOPE_ID);
-			
-			if(base == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be a number", SCOPE_ID);
-			
-			if(base.intValue() < 2 || base.intValue() > 36)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE, "Base must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
-			
-			int numberInt = number.intValue();
-			long numberLong = number.longValue();
-			try {
-				if(numberLong < 0?(numberLong < numberInt):(numberLong > numberInt))
-					return new DataObject().setText(Long.toString(number.longValue(), base.intValue()).toUpperCase());
-				else
-					return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("toIntBits", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(Float.floatToRawIntBits(number.floatValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toFloatBits", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setFloat(Float.intBitsToFloat(number.intValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toLongBits", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(Double.doubleToRawLongBits(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toDoubleBits", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Double.longBitsToDouble(number.longValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toInt", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(number.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("toLong", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(number.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("toFloat", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setFloat(number.floatValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("toDouble", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(number.doubleValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("toNumber", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			dataObject = dataObject.convertToNumberAndCreateNewDataObject();
-			if(dataObject.getType() == DataType.NULL)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			return dataObject;
-		});
-		funcs.put("ttoi", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			
-			String str = textObject.getText();
-			try {
-				return new DataObject().setInt(Integer.parseInt(str));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
-		});
-		funcs.put("ttol", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			
-			String str = textObject.getText();
-			try {
-				return new DataObject().setLong(Long.parseLong(str));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
-		});
-		funcs.put("ttof", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			
-			String str = textObject.getText();
-			
-			if(str.isEmpty())
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			char lastChar = str.charAt(str.length() - 1);
-			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
-					lastChar == 'D' || str.contains("x") || str.contains("X"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			try {
-				return new DataObject().setFloat(Float.parseFloat(str));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
-		});
-		funcs.put("ttod", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			
-			String str = textObject.getText();
-			
-			if(str.isEmpty())
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			char lastChar = str.charAt(str.length() - 1);
-			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
-					lastChar == 'D' || str.contains("x") || str.contains("X"))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			try {
-				return new DataObject().setDouble(Double.parseDouble(str));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			}
-		});
-		funcs.put("isNaN", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isNaN(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isNaN(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(false);
-			}, SCOPE_ID);
-		});
-		funcs.put("isInfinite", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isInfinite(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isInfinite(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(false);
-			}, SCOPE_ID);
-		});
-		funcs.put("isFinite", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				if(number instanceof Float) {
-					return new DataObject().setBoolean(Float.isFinite(number.floatValue()));
-				}
-				
-				if(number instanceof Double) {
-					return new DataObject().setBoolean(Double.isFinite(number.doubleValue()));
-				}
-				
-				return new DataObject().setBoolean(true);
-			}, SCOPE_ID);
-		});
-		funcs.put("isEven", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setBoolean(number.longValue() % 2 == 0);
-			}, SCOPE_ID);
-		});
-		funcs.put("isOdd", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setBoolean(number.longValue() % 2 == 1);
-			}, SCOPE_ID);
 		});
 	}
 	private void addPredefinedTextFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -8541,6 +8255,285 @@ final class LangPredefinedFunctions {
 			if(compVer == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
 			return new DataObject().setBoolean(compVer < 0);
+		}
+	}
+	
+	public static final class LangPredefinedNumberFunctions {
+		private LangPredefinedNumberFunctions() {}
+		
+		@LangFunction("binToDec")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject binToDecFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$bin") DataObject binObject) {
+			String binString = binObject.getText();
+			if(!binString.startsWith("0b") && !binString.startsWith("0B"))
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, "Wrong prefix (Should be 0b or 0B)", SCOPE_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(binString.substring(2), 2));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_BIN_NUM, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("octToDec")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject octToDecFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$oct") DataObject octObject) {
+			String octString = octObject.getText();
+			if(!octString.startsWith("0o") && !octString.startsWith("0O"))
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, "Wrong prefix (Should be 0o or 0O)", SCOPE_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(octString.substring(2), 8));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_OCT_NUM, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("hexToDec")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject hexToDecFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$hex") DataObject hexObject) {
+			String hexString = hexObject.getText();
+			if(!hexString.startsWith("0x") && !hexString.startsWith("0X"))
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, "Wrong prefix (Should be 0x or 0X)", SCOPE_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(hexString.substring(2), 16));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_HEX_NUM, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("toNumberBase")
+		@AllowedTypes({DataObject.DataType.INT, DataObject.DataType.LONG})
+		public static DataObject toNumberBaseFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") DataObject numberObject,
+				@LangParameter("$base") @NumberValue Number base) {
+			String numberString = numberObject.getText();
+			
+			if(base.intValue() < 2 || base.intValue() > 36)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE,
+						"Argument 2 (\"$base\") must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
+			
+			try {
+				return new DataObject().setInt(Integer.parseInt(numberString, base.intValue()));
+			}catch(NumberFormatException e1) {
+				try {
+					return new DataObject().setLong(Long.parseLong(numberString, base.intValue()));
+				}catch(NumberFormatException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_BASE_N_NUM,
+							"Argument 1 (\"$number\" = \"" + numberString + "\") is not in base \"" + base.intValue() + "\"", SCOPE_ID);
+				}
+			}
+		}
+		
+		@LangFunction("toTextBase")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject toTextBaseFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number,
+				@LangParameter("$base") @NumberValue Number base) {
+			if(base.intValue() < 2 || base.intValue() > 36)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_NUMBER_BASE,
+						"Argument 2 (\"$base\") must be between 2 (inclusive) and 36 (inclusive)", SCOPE_ID);
+			
+			int numberInt = number.intValue();
+			long numberLong = number.longValue();
+			try {
+				if(numberLong < 0?(numberLong < numberInt):(numberLong > numberInt))
+					return new DataObject().setText(Long.toString(number.longValue(), base.intValue()).toUpperCase());
+				else
+					return new DataObject().setText(Integer.toString(number.intValue(), base.intValue()).toUpperCase());
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$number\") is invalid: " + e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("toIntBits")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject toIntBitsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(Float.floatToRawIntBits(number.floatValue()));
+		}
+		
+		@LangFunction("toFloatBits")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject toFloatBitsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setFloat(Float.intBitsToFloat(number.intValue()));
+		}
+		
+		@LangFunction("toLongBits")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject toLongBitsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(Double.doubleToRawLongBits(number.doubleValue()));
+		}
+		
+		@LangFunction("toDoubleBits")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject toDoubleBitsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Double.longBitsToDouble(number.longValue()));
+		}
+		
+		@LangFunction("toInt")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject toIntFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(number.intValue());
+		}
+		
+		@LangFunction("toLong")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject toLongFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(number.longValue());
+		}
+		
+		@LangFunction("toFloat")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject toFloatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setFloat(number.floatValue());
+		}
+		
+		@LangFunction("toDouble")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject toDoubleFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(number.doubleValue());
+		}
+		
+		@LangFunction("toNumber")
+		@AllowedTypes({DataObject.DataType.INT, DataObject.DataType.LONG, DataObject.DataType.FLOAT, DataObject.DataType.DOUBLE})
+		public static DataObject toNumberFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") DataObject numberObject) {
+			numberObject = numberObject.convertToNumberAndCreateNewDataObject();
+			if(numberObject.getType() == DataType.NULL)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$number\") can not be converted to a number value", SCOPE_ID);
+			
+			return numberObject;
+		}
+		
+		@LangFunction("ttoi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject ttoiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject) {
+			String str = textObject.getText();
+			try {
+				return new DataObject().setInt(Integer.parseInt(str));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to an INT value", SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("ttol")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject ttolFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject) {
+			String str = textObject.getText();
+			try {
+				return new DataObject().setLong(Long.parseLong(str));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a LONG value", SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("ttof")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject ttofFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject) {
+			String str = textObject.getText();
+			
+			if(str.isEmpty())
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a FLOAT value", SCOPE_ID);
+			
+			char lastChar = str.charAt(str.length() - 1);
+			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
+					lastChar == 'D' || str.contains("x") || str.contains("X"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a FLOAT value", SCOPE_ID);
+			
+			try {
+				return new DataObject().setFloat(Float.parseFloat(str));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a FLOAT value", SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("ttod")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject ttodFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject) {
+			String str = textObject.getText();
+			
+			if(str.isEmpty())
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a DOUBLE value", SCOPE_ID);
+			
+			char lastChar = str.charAt(str.length() - 1);
+			if(str.trim().length() != str.length() || lastChar == 'f' || lastChar == 'F' || lastChar == 'd' ||
+					lastChar == 'D' || str.contains("x") || str.contains("X"))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a DOUBLE value", SCOPE_ID);
+			
+			try {
+				return new DataObject().setDouble(Double.parseDouble(str));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$text\") can not be converted to a DOUBLE value", SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("isNaN")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isNaNFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			if(number instanceof Float)
+				return new DataObject().setBoolean(Float.isNaN(number.floatValue()));
+			
+			if(number instanceof Double)
+				return new DataObject().setBoolean(Double.isNaN(number.doubleValue()));
+			
+			return new DataObject().setBoolean(false);
+		}
+		
+		@LangFunction("isInfinite")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isInfiniteFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			if(number instanceof Float)
+				return new DataObject().setBoolean(Float.isInfinite(number.floatValue()));
+			
+			if(number instanceof Double)
+				return new DataObject().setBoolean(Double.isInfinite(number.doubleValue()));
+			
+			return new DataObject().setBoolean(false);
+		}
+		
+		@LangFunction("isFinite")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isFiniteFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			if(number instanceof Float)
+				return new DataObject().setBoolean(Float.isFinite(number.floatValue()));
+			
+			if(number instanceof Double)
+				return new DataObject().setBoolean(Double.isFinite(number.doubleValue()));
+			
+			return new DataObject().setBoolean(false);
+		}
+		
+		@LangFunction("isEven")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isEvenFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setBoolean(number.longValue() % 2 == 0);
+		}
+		
+		@LangFunction("isOdd")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isOddFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setBoolean(number.longValue() % 2 == 1);
 		}
 	}
 	
