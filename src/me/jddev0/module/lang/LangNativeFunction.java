@@ -9,8 +9,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.DataTypeConstraint;
@@ -24,30 +26,21 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	//TODO add support for native function overloading [Change class -> store list of public static InternalFunction and move all parameters into internal class, define callFunc for outer class and add getFunctions]
 	
 	//TODO remove and add as parameter to call Function instance to call
-	public final LangInterpreter interpreter;
+	private final LangInterpreter interpreter;
 	
-	public final String functionName;
-	public final String functionInfo;
-	public final List<Class<?>> methodParameterTypeList;
-	public final List<DataObject> parameterList;
-	public final List<DataTypeConstraint> paramaterDataTypeConstraintList;
-	public final List<ParameterAnnotation> parameterAnnotationList;
-	public final List<String> paramaterInfoList;
-	public final boolean containsVarArgsParameter;
-	public final boolean textVarArgsParameter;
-	public final DataTypeConstraint returnValueTypeConstraint;
-	public final Object instance;
-	public final Method functionBody;
-	public final boolean hasInterpreterParameter;
+	private final String functionName;
+	private final String functionInfo;
 	
-	public final boolean linkerFunction;
-	public final boolean deprecated;
-	public final String deprecatedRemoveVersion;
-	public final String deprecatedReplacementFunction;
+	private final boolean linkerFunction;
+	private final boolean deprecated;
+	private final String deprecatedRemoveVersion;
+	private final String deprecatedReplacementFunction;
+	
+	private final List<InternalFunction> internalFunctions;
 	
 	public static Map<String, LangNativeFunction> getLangFunctionsOfClass(LangInterpreter interpreter, Object instance, Class<?> clazz)
 			throws IllegalArgumentException, DataTypeConstraintException {
-		Map<String, LangNativeFunction> langNativeFunctions = new HashMap<>();
+		Map<String, List<Method>> methodsByLangFunctionName = new HashMap<>();
 		
 		for(Method method:clazz.getDeclaredMethods()) {
 			//Add static methods if instance is null else add non-static methods
@@ -55,16 +48,31 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				continue;
 			
 			if(method.isAnnotationPresent(LangFunction.class)) {
-				LangNativeFunction langNativeFunction = create(interpreter, instance, method);
-				String functionName = langNativeFunction.getFunctionName();
+				LangFunction langFunction = method.getAnnotation(LangFunction.class);
+				String functionName = langFunction.value();
 				
-				/*if(langNativeFunctions.containsKey(functionName)) {
-					//TODO add support for native function overloading [Change class -> store list of public static InternalFunction and move all parameters into internal class, define
-					//     callFunc for outer class and add getFunctions]
-				}*/
+				if(!methodsByLangFunctionName.containsKey(functionName))
+					methodsByLangFunctionName.put(functionName, new LinkedList<>());
 				
-				langNativeFunctions.put(functionName, langNativeFunction);
+				if(langFunction.hasInfo())
+					methodsByLangFunctionName.get(functionName).add(0, method);
+				else
+					methodsByLangFunctionName.get(functionName).add(method);
 			}
+		}
+		
+		Map<String, LangNativeFunction> langNativeFunctions = new HashMap<>();
+		for(List<Method> methods:methodsByLangFunctionName.values()) {
+			if(methods.size() >= 2 && (!methods.get(0).getAnnotation(LangFunction.class).hasInfo() || methods.get(1).getAnnotation(LangFunction.class).hasInfo()))
+				throw new IllegalArgumentException("The value of hasInfo() must be true for exactly one overloaded @LangFunction");
+			
+			LangNativeFunction langNativeFunction = create(interpreter, instance, methods.get(0));
+			for(int i = 1;i < methods.size();i++)
+				langNativeFunction.addInternalFunction(InternalFunction.create(instance, methods.get(i)));
+			
+			String functionName = langNativeFunction.getFunctionName();
+			
+			langNativeFunctions.put(functionName, langNativeFunction);
 		}
 		
 		return langNativeFunctions;
@@ -94,293 +102,404 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		LangInfo langInfo = functionBody.getAnnotation(LangInfo.class);
 		String functionInfo = langInfo == null?null:langInfo.value();
 		
-		DataTypeConstraint returnValueTypeConstraint = DataObject.CONSTRAINT_NORMAL;
-		
-		AllowedTypes allowedTypes = functionBody.getAnnotation(AllowedTypes.class);
-		if(allowedTypes != null)
-			returnValueTypeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
-		
-		NotAllowedTypes notAllowedTypes = functionBody.getAnnotation(NotAllowedTypes.class);
-		if(notAllowedTypes != null)
-			returnValueTypeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
-		
-		if(allowedTypes != null && notAllowedTypes != null)
-			throw new IllegalArgumentException("Method must not be annotated with both @AllowedTypes and @NotAllowedTypes");
-		
-		Parameter[] parameters = functionBody.getParameters();
-		if(parameters.length == 0)
-			throw new IllegalArgumentException("Method must have at least one parameter (int SCOPE_ID)");
-		
-		Parameter firstParam = parameters[0];
-		boolean hasInterpreterParameter = firstParam.getType().isAssignableFrom(LangInterpreter.class);
-		
-		Parameter secondParam = hasInterpreterParameter && parameters.length >= 2?parameters[1]:null;
-		
-		if(hasInterpreterParameter?
-				secondParam == null || !secondParam.getType().isAssignableFrom(int.class):
-					!firstParam.getType().isAssignableFrom(int.class))
-			throw new IllegalArgumentException("The method must start with (LangInterpreter interpreter, int SCOPE_ID) or (int SCOPE_ID)");
-		
-		int diff = hasInterpreterParameter?2:1;
-		List<Class<?>> methodParameterTypeList = new ArrayList<>(parameters.length - diff);
-		List<DataObject> parameterList = new ArrayList<>(parameters.length - diff);
-		List<DataTypeConstraint> paramaterDataTypeConstraintList = new ArrayList<>(parameters.length - diff);
-		List<ParameterAnnotation> parameterAnnotationList = new ArrayList<>();
-		List<String> paramaterInfoList = new ArrayList<>(parameters.length - diff);
-		boolean containsVarArgsParameter = false;
-		boolean textVarArgsParameter = false;
-		
-		for(int i = diff;i < parameters.length;i++) {
-			Parameter parameter = parameters[i];
-			
-			LangParameter langParameter = parameter.getAnnotation(LangParameter.class);
-			if(langParameter == null)
-				throw new IllegalArgumentException("Method parameters after the SCOPE_ID parameter must be annotated with @LangParameter");
-			
-			ParameterAnnotation parameterAnnotation;
-			
-			//If parameterCount > 1 -> Multiple type constraining annotations where used
-			int typeConstraintingParameterCount = 0;
-			int specialTypeConstraintingParameterCount = 0;
-			
-			boolean isNumberValue = parameter.isAnnotationPresent(NumberValue.class) && typeConstraintingParameterCount++ >= 0 && specialTypeConstraintingParameterCount++ >= 0;
-			
-			//Call by pointer can be used with additional @AllowedTypes or @NotAllowedTypes type constraint
-			boolean isCallByPointer = parameter.isAnnotationPresent(CallByPointer.class) && specialTypeConstraintingParameterCount++ >= 0;
-			
-			boolean isContainsVarArgsParameter = parameter.isAnnotationPresent(VarArgs.class) && specialTypeConstraintingParameterCount++ >= 0;
-			if(specialTypeConstraintingParameterCount > 1)
-				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @NumberValue, @CallByPointer, or @VarArgs");
-			
-			String variableName = langParameter.value();
-			
-			if(isNumberValue) {
-				parameterAnnotation = ParameterAnnotation.NUMBER;
-				
-				if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(Number.class))
-					throw new IllegalArgumentException("@LangParameter which are annotated with @NumberValue must be of type DataObject or Number");
-			}else if(isCallByPointer) {
-				parameterAnnotation = ParameterAnnotation.CALL_BY_POINTER;
-				
-				if(!parameter.getType().isAssignableFrom(DataObject.class))
-					throw new IllegalArgumentException("@LangParameter which are annotated with @CallByPointer must be of type DataObject");
-			}else if(isContainsVarArgsParameter) {
-				parameterAnnotation = ParameterAnnotation.VAR_ARGS;
-				
-				if(containsVarArgsParameter)
-					throw new IllegalArgumentException("There can only be one @LangParameter which is annotated with @VarArgs");
-				
-				containsVarArgsParameter = true;
-				
-				textVarArgsParameter = variableName.startsWith("$");
-				if(textVarArgsParameter && !parameter.getType().isAssignableFrom(DataObject.class))
-					throw new IllegalArgumentException("@LangParameter which are annotated with @VarArgs as text var args parameter must be of type DataObject");
-				
-				boolean isListParameter = parameter.getType().isAssignableFrom(List.class);
-				if(isListParameter) {
-					Type parameterType = parameter.getParameterizedType();
-					if(parameterType instanceof ParameterizedType) {
-						ParameterizedType parameterizedType = (ParameterizedType)parameterType;
-						Type[] types = parameterizedType.getActualTypeArguments();
-						
-						isListParameter = types.length == 1 && types[0] instanceof Class<?> && ((Class<?>)types[0]).isAssignableFrom(DataObject.class);
-					}else {
-						isListParameter = false;
-					}
-				}
-				
-				if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(DataObject[].class) && !isListParameter)
-					throw new IllegalArgumentException("@LangParameter which are annotated with @VarArgs as array var args parameter"
-							+ " must be of type DataObject, DataObject[], or List<DataObject>");
-			}else {
-				parameterAnnotation = ParameterAnnotation.NORMAL;
-				
-				if(!parameter.getType().isAssignableFrom(DataObject.class))
-					throw new IllegalArgumentException("@LangParameter must be of type DataObject (Other types besides DataObject are allowed for certain annotations)");
-			}
-			
-			DataTypeConstraint typeConstraint = null;
-			
-			allowedTypes = parameter.getAnnotation(AllowedTypes.class);
-			if(allowedTypes != null && !parameter.getType().isAssignableFrom(DataObject.class))
-				throw new IllegalArgumentException("@AllowedTypes can only be used if @LangParameter is of type DataObject");
-			if(allowedTypes != null && typeConstraintingParameterCount++ >= 0)
-				typeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
-			
-			notAllowedTypes = parameter.getAnnotation(NotAllowedTypes.class);
-			if(notAllowedTypes != null && !parameter.getType().isAssignableFrom(DataObject.class))
-				throw new IllegalArgumentException("@NotAllowedTypes can only be used if @LangParameter is of type DataObject");
-			if(notAllowedTypes != null && typeConstraintingParameterCount++ >= 0)
-				typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
-			
-			if(typeConstraintingParameterCount > 1)
-				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, or @NumberValue");
-			
-			langInfo = parameter.getAnnotation(LangInfo.class);
-			String paramaterInfo = langInfo == null?null:langInfo.value();
-			
-			if(typeConstraint == null)
-				typeConstraint = DataObject.getTypeConstraintFor(variableName);
-			
-			parameterAnnotationList.add(parameterAnnotation);
-			methodParameterTypeList.add(parameter.getType());
-			parameterList.add(new DataObject().setVariableName(variableName));
-			paramaterDataTypeConstraintList.add(typeConstraint);
-			paramaterInfoList.add(paramaterInfo);
-			
-			//TODO error if parameter name already exists or if name is invalid
-		}
-		
-		return new LangNativeFunction(interpreter, functionName, functionInfo, methodParameterTypeList, parameterList,
-				paramaterDataTypeConstraintList, paramaterInfoList, parameterAnnotationList, containsVarArgsParameter,
-				textVarArgsParameter, returnValueTypeConstraint, instance, functionBody, hasInterpreterParameter,
+		LangNativeFunction langNativeFunction = new LangNativeFunction(interpreter, functionName, functionInfo,
 				linkerFunction, deprecated, deprecatedRemoveVersion, deprecatedReplacementFunction);
+		
+		langNativeFunction.addInternalFunction(InternalFunction.create(instance, functionBody));
+		
+		return langNativeFunction;
 	}
 	
 	/**
 	 * @param instance Null for static method
 	 */
-	private LangNativeFunction(LangInterpreter interpreter, String functionName, String functionInfo, List<Class<?>> methodParameterTypeList,
-			List<DataObject> parameterList, List<DataTypeConstraint> paramaterDataTypeConstraintList, List<String> paramaterInfoList,
-			List<ParameterAnnotation> parameterAnnotationList, boolean containsVarArgsParameter, boolean textVarArgsParameter,
-			DataTypeConstraint returnValueTypeConstraint, Object instance, Method functionBody, boolean hasInterpreterParameter,
+	private LangNativeFunction(LangInterpreter interpreter, String functionName, String functionInfo,
 			boolean linkerFunction, boolean deprecated, String deprecatedRemoveVersion, String deprecatedReplacementFunction) {
 		this.interpreter = interpreter;
 		this.functionName = functionName;
 		this.functionInfo = functionInfo;
-		this.methodParameterTypeList = methodParameterTypeList;
-		this.parameterList = parameterList;
-		this.paramaterDataTypeConstraintList = paramaterDataTypeConstraintList;
-		this.paramaterInfoList = paramaterInfoList;
-		this.parameterAnnotationList = parameterAnnotationList;
-		this.containsVarArgsParameter = containsVarArgsParameter;
-		this.textVarArgsParameter = textVarArgsParameter;
-		this.returnValueTypeConstraint = returnValueTypeConstraint;
-		this.instance = instance;
-		this.functionBody = functionBody;
-		this.hasInterpreterParameter = hasInterpreterParameter;
 		this.linkerFunction = linkerFunction;
 		this.deprecated = deprecated;
 		this.deprecatedRemoveVersion = deprecatedRemoveVersion;
 		this.deprecatedReplacementFunction = deprecatedReplacementFunction;
+		this.internalFunctions = new ArrayList<>();
+	}
+	
+	public void addInternalFunction(InternalFunction internalFunction) {
+		internalFunctions.add(internalFunction);
 	}
 	
 	@Override
 	public DataObject callFunc(List<DataObject> argumentList, int SCOPE_ID) {
 		//TODO remove checks from this method and move to directly to interpreter
-		//TODO add varargs support @VarArgs(includeSeparetors) [Type will be array or text]
-		
-		int argCount = parameterList.size();
 		
 		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(containsVarArgsParameter) {
-			if(combinedArgumentList.size() < argCount - 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (at least %s needed)", argCount - 1), SCOPE_ID);
-		}else {
-			if(combinedArgumentList.size() < argCount)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", argCount), SCOPE_ID);
-			if(combinedArgumentList.size() > argCount)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Too many arguments (%s needed)", argCount), SCOPE_ID);
+		if(internalFunctions.size() == 1)
+			return internalFunctions.get(0).callFunc(interpreter, argumentList, combinedArgumentList, SCOPE_ID);
+		
+		int index = LangUtils.getMostRestrictiveFunctionSignatureIndex(internalFunctions.stream().map(InternalFunction::getParamaterDataTypeConstraintList).
+				collect(Collectors.toList()), internalFunctions.stream().map(InternalFunction::getVarArgsParameterIndex).collect(Collectors.toList()), combinedArgumentList);
+		
+		if(index == -1) {
+			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "No matching function signature was found for the given arguments." +
+					" Available function singauters:\n    " + functionName + internalFunctions.stream().map(InternalFunction::toFunctionSignatureSyntax).
+					collect(Collectors.joining("\n    " + functionName)), SCOPE_ID);
 		}
 		
-		int diff = hasInterpreterParameter?2:1;
-		Object[] methodArgumentList = new Object[diff + argCount];
-		if(hasInterpreterParameter) {
-			methodArgumentList[0] = interpreter;
-			methodArgumentList[1] = SCOPE_ID;
-		}else {
-			methodArgumentList[0] = SCOPE_ID;
-		}
+		return internalFunctions.get(index).callFunc(interpreter, argumentList, combinedArgumentList, SCOPE_ID);
+	}
+	
+	public static class InternalFunction {
+		private final List<Class<?>> methodParameterTypeList;
+		private final List<DataObject> parameterList;
+		private final List<DataTypeConstraint> paramaterDataTypeConstraintList;
+		private final List<ParameterAnnotation> parameterAnnotationList;
+		private final List<String> paramaterInfoList;
+		private final int varArgsParameterIndex;
+		private final boolean textVarArgsParameter;
+		private final DataTypeConstraint returnValueTypeConstraint;
+		private final Object instance;
+		private final Method functionBody;
+		private final boolean hasInterpreterParameter;
 		
-		int argumentIndex = 0;;
-		for(int i = 0;i < argCount;i++) {
-			String variableName = parameterList.get(i).getVariableName();
+		public static InternalFunction create(Object instance, Method functionBody)
+				throws IllegalArgumentException, DataTypeConstraintException {
+			LangFunction langFunction = functionBody.getAnnotation(LangFunction.class);
+			if(langFunction == null)
+				throw new IllegalArgumentException("Method must be annotated with @LangFunction");
 			
-			boolean ignoreTypeCheck = parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER || parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS;
+			if(!DataObject.class.isAssignableFrom(functionBody.getReturnType()))
+				throw new IllegalArgumentException("Method must be annotated with @LangFunction must return a DataObject");
 			
-			if(!ignoreTypeCheck && !paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(argumentIndex).getType()))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d (\"%s\") must be one of %s", i + 1,
-						variableName, paramaterDataTypeConstraintList.get(i).getAllowedTypes()), SCOPE_ID);
+			LangInfo langInfo = functionBody.getAnnotation(LangInfo.class);
 			
-			Number argumentNumberValue = parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER?combinedArgumentList.get(argumentIndex).toNumber():null;
-			if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER && argumentNumberValue == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, String.format("Argument %d (\"%s\") must be a number", i + 1, variableName), SCOPE_ID);
+			DataTypeConstraint returnValueTypeConstraint = DataObject.CONSTRAINT_NORMAL;
 			
-			Class<?> methodParameterType = methodParameterTypeList.get(i);
+			AllowedTypes allowedTypes = functionBody.getAnnotation(AllowedTypes.class);
+			if(allowedTypes != null)
+				returnValueTypeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
 			
-			try {
-				Object argument;
-				if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS) {
-					List<DataObject> varArgsArgumentList = combinedArgumentList.subList(i, combinedArgumentList.size() - argCount + i + 1);
+			NotAllowedTypes notAllowedTypes = functionBody.getAnnotation(NotAllowedTypes.class);
+			if(notAllowedTypes != null)
+				returnValueTypeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
+			
+			if(allowedTypes != null && notAllowedTypes != null)
+				throw new IllegalArgumentException("Method must not be annotated with both @AllowedTypes and @NotAllowedTypes");
+			
+			Parameter[] parameters = functionBody.getParameters();
+			if(parameters.length == 0)
+				throw new IllegalArgumentException("Method must have at least one parameter (int SCOPE_ID)");
+			
+			Parameter firstParam = parameters[0];
+			boolean hasInterpreterParameter = firstParam.getType().isAssignableFrom(LangInterpreter.class);
+			
+			Parameter secondParam = hasInterpreterParameter && parameters.length >= 2?parameters[1]:null;
+			
+			if(hasInterpreterParameter?
+					secondParam == null || !secondParam.getType().isAssignableFrom(int.class):
+						!firstParam.getType().isAssignableFrom(int.class))
+				throw new IllegalArgumentException("The method must start with (LangInterpreter interpreter, int SCOPE_ID) or (int SCOPE_ID)");
+			
+			int diff = hasInterpreterParameter?2:1;
+			List<Class<?>> methodParameterTypeList = new ArrayList<>(parameters.length - diff);
+			List<DataObject> parameterList = new ArrayList<>(parameters.length - diff);
+			List<DataTypeConstraint> paramaterDataTypeConstraintList = new ArrayList<>(parameters.length - diff);
+			List<ParameterAnnotation> parameterAnnotationList = new ArrayList<>();
+			List<String> paramaterInfoList = new ArrayList<>(parameters.length - diff);
+			int varArgsParameterIndex = -1;
+			boolean textVarArgsParameter = false;
+			
+			for(int i = diff;i < parameters.length;i++) {
+				Parameter parameter = parameters[i];
+				
+				LangParameter langParameter = parameter.getAnnotation(LangParameter.class);
+				if(langParameter == null)
+					throw new IllegalArgumentException("Method parameters after the SCOPE_ID parameter must be annotated with @LangParameter");
+				
+				ParameterAnnotation parameterAnnotation;
+				
+				//If parameterCount > 1 -> Multiple type constraining annotations where used
+				int typeConstraintingParameterCount = 0;
+				int specialTypeConstraintingParameterCount = 0;
+				
+				boolean isNumberValue = parameter.isAnnotationPresent(NumberValue.class) && typeConstraintingParameterCount++ >= 0 && specialTypeConstraintingParameterCount++ >= 0;
+				
+				//Call by pointer can be used with additional @AllowedTypes or @NotAllowedTypes type constraint
+				boolean isCallByPointer = parameter.isAnnotationPresent(CallByPointer.class) && specialTypeConstraintingParameterCount++ >= 0;
+				
+				boolean isContainsVarArgsParameter = parameter.isAnnotationPresent(VarArgs.class) && specialTypeConstraintingParameterCount++ >= 0;
+				if(specialTypeConstraintingParameterCount > 1)
+					throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @NumberValue, @CallByPointer, or @VarArgs");
+				
+				String variableName = langParameter.value();
+				
+				//TODO error if parameter name already exists or if name is invalid [Check for all cases: {NUMBER, CALL_BY_POINTER -> $, VAR_ARGS -> $, &, NORMAL -> $, &, fp.}]
+				
+				if(isNumberValue) {
+					parameterAnnotation = ParameterAnnotation.NUMBER;
 					
-					if(methodParameterType.isAssignableFrom(DataObject.class)) {
-						if(textVarArgsParameter) {
-							List<DataObject> argumentListCopy = new ArrayList<>(argumentList);
+					if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(Number.class))
+						throw new IllegalArgumentException("@LangParameter which are annotated with @NumberValue must be of type DataObject or Number");
+				}else if(isCallByPointer) {
+					parameterAnnotation = ParameterAnnotation.CALL_BY_POINTER;
+					
+					if(!parameter.getType().isAssignableFrom(DataObject.class))
+						throw new IllegalArgumentException("@LangParameter which are annotated with @CallByPointer must be of type DataObject");
+				}else if(isContainsVarArgsParameter) {
+					parameterAnnotation = ParameterAnnotation.VAR_ARGS;
+					
+					if(varArgsParameterIndex != -1)
+						throw new IllegalArgumentException("There can only be one @LangParameter which is annotated with @VarArgs");
+					
+					varArgsParameterIndex = parameterList.size();
+					
+					textVarArgsParameter = variableName.startsWith("$");
+					if(textVarArgsParameter && !parameter.getType().isAssignableFrom(DataObject.class))
+						throw new IllegalArgumentException("@LangParameter which are annotated with @VarArgs as text var args parameter must be of type DataObject");
+					
+					boolean isListParameter = parameter.getType().isAssignableFrom(List.class);
+					if(isListParameter) {
+						Type parameterType = parameter.getParameterizedType();
+						if(parameterType instanceof ParameterizedType) {
+							ParameterizedType parameterizedType = (ParameterizedType)parameterType;
+							Type[] types = parameterizedType.getActualTypeArguments();
 							
-							//Remove leading arguments
-							for(int j = 0;j < i;j++)
-								for(int k = 0;k < argumentListCopy.size();k++)
-									if(argumentListCopy.remove(0).getType() == DataType.ARGUMENT_SEPARATOR)
-										break;
-							
-							//Remove trailing arguments
-							for(int j = 0;j < argCount - i - 1;j++)
-								for(int k = argumentListCopy.size() - 1;k >= 0;k--)
-									if(argumentListCopy.remove(k).getType() == DataType.ARGUMENT_SEPARATOR)
-										break;
-							
-							DataObject combinedArgument = LangUtils.combineDataObjects(argumentListCopy);
-							argument = new DataObject(combinedArgument == null?"":combinedArgument.getText()).setVariableName(variableName).
-									setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+							isListParameter = types.length == 1 && types[0] instanceof Class<?> && ((Class<?>)types[0]).isAssignableFrom(DataObject.class);
 						}else {
-							argument = new DataObject().setVariableName(variableName).
-									setArray(varArgsArgumentList.toArray(new DataObject[0])).
-									setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+							isListParameter = false;
 						}
-					}else if(methodParameterType.isAssignableFrom(DataObject[].class)) {
-						argument = varArgsArgumentList.toArray(new DataObject[0]);
-					}else {
-						argument = new ArrayList<>(varArgsArgumentList);
 					}
 					
-					argumentIndex = combinedArgumentList.size() - argCount + i;
-				}else if(methodParameterType.isAssignableFrom(DataObject.class)) {
-					if(parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER) {
-						argument = new DataObject().setVariableName(variableName).
-								setVarPointer(new VarPointerObject(combinedArgumentList.get(argumentIndex))).
-								setTypeConstraint(paramaterDataTypeConstraintList.get(i));
-					}else {
-						argument = new DataObject(combinedArgumentList.get(argumentIndex)).setVariableName(variableName).
-								setTypeConstraint(paramaterDataTypeConstraintList.get(i));
-					}
-				}else if(methodParameterType.isAssignableFrom(Number.class)) {
-					argument = argumentNumberValue;
+					if(!parameter.getType().isAssignableFrom(DataObject.class) && !parameter.getType().isAssignableFrom(DataObject[].class) && !isListParameter)
+						throw new IllegalArgumentException("@LangParameter which are annotated with @VarArgs as array var args parameter"
+								+ " must be of type DataObject, DataObject[], or List<DataObject>");
 				}else {
-					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid native method parameter argument type", SCOPE_ID);
+					parameterAnnotation = ParameterAnnotation.NORMAL;
+					
+					if(!parameter.getType().isAssignableFrom(DataObject.class))
+						throw new IllegalArgumentException("@LangParameter must be of type DataObject (Other types besides DataObject are allowed for certain annotations)");
 				}
 				
-				methodArgumentList[i + diff] = argument;
-			}catch(DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
-						String.format("Native method contains invalid type constraint combinations for Argument %d (\"%s\"): %s", i + 1, variableName, e.getMessage()), SCOPE_ID);
+				DataTypeConstraint typeConstraint = null;
+				
+				allowedTypes = parameter.getAnnotation(AllowedTypes.class);
+				if(allowedTypes != null && !parameter.getType().isAssignableFrom(DataObject.class))
+					throw new IllegalArgumentException("@AllowedTypes can only be used if @LangParameter is of type DataObject");
+				if(allowedTypes != null && typeConstraintingParameterCount++ >= 0)
+					typeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
+				
+				notAllowedTypes = parameter.getAnnotation(NotAllowedTypes.class);
+				if(notAllowedTypes != null && !parameter.getType().isAssignableFrom(DataObject.class))
+					throw new IllegalArgumentException("@NotAllowedTypes can only be used if @LangParameter is of type DataObject");
+				if(notAllowedTypes != null && typeConstraintingParameterCount++ >= 0)
+					typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
+				
+				if(typeConstraintingParameterCount > 1)
+					throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, or @NumberValue");
+				
+				langInfo = parameter.getAnnotation(LangInfo.class);
+				String paramaterInfo = langInfo == null?null:langInfo.value();
+				
+				if(typeConstraint == null)
+					typeConstraint = DataObject.getTypeConstraintFor(variableName);
+				
+				methodParameterTypeList.add(parameter.getType());
+				parameterList.add(new DataObject().setVariableName(variableName));
+				paramaterDataTypeConstraintList.add(typeConstraint);
+				paramaterInfoList.add(paramaterInfo);
+				parameterAnnotationList.add(parameterAnnotation);
 			}
 			
-			argumentIndex++;
+			return new InternalFunction(methodParameterTypeList, parameterList, paramaterDataTypeConstraintList,
+					parameterAnnotationList, paramaterInfoList, varArgsParameterIndex, textVarArgsParameter,
+					returnValueTypeConstraint, instance, functionBody, hasInterpreterParameter);
 		}
 		
-		try {
-			//TODO check return type in LangInterpreter
-			return (DataObject)functionBody.invoke(instance, methodArgumentList);
-		}catch(IllegalAccessException|IllegalArgumentException e) {
-			return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
-					"Native Error (\"" + e.getClass().getSimpleName() + "\"): " + e.getMessage(), SCOPE_ID);
-		}catch(InvocationTargetException e) {
-			Throwable t = e.getTargetException();
-			if(t == null)
-				t = e;
+		private InternalFunction(List<Class<?>> methodParameterTypeList, List<DataObject> parameterList,
+				List<DataTypeConstraint> paramaterDataTypeConstraintList,
+				List<ParameterAnnotation> parameterAnnotationList, List<String> paramaterInfoList,
+				int varArgsParameterIndex, boolean textVarArgsParameter, DataTypeConstraint returnValueTypeConstraint,
+				Object instance, Method functionBody, boolean hasInterpreterParameter) {
+			this.methodParameterTypeList = methodParameterTypeList;
+			this.parameterList = parameterList;
+			this.paramaterDataTypeConstraintList = paramaterDataTypeConstraintList;
+			this.parameterAnnotationList = parameterAnnotationList;
+			this.paramaterInfoList = paramaterInfoList;
+			this.varArgsParameterIndex = varArgsParameterIndex;
+			this.textVarArgsParameter = textVarArgsParameter;
+			this.returnValueTypeConstraint = returnValueTypeConstraint;
+			this.instance = instance;
+			this.functionBody = functionBody;
+			this.hasInterpreterParameter = hasInterpreterParameter;
+		}
+		
+		public DataObject callFunc(LangInterpreter interpreter, List<DataObject> argumentList, List<DataObject> combinedArgumentList, int SCOPE_ID) {
+			int argCount = parameterList.size();
+			if(varArgsParameterIndex == -1) {
+				if(combinedArgumentList.size() < argCount)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", argCount), SCOPE_ID);
+				if(combinedArgumentList.size() > argCount)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Too many arguments (%s needed)", argCount), SCOPE_ID);
+			}else {
+				if(combinedArgumentList.size() < argCount - 1)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (at least %s needed)", argCount - 1), SCOPE_ID);
+			}
 			
-			return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
-					"Native Error (\"" + t.getClass().getSimpleName() + "\"): " + t.getMessage(), SCOPE_ID);
+			int diff = hasInterpreterParameter?2:1;
+			Object[] methodArgumentList = new Object[diff + argCount];
+			if(hasInterpreterParameter) {
+				methodArgumentList[0] = interpreter;
+				methodArgumentList[1] = SCOPE_ID;
+			}else {
+				methodArgumentList[0] = SCOPE_ID;
+			}
+			
+			int argumentIndex = 0;;
+			for(int i = 0;i < argCount;i++) {
+				String variableName = parameterList.get(i).getVariableName();
+				
+				boolean ignoreTypeCheck = parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER || parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS;
+				
+				if(!ignoreTypeCheck && !paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(argumentIndex).getType()))
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d (\"%s\") must be one of %s", i + 1,
+							variableName, paramaterDataTypeConstraintList.get(i).getAllowedTypes()), SCOPE_ID);
+				
+				Number argumentNumberValue = parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER?combinedArgumentList.get(argumentIndex).toNumber():null;
+				if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER && argumentNumberValue == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, String.format("Argument %d (\"%s\") must be a number", i + 1, variableName), SCOPE_ID);
+				
+				Class<?> methodParameterType = methodParameterTypeList.get(i);
+				
+				try {
+					Object argument;
+					if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS) {
+						List<DataObject> varArgsArgumentList = combinedArgumentList.subList(i, combinedArgumentList.size() - argCount + i + 1);
+						
+						if(methodParameterType.isAssignableFrom(DataObject.class)) {
+							if(textVarArgsParameter) {
+								List<DataObject> argumentListCopy = new ArrayList<>(argumentList);
+								
+								//Remove leading arguments
+								for(int j = 0;j < i;j++)
+									for(int k = 0;k < argumentListCopy.size();k++)
+										if(argumentListCopy.remove(0).getType() == DataType.ARGUMENT_SEPARATOR)
+											break;
+								
+								//Remove trailing arguments
+								for(int j = 0;j < argCount - i - 1;j++)
+									for(int k = argumentListCopy.size() - 1;k >= 0;k--)
+										if(argumentListCopy.remove(k).getType() == DataType.ARGUMENT_SEPARATOR)
+											break;
+								
+								DataObject combinedArgument = LangUtils.combineDataObjects(argumentListCopy);
+								argument = new DataObject(combinedArgument == null?"":combinedArgument.getText()).setVariableName(variableName).
+										setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+							}else {
+								argument = new DataObject().setVariableName(variableName).
+										setArray(varArgsArgumentList.toArray(new DataObject[0])).
+										setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+							}
+						}else if(methodParameterType.isAssignableFrom(DataObject[].class)) {
+							argument = varArgsArgumentList.toArray(new DataObject[0]);
+						}else {
+							argument = new ArrayList<>(varArgsArgumentList);
+						}
+						
+						//Not "+1", because argumentIndex will be incremented at the end of the for loop
+						argumentIndex = combinedArgumentList.size() - argCount + i;
+					}else if(methodParameterType.isAssignableFrom(DataObject.class)) {
+						if(parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER) {
+							argument = new DataObject().setVariableName(variableName).
+									setVarPointer(new VarPointerObject(combinedArgumentList.get(argumentIndex))).
+									setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+						}else {
+							argument = new DataObject(combinedArgumentList.get(argumentIndex)).setVariableName(variableName).
+									setTypeConstraint(paramaterDataTypeConstraintList.get(i));
+						}
+					}else if(methodParameterType.isAssignableFrom(Number.class)) {
+						argument = argumentNumberValue;
+					}else {
+						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid native method parameter argument type", SCOPE_ID);
+					}
+					
+					methodArgumentList[i + diff] = argument;
+				}catch(DataTypeConstraintException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
+							String.format("Native method contains invalid type constraint combinations for Argument %d (\"%s\"): %s", i + 1, variableName, e.getMessage()), SCOPE_ID);
+				}
+				
+				argumentIndex++;
+			}
+			
+			try {
+				//TODO check return type in LangInterpreter
+				return (DataObject)functionBody.invoke(instance, methodArgumentList);
+			}catch(IllegalAccessException|IllegalArgumentException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
+						"Native Error (\"" + e.getClass().getSimpleName() + "\"): " + e.getMessage(), SCOPE_ID);
+			}catch(InvocationTargetException e) {
+				Throwable t = e.getTargetException();
+				if(t == null)
+					t = e;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
+						"Native Error (\"" + t.getClass().getSimpleName() + "\"): " + t.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		public String toFunctionSignatureSyntax() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("(");
+			
+			for(int i = 0;i < parameterList.size();i++) {
+				//TODO add $[x] for CALL_BY_POINTER
+				
+				String variableName = parameterList.get(i).getVariableName();
+				
+				builder.append(variableName);
+				if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS)
+					builder.append("...");
+				else  if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER)
+					builder.append("{number}");
+				else if(!paramaterDataTypeConstraintList.get(i).equals(DataObject.getTypeConstraintFor(variableName)))
+					builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+				
+				builder.append(", ");
+			}
+			
+			if(parameterList.size() > 0)
+				builder.delete(builder.length() - 2, builder.length());
+			
+			builder.append(")");
+			return builder.toString();
+		}
+		
+		public List<DataObject> getParameterList() {
+			return new ArrayList<>(parameterList);
+		}
+		
+		public List<DataTypeConstraint> getParamaterDataTypeConstraintList() {
+			return new ArrayList<>(paramaterDataTypeConstraintList);
+		}
+		
+		public List<String> getParamaterInfoList() {
+			return new ArrayList<>(paramaterInfoList);
+		}
+		
+		public List<ParameterAnnotation> getParameterAnnotationList() {
+			return new ArrayList<>(parameterAnnotationList);
+		}
+		
+		public int getVarArgsParameterIndex() {
+			return varArgsParameterIndex;
+		}
+		
+		public boolean isTextVarArgsParameter() {
+			return textVarArgsParameter;
+		}
+		
+		public DataTypeConstraint getReturnValueTypeConstraint() {
+			return returnValueTypeConstraint;
 		}
 	}
 	
@@ -390,34 +509,6 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	
 	public String getFunctionInfo() {
 		return functionInfo;
-	}
-	
-	public List<DataObject> getParameterList() {
-		return parameterList;
-	}
-	
-	public List<DataTypeConstraint> getParamaterDataTypeConstraintList() {
-		return paramaterDataTypeConstraintList;
-	}
-	
-	public List<String> getParamaterInfoList() {
-		return paramaterInfoList;
-	}
-	
-	public List<ParameterAnnotation> getParameterAnnotationList() {
-		return parameterAnnotationList;
-	}
-	
-	public boolean isContainsVarArgsParameter() {
-		return containsVarArgsParameter;
-	}
-	
-	public boolean isTextVarArgsParameter() {
-		return textVarArgsParameter;
-	}
-	
-	public DataTypeConstraint getReturnValueTypeConstraint() {
-		return returnValueTypeConstraint;
 	}
 	
 	@Override
@@ -438,6 +529,10 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	@Override
 	public String getDeprecatedReplacementFunction() {
 		return deprecatedReplacementFunction;
+	}
+	
+	public List<InternalFunction> getInteralFunctions() {
+		return new ArrayList<>(internalFunctions);
 	}
 	
 	public static enum ParameterAnnotation {

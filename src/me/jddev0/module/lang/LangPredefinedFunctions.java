@@ -1723,73 +1723,6 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject(dataObjectStream.map(DataObject::getText).collect(Collectors.joining(text)));
 		});
-		funcs.put("split", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 4, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject;
-			DataObject textObject;
-			DataObject regexObject;
-			DataObject maxSplitCountObject;
-			if(combinedArgumentList.size() == 2) {
-				arrPointerObject = new DataObject().setNull();
-				textObject = combinedArgumentList.get(0);
-				regexObject = combinedArgumentList.get(1);
-				maxSplitCountObject = null;
-			}else if(combinedArgumentList.size() == 4) {
-				arrPointerObject = combinedArgumentList.get(0);
-				textObject = combinedArgumentList.get(1);
-				regexObject = combinedArgumentList.get(2);
-				maxSplitCountObject = combinedArgumentList.get(3);
-			}else {
-				DataObject firstObject = combinedArgumentList.get(0);
-				
-				if(firstObject.getType() == DataType.NULL || firstObject.getType() == DataType.ARRAY) {
-					arrPointerObject = firstObject;
-					textObject = combinedArgumentList.get(1);
-					regexObject = combinedArgumentList.get(2);
-					maxSplitCountObject = null;
-				}else {
-					arrPointerObject = new DataObject().setNull();
-					textObject = firstObject;
-					regexObject = combinedArgumentList.get(1);
-					maxSplitCountObject = combinedArgumentList.get(2);
-				}
-			}
-			
-			String[] arrTmp;
-			try {
-				if(maxSplitCountObject == null) {
-					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
-				}else {
-					Number maxSplitCount = maxSplitCountObject.toNumber();
-					if(maxSplitCount == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-					
-					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
-				}
-			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
-			}
-			
-			if(arrPointerObject.getType() != DataType.NULL && arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(arrPointerObject.getType() == DataType.ARRAY && (arrPointerObject.isFinalData() || arrPointerObject.isLangVar()))
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			DataObject[] arr = new DataObject[arrTmp.length];
-			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject(arrTmp[i]);
-			
-			if(arrPointerObject.getType() == DataType.NULL && arrPointerObject.getVariableName() == null)
-				return new DataObject().setArray(arr);
-			
-			arrPointerObject.setArray(arr);
-			return arrPointerObject;
-		});
 	}
 	private void addPredefinedConversionFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("text", (argumentList, SCOPE_ID) -> {
@@ -8742,6 +8675,37 @@ final class LangPredefinedFunctions {
 			
 			return new DataObject(builder.toString());
 		}
+		
+		@LangFunction(value="split", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject splitFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$regex") DataObject regexObject) {
+			return splitFunction(interpreter, SCOPE_ID, textObject, regexObject, (Number)null);
+		}
+		@LangFunction("split")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject splitFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$regex") DataObject regexObject,
+				@LangParameter("$maxSplitCount") @NumberValue Number maxSplitCount) {
+			String[] arrTmp;
+			try {
+				if(maxSplitCount == null) {
+					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText());
+				}else {
+					arrTmp = LangRegEx.split(textObject.getText(), regexObject.getText(), maxSplitCount.intValue());
+				}
+			}catch(InvalidPaternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+			
+			DataObject[] arr = new DataObject[arrTmp.length];
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(arrTmp[i]);
+			
+			return new DataObject().setArray(arr);
+		}
 	}
 	
 	public static final class LangPredefinedPairStructFunctions {
@@ -8751,7 +8715,7 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.STRUCT)
 		public static DataObject pairFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$first") DataObject firstObject,
-				@LangParameter("$second") DataObject secondObject) {
+				@LangParameter("$second")  DataObject secondObject) {
 			try {
 				return new DataObject().setStruct(LangCompositeTypes.createPair(firstObject, secondObject));
 			}catch(DataTypeConstraintException e) {

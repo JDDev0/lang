@@ -745,23 +745,28 @@ public class LangShellWindow extends JDialog {
 					builder.append(nativeFunction.getFunctionName());
 					builder.append("\n    Function info: ");
 					builder.append(nativeFunction.getFunctionInfo());
-					List<DataObject> parameterList = nativeFunction.getParameterList();
-					List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = nativeFunction.getParamaterDataTypeConstraintList();
-					List<String> parameterInfoList = nativeFunction.getParamaterInfoList();
-					builder.append("\n    Parameters: ");
-					for(int i = 0;i < parameterList.size();i++) {
-						builder.append("\n        Parameter ");
-						builder.append(i + 1);
-						builder.append(" (\"");
-						builder.append(parameterList.get(i).getVariableName());
-						builder.append("\"): ");
-						builder.append("\n            Data type constraint: ");
-						builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
-						builder.append("\n            Parameter info: ");
-						builder.append(parameterInfoList.get(i));
+					builder.append("\n    Function signatures:");
+					for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInteralFunctions()) {
+						List<DataObject> parameterList = internalFunction.getParameterList();
+						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParamaterDataTypeConstraintList();
+						List<String> parameterInfoList = internalFunction.getParamaterInfoList();
+						builder.append("\n        Function Signature: ");
+						builder.append(internalFunction.toFunctionSignatureSyntax());
+						builder.append("\n        Return Value Type Constraint: ");
+						builder.append(internalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
+						builder.append("\n        Parameters: ");
+						for(int i = 0;i < parameterList.size();i++) {
+							builder.append("\n            Parameter ");
+							builder.append(i + 1);
+							builder.append(" (\"");
+							builder.append(parameterList.get(i).getVariableName());
+							builder.append("\"): ");
+							builder.append("\n                Data type constraint: ");
+							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+							builder.append("\n                Parameter info: ");
+							builder.append(parameterInfoList.get(i));
+						}
 					}
-					builder.append("\n    Return Value Type Constraint: ");
-					builder.append(nativeFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
 					builder.append("\n    Deprecated: ");
 					boolean deprecated = nativeFunction.isDeprecated();
 					builder.append(deprecated);

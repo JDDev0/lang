@@ -12,6 +12,11 @@ import java.lang.annotation.Target;
 public @interface LangFunction {
 	String value();
 	
+	/**
+	 * @return true for the lang function which contains the function info if the function is overloaded
+	 */
+	boolean hasInfo() default false;
+	
 	boolean isLinkerFunction() default false;
 	
 	boolean isDeprecated() default false;
