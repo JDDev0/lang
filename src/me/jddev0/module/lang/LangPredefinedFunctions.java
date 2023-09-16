@@ -58,14 +58,6 @@ final class LangPredefinedFunctions {
 		this.interpreter = interpreter;
 	}
 	
-	private String getArgumentListAsString(List<DataObject> argumentList, boolean returnEmptyStringForEmptyArgumentList) {
-		DataObject dataObject = LangUtils.combineDataObjects(argumentList);
-		if(dataObject == null)
-			return returnEmptyStringForEmptyArgumentList?"":null;
-		
-		return dataObject.getText();
-	}
-	
 	private DataObject throwErrorOnNullOrErrorTypeHelper(DataObject dataObject, final int SCOPE_ID) {
 		if(dataObject == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
@@ -471,7 +463,6 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedTextFunctions(funcs);
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
 		addPredefinedMathFunctions(funcs);
@@ -484,238 +475,6 @@ final class LangPredefinedFunctions {
 		addPredefinedComplexStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedTextFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("strlen", (argumentList, SCOPE_ID) -> new DataObject().setInt(getArgumentListAsString(argumentList, true).length()));
-		funcs.put("isEmpty", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(getArgumentListAsString(argumentList, true).isEmpty()));
-		funcs.put("isNotEmpty", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(!getArgumentListAsString(argumentList, true).isEmpty()));
-		funcs.put("isBlank", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(getArgumentListAsString(argumentList, true).trim().isEmpty()));
-		funcs.put("isNotBlank", (argumentList, SCOPE_ID) -> new DataObject().setBoolean(!getArgumentListAsString(argumentList, true).trim().isEmpty()));
-		funcs.put("toUpper", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toUpperCase()));
-		funcs.put("toLower", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).toLowerCase()));
-		funcs.put("trim", (argumentList, SCOPE_ID) -> new DataObject(getArgumentListAsString(argumentList, true).trim()));
-		funcs.put("replace", (argumentList, SCOPE_ID) -> {
-			if(LangUtils.countDataObjects(argumentList) < 3)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 3), SCOPE_ID);
-			
-			DataObject textObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject regexObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject replacement = LangUtils.combineDataObjects(argumentList);
-			if(replacement == null)
-				replacement = new DataObject().setVoid();
-			
-			try {
-				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacement.getText()));
-			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("substring", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject startIndexObject = combinedArgumentList.get(1);
-			DataObject endIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			Number startIndex = startIndexObject.toNumber();
-			if(startIndex == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "startIndex is no number", SCOPE_ID);
-			
-			try {
-				if(endIndexObject == null) {
-					return new DataObject(textObject.getText().substring(startIndex.intValue()));
-				}else {
-					Number endIndex = endIndexObject.toNumber();
-					if(endIndex == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "endIndex is no number", SCOPE_ID);
-					
-					return new DataObject(textObject.getText().substring(startIndex.intValue(), endIndex.intValue()));
-				}
-			}catch(StringIndexOutOfBoundsException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			}
-		});
-		funcs.put("format", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject formatObject = combinedArgumentList.remove(0);
-			return interpreter.formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
-		});
-		funcs.put("formatTemplatePluralization", (argumentList, SCOPE_ID) -> {
-			if(LangUtils.countDataObjects(argumentList) < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			
-			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject translationValueObject = LangUtils.combineDataObjects(argumentList);
-			
-			Number count = countObject.toNumber();
-			if(count == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			if(count.intValue() < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
-			
-			String translationValue = translationValueObject.getText();
-			
-			try {
-				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
-			}catch(InvalidTranslationTemplateSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("contains", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject containTextObject = combinedArgumentList.get(1);
-			return new DataObject().setBoolean(textObject.getText().contains(containTextObject.getText()));
-		});
-		funcs.put("indexOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject searchTextObject = combinedArgumentList.get(1);
-			DataObject fromIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			if(fromIndexObject == null)
-				return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
-			
-			Number fromIndexNumber = fromIndexObject.toNumber();
-			if(fromIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			String txt = textObject.getText();
-			int len = txt.length();
-			int fromIndex = fromIndexNumber.intValue();
-			if(fromIndex < 0)
-				fromIndex += len;
-			
-			if(fromIndex < 0 || fromIndex >= len)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText(), fromIndex));
-		});
-		funcs.put("lastIndexOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject searchTextObject = combinedArgumentList.get(1);
-			DataObject toIndexObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			if(toIndexObject == null)
-				return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText()));
-			
-			Number toIndexNumber = toIndexObject.toNumber();
-			if(toIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			String txt = textObject.getText();
-			int len = txt.length();
-			int toIndex = toIndexNumber.intValue();
-			if(toIndex < 0)
-				toIndex += len;
-			
-			if(toIndex < 0 || toIndex >= len)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText(), toIndex));
-		});
-		funcs.put("startsWith", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject startsWithTextObject = combinedArgumentList.get(1);
-			return new DataObject().setBoolean(textObject.getText().startsWith(startsWithTextObject.getText()));
-		});
-		funcs.put("endsWith", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject endsWithTextObject = combinedArgumentList.get(1);
-			return new DataObject().setBoolean(textObject.getText().endsWith(endsWithTextObject.getText()));
-		});
-		funcs.put("matches", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject matchTextObject = combinedArgumentList.get(1);
-			try {
-				return new DataObject().setBoolean(LangRegEx.matches(textObject.getText(), matchTextObject.getText()));
-			}catch(InvalidPaternSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("repeatText", (argumentList, SCOPE_ID) -> {
-			if(LangUtils.countDataObjects(argumentList) < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			
-			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				textObject = new DataObject().setVoid();
-			
-			Number count = countObject.toNumber();
-			if(count == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be a number", SCOPE_ID);
-			if(count.intValue() < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
-			
-			String text = textObject.getText();
-			
-			StringBuilder builder = new StringBuilder();
-			for(int i = 0;i < count.intValue();i++)
-				builder.append(text);
-			
-			return new DataObject(builder.toString());
-		});
-		funcs.put("charsOf", (argumentList, SCOPE_ID) -> {
-			String text = getArgumentListAsString(argumentList, true);
-			char[] chars = text.toCharArray();
-			DataObject[] arr = new DataObject[chars.length];
-			
-			for(int i = 0;i < chars.length;i++)
-				arr[i] = new DataObject().setChar(chars[i]);
-			
-			return new DataObject().setArray(arr);
-		});
-		funcs.put("join", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			DataObject collectionObject = combinedArgumentList.get(1);
-			if(collectionObject.getType() != DataType.ARRAY && collectionObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.ARRAY + " or " + DataType.LIST), SCOPE_ID);
-			
-			String text = textObject.getText();
-			Stream<DataObject> dataObjectStream = collectionObject.getType() == DataType.ARRAY?Arrays.stream(collectionObject.getArray()):collectionObject.getList().stream();
-			
-			return new DataObject(dataObjectStream.map(DataObject::getText).collect(Collectors.joining(text)));
-		});
 	}
 	private void addPredefinedConversionFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("text", (argumentList, SCOPE_ID) -> {
@@ -8498,6 +8257,98 @@ final class LangPredefinedFunctions {
 	public static final class LangPredefinedTextFunctions {
 		private LangPredefinedTextFunctions() {}
 		
+		@LangFunction("strlen")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject strlenFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setInt(textObject.getText().length());
+		}
+		
+		@LangFunction("isEmpty")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isEmptyFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setBoolean(textObject.getText().isEmpty());
+		}
+		
+		@LangFunction("isNotEmpty")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isNotEmptyFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setBoolean(!textObject.getText().isEmpty());
+		}
+		
+		@LangFunction("isBlank")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isBlankFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setBoolean(textObject.getText().trim().isEmpty());
+		}
+		
+		@LangFunction("isNotBlank")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isNotBlankFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setBoolean(!textObject.getText().trim().isEmpty());
+		}
+		
+		@LangFunction("toUpper")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject toUpperFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setText(textObject.getText().toUpperCase());
+		}
+		
+		@LangFunction("toLower")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject toLowerFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setText(textObject.getText().toLowerCase());
+		}
+		
+		@LangFunction("trim")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject trimFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			return new DataObject().setText(textObject.getText().trim());
+		}
+		
+		@LangFunction("replace")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject replaceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$regex") DataObject regexObject,
+				@LangParameter("$replacement") @VarArgs DataObject replacementObject) {
+			try {
+				return new DataObject(LangRegEx.replace(textObject.getText(), regexObject.getText(), replacementObject.getText()));
+			}catch(InvalidPaternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction(value="substring", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject substringFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$startIndex") @NumberValue Number startIndex) {
+			return substringFunction(interpreter, SCOPE_ID, textObject, startIndex, null);
+		}
+		@LangFunction("substring")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject substringFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$startIndex") @NumberValue Number startIndex,
+				@LangParameter("$endIndex") @NumberValue Number endIndex) {
+			try {
+				if(endIndex == null)
+					return new DataObject(textObject.getText().substring(startIndex.intValue()));
+				
+				return new DataObject(textObject.getText().substring(startIndex.intValue(), endIndex.intValue()));
+			}catch(StringIndexOutOfBoundsException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			}
+		}
+		
 		@LangFunction("charAt")
 		@AllowedTypes(DataObject.DataType.CHAR)
 		public static DataObject charAtFunction(LangInterpreter interpreter, int SCOPE_ID,
@@ -8572,12 +8423,167 @@ final class LangPredefinedFunctions {
 			return new DataObject(builder.toString());
 		}
 		
+		@LangFunction("format")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject formatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$format") DataObject formatObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			return interpreter.formatText(formatObject.getText(), args, SCOPE_ID);
+		}
+		
+		@LangFunction("formatTemplatePluralization")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject formatTemplatePluralizationFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$count") @NumberValue Number count,
+				@LangParameter("$translationValue") @VarArgs DataObject translationValueObject) {
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
+			
+			String translationValue = translationValueObject.getText();
+			
+			try {
+				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
+			}catch(InvalidTranslationTemplateSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("contains")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject containsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$haystack") DataObject haystackObject,
+				@LangParameter("$needle") DataObject needleObject) {
+			return new DataObject().setBoolean(haystackObject.getText().contains(needleObject.getText()));
+		}
+		
+		@LangFunction(value="indexOf", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject indexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$searchText") DataObject searchTextObject) {
+			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText()));
+		}
+		@LangFunction("indexOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject indexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$searchText") DataObject searchTextObject,
+				@LangParameter("$fromIndex") @NumberValue Number fromIndexNumber) {
+			String txt = textObject.getText();
+			int len = txt.length();
+			int fromIndex = fromIndexNumber.intValue();
+			if(fromIndex < 0)
+				fromIndex += len;
+			
+			if(fromIndex < 0 || fromIndex >= len)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setInt(textObject.getText().indexOf(searchTextObject.getText(), fromIndex));
+		}
+		
+		@LangFunction(value="lastIndexOf", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject lastIndexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$searchText") DataObject searchTextObject) {
+			return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText()));
+		}
+		@LangFunction("lastIndexOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject lastIndexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$searchText") DataObject searchTextObject,
+				@LangParameter("$toIndex") @NumberValue Number toIndexNumber) {
+			String txt = textObject.getText();
+			int len = txt.length();
+			int toIndex = toIndexNumber.intValue();
+			if(toIndex < 0)
+				toIndex += len;
+			
+			if(toIndex < 0 || toIndex >= len)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setInt(textObject.getText().lastIndexOf(searchTextObject.getText(), toIndex));
+		}
+		
+		@LangFunction("startsWith")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject startsWithFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$prefix") DataObject prefixObject) {
+			return new DataObject().setBoolean(textObject.getText().startsWith(prefixObject.getText()));
+		}
+		
+		@LangFunction("endsWith")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject endsWithFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$suffix") DataObject suffixObject) {
+			return new DataObject().setBoolean(textObject.getText().endsWith(suffixObject.getText()));
+		}
+		
+		@LangFunction("matches")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject matchesFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") DataObject textObject,
+				@LangParameter("$regex") DataObject regexObject) {
+			try {
+				return new DataObject().setBoolean(LangRegEx.matches(textObject.getText(), regexObject.getText()));
+			}catch(InvalidPaternSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_REGEX_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("repeatText")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject repeatTextFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$count") @NumberValue Number count,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
+			
+			String text = textObject.getText();
+			
+			StringBuilder builder = new StringBuilder();
+			for(int i = 0;i < count.intValue();i++)
+				builder.append(text);
+			
+			return new DataObject(builder.toString());
+		}
+		
+		@LangFunction("charsOf")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject charsOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			String text = textObject.getText();
+			char[] chars = text.toCharArray();
+			DataObject[] arr = new DataObject[chars.length];
+			
+			for(int i = 0;i < chars.length;i++)
+				arr[i] = new DataObject().setChar(chars[i]);
+			
+			return new DataObject().setArray(arr);
+		}
+		
+		@LangFunction("join")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject joinFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject,
+				@LangParameter("&collection") @AllowedTypes({DataObject.DataType.ARRAY, DataObject.DataType.LIST}) DataObject collectionObject) {
+			String text = textObject.getText();
+			Stream<DataObject> dataObjectStream = collectionObject.getType() == DataType.ARRAY?Arrays.stream(collectionObject.getArray()):collectionObject.getList().stream();
+			
+			return new DataObject(dataObjectStream.map(DataObject::getText).collect(Collectors.joining(text)));
+		}
+		
 		@LangFunction(value="split", hasInfo=true)
 		@AllowedTypes(DataObject.DataType.ARRAY)
 		public static DataObject splitFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$text") DataObject textObject,
 				@LangParameter("$regex") DataObject regexObject) {
-			return splitFunction(interpreter, SCOPE_ID, textObject, regexObject, (Number)null);
+			return splitFunction(interpreter, SCOPE_ID, textObject, regexObject, null);
 		}
 		@LangFunction("split")
 		@AllowedTypes(DataObject.DataType.ARRAY)
