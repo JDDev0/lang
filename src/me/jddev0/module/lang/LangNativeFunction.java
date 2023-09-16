@@ -308,7 +308,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			allowedTypes = parameter.getAnnotation(AllowedTypes.class);
 			if(allowedTypes != null && !isContainsVarArgsParameter && !parameter.getType().isAssignableFrom(DataObject.class))
 				throw new IllegalArgumentException("@AllowedTypes can only be used if @LangParameter is of type DataObject");
-			if(allowedTypes != null && textVarArgsParameter)
+			if(allowedTypes != null && isContainsVarArgsParameter && textVarArgsParameter)
 				throw new IllegalArgumentException("@AllowedTypes can not be used with @VarArgs as text var args");
 			if(allowedTypes != null && typeConstraintingParameterCount++ >= 0)
 				typeConstraint = DataTypeConstraint.fromAllowedTypes(Arrays.asList(allowedTypes.value()));
@@ -316,7 +316,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			notAllowedTypes = parameter.getAnnotation(NotAllowedTypes.class);
 			if(notAllowedTypes != null && !isContainsVarArgsParameter && !parameter.getType().isAssignableFrom(DataObject.class))
 				throw new IllegalArgumentException("@NotAllowedTypes can only be used if @LangParameter is of type DataObject");
-			if(notAllowedTypes != null && textVarArgsParameter)
+			if(notAllowedTypes != null && isContainsVarArgsParameter && textVarArgsParameter)
 				throw new IllegalArgumentException("@NotAllowedTypes can not be used with @VarArgs as text var args");
 			if(notAllowedTypes != null && typeConstraintingParameterCount++ >= 0)
 				typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
