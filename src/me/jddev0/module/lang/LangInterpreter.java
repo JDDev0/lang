@@ -2254,7 +2254,8 @@ public final class LangInterpreter {
 								}
 							}else {
 								//Array varargs
-								List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList);
+								List<DataObject> varArgsTmpList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentValueList).stream().
+										map(DataObject::new).collect(Collectors.toList());
 								if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
 									varArgsTmpList.add(new DataObject().setVoid());
 								
