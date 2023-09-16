@@ -54,6 +54,11 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		return getLangFunctionsOfClass(interpreter, obj, obj.getClass());
 	}
 	
+	public static Map<String, LangNativeFunction> getLangFunctionsOfClass(LangInterpreter interpreter, Class<?> clazz)
+			throws IllegalArgumentException, DataTypeConstraintException {
+		return getLangFunctionsOfClass(interpreter, null, clazz);
+	}
+	
 	public static Map<String, LangNativeFunction> getLangFunctionsOfClass(LangInterpreter interpreter, Object instance, Class<?> clazz)
 			throws IllegalArgumentException, DataTypeConstraintException {
 		Map<String, List<Method>> methodsByLangFunctionName = new HashMap<>();
