@@ -7820,7 +7820,7 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject constrainVariableAllowedTypesFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject,
-				@LangParameter("&types") @VarArgs DataObject[] typeObjects) {
+				@LangParameter("&types") @AllowedTypes(DataType.TYPE) @VarArgs List<DataObject> typeObjects) {
 			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 			
 			String variableName = dereferencedVarPointer.getVariableName();
@@ -7830,17 +7830,7 @@ final class LangPredefinedFunctions {
 			if(dereferencedVarPointer.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
-			List<DataType> types = new ArrayList<>(typeObjects.length);
-			
-			int argumentIndex = 1;
-			for(DataObject typeObject:typeObjects) {
-				argumentIndex++;
-				
-				if(typeObject.getType() != DataType.TYPE)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument %d must be of type TYPE", argumentIndex), SCOPE_ID);
-				
-				types.add(typeObject.getTypeValue());
-			}
+			List<DataType> types = typeObjects.stream().map(DataObject::getTypeValue).collect(Collectors.toList());
 			
 			try {
 				dereferencedVarPointer.setTypeConstraint(DataObject.DataTypeConstraint.fromAllowedTypes(types));
@@ -7855,7 +7845,7 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject constrainVariableNotAllowedTypesFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject,
-				@LangParameter("&types") @VarArgs DataObject[] typeObjects) {
+				@LangParameter("&types") @AllowedTypes(DataType.TYPE) @VarArgs List<DataObject> typeObjects) {
 			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 			
 			String variableName = dereferencedVarPointer.getVariableName();
@@ -7865,17 +7855,7 @@ final class LangPredefinedFunctions {
 			if(dereferencedVarPointer.isLangVar())
 				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
 			
-			List<DataType> types = new ArrayList<>(typeObjects.length);
-			
-			int argumentIndex = 1;
-			for(DataObject typeObject:typeObjects) {
-				argumentIndex++;
-				
-				if(typeObject.getType() != DataType.TYPE)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument %d must be of type TYPE", argumentIndex), SCOPE_ID);
-				
-				types.add(typeObject.getTypeValue());
-			}
+			List<DataType> types = typeObjects.stream().map(DataObject::getTypeValue).collect(Collectors.toList());
 			
 			try {
 				dereferencedVarPointer.setTypeConstraint(DataObject.DataTypeConstraint.fromNotAllowedTypes(types));
