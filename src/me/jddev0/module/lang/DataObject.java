@@ -2143,7 +2143,7 @@ public class DataObject {
 		public FunctionPointerObject(String langPath, String langFile, String functionName, LangNativeFunction nativeFunction) {
 			this.langPath = langPath;
 			this.langFile = langFile;
-			this.functionName = functionName;
+			this.functionName = functionName == null?nativeFunction.getFunctionName():functionName;
 			this.parameterList = null;
 			this.returnValueTypeConstraint = null;
 			this.functionBody = null;
