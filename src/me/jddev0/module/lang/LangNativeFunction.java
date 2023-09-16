@@ -436,7 +436,8 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 						if(combinatorFunction && combinatorFunctionCallCount == 0)
 							return combinatorCall(interpreter, combinedArgumentList, SCOPE_ID);
 						
-						List<DataObject> varArgsArgumentList = combinedArgumentList.subList(i, combinedArgumentList.size() - argCount + i + 1);
+						List<DataObject> varArgsArgumentList = combinedArgumentList.subList(i, combinedArgumentList.size() - argCount + i + 1).stream().
+								map(DataObject::new).collect(Collectors.toList());
 						if(!textVarArgsParameter) {
 							DataTypeConstraint typeConstraint = paramaterDataTypeConstraintList.get(i);
 							
