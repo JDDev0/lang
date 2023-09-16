@@ -541,7 +541,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				return functionName == null?dataObject.getVariableName():functionName;
 			}).collect(Collectors.joining(", "));
 			
-			String functionName = "<" + LangNativeFunction.this.functionName + "-func(" + functionNames + ")>";
+			String functionName = "<" + (varArgsParameterIndex == -1?"":"inf-") + LangNativeFunction.this.functionName + "-func(" + functionNames + ")>";
 			
 			
 			return new DataObject().setFunctionPointer(new FunctionPointerObject(functionName, langNativeFunction));
