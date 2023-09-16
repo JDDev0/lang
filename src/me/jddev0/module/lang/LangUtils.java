@@ -126,12 +126,11 @@ public final class LangUtils {
 	 */
 	public static int getMostRestrictiveFunctionSignatureIndex(List<List<DataObject.DataTypeConstraint>> functionSignatures,
 			List<Integer> varArgsParameterIndices, List<DataObject> argumentList) {
-		final int VAR_ARGS_PENALTY = DataObject.DataType.values().length + 1;
-		
 		List<DataObject.DataTypeConstraint> bestFunctionSignature = null;
 		int bestFunctionIndex = -1;
 		int bestAllowedTypesCount = -1;
 		int bestVarArgsParameterIndex = -1;
+		int bestVarArgsPenalty = -1;
 		
 		outer:
 		for(int i = 0;i < functionSignatures.size();i++) {
@@ -140,10 +139,19 @@ public final class LangUtils {
 			if(varArgsParameterIndex == -1?functionSignature.size() != argumentList.size():functionSignature.size() - 1 > argumentList.size())
 				continue; //Argument count does not match
 			
+			int varArgsPenalty = varArgsParameterIndex == -1?-1:functionSignature.get(varArgsParameterIndex).getAllowedTypes().size();
+			
 			int argumentIndex = 0;
 			for(int j = 0;j < functionSignature.size();j++) {
 				if(varArgsParameterIndex == j) {
+					int oldArgumentIndex = argumentIndex;
+					
 					argumentIndex = argumentList.size() - functionSignature.size() + j + 1;
+					
+					//Check if types are allowed for var args parameter
+					for(int k = oldArgumentIndex;k < argumentIndex;k++)
+						if(!functionSignature.get(j).isTypeAllowed(argumentList.get(k).getType()))
+							continue outer;
 					
 					continue;
 				}
@@ -158,12 +166,14 @@ public final class LangUtils {
 			int sizeDiff = bestFunctionSignature == null?0:(bestFunctionSignature.size() - functionSignature.size());
 			if(bestFunctionIndex == -1 || (varArgsParameterIndex == -1 && bestVarArgsParameterIndex != -1) ||
 					(varArgsParameterIndex == -1 && bestVarArgsParameterIndex == -1 && allowedTypesCount < bestAllowedTypesCount) ||
-					(varArgsParameterIndex != -1 && bestVarArgsParameterIndex != -1 && (sizeDiff < 0?
-							(allowedTypesCount < bestAllowedTypesCount + VAR_ARGS_PENALTY * -sizeDiff):(allowedTypesCount + VAR_ARGS_PENALTY * sizeDiff < bestAllowedTypesCount)))) {
+					(varArgsParameterIndex != -1 && bestVarArgsParameterIndex != -1 && (sizeDiff == 0?varArgsPenalty < bestVarArgsPenalty:
+						(sizeDiff < 0?(allowedTypesCount < bestAllowedTypesCount + bestVarArgsPenalty * -sizeDiff):
+							(allowedTypesCount + varArgsPenalty * sizeDiff < bestAllowedTypesCount))))) {
 				bestFunctionSignature = functionSignature;
 				bestFunctionIndex = i;
 				bestAllowedTypesCount = allowedTypesCount;
 				bestVarArgsParameterIndex = varArgsParameterIndex;
+				bestVarArgsPenalty = varArgsPenalty;
 			}
 		}
 		
