@@ -24,8 +24,6 @@ import me.jddev0.module.lang.LangFunction.LangParameter.*;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 public class LangNativeFunction implements LangPredefinedFunctionObject {
-	//TODO add support for native function overloading [Change class -> store list of public static InternalFunction and move all parameters into internal class, define callFunc for outer class and add getFunctions]
-	
 	//TODO remove and add as parameter to call Function instance to call
 	private final LangInterpreter interpreter;
 	
@@ -38,6 +36,23 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	private final String deprecatedReplacementFunction;
 	
 	private final List<InternalFunction> internalFunctions;
+	
+	public static LangNativeFunction getSingleLangFunctionFromObject(LangInterpreter interpreter, Object obj)
+			throws IllegalArgumentException, DataTypeConstraintException {
+		Map<String, LangNativeFunction> functions = getLangFunctionsFromObject(interpreter, obj);
+		if(functions.size() == 0)
+			throw new IllegalArgumentException("No methods which are annotated with @LangFunctions are defined in " + obj);
+		
+		if(functions.size() > 1)
+			throw new IllegalArgumentException("Multiple methods which are annotated with @LangFunctions are defined in " + obj);
+		
+		return functions.values().iterator().next();
+	}
+	
+	public static Map<String, LangNativeFunction> getLangFunctionsFromObject(LangInterpreter interpreter, Object obj)
+			throws IllegalArgumentException, DataTypeConstraintException {
+		return getLangFunctionsOfClass(interpreter, obj, obj.getClass());
+	}
 	
 	public static Map<String, LangNativeFunction> getLangFunctionsOfClass(LangInterpreter interpreter, Object instance, Class<?> clazz)
 			throws IllegalArgumentException, DataTypeConstraintException {
