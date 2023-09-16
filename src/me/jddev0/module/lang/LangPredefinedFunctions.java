@@ -27,7 +27,6 @@ import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.ErrorObject;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
-import me.jddev0.module.lang.DataObject.VarPointerObject;
 import me.jddev0.module.lang.LangFunction.AllowedTypes;
 import me.jddev0.module.lang.LangFunction.LangParameter;
 import me.jddev0.module.lang.LangFunction.LangParameter.NumberValue;
@@ -463,6 +462,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedResetFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedErrorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedLangFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedSystemFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedNumberFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedTextFunctions.class));
@@ -470,7 +470,6 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, null, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedSystemFunctions(funcs);
 		addPredefinedIOFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
 		addPredefinedConversionFunctions(funcs);
@@ -485,537 +484,6 @@ final class LangPredefinedFunctions {
 		addPredefinedComplexStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedSystemFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("sleep", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			Number number = dataObject.toNumber();
-			if(number == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			try {
-				Thread.sleep(number.longValue());
-			}catch(InterruptedException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
-			}
-			
-			return null;
-		});
-		funcs.put("nanoTime", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject().setLong(System.nanoTime());
-		});
-		funcs.put("currentTimeMillis", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject().setLong(System.currentTimeMillis());
-		});
-		funcs.put("currentUnixTime", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject().setLong(Instant.now().getEpochSecond());
-		});
-		funcs.put("repeat", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject loopFunctionObject = combinedArgumentList.get(0);
-			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
-			
-			DataObject repeatCountObject = combinedArgumentList.get(1);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
-			
-			Number repeatCountNumber = repeatCountObject.toNumber();
-			if(repeatCountNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			long repeatCount = repeatCountNumber.longValue();
-			if(repeatCount < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_REPEAT_COUNT, SCOPE_ID);
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				
-				for(int i = 0;i < repeatCount;i++) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-								new DataObject().setInt(i),
-								breakFunc
-							)
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				for(int i = 0;i < repeatCount;i++) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
-							new DataObject().setInt(i)
-					), SCOPE_ID);
-				}
-			}
-			
-			return null;
-		});
-		funcs.put("repeatWhile", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject loopFunctionObject = combinedArgumentList.get(0);
-			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
-			
-			DataObject checkFunctionObject = combinedArgumentList.get(1);
-			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
-			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				
-				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
-						breakFunc
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
-			}
-			
-			return null;
-		});
-		funcs.put("repeatUntil", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject loopFunctionObject = combinedArgumentList.get(0);
-			if(loopFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Loop function pointer is invalid", SCOPE_ID);
-			
-			DataObject checkFunctionObject = combinedArgumentList.get(1);
-			if(checkFunctionObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "Check function pointer is invalid", SCOPE_ID);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
-			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				
-				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
-						breakFunc
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
-			}
-			
-			return null;
-		});
-		funcs.put("getTranslationValue", (argumentList, SCOPE_ID) -> {
-			DataObject translationKeyObject = LangUtils.combineDataObjects(argumentList);
-			if(translationKeyObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
-			if(translationValue == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
-			
-			return new DataObject(translationValue);
-		});
-		funcs.put("getTranslationValueTemplatePluralization", (argumentList, SCOPE_ID) -> {
-			if(LangUtils.countDataObjects(argumentList) < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			
-			DataObject countObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject translationKeyObject = LangUtils.combineDataObjects(argumentList);
-			
-			Number count = countObject.toNumber();
-			if(count == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			if(count.intValue() < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Count must be >= 0", SCOPE_ID);
-			
-			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
-			if(translationValue == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
-			
-			try {
-				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
-			}catch(NumberFormatException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
-			}catch(InvalidTranslationTemplateSyntaxException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("makeFinal", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject pointerObject = combinedArgumentList.get(0);
-			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
-			if(dereferencedVarPointer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			String variableName = dereferencedVarPointer.getVariableName();
-			if(variableName == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			if(dereferencedVarPointer.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			dereferencedVarPointer.setFinalData(true);
-			
-			return null;
-		});
-		funcs.put("asFinal", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject(dataObject).setCopyStaticAndFinalModifiers(true).setFinalData(true);
-		});
-		funcs.put("isFinal", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject().setBoolean(dataObject.isFinalData());
-		});
-		funcs.put("makeStatic", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.VAR_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject pointerObject = combinedArgumentList.get(0);
-			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
-			if(dereferencedVarPointer == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			String variableName = dereferencedVarPointer.getVariableName();
-			if(variableName == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			if(dereferencedVarPointer.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			dereferencedVarPointer.setStaticData(true);
-			
-			return null;
-		});
-		funcs.put("asStatic", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject(dataObject).setCopyStaticAndFinalModifiers(true).setStaticData(true);
-		});
-		funcs.put("isStatic", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject().setBoolean(dataObject.isStaticData());
-		});
-		funcs.put("constrainVariableAllowedTypes", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject dataObject = combinedArgumentList.remove(0);
-			
-			if(dataObject.getType() != DataType.VAR_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.VAR_POINTER), SCOPE_ID);
-			
-			dataObject = dataObject.getVarPointer().getVar();
-			
-			if(dataObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			if(dataObject.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			List<DataType> types = new LinkedList<>();
-			
-			int argumentIndex = 1;
-			for(DataObject typeObject:combinedArgumentList) {
-				argumentIndex++;
-				
-				if(typeObject.getType() != DataType.TYPE)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, argumentIndex + " ", DataType.TYPE), SCOPE_ID);
-				
-				types.add(typeObject.getTypeValue());
-			}
-			
-			try {
-				dataObject.setTypeConstraint(DataObject.DataTypeConstraint.fromAllowedTypes(types));
-			}catch(DataObject.DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
-			}
-			
-			return null;
-		});
-		funcs.put("constrainVariableNotAllowedTypes", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject dataObject = combinedArgumentList.remove(0);
-			
-			if(dataObject.getType() != DataType.VAR_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.VAR_POINTER), SCOPE_ID);
-			
-			dataObject = dataObject.getVarPointer().getVar();
-			
-			if(dataObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			if(dataObject.isLangVar())
-				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
-			
-			List<DataType> types = new LinkedList<>();
-			
-			int argumentIndex = 1;
-			for(DataObject typeObject:combinedArgumentList) {
-				argumentIndex++;
-				
-				if(typeObject.getType() != DataType.TYPE)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, argumentIndex + " ", DataType.TYPE), SCOPE_ID);
-				
-				types.add(typeObject.getTypeValue());
-			}
-			
-			try {
-				dataObject.setTypeConstraint(DataObject.DataTypeConstraint.fromNotAllowedTypes(types));
-			}catch(DataObject.DataTypeConstraintException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
-			}
-			
-			return null;
-		});
-		funcs.put("pointerTo", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject().setVarPointer(new VarPointerObject(dataObject));
-		});
-		funcs.put("exec", (argumentList, SCOPE_ID) -> {
-			DataObject text = LangUtils.combineDataObjects(argumentList);
-			if(text == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			//Update call stack
-			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
-			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(), currentStackElement.getLangFile(), "<exec-code>", currentStackElement.getModule()), -1);
-			
-			int originalLineNumber = interpreter.getParserLineNumber();
-			try(BufferedReader lines = new BufferedReader(new StringReader(text.getText()))) {
-				interpreter.resetParserPositionVars();
-				interpreter.interpretLines(lines, SCOPE_ID);
-				
-				return interpreter.getAndResetReturnValue(SCOPE_ID);
-			}catch(IOException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
-			}finally {
-				interpreter.setParserLineNumber(originalLineNumber);
-				
-				//Update call stack
-				interpreter.popStackElement();
-			}
-		});
-		funcs.put("isTerminalAvailable", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject().setBoolean(interpreter.term != null);
-		});
-		funcs.put("isInstanceOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			DataObject typeObject = combinedArgumentList.get(1);
-			
-			if(typeObject.getType() == DataType.TYPE)
-				return new DataObject().setBoolean(dataObject.getType() == typeObject.getTypeValue());
-			
-			if(typeObject.getType() == DataType.STRUCT) {
-				StructObject dataStruct = dataObject.getStruct();
-				StructObject typeStruct = typeObject.getStruct();
-				
-				if(dataStruct.isDefinition())
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Data struct may not be a definition struct", SCOPE_ID);
-				
-				if(!typeStruct.isDefinition())
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Type struct must be a definition struct", SCOPE_ID);
-				
-				return new DataObject().setBoolean(dataStruct.getStructBaseDefinition().equals(typeStruct));
-			}
-			
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ",
-					DataType.TYPE + " or " + DataType.STRUCT), SCOPE_ID);
-		});
-		funcs.put("typeOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			return new DataObject().setTypeValue(dataObject.getType());
-		});
-		funcs.put("getCurrentStackTraceElement", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			//Get last element (Current element would always be this function)
-			StackElement currentStackElement = interpreter.getCallStackElements().get(interpreter.getCallStackElements().size() - 1);
-			
-			String modulePath = null;
-			String moduleFile = null;
-			if(currentStackElement.module != null) {
-				String prefix = "<module:" + currentStackElement.module.getFile() + "[" + currentStackElement.module.getLangModuleConfiguration().getName() + "]>";
-				
-				modulePath = currentStackElement.getLangPath().substring(prefix.length());
-				if(!modulePath.startsWith("/"))
-					modulePath = "/" + modulePath;
-				
-				moduleFile = currentStackElement.getLangFile();
-			}
-			
-			return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(currentStackElement.getLangPath(),
-					currentStackElement.getLangFile(), currentStackElement.getLineNumber(), currentStackElement.getLangFunctionName(),
-					modulePath, moduleFile));
-		});
-		funcs.put("getStackTraceElements", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			List<StackElement> stackTraceElements = interpreter.getCallStackElements();
-			
-			return new DataObject().setArray(stackTraceElements.stream().map(ele -> {
-				String modulePath = null;
-				String moduleFile = null;
-				if(ele.module != null) {
-					String prefix = "<module:" + ele.module.getFile() + "[" + ele.module.getLangModuleConfiguration().getName() + "]>";
-					
-					modulePath = ele.getLangPath().substring(prefix.length());
-					if(!modulePath.startsWith("/"))
-						modulePath = "/" + modulePath;
-					
-					moduleFile = ele.getLangFile();
-				}
-				
-				return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(ele.getLangPath(),
-						ele.getLangFile(), ele.getLineNumber(), ele.getLangFunctionName(), modulePath, moduleFile));
-			}).toArray(DataObject[]::new));
-		});
-		funcs.put("getStackTrace", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 0, SCOPE_ID)) != null)
-				return error;
-			
-			return new DataObject(interpreter.printStackTrace(-1));
-		});
 	}
 	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("readTerminal", (argumentList, SCOPE_ID) -> {
@@ -8255,6 +7723,476 @@ final class LangPredefinedFunctions {
 			if(compVer == null)
 				return interpreter.setErrnoErrorObject(InterpretingError.LANG_VER_ERROR, "lang.version has an invalid format", SCOPE_ID);
 			return new DataObject().setBoolean(compVer < 0);
+		}
+	}
+	
+	public static final class LangPredefinedSystemFunctions {
+		private LangPredefinedSystemFunctions() {}
+		
+		@LangFunction("sleep")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject sleepFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$milliSeconds") @NumberValue Number milliSeconds) {
+			if(milliSeconds.longValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$milliSeconds\") must be >= 0", SCOPE_ID);
+			
+			try {
+				Thread.sleep(milliSeconds.longValue());
+			}catch(InterruptedException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("nanoTime")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject nanoTimeFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setLong(System.nanoTime());
+		}
+		
+		@LangFunction("currentTimeMillis")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject currentTimeMillisFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setLong(System.currentTimeMillis());
+		}
+		
+		@LangFunction("currentUnixTime")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject currentUnixTimeFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setLong(Instant.now().getEpochSecond());
+		}
+		
+		@LangFunction(value="repeat", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("$repeatCount") @NumberValue Number repeatCountNumber) {
+			return repeatFunction(interpreter, SCOPE_ID, loopFunctionObject, repeatCountNumber, false);
+		}
+		@LangFunction("repeat")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("$repeatCount") @NumberValue Number repeatCountNumber,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			
+			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
+			
+			long repeatCount = repeatCountNumber.longValue();
+			if(repeatCount < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_REPEAT_COUNT, SCOPE_ID);
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				for(int i = 0;i < repeatCount;i++) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+								new DataObject().setInt(i),
+								breakFunc
+							)
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < repeatCount;i++) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+							new DataObject().setInt(i)
+					), SCOPE_ID);
+				}
+			}
+			
+			return null;
+		}
+		
+		@LangFunction(value="repeatWhile", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatWhileFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunctionObject) {
+			return repeatWhileFunction(interpreter, SCOPE_ID, loopFunctionObject, checkFunctionObject, false);
+		}
+		@LangFunction("repeatWhile")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatWhileFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunctionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
+			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+						breakFunc
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction(value="repeatUntil", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatUntilFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunctionObject) {
+			return repeatUntilFunction(interpreter, SCOPE_ID, loopFunctionObject, checkFunctionObject, false);
+		}
+		@LangFunction("repeatUntil")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject repeatUntilFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.loop") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject loopFunctionObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunctionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			FunctionPointerObject loopFunc = loopFunctionObject.getFunctionPointer();
+			FunctionPointerObject checkFunc = checkFunctionObject.getFunctionPointer();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+						breakFunc
+					), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("getTranslationValue")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject getTranslationValueFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") @VarArgs DataObject translationKeyObject) {
+			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			if(translationValue == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+			
+			return new DataObject(translationValue);
+		}
+		
+		@LangFunction("getTranslationValueTemplatePluralization")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject getTranslationValueTemplatePluralizationFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$count") @NumberValue Number count,
+				@LangParameter("$translationKey") @VarArgs DataObject translationKeyObject) {
+			if(count.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$count\") must be >= 0", SCOPE_ID);
+			
+			String translationValue = interpreter.data.get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			if(translationValue == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.TRANS_KEY_NOT_FOUND, SCOPE_ID);
+			
+			try {
+				return new DataObject(LangUtils.formatTranslationTemplatePluralization(translationValue, count.intValue()));
+			}catch(NumberFormatException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, "Invalid count range", SCOPE_ID);
+			}catch(InvalidTranslationTemplateSyntaxException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_TEMPLATE_SYNTAX, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("makeFinal")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject makeFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Anonymous values can not be modified", SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			dereferencedVarPointer.setFinalData(true);
+			
+			return null;
+		}
+		
+		@LangFunction("asFinal")
+		public static DataObject asFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			return new DataObject(valueObject).setCopyStaticAndFinalModifiers(true).setFinalData(true);
+		}
+		
+		@LangFunction("isFinal")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") @CallByPointer DataObject pointerObject) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			return new DataObject().setBoolean(dereferencedVarPointer.isFinalData());
+		}
+		
+		@LangFunction("makeStatic")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject makeStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Anonymous values can not be modified", SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			dereferencedVarPointer.setStaticData(true);
+			
+			return null;
+		}
+		
+		@LangFunction("asStatic")
+		public static DataObject asStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			return new DataObject(valueObject).setCopyStaticAndFinalModifiers(true).setStaticData(true);
+		}
+		
+		@LangFunction("isStatic")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") @CallByPointer DataObject pointerObject) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			return new DataObject().setBoolean(dereferencedVarPointer.isStaticData());
+		}
+		
+		@LangFunction("constrainVariableAllowedTypes")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject constrainVariableAllowedTypesFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject,
+				@LangParameter("&types") @VarArgs DataObject[] typeObjects) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Anonymous values can not be modified", SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			List<DataType> types = new ArrayList<>(typeObjects.length);
+			
+			int argumentIndex = 1;
+			for(DataObject typeObject:typeObjects) {
+				argumentIndex++;
+				
+				if(typeObject.getType() != DataType.TYPE)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument %d must be of type TYPE", argumentIndex), SCOPE_ID);
+				
+				types.add(typeObject.getTypeValue());
+			}
+			
+			try {
+				dereferencedVarPointer.setTypeConstraint(DataObject.DataTypeConstraint.fromAllowedTypes(types));
+			}catch(DataObject.DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("constrainVariableNotAllowedTypes")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject constrainVariableNotAllowedTypesFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$ptr") @AllowedTypes(DataType.VAR_POINTER) DataObject pointerObject,
+				@LangParameter("&types") @VarArgs DataObject[] typeObjects) {
+			DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+			
+			String variableName = dereferencedVarPointer.getVariableName();
+			if(variableName == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Anonymous values can not be modified", SCOPE_ID);
+			
+			if(dereferencedVarPointer.isLangVar())
+				return interpreter.setErrnoErrorObject(InterpretingError.FINAL_VAR_CHANGE, SCOPE_ID);
+			
+			List<DataType> types = new ArrayList<>(typeObjects.length);
+			
+			int argumentIndex = 1;
+			for(DataObject typeObject:typeObjects) {
+				argumentIndex++;
+				
+				if(typeObject.getType() != DataType.TYPE)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("Argument %d must be of type TYPE", argumentIndex), SCOPE_ID);
+				
+				types.add(typeObject.getTypeValue());
+			}
+			
+			try {
+				dereferencedVarPointer.setTypeConstraint(DataObject.DataTypeConstraint.fromNotAllowedTypes(types));
+			}catch(DataObject.DataTypeConstraintException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("pointerTo")
+		@AllowedTypes(DataObject.DataType.VAR_POINTER)
+		public static DataObject pointerToFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") @CallByPointer DataObject pointerObject) {
+			return new DataObject(pointerObject);
+		}
+		
+		@LangFunction("exec")
+		public static DataObject execFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			//Update call stack
+			StackElement currentStackElement = interpreter.getCurrentCallStackElement();
+			interpreter.pushStackElement(new StackElement(currentStackElement.getLangPath(),
+					currentStackElement.getLangFile(), "<exec-code>", currentStackElement.getModule()), -1);
+			
+			int originalLineNumber = interpreter.getParserLineNumber();
+			try(BufferedReader lines = new BufferedReader(new StringReader(textObject.getText()))) {
+				interpreter.resetParserPositionVars();
+				interpreter.interpretLines(lines, SCOPE_ID);
+				
+				return interpreter.getAndResetReturnValue(SCOPE_ID);
+			}catch(IOException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
+			}finally {
+				interpreter.setParserLineNumber(originalLineNumber);
+				
+				//Update call stack
+				interpreter.popStackElement();
+			}
+		}
+		
+		@LangFunction("isTerminalAvailable")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isTerminalAvailableFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setBoolean(interpreter.term != null);
+		}
+		
+		@LangFunction(value="isInstanceOf", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isInstanceOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject,
+				@LangParameter("$type") @AllowedTypes(DataObject.DataType.TYPE) DataObject typeObject) {
+			return new DataObject().setBoolean(valueObject.getType() == typeObject.getTypeValue());
+		}
+		@LangFunction("isInstanceOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject isInstanceOfWithStructParametersFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") @AllowedTypes(DataObject.DataType.STRUCT) DataObject valueObject,
+				@LangParameter("$type") @AllowedTypes(DataObject.DataType.STRUCT) DataObject typeObject) {
+			StructObject valueStruct = valueObject.getStruct();
+			StructObject typeStruct = typeObject.getStruct();
+			
+			if(valueStruct.isDefinition())
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must not be a definition struct", SCOPE_ID);
+			
+			if(!typeStruct.isDefinition())
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$type\") be a definition struct", SCOPE_ID);
+			
+			return new DataObject().setBoolean(valueStruct.getStructBaseDefinition().equals(typeStruct));
+		}
+		
+		@LangFunction("typeOf")
+		@AllowedTypes(DataObject.DataType.TYPE)
+		public static DataObject typeOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			return new DataObject().setTypeValue(valueObject.getType());
+		}
+		
+		@LangFunction("getCurrentStackTraceElement")
+		@AllowedTypes(DataObject.DataType.STRUCT)
+		public static DataObject getCurrentStackTraceElementFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			StackElement currentStackElement = interpreter.getCallStackElements().get(interpreter.getCallStackElements().size() - 1);
+			
+			String modulePath = null;
+			String moduleFile = null;
+			if(currentStackElement.module != null) {
+				String prefix = "<module:" + currentStackElement.module.getFile() + "[" + currentStackElement.module.getLangModuleConfiguration().getName() + "]>";
+				
+				modulePath = currentStackElement.getLangPath().substring(prefix.length());
+				if(!modulePath.startsWith("/"))
+					modulePath = "/" + modulePath;
+				
+				moduleFile = currentStackElement.getLangFile();
+			}
+			
+			return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(currentStackElement.getLangPath(),
+					currentStackElement.getLangFile(), currentStackElement.getLineNumber(), currentStackElement.getLangFunctionName(),
+					modulePath, moduleFile));
+		}
+		
+		@LangFunction("getStackTraceElements")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject getStackTraceElementsElementFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			List<StackElement> stackTraceElements = interpreter.getCallStackElements();
+			
+			return new DataObject().setArray(stackTraceElements.stream().map(ele -> {
+				String modulePath = null;
+				String moduleFile = null;
+				if(ele.module != null) {
+					String prefix = "<module:" + ele.module.getFile() + "[" + ele.module.getLangModuleConfiguration().getName() + "]>";
+					
+					modulePath = ele.getLangPath().substring(prefix.length());
+					if(!modulePath.startsWith("/"))
+						modulePath = "/" + modulePath;
+					
+					moduleFile = ele.getLangFile();
+				}
+				
+				return new DataObject().setStruct(LangCompositeTypes.createStackTraceElement(ele.getLangPath(),
+						ele.getLangFile(), ele.getLineNumber(), ele.getLangFunctionName(), modulePath, moduleFile));
+			}).toArray(DataObject[]::new));
+		}
+		
+		@LangFunction("getStackTrace")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject getStackTraceFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject(interpreter.printStackTrace(-1));
 		}
 	}
 	
