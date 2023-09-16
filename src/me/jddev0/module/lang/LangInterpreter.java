@@ -3848,6 +3848,10 @@ public final class LangInterpreter {
 			this.interpreter = interpreter;
 		}
 		
+		public LangInterpreter getInterpreter() {
+			return interpreter;
+		}
+		
 		public Map<Integer, Data> getData() {
 			return interpreter.getData();
 		}
