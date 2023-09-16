@@ -2235,12 +2235,16 @@ public final class LangInterpreter {
 							variableName = variableName.substring(0, variableName.length() - 3); //Remove "..."
 							if(variableName.startsWith("$")) {
 								//Text varargs
+								if(typeConstraint != null) {
+									return setErrnoErrorObject(InterpretingError.INVALID_AST_NODE,
+											"function parameter \"" + variableName + "\": Text var args argument must not have a type constraint definition",
+											parameter.getLineNumberFrom(), SCOPE_ID);
+								}
+								
 								DataObject dataObject = LangUtils.combineDataObjects(argumentValueList);
 								try {
 									DataObject newDataObject = new DataObject(dataObject != null?dataObject.getText():
 										new DataObject().setVoid().getText()).setVariableName(variableName);
-									if(typeConstraint != null)
-										newDataObject.setTypeConstraint(typeConstraint);
 									
 									
 									DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
@@ -2259,12 +2263,21 @@ public final class LangInterpreter {
 								if(varArgsTmpList.isEmpty() && isLastDataObjectArgumentSeparator)
 									varArgsTmpList.add(new DataObject().setVoid());
 								
+								if(typeConstraint != null) {
+									for(int i = 0;i < varArgsTmpList.size();i++) {
+										DataObject varArgsArgument = varArgsTmpList.get(i);
+										if(!typeConstraint.isTypeAllowed(varArgsArgument.getType()))
+											return setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+													"Invalid argument (Var args argument " + (i + 1) + ") value for var args function parameter \"" +
+															variableName + "\": Value must be one of " + typeConstraint.getAllowedTypes(),
+													parameter.getLineNumberFrom(), SCOPE_ID);
+									}
+								}
+								
 								try {
 									DataObject newDataObject = new DataObject().
 											setArray(varArgsTmpList.toArray(new DataObject[0])).
 											setVariableName(variableName);
-									if(typeConstraint != null)
-										newDataObject.setTypeConstraint(typeConstraint);
 									
 									DataObject old = data.get(NEW_SCOPE_ID).var.put(variableName, newDataObject);
 									if(old != null && old.isStaticData())
