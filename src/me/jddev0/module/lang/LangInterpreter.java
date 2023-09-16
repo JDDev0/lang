@@ -2185,11 +2185,13 @@ public final class LangInterpreter {
 			String functionLangPath = fp.getLangPath();
 			String functionLangFile = fp.getLangFile();
 			
+			functionName = (functionName == null || fp.getFunctionName() != null)?fp.toString():functionName;
+			
 			//Update call stack
 			StackElement currentStackElement = getCurrentCallStackElement();
 			pushStackElement(new StackElement(functionLangPath == null?currentStackElement.getLangPath():functionLangPath,
 					(functionLangPath == null && functionLangFile == null)?currentStackElement.getLangFile():functionLangFile,
-					functionName == null?fp.toString():functionName, currentStackElement.getModule()), parentLineNumber);
+					functionName, currentStackElement.getModule()), parentLineNumber);
 			
 			switch(fp.getFunctionPointerType()) {
 				case FunctionPointerObject.NORMAL:
