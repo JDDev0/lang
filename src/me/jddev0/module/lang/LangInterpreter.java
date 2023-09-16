@@ -3975,7 +3975,7 @@ public final class LangInterpreter {
 		public void addPredefinedFunction(String funcName, LangPredefinedFunctionObject function) {
 			interpreter.funcs.put(funcName, function);
 		}
-		public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
+		public void addPredefinedFunctions(Map<String, ? extends LangPredefinedFunctionObject> funcs) {
 			interpreter.funcs.putAll(funcs);
 		}
 		public Map<String, LangPredefinedFunctionObject> getPredefinedFunctions() {
