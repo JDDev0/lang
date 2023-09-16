@@ -463,6 +463,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedErrorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedLangFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedSystemFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedIOFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedNumberFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedTextFunctions.class));
@@ -470,7 +471,6 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedIOFunctions(funcs);
 		addPredefinedTextFunctions(funcs);
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
@@ -484,196 +484,6 @@ final class LangPredefinedFunctions {
 		addPredefinedComplexStructFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedIOFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("readTerminal", (argumentList, SCOPE_ID) -> {
-			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
-			
-			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
-			String message = messageObject == null?"":messageObject.getText();
-			
-			if(interpreter.term == null) {
-				interpreter.setErrno(InterpretingError.NO_TERMINAL_WARNING, SCOPE_ID);
-				
-				if(!message.isEmpty())
-					System.out.println(message);
-				System.out.print("Input: ");
-				
-				try {
-					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-					String line = reader.readLine();
-					if(line == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
-					return new DataObject(line);
-				}catch(IOException e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
-				}
-			}else {
-				try {
-					return new DataObject(interpreter.langPlatformAPI.showInputDialog(message));
-				}catch(Exception e) {
-					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, SCOPE_ID);
-				}
-			}
-		});
-		funcs.put("printTerminal", (argumentList, SCOPE_ID) -> {
-			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
-			
-			if(LangUtils.countDataObjects(argumentList) < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-			
-			DataObject logLevelObject = LangUtils.getNextArgumentAndRemoveUsedDataObjects(argumentList, true);
-			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
-			if(messageObject == null)
-				messageObject = new DataObject().setVoid();
-			
-			Number logLevelNumber = logLevelObject.toNumber();
-			if(logLevelNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int logLevel = logLevelNumber.intValue();
-			
-			Level level = null;
-			for(Level lvl:Level.values()) {
-				if(lvl.getLevel() == logLevel) {
-					level = lvl;
-					
-					break;
-				}
-			}
-			if(level == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_LOG_LEVEL, SCOPE_ID);
-			
-			if(interpreter.term == null) {
-				interpreter.setErrno(InterpretingError.NO_TERMINAL_WARNING, SCOPE_ID);
-				
-				@SuppressWarnings("resource")
-				PrintStream stream = logLevel > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
-				stream.printf("[%-8s]: ", level.getLevelName());
-				stream.println(messageObject.getText());
-				return null;
-			}else {
-				interpreter.term.logln(level, "[From Lang file]: " + messageObject.getText(), LangInterpreter.class);
-			}
-			
-			return null;
-		});
-		funcs.put("printError", (argumentList, SCOPE_ID) -> {
-			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
-			
-			InterpretingError error = interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
-			int errno = error.getErrorCode();
-			Level level = null;
-			if(errno > 0)
-				level = Level.ERROR;
-			else if(errno < 0)
-				level = Level.WARNING;
-			else
-				level = Level.INFO;
-			
-			DataObject messageObject = LangUtils.combineDataObjects(argumentList);
-			if(interpreter.term == null) {
-				@SuppressWarnings("resource")
-				PrintStream stream = level.getLevel() > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
-				stream.printf("[%-8s]: ", level.getLevelName());
-				stream.println(((messageObject == null || messageObject.getType() == DataType.VOID)?"":(messageObject.getText() + ": ")) + error.getErrorText());
-			}else {
-				interpreter.term.logln(level, "[From Lang file]: " + ((messageObject == null || messageObject.getType() == DataType.VOID)?
-				"":(messageObject.getText() + ": ")) + error.getErrorText(), LangInterpreter.class);
-			}
-			return null;
-		});
-		funcs.put("input", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() > 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			Number maxCount = null;
-			if(combinedArgumentList.size() > 0) {
-				DataObject numberObject = combinedArgumentList.get(0);
-				maxCount = numberObject.toNumber();
-				if(maxCount == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			}
-			
-			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-				if(maxCount == null) {
-					String line = reader.readLine();
-					if(line == null)
-						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
-					return new DataObject(line);
-				}else {
-					char[] buf = new char[maxCount.intValue()];
-					int count = reader.read(buf);
-					if(count == -1)
-						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
-					return new DataObject(new String(buf));
-				}
-			}catch(IOException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
-			}
-		});
-		funcs.put("print", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			System.out.print(textObject.getText());
-			return null;
-		});
-		funcs.put("println", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				System.out.println();
-			else
-				System.out.println(textObject.getText());
-			return null;
-		});
-		funcs.put("printf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject formatObject = combinedArgumentList.remove(0);
-			DataObject out = interpreter.formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
-			if(out.getType() == DataType.ERROR)
-				return out;
-			
-			System.out.print(out.getText());
-			return null;
-		});
-		funcs.put("error", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			System.err.print(textObject.getText());
-			return null;
-		});
-		funcs.put("errorln", (argumentList, SCOPE_ID) -> {
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				System.err.println();
-			else
-				System.err.println(textObject.getText());
-			return null;
-		});
-		funcs.put("errorf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject formatObject = combinedArgumentList.remove(0);
-			DataObject out = interpreter.formatText(formatObject.getText(), combinedArgumentList, SCOPE_ID);
-			if(out.getType() == DataType.ERROR)
-				return out;
-			
-			System.err.print(out.getText());
-			return null;
-		});
 	}
 	private void addPredefinedTextFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("strlen", (argumentList, SCOPE_ID) -> new DataObject().setInt(getArgumentListAsString(argumentList, true).length()));
@@ -8193,6 +8003,207 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.TEXT)
 		public static DataObject getStackTraceFunction(LangInterpreter interpreter, int SCOPE_ID) {
 			return new DataObject(interpreter.printStackTrace(-1));
+		}
+	}
+	
+	public static final class LangPredefinedIOFunctions {
+		private LangPredefinedIOFunctions() {}
+		
+		@LangFunction("readTerminal")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject readTerminalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$message") @VarArgs DataObject messageObject) {
+			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
+			
+			String message = messageObject.getText();
+			
+			if(interpreter.term == null) {
+				interpreter.setErrno(InterpretingError.NO_TERMINAL_WARNING, SCOPE_ID);
+				
+				if(!message.isEmpty())
+					System.out.println(message);
+				System.out.print("Input: ");
+				
+				try {
+					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+					String line = reader.readLine();
+					if(line == null)
+						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
+					return new DataObject(line);
+				}catch(IOException e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
+				}
+			}else {
+				try {
+					return new DataObject(interpreter.langPlatformAPI.showInputDialog(message));
+				}catch(Exception e) {
+					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, SCOPE_ID);
+				}
+			}
+		}
+		
+		@LangFunction("printTerminal")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject printTerminalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$logLevel") @NumberValue Number logLevelNumber,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
+			
+			int logLevel = logLevelNumber.intValue();
+			Level level = null;
+			for(Level lvl:Level.values()) {
+				if(lvl.getLevel() == logLevel) {
+					level = lvl;
+					
+					break;
+				}
+			}
+			if(level == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_LOG_LEVEL, SCOPE_ID);
+			
+			String text = textObject.getText();
+			
+			if(interpreter.term == null) {
+				interpreter.setErrno(InterpretingError.NO_TERMINAL_WARNING, SCOPE_ID);
+				
+				@SuppressWarnings("resource")
+				PrintStream stream = logLevel > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
+				stream.printf("[%-8s]: ", level.getLevelName());
+				stream.println(text);
+				return null;
+			}else {
+				interpreter.term.logln(level, "[From Lang file]: " + text, LangInterpreter.class);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("printError")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject printErrorFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			if(interpreter.term == null && !interpreter.executionFlags.allowTermRedirect)
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_TERMINAL, SCOPE_ID);
+			
+			InterpretingError error = interpreter.getAndClearErrnoErrorObject(SCOPE_ID);
+			int errno = error.getErrorCode();
+			Level level = null;
+			if(errno > 0)
+				level = Level.ERROR;
+			else if(errno < 0)
+				level = Level.WARNING;
+			else
+				level = Level.INFO;
+			
+			String text = textObject.getText();
+			
+			if(interpreter.term == null) {
+				@SuppressWarnings("resource")
+				PrintStream stream = level.getLevel() > 3?System.err:System.out; //Write to standard error if the log level is WARNING or higher
+				stream.printf("[%-8s]: ", level.getLevelName());
+				stream.println((text.isEmpty()?"":(text + ": ")) + error.getErrorText());
+			}else {
+				interpreter.term.logln(level, "[From Lang file]: " + (text.isEmpty()?"":(text + ": ")) + error.getErrorText(), LangInterpreter.class);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction(value="input", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject inputFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return inputFunction(interpreter, SCOPE_ID, null);
+		}
+		@LangFunction("input")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject inputFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$maxCharCount") @NumberValue Number maxCharCount) {
+			if(maxCharCount != null && maxCharCount.intValue() < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$maxCharCount\") must be >= 0", SCOPE_ID);
+			
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				if(maxCharCount == null) {
+					String line = reader.readLine();
+					if(line == null)
+						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
+					return new DataObject(line);
+				}else {
+					char[] buf = new char[maxCharCount.intValue()];
+					int count = reader.read(buf);
+					if(count == -1)
+						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, SCOPE_ID);
+					return new DataObject(new String(buf));
+				}
+			}catch(IOException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, e.getMessage(), SCOPE_ID);
+			}
+		}
+		
+		@LangFunction("print")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject printFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			System.out.print(textObject.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("println")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject printlnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			System.out.println(textObject.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("printf")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject printfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$format") DataObject formatObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			DataObject out = interpreter.formatText(formatObject.getText(), args, SCOPE_ID);
+			if(out.getType() == DataType.ERROR)
+				return out;
+			
+			System.out.print(out.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("error")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject errorFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			System.err.print(textObject.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("errorln")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject errorlnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			System.err.println(textObject.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("errorf")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject errorfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$format") DataObject formatObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			DataObject out = interpreter.formatText(formatObject.getText(), args, SCOPE_ID);
+			if(out.getType() == DataType.ERROR)
+				return out;
+			
+			System.err.print(out.getText());
+			
+			return null;
 		}
 	}
 	
