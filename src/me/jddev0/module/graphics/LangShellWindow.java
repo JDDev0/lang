@@ -52,6 +52,7 @@ import me.jddev0.module.io.TerminalIO;
 import me.jddev0.module.io.TerminalIO.Level;
 import me.jddev0.module.lang.DataObject;
 import me.jddev0.module.lang.Lang;
+import me.jddev0.module.lang.LangFunction;
 import me.jddev0.module.lang.LangInterpreter;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 import me.jddev0.module.lang.LangNativeFunction;
@@ -59,6 +60,11 @@ import me.jddev0.platform.desktop.swing.LangPlatformAPI;
 import me.jddev0.module.lang.ILangPlatformAPI;
 import me.jddev0.module.lang.LangPredefinedFunctionObject;
 import me.jddev0.module.lang.LangUtils;
+import me.jddev0.module.lang.LangFunction.AllowedTypes;
+import me.jddev0.module.lang.LangFunction.LangParameter;
+import me.jddev0.module.lang.LangFunction.LangParameter.CallByPointer;
+import me.jddev0.module.lang.LangFunction.LangParameter.NumberValue;
+import me.jddev0.module.lang.LangFunction.LangParameter.VarArgs;
 
 /**
  * Uses the io module<br>
@@ -499,92 +505,7 @@ public class LangShellWindow extends JDialog {
 		//Change the "errorOutput" flag to ALL
 		lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
 		
-		//Add debug functions
-		lii.addPredefinedFunction("printHelp", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
-			"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
-			"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
-			
-			return null;
-		});
-		lii.addPredefinedFunction("printDebug", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() != 1)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			StringBuilder builder = new StringBuilder();
-			builder.append("Debug[");
-			builder.append(dataObject.getVariableName() == null?"<ANONYMOUS>":dataObject.getVariableName());
-			builder.append("]:\n");
-			builder.append(getDebugString(dataObject, 4));
-			
-			term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
-			
-			return null;
-		});
-		lii.addPredefinedFunction("setAutoPrintMode", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() != 1)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			DataObject textObject = combinedArgumentList.get(0);
-			try {
-				AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(textObject.getText());
-				
-				if(autoPrintMode == null)
-					return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Auto print mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
-				
-				LangShellWindow.this.autoPrintMode = autoPrintMode;
-			}catch(IllegalArgumentException e) {
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Auto print mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
-			}
-			
-			return null;
-		});
-		lii.addPredefinedFunction("getParserLineNumber", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			return new DataObject().setInt(lii.getParserLineNumber());
-		});
-		lii.addPredefinedFunction("setParserLineNumber", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() != 1)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			Number number = dataObject.toNumber();
-			if(number == null)
-				return lii.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			int lineNumber = number.intValue();
-			
-			if(lineNumber < 0)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The line number must be >= 0", SCOPE_ID);
-			
-			lii.setParserLineNumber(lineNumber);
-			
-			return null;
-		});
-		lii.addPredefinedFunction("resetParserLineNumber", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			lii.resetParserPositionVars();
-			
-			return null;
-		});
-		
-		//"Remove" input() function: Would not work ("TermIO-Control" window has to be accessible)
-		lii.addPredefinedFunction("input", (argumentList, SCOPE_ID) -> {
-			lii.setErrno(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
-			return new DataObject().setError(new DataObject.ErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED));
-		});
+		lii.addPredefinedFunctions(LangNativeFunction.getLangFunctionsFromObject(lii.getInterpreter(), this));
 		
 		printWelcomeText();
 	}
@@ -601,6 +522,82 @@ public class LangShellWindow extends JDialog {
 		"    ◦ Press ENTER for accepting the auto complete text\n" +
 		"• Press CTRL + L to clear the screen\n" +
 		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
+	}
+	
+	//Debug functions
+	@LangFunction("printHelp")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject printHelpFunction(int SCOPE_ID) {
+		term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
+				"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
+				"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
+		
+		return null;
+	}
+	@LangFunction("printDebug")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject printDebugFunction(int SCOPE_ID,
+			@LangParameter("$value") @CallByPointer DataObject pointerObject) {
+		DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("Debug[");
+		builder.append(dereferencedVarPointer.getVariableName() == null?"<ANONYMOUS>":dereferencedVarPointer.getVariableName());
+		builder.append("]:\n");
+		builder.append(getDebugString(dereferencedVarPointer, 4));
+		
+		term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
+		
+		return null;
+	}
+	@LangFunction("setAutoPrintMode")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject setAutoPrintModeFunction(int SCOPE_ID,
+			@LangParameter("$value") DataObject valueObject) {
+		try {
+			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.getText());
+			if(autoPrintMode == null)
+				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
+			
+			LangShellWindow.this.autoPrintMode = autoPrintMode;
+		}catch(IllegalArgumentException e) {
+			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
+		}
+		
+		return null;
+	}
+	@LangFunction("getParserLineNumber")
+	@AllowedTypes(DataObject.DataType.INT)
+	public DataObject getParserLineNumberFunction(int SCOPE_ID) {
+		return new DataObject().setInt(lii.getParserLineNumber());
+	}
+	@LangFunction("setParserLineNumber")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject setParserLineNumberFunction(int SCOPE_ID,
+			@LangParameter("$lineNumber") @NumberValue Number number) {
+		int lineNumber = number.intValue();
+		if(lineNumber < 0)
+			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$lineNumber\") must be >= 0", SCOPE_ID);
+		
+		lii.setParserLineNumber(lineNumber);
+		
+		return null;
+	}
+	@LangFunction("resetParserLineNumber")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject resetParserLineNumberFunction(int SCOPE_ID) {
+		lii.resetParserPositionVars();
+		
+		return null;
+	}
+	/**
+	 * Disable the input() function: It would not work in the LangShell, because the "TermIO-Control" window is not accessible
+	 */
+	@LangFunction("input")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject inputFunctionRemoval(int SCOPE_ID,
+			@LangParameter("$dummy") @VarArgs DataObject dummy) {
+		return lii.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
 	}
 	
 	private String getDebugString(DataObject dataObject, int maxRecursionDepth) {
