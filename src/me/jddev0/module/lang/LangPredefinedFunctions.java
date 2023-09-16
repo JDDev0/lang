@@ -7366,7 +7366,7 @@ final class LangPredefinedFunctions {
 				})));
 				
 				for(int i = 0;i < repeatCount;i++) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					interpreter.callFunctionPointer(loopFunc, null, LangUtils.separateArgumentsWithArgumentSeparators(
 							Arrays.asList(
 								new DataObject().setInt(i),
 								breakFunc
@@ -7378,7 +7378,7 @@ final class LangPredefinedFunctions {
 				}
 			}else {
 				for(int i = 0;i < repeatCount;i++) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+					interpreter.callFunctionPointer(loopFunc, null, Arrays.asList(
 							new DataObject().setInt(i)
 					), SCOPE_ID);
 				}
@@ -7416,8 +7416,8 @@ final class LangPredefinedFunctions {
 					}
 				})));
 				
-				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+				while(interpreter.callFunctionPointer(checkFunc, null, new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, null, Arrays.asList(
 						breakFunc
 					), SCOPE_ID);
 					
@@ -7425,8 +7425,8 @@ final class LangPredefinedFunctions {
 						break;
 				}
 			}else {
-				while(interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+				while(interpreter.callFunctionPointer(checkFunc, null, new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, null, new ArrayList<>(), SCOPE_ID);
 			}
 			
 			return null;
@@ -7461,8 +7461,8 @@ final class LangPredefinedFunctions {
 					}
 				})));
 				
-				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean()) {
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), Arrays.asList(
+				while(!interpreter.callFunctionPointer(checkFunc, null, new ArrayList<>(), SCOPE_ID).getBoolean()) {
+					interpreter.callFunctionPointer(loopFunc, null, Arrays.asList(
 						breakFunc
 					), SCOPE_ID);
 					
@@ -7470,8 +7470,8 @@ final class LangPredefinedFunctions {
 						break;
 				}
 			}else {
-				while(!interpreter.callFunctionPointer(checkFunc, checkFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID).getBoolean())
-					interpreter.callFunctionPointer(loopFunc, loopFunctionObject.getVariableName(), new ArrayList<>(), SCOPE_ID);
+				while(!interpreter.callFunctionPointer(checkFunc, null, new ArrayList<>(), SCOPE_ID).getBoolean())
+					interpreter.callFunctionPointer(loopFunc, null, new ArrayList<>(), SCOPE_ID);
 			}
 			
 			return null;
@@ -8615,14 +8615,14 @@ final class LangPredefinedFunctions {
 		
 		@LangFunction("combAN")
 		@CombinatorFunction
-		@LangInfo("Combinator execution: a(args[0], args[1], ...) ")
+		@LangInfo("Combinator execution: a(args[0], args[1], ...)")
 		public static DataObject combANFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
 				@LangParameter("&args") @VarArgs List<DataObject> args) {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			
 			List<DataObject> argsA = LangUtils.separateArgumentsWithArgumentSeparators(args);
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+			return interpreter.callFunctionPointer(aFunc, null, argsA, SCOPE_ID);
 		}
 		
 		@LangFunction("combX1")
@@ -8636,11 +8636,11 @@ final class LangPredefinedFunctions {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			FunctionPointerObject bFunc = b.getFunctionPointer();
 			
-			DataObject retB = interpreter.callFunctionPointer(bFunc, b.getVariableName(), Arrays.asList(
+			DataObject retB = interpreter.callFunctionPointer(bFunc, null, Arrays.asList(
 					c
 			), SCOPE_ID);
 			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+			return interpreter.callFunctionPointer(aFunc, null, LangUtils.separateArgumentsWithArgumentSeparators(
 					Arrays.asList(
 							retB == null?new DataObject().setVoid():retB,
 							d
