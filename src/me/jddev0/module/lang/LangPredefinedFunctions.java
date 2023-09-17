@@ -1289,61 +1289,6 @@ final class LangPredefinedFunctions {
 		});
 	}
 	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combC0", 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), Arrays.asList(
-					b
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combC1", 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), Arrays.asList(
-					c
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combC", 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-					Arrays.asList(
-							c, b
-					)
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combC3", 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-					Arrays.asList(
-							d, c, b
-					)
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combC4", 5, new int[] {0}, (Combinator5ArgFunction)(a, b, c, d, e, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-					Arrays.asList(
-							e, d, c, b
-					)
-			), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combCE", 3, new int[] {0}, (Combinator3ArgFunction)(a, b, c, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), new LinkedList<>(), SCOPE_ID);
-		});
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combCX", 4, new int[] {0}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
-			FunctionPointerObject aFunc = a.getFunctionPointer();
-			
-			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-					Arrays.asList(
-							c, d, b
-					)
-			), SCOPE_ID);
-		});
 		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combD", 4, new int[] {0, 2}, (Combinator4ArgFunction)(a, b, c, d, SCOPE_ID) -> {
 			FunctionPointerObject aFunc = a.getFunctionPointer();
 			FunctionPointerObject cFunc = c.getFunctionPointer();
@@ -8732,6 +8677,114 @@ final class LangPredefinedFunctions {
 			argsA = LangUtils.separateArgumentsWithArgumentSeparators(argsA);
 			
 			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), argsA, SCOPE_ID);
+		}
+		
+		@LangFunction("combC0")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(b)")
+		public static DataObject combC0Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), Arrays.asList(
+					b
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combC1")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(c)")
+		public static DataObject combC1Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), Arrays.asList(
+					c
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combC")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(c, b)")
+		public static DataObject combCFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(
+							c, b
+					)
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combC3")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(d, c, b)")
+		public static DataObject combC3Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c,
+				@LangParameter("$d") DataObject d) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(
+							d, c, b
+					)
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combC4")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(e, d, c, b)")
+		public static DataObject combC4Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c,
+				@LangParameter("$d") DataObject d,
+				@LangParameter("$e") DataObject e) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(
+							e, d, c, b
+					)
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combCE")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a()")
+		public static DataObject combCEFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), new LinkedList<>(), SCOPE_ID);
+		}
+		
+		@LangFunction("combCX")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: a(c, d, b)")
+		public static DataObject combCXFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject a,
+				@LangParameter("$b") DataObject b,
+				@LangParameter("$c") DataObject c,
+				@LangParameter("$d") DataObject d) {
+			FunctionPointerObject aFunc = a.getFunctionPointer();
+			
+			return interpreter.callFunctionPointer(aFunc, a.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+					Arrays.asList(
+							c, d, b
+					)
+			), SCOPE_ID);
 		}
 		
 		@LangFunction("combX1")
