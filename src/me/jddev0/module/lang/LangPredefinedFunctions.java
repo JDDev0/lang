@@ -9236,6 +9236,27 @@ final class LangPredefinedFunctions {
 			), SCOPE_ID);
 		}
 		
+		@LangFunction("combQZ")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: args[0](args[1](...(a)))")
+		public static DataObject combQZFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") DataObject a,
+				@LangParameter("&args") @AllowedTypes(DataType.FUNCTION_POINTER) @VarArgs List<DataObject> args) {
+			DataObject ret = new DataObject(a);
+			for(int i = args.size() - 1;i >= 0;i--) {
+				DataObject n = args.get(i);
+				
+				FunctionPointerObject nFunc = n.getFunctionPointer();
+				
+				DataObject retN = interpreter.callFunctionPointer(nFunc, n.getVariableName(), Arrays.asList(
+						ret
+				), SCOPE_ID);
+				ret = retN == null?new DataObject().setVoid():retN;
+			}
+			
+			return ret;
+		}
+		
 		@LangFunction("combX1")
 		@CombinatorFunction
 		@LangInfo("Combinator execution: a(b(c), d)")
