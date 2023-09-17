@@ -162,40 +162,6 @@ final class LangPredefinedFunctions {
 		return new DataObject().setBoolean(!operation.apply(leftDataObject, rightDataObject));
 	}
 	
-	private DataObject unaryMathOperationHelper(List<DataObject> argumentList, Function<Number, DataObject> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		if(combinedArgumentList.size() > 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		
-		DataObject numberObject = combinedArgumentList.get(0);
-		Number number = numberObject.toNumber();
-		if(number == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-		
-		return operation.apply(number);
-	}
-	private DataObject binaryMathOperationHelper(List<DataObject> argumentList, BiFunction<Number, Number, DataObject> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		if(combinedArgumentList.size() > 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		
-		DataObject leftNumberObject = combinedArgumentList.get(0);
-		DataObject rightNumberObject = combinedArgumentList.get(1);
-		Number leftNumber = leftNumberObject.toNumber();
-		if(leftNumber == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Left operand is no number", SCOPE_ID);
-		
-		Number rightNumber = rightNumberObject.toNumber();
-		if(rightNumber == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, "Right operand is no number", SCOPE_ID);
-		
-		return operation.apply(leftNumber, rightNumber);
-	}
-	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//Add non-static @LangNativeFunction functions
 		//TODO
@@ -209,6 +175,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedNumberFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedTextFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedMathFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
@@ -216,7 +183,6 @@ final class LangPredefinedFunctions {
 		//Add non @LangNativeFunction functions
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
-		addPredefinedMathFunctions(funcs);
 		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
@@ -447,595 +413,6 @@ final class LangPredefinedFunctions {
 		funcs.put("conGreaterThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThan, SCOPE_ID));
 		funcs.put("conLessThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThanOrEquals, SCOPE_ID));
 		funcs.put("conGreaterThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThanOrEquals, SCOPE_ID));
-	}
-	private void addPredefinedMathFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("rand", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setInt(interpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt()));
-		});
-		funcs.put("randi", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setInt(interpreter.RAN.nextInt());
-		});
-		funcs.put("randl", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setLong(interpreter.RAN.nextLong());
-		});
-		funcs.put("randf", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setFloat(interpreter.RAN.nextFloat());
-		});
-		funcs.put("randd", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setDouble(interpreter.RAN.nextDouble());
-		});
-		funcs.put("randb", (argumentList, SCOPE_ID) -> {
-			if(argumentList.size() > 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 0), SCOPE_ID);
-			
-			return new DataObject().setBoolean(interpreter.RAN.nextBoolean());
-		});
-		funcs.put("randRange", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject boundObject = combinedArgumentList.get(0);
-			Number boundNumber = boundObject.toNumber();
-			if(boundNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			int bound = boundNumber.intValue();
-			if(bound <= 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Bound must be positive", SCOPE_ID);
-			
-			return new DataObject().setInt(interpreter.RAN.nextInt(bound));
-		});
-		funcs.put("randChoice", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() == 0)
-				return null;
-			
-			DataObject firstArgument = combinedArgumentList.get(0);
-			if(firstArgument.getType() == DataType.ARRAY) {
-				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
-				
-				DataObject[] arr = firstArgument.getArray();
-				return arr.length == 0?null:arr[interpreter.RAN.nextInt(arr.length)];
-			}
-			
-			if(firstArgument.getType() == DataType.LIST) {
-				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
-				
-				List<DataObject> list = firstArgument.getList();
-				return list.size() == 0?null:list.get(interpreter.RAN.nextInt(list.size()));
-			}
-			
-			if(firstArgument.getType() == DataType.STRUCT) {
-				if(combinedArgumentList.size() > 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "1 for randChoice of a composite type"), SCOPE_ID);
-				
-				StructObject struct = firstArgument.getStruct();
-				String[] memberNames = struct.getMemberNames();
-				
-				if(struct.isDefinition())
-					return memberNames.length == 0?null:new DataObject(memberNames[interpreter.RAN.nextInt(memberNames.length)]);
-				
-				return memberNames.length == 0?null:new DataObject(struct.getMember(memberNames[interpreter.RAN.nextInt(memberNames.length)]));
-			}
-			
-			return combinedArgumentList.size() == 0?null:combinedArgumentList.get(interpreter.RAN.nextInt(combinedArgumentList.size()));
-		});
-		funcs.put("setSeed", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject seedObject = combinedArgumentList.get(0);
-			Number seedNumber = seedObject.toNumber();
-			if(seedNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			
-			interpreter.RAN.setSeed(seedNumber.longValue());
-			
-			return null;
-		});
-		funcs.put("inci", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(number.intValue() + 1);
-			}, SCOPE_ID);
-		});
-		funcs.put("deci", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(number.intValue() - 1);
-			}, SCOPE_ID);
-		});
-		funcs.put("invi", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(-number.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("addi", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			int sum = 0;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				sum += number.intValue();
-			}
-			
-			return new DataObject().setInt(sum);
-		});
-		funcs.put("subi", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() - rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("muli", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			int prod = 1;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				prod *= number.intValue();
-			}
-			
-			return new DataObject().setInt(prod);
-		});
-		funcs.put("divi", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.intValue() == 0)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
-				
-				return new DataObject().setInt(leftNumber.intValue() / rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("modi", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.intValue() == 0)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
-				
-				return new DataObject().setInt(leftNumber.intValue() % rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("andi", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() & rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("ori", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() | rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("xori", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() ^ rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("noti", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setInt(~number.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("lshifti", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() << rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("rshifti", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() >> rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("rzshifti", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setInt(leftNumber.intValue() >>> rightNumber.intValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("incl", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(number.longValue() + 1);
-			}, SCOPE_ID);
-		});
-		funcs.put("decl", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(number.longValue() - 1);
-			}, SCOPE_ID);
-		});
-		funcs.put("invl", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(-number.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("addl", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			long sum = 0L;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				sum += number.longValue();
-			}
-			
-			return new DataObject().setLong(sum);
-		});
-		funcs.put("subl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() - rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("mull", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			long prod = 1L;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				prod *= number.longValue();
-			}
-			
-			return new DataObject().setLong(prod);
-		});
-		funcs.put("divl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.intValue() == 0)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
-				
-				return new DataObject().setLong(leftNumber.longValue() / rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("modl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				if(rightNumber.intValue() == 0)
-					return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
-				
-				return new DataObject().setLong(leftNumber.longValue() % rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("andl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() & rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("orl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() | rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("xorl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() ^ rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("notl", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong(~number.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("lshiftl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() << rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("rshiftl",(argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() >> rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("rzshiftl", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setLong(leftNumber.longValue() >>> rightNumber.longValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("incf", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setFloat(number.floatValue() + 1.f);
-			}, SCOPE_ID);
-		});
-		funcs.put("decf", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setFloat(number.floatValue() - 1.f);
-			}, SCOPE_ID);
-		});
-		funcs.put("invf", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setFloat(-number.floatValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("addf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			float sum = 0.f;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				sum += number.floatValue();
-			}
-			
-			return new DataObject().setFloat(sum);
-		});
-		funcs.put("subf", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setFloat(leftNumber.floatValue() - rightNumber.floatValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("mulf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			float prod = 1.f;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				prod *= number.floatValue();
-			}
-			
-			return new DataObject().setFloat(prod);
-		});
-		funcs.put("divf", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setFloat(leftNumber.floatValue() / rightNumber.floatValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("incd", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(number.doubleValue() + 1.d);
-			}, SCOPE_ID);
-		});
-		funcs.put("decd", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(number.doubleValue() - 1.d);
-			}, SCOPE_ID);
-		});
-		funcs.put("invd", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(-number.doubleValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("addd", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			double sum = 0.d;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				sum += number.doubleValue();
-			}
-			
-			return new DataObject().setDouble(sum);
-		});
-		funcs.put("subd", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setDouble(leftNumber.doubleValue() - rightNumber.doubleValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("muld", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			double prod = 1.d;
-			
-			for(DataObject numberObject:combinedArgumentList) {
-				Number number = numberObject.toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-				
-				prod *= number.doubleValue();
-			}
-			
-			return new DataObject().setDouble(prod);
-		});
-		funcs.put("divd", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setDouble(leftNumber.doubleValue() / rightNumber.doubleValue());
-			}, SCOPE_ID);
-		});
-		funcs.put("sqrt", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.sqrt(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("cbrt", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.cbrt(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("hypot", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setDouble(Math.hypot(leftNumber.doubleValue(), rightNumber.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toRadians", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.toRadians(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("toDegrees", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.toDegrees(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("sin", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.sin(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("cos", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.cos(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("tan", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.tan(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("asin", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.asin(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("acos", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.acos(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("atan", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.atan(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("atan2", (argumentList, SCOPE_ID) -> {
-			return binaryMathOperationHelper(argumentList, (leftNumber, rightNumber) -> {
-				return new DataObject().setDouble(Math.atan2(leftNumber.doubleValue(), rightNumber.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("sinh", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.sinh(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("cosh", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.cosh(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("tanh", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.tanh(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("exp", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.exp(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("loge", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.log(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("log10", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setDouble(Math.log10(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("round", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong((Math.signum(number.doubleValue()) < 0?-1:1) * Math.round(Math.abs(number.doubleValue())));
-			}, SCOPE_ID);
-		});
-		funcs.put("ceil", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong((long)Math.ceil(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("floor", (argumentList, SCOPE_ID) -> {
-			return unaryMathOperationHelper(argumentList, number -> {
-				return new DataObject().setLong((long)Math.floor(number.doubleValue()));
-			}, SCOPE_ID);
-		});
-		funcs.put("abs", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			if(combinedArgumentList.size() > 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject numberObject = combinedArgumentList.get(0);
-			numberObject = numberObject.convertToNumberAndCreateNewDataObject();
-			switch(numberObject.getType()) {
-				case INT:
-					return new DataObject().setInt(Math.abs(numberObject.getInt()));
-				case LONG:
-					return new DataObject().setLong(Math.abs(numberObject.getLong()));
-				case FLOAT:
-					return new DataObject().setFloat(Math.abs(numberObject.getFloat()));
-				case DOUBLE:
-					return new DataObject().setDouble(Math.abs(numberObject.getDouble()));
-				
-				case CHAR:
-				case TEXT:
-				case BYTE_BUFFER:
-				case ARRAY:
-				case LIST:
-				case ERROR:
-				case VAR_POINTER:
-				case FUNCTION_POINTER:
-				case STRUCT:
-				case NULL:
-				case VOID:
-				case ARGUMENT_SEPARATOR:
-				case TYPE:
-					break;
-			}
-			
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument must be a number", SCOPE_ID);
-		});
-		funcs.put("min", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject min = combinedArgumentList.get(0);
-			for(int i = 1;i < combinedArgumentList.size();i++) {
-				DataObject dataObject = combinedArgumentList.get(i);
-				if(dataObject.isLessThan(min))
-					min = dataObject;
-			}
-			
-			return min;
-		});
-		funcs.put("max", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-			
-			DataObject max = combinedArgumentList.get(0);
-			for(int i = 1;i < combinedArgumentList.size();i++) {
-				DataObject dataObject = combinedArgumentList.get(i);
-				if(dataObject.isGreaterThan(max))
-					max = dataObject;
-			}
-			
-			return max;
-		});
 	}
 	private void addPredefinedByteBufferFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("byteBufferCreate", (argumentList, SCOPE_ID) -> {
@@ -6441,6 +5818,735 @@ final class LangPredefinedFunctions {
 				arr[i] = new DataObject(arrTmp[i]);
 			
 			return new DataObject().setArray(arr);
+		}
+	}
+	
+	public static final class LangPredefinedMathFunctions {
+		private LangPredefinedMathFunctions() {}
+		
+		@LangFunction("rand")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject randFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setInt(interpreter.RAN.nextInt(interpreter.data.get(SCOPE_ID).var.get("$LANG_RAND_MAX").getInt()));
+		}
+		
+		@LangFunction("randi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject randiFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setInt(interpreter.RAN.nextInt());
+		}
+		
+		@LangFunction("randl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject randlFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setLong(interpreter.RAN.nextLong());
+		}
+		
+		@LangFunction("randf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject randfFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setFloat(interpreter.RAN.nextFloat());
+		}
+		
+		@LangFunction("randd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject randdFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setDouble(interpreter.RAN.nextDouble());
+		}
+		
+		@LangFunction("randb")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject randbFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setBoolean(interpreter.RAN.nextBoolean());
+		}
+		
+		@LangFunction("randRange")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject randRangeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$bound") @NumberValue Number boundNumber) {
+			int bound = boundNumber.intValue();
+			if(bound <= 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$bound\") must be positive", SCOPE_ID);
+			
+			return new DataObject().setInt(interpreter.RAN.nextInt(bound));
+		}
+		
+		@LangFunction(value="randChoice", hasInfo=true)
+		public static DataObject randChoiceWithArrayParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arr") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+			DataObject[] arr = arrayObject.getArray();
+			return arr.length == 0?null:new DataObject(arr[interpreter.RAN.nextInt(arr.length)]);
+		}
+		@LangFunction("randChoice")
+		public static DataObject randChoiceWithListParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			List<DataObject> list = listObject.getList();
+			return list.size() == 0?null:new DataObject(list.get(interpreter.RAN.nextInt(list.size())));
+		}
+		@LangFunction("randChoice")
+		public static DataObject randChoiceWithStructParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&struct") @AllowedTypes(DataObject.DataType.STRUCT) DataObject structObject) {
+			StructObject struct = structObject.getStruct();
+			String[] memberNames = struct.getMemberNames();
+			
+			if(struct.isDefinition())
+				return memberNames.length == 0?null:new DataObject(memberNames[interpreter.RAN.nextInt(memberNames.length)]);
+			
+			return memberNames.length == 0?null:new DataObject(struct.getMember(memberNames[interpreter.RAN.nextInt(memberNames.length)]));
+		}
+		@LangFunction("randChoice")
+		public static DataObject randChoiceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			return args.size() == 0?null:args.get(interpreter.RAN.nextInt(args.size()));
+		}
+		
+		@LangFunction("setSeed")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject setSeedFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$seed") @NumberValue Number seedNumber) {
+			interpreter.RAN.setSeed(seedNumber.longValue());
+			
+			return null;
+		}
+		
+		@LangFunction("inci")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject inciFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(number.intValue() + 1);
+		}
+		
+		@LangFunction("deci")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject deciFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(number.intValue() - 1);
+		}
+		
+		@LangFunction("invi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject inviFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(-number.intValue());
+		}
+		
+		@LangFunction("addi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject addiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			int sum = 0;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				sum += number.intValue();
+			}
+			
+			return new DataObject().setInt(sum);
+		}
+		
+		@LangFunction("subi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject subiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() - rightNumber.intValue());
+		}
+		
+		@LangFunction("muli")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject muliFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			int prod = 1;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				prod *= number.intValue();
+			}
+			
+			return new DataObject().setInt(prod);
+		}
+		
+		@LangFunction("divi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject diviFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			if(rightNumber.intValue() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
+			
+			return new DataObject().setInt(leftNumber.intValue() / rightNumber.intValue());
+		}
+		
+		@LangFunction("modi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject modiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			if(rightNumber.intValue() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
+			
+			return new DataObject().setInt(leftNumber.intValue() % rightNumber.intValue());
+		}
+		
+		@LangFunction("andi")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject andiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() & rightNumber.intValue());
+		}
+		
+		@LangFunction("ori")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject oriFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() | rightNumber.intValue());
+		}
+		
+		@LangFunction("xori")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject xoriFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() ^ rightNumber.intValue());
+		}
+		
+		@LangFunction("noti")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject notiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setInt(~number.intValue());
+		}
+		
+		@LangFunction("lshifti")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject lshiftiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() << rightNumber.intValue());
+		}
+		
+		@LangFunction("rshifti")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject rshiftiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() >> rightNumber.intValue());
+		}
+		
+		@LangFunction("rzshifti")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject rzshiftiFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setInt(leftNumber.intValue() >>> rightNumber.intValue());
+		}
+		
+		@LangFunction("incl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject inclFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(number.longValue() + 1);
+		}
+		
+		@LangFunction("decl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject declFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(number.longValue() - 1);
+		}
+		
+		@LangFunction("invl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject invlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(-number.longValue());
+		}
+		
+		@LangFunction("addl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject addlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			long sum = 0;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				sum += number.longValue();
+			}
+			
+			return new DataObject().setLong(sum);
+		}
+		
+		@LangFunction("subl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject sublFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() - rightNumber.longValue());
+		}
+		
+		@LangFunction("mull")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject mullFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			long prod = 1;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				prod *= number.longValue();
+			}
+			
+			return new DataObject().setLong(prod);
+		}
+		
+		@LangFunction("divl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject divlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			if(rightNumber.longValue() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
+			
+			return new DataObject().setLong(leftNumber.longValue() / rightNumber.longValue());
+		}
+		
+		@LangFunction("modl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject modlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			if(rightNumber.longValue() == 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.DIV_BY_ZERO, SCOPE_ID);
+			
+			return new DataObject().setLong(leftNumber.longValue() % rightNumber.longValue());
+		}
+		
+		@LangFunction("andl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject andlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() & rightNumber.longValue());
+		}
+		
+		@LangFunction("orl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject orlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() | rightNumber.longValue());
+		}
+		
+		@LangFunction("xorl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject xorlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() ^ rightNumber.longValue());
+		}
+		
+		@LangFunction("notl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject notlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong(~number.longValue());
+		}
+		
+		@LangFunction("lshiftl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject lshiftlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() << rightNumber.longValue());
+		}
+		
+		@LangFunction("rshiftl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject rshiftlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() >> rightNumber.longValue());
+		}
+		
+		@LangFunction("rzshiftl")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject rzshiftlFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setLong(leftNumber.longValue() >>> rightNumber.longValue());
+		}
+		
+		@LangFunction("incf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject incfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setFloat(number.floatValue() + 1.f);
+		}
+		
+		@LangFunction("decf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject decfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setFloat(number.floatValue() - 1.f);
+		}
+		
+		@LangFunction("invf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject invfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setFloat(-number.floatValue());
+		}
+		
+		@LangFunction("addf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject addfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			float sum = 0.f;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				sum += number.floatValue();
+			}
+			
+			return new DataObject().setFloat(sum);
+		}
+		
+		@LangFunction("subf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject subfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setFloat(leftNumber.floatValue() - rightNumber.floatValue());
+		}
+		
+		@LangFunction("mulf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject mulfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			float prod = 1.f;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				prod *= number.floatValue();
+			}
+			
+			return new DataObject().setFloat(prod);
+		}
+		
+		@LangFunction("divf")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject divfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setFloat(leftNumber.floatValue() / rightNumber.floatValue());
+		}
+		
+		@LangFunction("incd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject incdFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(number.doubleValue() + 1.d);
+		}
+		
+		@LangFunction("decd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject decdFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(number.doubleValue() - 1.d);
+		}
+		
+		@LangFunction("invd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject invdFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(-number.doubleValue());
+		}
+		
+		@LangFunction("addd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject adddFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			double sum = 0.d;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				sum += number.doubleValue();
+			}
+			
+			return new DataObject().setDouble(sum);
+		}
+		
+		@LangFunction("subd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject subdFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setDouble(leftNumber.doubleValue() - rightNumber.doubleValue());
+		}
+		
+		@LangFunction("muld")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject muldFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			double prod = 1.d;
+			
+			for(int i = 0;i < numberObjects.size();i++) {
+				DataObject numberObject = numberObjects.get(i);
+				Number number = numberObject.toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				prod *= number.doubleValue();
+			}
+			
+			return new DataObject().setDouble(prod);
+		}
+		
+		@LangFunction("divd")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject divdFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setDouble(leftNumber.doubleValue() / rightNumber.doubleValue());
+		}
+		
+		@LangFunction("sqrt")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject sqrtFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.sqrt(number.doubleValue()));
+		}
+		
+		@LangFunction("cbrt")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject cbrtFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.cbrt(number.doubleValue()));
+		}
+		
+		@LangFunction("hypot")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject hypotFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setDouble(Math.hypot(leftNumber.doubleValue(), rightNumber.doubleValue()));
+		}
+		
+		@LangFunction("toRadians")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject toRadiansFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.toRadians(number.doubleValue()));
+		}
+		
+		@LangFunction("toDegrees")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject toDegreesFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.toDegrees(number.doubleValue()));
+		}
+		
+		@LangFunction("sin")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject sinFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.sin(number.doubleValue()));
+		}
+		
+		@LangFunction("cos")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject cosFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.cos(number.doubleValue()));
+		}
+		
+		@LangFunction("tan")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject tanFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.tan(number.doubleValue()));
+		}
+		
+		@LangFunction("asin")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject asinFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.asin(number.doubleValue()));
+		}
+		
+		@LangFunction("acos")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject acosFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.acos(number.doubleValue()));
+		}
+		
+		@LangFunction("atan")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject atanFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.atan(number.doubleValue()));
+		}
+		
+		@LangFunction("atan2")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject atan2Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$a") @NumberValue Number leftNumber,
+				@LangParameter("$b") @NumberValue Number rightNumber) {
+			return new DataObject().setDouble(Math.atan2(leftNumber.doubleValue(), rightNumber.doubleValue()));
+		}
+		
+		@LangFunction("sinh")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject sinhFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.sinh(number.doubleValue()));
+		}
+		
+		@LangFunction("cosh")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject coshFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.cosh(number.doubleValue()));
+		}
+		
+		@LangFunction("tanh")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject tanhFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.tanh(number.doubleValue()));
+		}
+		
+		@LangFunction("exp")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject expFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.exp(number.doubleValue()));
+		}
+		
+		@LangFunction("loge")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject logeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.log(number.doubleValue()));
+		}
+		
+		@LangFunction("log10")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject log10Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setDouble(Math.log10(number.doubleValue()));
+		}
+		
+		@LangFunction("round")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject roundFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong((Math.signum(number.doubleValue()) < 0?-1:1) * Math.round(Math.abs(number.doubleValue())));
+		}
+		
+		@LangFunction("ceil")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject ceilFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @NumberValue Number number) {
+			return new DataObject().setLong((long)Math.ceil(number.doubleValue()));
+		}
+		
+		@LangFunction("floor")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject floorFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$floor") @NumberValue Number number) {
+			return new DataObject().setLong((long)Math.floor(number.doubleValue()));
+		}
+		
+		@LangFunction(value="abs", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject absWithIntParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @AllowedTypes(DataObject.DataType.INT) DataObject numberObject) {
+			return new DataObject().setInt(Math.abs(numberObject.getInt()));
+		}
+		@LangFunction("abs")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject absWithLongParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @AllowedTypes(DataObject.DataType.LONG) DataObject numberObject) {
+			return new DataObject().setLong(Math.abs(numberObject.getLong()));
+		}
+		@LangFunction("abs")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject absWithFloatParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @AllowedTypes(DataObject.DataType.FLOAT) DataObject numberObject) {
+			return new DataObject().setFloat(Math.abs(numberObject.getFloat()));
+		}
+		@LangFunction("abs")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject absWithDoubleParameterFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$number") @AllowedTypes(DataObject.DataType.DOUBLE) DataObject numberObject) {
+			return new DataObject().setDouble(Math.abs(numberObject.getDouble()));
+		}
+		
+		@LangFunction("min")
+		public static DataObject minFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$firstArg") DataObject firstArg,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			DataObject min = new DataObject(firstArg);
+			for(int i = 0;i < args.size();i++) {
+				DataObject dataObject = args.get(i);
+				if(dataObject.isLessThan(min))
+					min = dataObject;
+			}
+			
+			return new DataObject(min);
+		}
+		
+		@LangFunction("max")
+		public static DataObject maxFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$firstArg") DataObject firstArg,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			DataObject max = new DataObject(firstArg);
+			for(int i = 0;i < args.size();i++) {
+				DataObject dataObject = args.get(i);
+				if(dataObject.isGreaterThan(max))
+					max = dataObject;
+			}
+			
+			return max;
 		}
 	}
 	
