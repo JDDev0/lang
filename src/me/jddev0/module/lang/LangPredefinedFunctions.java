@@ -196,150 +196,6 @@ final class LangPredefinedFunctions {
 		return operation.apply(leftNumber, rightNumber);
 	}
 	
-	/**
-	 * Combinator function with 1 argument
-	 * Argument count will not be checked
-	 */
-	@FunctionalInterface
-	private static interface Combinator1ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
-		DataObject callFuncFixedArgs(DataObject a, final int SCOPE_ID);
-		
-		@Override
-		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
-			return callFuncFixedArgs(args.get(0), SCOPE_ID);
-		}
-	}
-	/**
-	 * Combinator function with 2 arguments
-	 * Argument count will not be checked
-	 */
-	@FunctionalInterface
-	private static interface Combinator2ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
-		DataObject callFuncFixedArgs(DataObject a, DataObject b, final int SCOPE_ID);
-		
-		@Override
-		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
-			return callFuncFixedArgs(args.get(0), args.get(1), SCOPE_ID);
-		}
-	}
-	/**
-	 * Combinator function with 3 arguments
-	 * Argument count will not be checked
-	 */
-	@FunctionalInterface
-	private static interface Combinator3ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
-		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, final int SCOPE_ID);
-		
-		@Override
-		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
-			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), SCOPE_ID);
-		}
-	}
-	/**
-	 * Combinator function with 4 arguments
-	 * Argument count will not be checked
-	 */
-	@FunctionalInterface
-	private static interface Combinator4ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
-		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, DataObject d, final int SCOPE_ID);
-		
-		@Override
-		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
-			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), args.get(3), SCOPE_ID);
-		}
-	}
-	/**
-	 * Combinator function with 5 arguments
-	 * Argument count will not be checked
-	 */
-	@FunctionalInterface
-	private static interface Combinator5ArgFunction extends BiFunction<List<DataObject>, Integer, DataObject> {
-		DataObject callFuncFixedArgs(DataObject a, DataObject b, DataObject c, DataObject d, DataObject e, final int SCOPE_ID);
-		
-		@Override
-		default DataObject apply(List<DataObject> args, final Integer SCOPE_ID) {
-			return callFuncFixedArgs(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4), SCOPE_ID);
-		}
-	}
-	/**
-	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
-	 */
-	private void putCombinatorFunctionExternalFunctionObjectHelper(Map<String, LangPredefinedFunctionObject> funcs,
-			String combinatorFunctionName, int argumentCount, int[] functionPointerIndices,
-			BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc) {
-		funcs.put(combinatorFunctionName, combinatorFunctionExternalFunctionObjectHelper(argumentCount, functionPointerIndices,
-				combinatorFunc, combinatorFunctionName));
-	}
-	/**
-	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
-	 */
-	private LangPredefinedFunctionObject combinatorFunctionExternalFunctionObjectHelper(int argumentCount, int[] functionPointerIndices,
-	BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc, String combinatorFunctionName) {
-		return (argumentList, SCOPE_ID) -> {
-			return combinatorFunctionHelper(argumentList, argumentCount, functionPointerIndices, combinatorFunc,
-					combinatorFunctionName, SCOPE_ID);
-		};
-	}
-	/**
-	 * @param argumentList separated arguments with ARGUMENT_SEPARATORs
-	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
-	 */
-	private DataObject combinatorFunctionHelper(List<DataObject> argumentList, int argumentCount, int[] functionPointerIndices,
-			BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc, String combinatorFunctionName, final int SCOPE_ID) {
-		return combinatorFunctionRecursionHelper(LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList), argumentCount,
-				functionPointerIndices, combinatorFunc, combinatorFunctionName, SCOPE_ID);
-	}
-	/**
-	 * @param outerArgs Combined arguments without ARGUMENT_SEPARATORs
-	 * @param combinatorFunc Will be called with combined arguments without ARGUMENT_SEPARATORs
-	 */
-	private DataObject combinatorFunctionRecursionHelper(List<DataObject> outerArgs, int argumentCount, int[] functionPointerIndices,
-			BiFunction<List<DataObject>, Integer, DataObject> combinatorFunc, String combinatorFunctionName, final int SCOPE_ID) {
-		if(outerArgs.size() > argumentCount)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argumentCount), SCOPE_ID);
-		
-		for(int i:functionPointerIndices) {
-			if(outerArgs.size() > i && outerArgs.get(i).getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
-		}
-		List<DataObject> outerArgsCopy = outerArgs.stream().map(DataObject::new).collect(Collectors.toList());
-		
-		LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-			List<DataObject> innerArgs = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-			innerArgs = innerArgs.stream().map(DataObject::new).collect(Collectors.toList());
-			
-			List<DataObject> args = new LinkedList<>();
-			args.addAll(outerArgsCopy);
-			args.addAll(innerArgs);
-			
-			if(args.size() > argumentCount)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argumentCount), INNER_SCOPE_ID);
-			
-			if(args.size() < argumentCount)
-				return combinatorFunctionRecursionHelper(args, argumentCount, functionPointerIndices, combinatorFunc, combinatorFunctionName, INNER_SCOPE_ID);
-			
-			for(int i:functionPointerIndices) {
-				if(args.size() > i && args.get(i).getType() != DataType.FUNCTION_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			}
-			
-			return combinatorFunc.apply(args, INNER_SCOPE_ID);
-		};
-		if(argumentCount > outerArgs.size()) {
-			String funcNames = outerArgs.stream().map(dataObject -> {
-				if(dataObject.getType() != DataType.FUNCTION_POINTER)
-					return "<arg>";
-				
-				String functionName = dataObject.getFunctionPointer().getFunctionName();
-				return functionName == null?dataObject.getVariableName():functionName;
-			}).collect(Collectors.joining(", "));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + combinatorFunctionName + "-func(" + funcNames + ")>", func));
-		}else {
-			return func.callFunc(interpreter, new ArrayList<>(), SCOPE_ID);
-		}
-	}
-	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//Add non-static @LangNativeFunction functions
 		//TODO
@@ -360,7 +216,6 @@ final class LangPredefinedFunctions {
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
 		addPredefinedMathFunctions(funcs);
-		addPredefinedCombinatorFunctions(funcs);
 		addPredefinedFuncPtrFunctions(funcs);
 		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
@@ -1180,42 +1035,6 @@ final class LangPredefinedFunctions {
 			}
 			
 			return max;
-		});
-	}
-	private void addPredefinedCombinatorFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		putCombinatorFunctionExternalFunctionObjectHelper(funcs, "combY", 1, new int[] {0}, (Combinator1ArgFunction)(f, SCOPE_ID) -> {
-			FunctionPointerObject fFunc = f.getFunctionPointer();
-			
-			LangPredefinedFunctionObject anonFunc = combinatorFunctionExternalFunctionObjectHelper(1, new int[] {0}, (Combinator1ArgFunction)(x, INNER_SCOPE_ID) -> {
-				FunctionPointerObject xFunc = x.getFunctionPointer();
-				
-				LangExternalFunctionObject func = (LangExternalFunctionObject)(interpreter, argumentList, INNER_INNER_SCOPE_ID) -> {
-					DataObject retX = interpreter.callFunctionPointer(xFunc, x.getVariableName(), Arrays.asList(
-							x
-					), INNER_INNER_SCOPE_ID);
-					
-					DataObject retF = interpreter.callFunctionPointer(fFunc, f.getVariableName(), Arrays.asList(
-							retX == null?new DataObject().setVoid():retX
-					), INNER_INNER_SCOPE_ID);
-					if(retF == null || retF.getType() != DataType.FUNCTION_POINTER)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.FUNCTION_POINTER)
-								+ "\nThe implementation of the function provided to \"func.combY\" is incorrect!", INNER_INNER_SCOPE_ID);
-					FunctionPointerObject retFFunc = retF.getFunctionPointer();
-					
-					return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), argumentList, INNER_INNER_SCOPE_ID);
-				};
-				
-				return new DataObject().setFunctionPointer(new FunctionPointerObject("<combY:anon:inner-func(" + xFunc + ")>", func));
-			}, "combY:anon");
-			
-			DataObject retAnonFunc1 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID);
-			FunctionPointerObject retAnonFunc1Func = retAnonFunc1.getFunctionPointer();
-			
-			DataObject retAnonFunc2 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID); //Will always return a DataObject of type FUNCTION_POINTER
-			
-			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getFunctionPointer().getFunctionName(), Arrays.asList(
-					retAnonFunc2
-			), SCOPE_ID);
 		});
 	}
 	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -9489,6 +9308,57 @@ final class LangPredefinedFunctions {
 							retB == null?new DataObject().setVoid():retB,
 							c
 					)
+			), SCOPE_ID);
+		}
+		
+		@LangFunction("combY")
+		@CombinatorFunction
+		@LangInfo("Combinator execution: (x -> f(x(x)))(x -> f(x(x)))")
+		public static DataObject combYFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$f") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject f) {
+			FunctionPointerObject fFunc = f.getFunctionPointer();
+			
+			LangNativeFunction anonFunc = LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("combY:anon")
+				@CombinatorFunction
+				@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+				public DataObject combYAnonFunction(int SCOPE_ID,
+						@LangParameter("$x") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject x) {
+					FunctionPointerObject xFunc = x.getFunctionPointer();
+					
+					LangNativeFunction func = LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+						@LangFunction("combY:anon:inner")
+						public DataObject combYAnonInnerFunction(int SCOPE_ID,
+								@LangParameter("&args") @VarArgs List<DataObject> args) {
+							DataObject retX = interpreter.callFunctionPointer(xFunc, x.getVariableName(), Arrays.asList(
+									x
+							), SCOPE_ID);
+							
+							DataObject retF = interpreter.callFunctionPointer(fFunc, f.getVariableName(), Arrays.asList(
+									retX == null?new DataObject().setVoid():retX
+							), SCOPE_ID);
+							if(retF == null || retF.getType() != DataType.FUNCTION_POINTER)
+								return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.FUNCTION_POINTER)
+										+ "\nThe implementation of the function provided to \"func.combY\" is incorrect!", SCOPE_ID);
+							FunctionPointerObject retFFunc = retF.getFunctionPointer();
+							
+							return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+									args.stream().map(DataObject::new).collect(Collectors.toList())
+							), SCOPE_ID);
+						}
+					});
+					
+					return new DataObject().setFunctionPointer(new FunctionPointerObject("<combY:anon:inner-func(" + xFunc + ")>", func));
+				}
+			});
+			
+			DataObject retAnonFunc1 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID);
+			FunctionPointerObject retAnonFunc1Func = retAnonFunc1.getFunctionPointer();
+			
+			DataObject retAnonFunc2 = anonFunc.callFunc(new LinkedList<>(), SCOPE_ID);
+			
+			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getFunctionPointer().getFunctionName(), Arrays.asList(
+					retAnonFunc2
 			), SCOPE_ID);
 		}
 	}
