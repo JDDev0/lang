@@ -210,13 +210,13 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedTextFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
 		addPredefinedMathFunctions(funcs);
-		addPredefinedFuncPtrFunctions(funcs);
 		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
@@ -1035,122 +1035,6 @@ final class LangPredefinedFunctions {
 			}
 			
 			return max;
-		});
-	}
-	private void addPredefinedFuncPtrFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("argCnt0", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt0(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 0, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
-		});
-		funcs.put("argCnt1", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt1(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 1, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
-		});
-		funcs.put("argCnt2", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt2(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 2, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
-		});
-		funcs.put("argCnt3", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt3(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 3, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
-		});
-		funcs.put("argCnt4", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt4(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 4, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
-		});
-		funcs.put("argCnt5", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCountAndType(combinedArgumentList, Arrays.asList(DataType.FUNCTION_POINTER), SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = new DataObject(combinedArgumentList.get(0));
-			
-			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt5(" + funcPointerObject.getFunctionPointer() + ")>",
-			(interpreter, innerArgumentList, INNER_SCOPE_ID) -> {
-				List<DataObject> combinedInnerArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(innerArgumentList);
-				DataObject innerError;
-				if((innerError = requireArgumentCount(combinedInnerArgumentList, 5, INNER_SCOPE_ID)) != null)
-					return innerError;
-				
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(combinedInnerArgumentList), INNER_SCOPE_ID));
-			}));
 		});
 	}
 	private void addPredefinedByteBufferFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
@@ -9360,6 +9244,127 @@ final class LangPredefinedFunctions {
 			return interpreter.callFunctionPointer(retAnonFunc1Func, retAnonFunc1.getFunctionPointer().getFunctionName(), Arrays.asList(
 					retAnonFunc2
 			), SCOPE_ID);
+		}
+	}
+	
+	public static final class LangPredefinedFuncPtrFunctions {
+		private LangPredefinedFuncPtrFunctions() {}
+		
+		@LangFunction("argCnt0")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt0Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt0(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt0-func")
+				public DataObject argCnt0FuncFunction(int SCOPE_ID) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), new LinkedList<>(), SCOPE_ID));
+				}
+			})));
+		}
+		
+		@LangFunction("argCnt1")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt1Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt1(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt1-func")
+				public DataObject argCnt1FuncFunction(int SCOPE_ID,
+						@LangParameter("$a") DataObject a) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), Arrays.asList(
+							a
+					), SCOPE_ID));
+				}
+			})));
+		}
+		
+		@LangFunction("argCnt2")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt2Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt2(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt2-func")
+				public DataObject argCnt2FuncFunction(int SCOPE_ID,
+						@LangParameter("$a") DataObject a,
+						@LangParameter("$b") DataObject b) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									a, b
+							)
+					), SCOPE_ID));
+				}
+			})));
+		}
+		
+		@LangFunction("argCnt3")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt3Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt3(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt3-func")
+				public DataObject argCnt3FuncFunction(int SCOPE_ID,
+						@LangParameter("$a") DataObject a,
+						@LangParameter("$b") DataObject b,
+						@LangParameter("$c") DataObject c) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									a, b, c
+							)
+					), SCOPE_ID));
+				}
+			})));
+		}
+		
+		@LangFunction("argCnt4")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt4Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt4(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt4-func")
+				public DataObject argCnt4FuncFunction(int SCOPE_ID,
+						@LangParameter("$a") DataObject a,
+						@LangParameter("$b") DataObject b,
+						@LangParameter("$c") DataObject c,
+						@LangParameter("$d") DataObject d) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									a, b, c, d
+							)
+					), SCOPE_ID));
+				}
+			})));
+		}
+		
+		@LangFunction("argCnt5")
+		@AllowedTypes(DataObject.DataType.FUNCTION_POINTER)
+		public static DataObject argCnt5Function(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcObject) {
+			FunctionPointerObject func = funcObject.getFunctionPointer();
+			
+			return new DataObject().setFunctionPointer(new FunctionPointerObject("<argCnt5(" + func + ")>", LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("argCnt5-func")
+				public DataObject argCnt5FuncFunction(int SCOPE_ID,
+						@LangParameter("$a") DataObject a,
+						@LangParameter("$b") DataObject b,
+						@LangParameter("$c") DataObject c,
+						@LangParameter("$d") DataObject d,
+						@LangParameter("$e") DataObject e) {
+					return new DataObject(interpreter.callFunctionPointer(func, funcObject.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									a, b, c, d, e
+							)
+					), SCOPE_ID));
+				}
+			})));
 		}
 	}
 	
