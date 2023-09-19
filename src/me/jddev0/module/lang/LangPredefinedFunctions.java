@@ -162,6 +162,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedMathFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedByteBufferFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedComplexStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
@@ -169,7 +170,6 @@ final class LangPredefinedFunctions {
 		//Add non @LangNativeFunction functions
 		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
-		addPredefinedByteBufferFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
@@ -397,164 +397,6 @@ final class LangPredefinedFunctions {
 		funcs.put("conGreaterThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThan, SCOPE_ID));
 		funcs.put("conLessThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThanOrEquals, SCOPE_ID));
 		funcs.put("conGreaterThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThanOrEquals, SCOPE_ID));
-	}
-	private void addPredefinedByteBufferFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("byteBufferCreate", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject lengthObject = combinedArgumentList.get(0);
-			Number lengthNumber = lengthObject.toNumber();
-			if(lengthNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, SCOPE_ID);
-			int length = lengthNumber.intValue();
-			
-			if(length < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
-			
-			return new DataObject().setByteBuffer(new byte[length]);
-		});
-		funcs.put("byteBufferOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			byte[] byteBuf = new byte[elements.size()];
-			for(int i = 0;i < byteBuf.length;i++) {
-				Number number = elements.get(i).toNumber();
-				if(number == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument " + (i + 1) + " must be a number", SCOPE_ID);
-				
-				byteBuf[i] = number.byteValue();
-			}
-			
-			return new DataObject().setByteBuffer(byteBuf);
-		});
-		funcs.put("byteBufferPartialCopy", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject byteBufferObject = combinedArgumentList.get(0);
-			DataObject fromIndexObject = combinedArgumentList.get(1);
-			DataObject toIndexObject = combinedArgumentList.get(2);
-			
-			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
-			
-			Number fromIndexNumber = fromIndexObject.toNumber();
-			if(fromIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int fromIndex = fromIndexNumber.intValue();
-			
-			Number toIndexNumber = toIndexObject.toNumber();
-			if(toIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int toIndex = toIndexNumber.intValue();
-			
-			byte[] byteBuf = byteBufferObject.getByteBuffer();
-			if(fromIndex < 0)
-				fromIndex += byteBuf.length;
-			
-			if(fromIndex < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(fromIndex >= byteBuf.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			if(toIndex < 0)
-				toIndex += byteBuf.length;
-			
-			if(toIndex < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(toIndex >= byteBuf.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			if(toIndex < fromIndex)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "toIndex must be greater than or equals fromIndex", SCOPE_ID);
-			
-			byte[] byteBufPartialCopy = new byte[toIndex - fromIndex + 1];
-			System.arraycopy(byteBuf, fromIndex, byteBufPartialCopy, 0, byteBufPartialCopy.length);
-			
-			return new DataObject().setByteBuffer(byteBufPartialCopy);
-		});
-		funcs.put("byteBufferSet", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject byteBufferObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int index = indexNumber.intValue();
-			
-			Number valueNumber = valueObject.toNumber();
-			if(valueNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			byte value = valueNumber.byteValue();
-			
-			byte[] byteBuf = byteBufferObject.getByteBuffer();
-			if(index < 0)
-				index += byteBuf.length;
-			
-			if(index < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(index >= byteBuf.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			byteBuf[index] = value;
-			
-			return null;
-		});
-		funcs.put("byteBufferGet", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject byteBufferObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			
-			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int index = indexNumber.intValue();
-			
-			byte[] byteBuf = byteBufferObject.getByteBuffer();
-			if(index < 0)
-				index += byteBuf.length;
-			
-			if(index < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(index >= byteBuf.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			return new DataObject().setInt(byteBuf[index]);
-		});
-		funcs.put("byteBufferLength", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject byteBufferObject = combinedArgumentList.get(0);
-			
-			if(byteBufferObject.getType() != DataType.BYTE_BUFFER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.BYTE_BUFFER), SCOPE_ID);
-			
-			return new DataObject().setInt(byteBufferObject.getByteBuffer().length);
-		});
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("arrayCreate", (argumentList, SCOPE_ID) -> {
@@ -8989,6 +8831,124 @@ final class LangPredefinedFunctions {
 					), SCOPE_ID));
 				}
 			})));
+		}
+	}
+	
+	public static final class LangPredefinedByteBufferFunctions {
+		private LangPredefinedByteBufferFunctions() {}
+		
+		@LangFunction("byteBufferCreate")
+		@AllowedTypes(DataObject.DataType.BYTE_BUFFER)
+		public static DataObject byteBufferCreateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$length") @NumberValue Number lengthNumber) {
+			int length = lengthNumber.intValue();
+			
+			if(length < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
+			
+			return new DataObject().setByteBuffer(new byte[length]);
+		}
+		
+		@LangFunction("byteBufferOf")
+		@AllowedTypes(DataObject.DataType.BYTE_BUFFER)
+		public static DataObject byteBufferOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&numbers") @VarArgs List<DataObject> numberObjects) {
+			byte[] byteBuf = new byte[numberObjects.size()];
+			for(int i = 0;i < byteBuf.length;i++) {
+				Number number = numberObjects.get(i).toNumber();
+				if(number == null)
+					return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM,
+							"The type of argument " + (i + 1) + " (for var args parameter \"&numbers\") must be a number", SCOPE_ID);
+				
+				byteBuf[i] = number.byteValue();
+			}
+			
+			return new DataObject().setByteBuffer(byteBuf);
+		}
+		
+		@LangFunction("byteBufferPartialCopy")
+		@AllowedTypes(DataObject.DataType.BYTE_BUFFER)
+		public static DataObject byteBufferCreateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$byteBuffer") @AllowedTypes(DataObject.DataType.BYTE_BUFFER) DataObject byteBufferObject,
+				@LangParameter("$fromIndex") @LangInfo("Inclusive") @NumberValue Number fromIndexNumber,
+				@LangParameter("$toIndex") @LangInfo("Inclusive") @NumberValue Number toIndexNumber) {
+			int fromIndex = fromIndexNumber.intValue();
+			int toIndex = toIndexNumber.intValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(fromIndex < 0)
+				fromIndex += byteBuf.length;
+			
+			if(fromIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, "Argument 2 (\"$fromIndex\") is out of bounds", SCOPE_ID);
+			else if(fromIndex >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, "Argument 2 (\"$fromIndex\") is out of bounds", SCOPE_ID);
+			
+			if(toIndex < 0)
+				toIndex += byteBuf.length;
+			
+			if(toIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, "Argument 3 (\"$toIndex\") is out of bounds", SCOPE_ID);
+			else if(toIndex >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, "Argument 3 (\"$toIndex\") is out of bounds", SCOPE_ID);
+			
+			if(toIndex < fromIndex)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 3 (\"$toIndex\") must be greater than or equals Argument 2 (\"$fromIndex\")", SCOPE_ID);
+			
+			byte[] byteBufPartialCopy = new byte[toIndex - fromIndex + 1];
+			System.arraycopy(byteBuf, fromIndex, byteBufPartialCopy, 0, byteBufPartialCopy.length);
+			
+			return new DataObject().setByteBuffer(byteBufPartialCopy);
+		}
+		
+		@LangFunction("byteBufferSet")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject byteBufferSetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$byteBuffer") @AllowedTypes(DataObject.DataType.BYTE_BUFFER) DataObject byteBufferObject,
+				@LangParameter("$index") @NumberValue Number indexNumber,
+				@LangParameter("$value") @NumberValue Number valueNumber) {
+			int index = indexNumber.intValue();
+			byte value = valueNumber.byteValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(index < 0)
+				index += byteBuf.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			byteBuf[index] = value;
+			
+			return null;
+		}
+		
+		@LangFunction("byteBufferGet")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject byteBufferSetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$byteBuffer") @AllowedTypes(DataObject.DataType.BYTE_BUFFER) DataObject byteBufferObject,
+				@LangParameter("$index") @NumberValue Number indexNumber) {
+			int index = indexNumber.intValue();
+			
+			byte[] byteBuf = byteBufferObject.getByteBuffer();
+			if(index < 0)
+				index += byteBuf.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= byteBuf.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject().setInt(byteBuf[index]);
+		}
+		
+		@LangFunction("byteBufferLength")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject byteBufferSetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$byteBuffer") @AllowedTypes(DataObject.DataType.BYTE_BUFFER) DataObject byteBufferObject) {
+			return new DataObject().setInt(byteBufferObject.getByteBuffer().length);
 		}
 	}
 	
