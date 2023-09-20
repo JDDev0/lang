@@ -58,15 +58,6 @@ final class LangPredefinedFunctions {
 		this.interpreter = interpreter;
 	}
 	
-	private DataObject throwErrorOnNullOrErrorTypeHelper(DataObject dataObject, final int SCOPE_ID) {
-		if(dataObject == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-		
-		if(dataObject.getType() == DataType.ERROR)
-			return interpreter.setErrnoErrorObject(dataObject.getError().getInterprettingError(), dataObject.getError().getMessage(), SCOPE_ID);
-		
-		return dataObject;
-	}
 	private DataObject throwErrorOnNullHelper(DataObject dataObject, final int SCOPE_ID) {
 		if(dataObject == null)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
@@ -159,6 +150,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedNumberFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedTextFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedConversionFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedMathFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
@@ -168,134 +160,11 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedConversionFunctions(funcs);
 		addPredefinedOperationFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedConversionFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("text", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			String value = dataObject.toText();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject(value), SCOPE_ID);
-		});
-		funcs.put("char", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			Character value = dataObject.toChar();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setChar(value), SCOPE_ID);
-		});
-		funcs.put("int", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			Integer value = dataObject.toInt();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setInt(value), SCOPE_ID);
-		});
-		funcs.put("long", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			Long value = dataObject.toLong();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setLong(value), SCOPE_ID);
-		});
-		funcs.put("float", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			Float value = dataObject.toFloat();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setFloat(value), SCOPE_ID);
-		});
-		funcs.put("double", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			Double value = dataObject.toDouble();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setDouble(value), SCOPE_ID);
-		});
-		funcs.put("byteBuffer", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			byte[] value = dataObject.toByteBuffer();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setByteBuffer(value), SCOPE_ID);
-		});
-		funcs.put("array", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			DataObject[] value = dataObject.toArray();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setArray(value), SCOPE_ID);
-		});
-		funcs.put("list", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			List<DataObject> value = dataObject.toList();
-			return throwErrorOnNullOrErrorTypeHelper(value == null?null:new DataObject().setList(new LinkedList<>(value)), SCOPE_ID);
-		});
-		funcs.put("bool", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			return new DataObject().setBoolean(dataObject.toBoolean());
-		});
-		funcs.put("number", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject dataObject = combinedArgumentList.get(0);
-			
-			dataObject = dataObject.convertToNumberAndCreateNewDataObject();
-			return throwErrorOnNullOrErrorTypeHelper(dataObject.getType() == DataType.NULL?null:dataObject, SCOPE_ID);
-		});
 	}
 	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//General operator functions
@@ -5178,6 +5047,137 @@ final class LangPredefinedFunctions {
 				arr[i] = new DataObject(arrTmp[i]);
 			
 			return new DataObject().setArray(arr);
+		}
+	}
+	
+	public static final class LangPredefinedConversionFunctions {
+		private LangPredefinedConversionFunctions() {}
+		
+		@LangFunction("text")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject textFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			String value = valueObject.toText();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.TEXT, SCOPE_ID);
+			
+			return new DataObject(value);
+		}
+		
+		@LangFunction("char")
+		@AllowedTypes(DataObject.DataType.CHAR)
+		public static DataObject charFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			Character value = valueObject.toChar();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.CHAR, SCOPE_ID);
+			
+			return new DataObject().setChar(value);
+		}
+		
+		@LangFunction("int")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject intFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			Integer value = valueObject.toInt();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.INT, SCOPE_ID);
+			
+			return new DataObject().setInt(value);
+		}
+		
+		@LangFunction("long")
+		@AllowedTypes(DataObject.DataType.LONG)
+		public static DataObject longFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			Long value = valueObject.toLong();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.LONG, SCOPE_ID);
+			
+			return new DataObject().setLong(value);
+		}
+		
+		@LangFunction("float")
+		@AllowedTypes(DataObject.DataType.FLOAT)
+		public static DataObject floatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			Float value = valueObject.toFloat();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.FLOAT, SCOPE_ID);
+			
+			return new DataObject().setFloat(value);
+		}
+		
+		@LangFunction("double")
+		@AllowedTypes(DataObject.DataType.DOUBLE)
+		public static DataObject doubleFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			Double value = valueObject.toDouble();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.DOUBLE, SCOPE_ID);
+			
+			return new DataObject().setDouble(value);
+		}
+		
+		@LangFunction("byteBuffer")
+		@AllowedTypes(DataObject.DataType.BYTE_BUFFER)
+		public static DataObject byteBufferFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			byte[] value = valueObject.toByteBuffer();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.BYTE_BUFFER, SCOPE_ID);
+			
+			return new DataObject().setByteBuffer(value);
+		}
+		
+		@LangFunction("array")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] value = valueObject.toArray();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.ARRAY, SCOPE_ID);
+			
+			return new DataObject().setArray(value);
+		}
+		
+		@LangFunction("list")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			LinkedList<DataObject> value = valueObject.toList();
+			if(value == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.LIST, SCOPE_ID);
+			
+			return new DataObject().setList(value);
+		}
+		
+		@LangFunction("bool")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject boolFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			return new DataObject().setBoolean(valueObject.toBoolean());
+		}
+		
+		@LangFunction("number")
+		@AllowedTypes({DataObject.DataType.INT, DataObject.DataType.LONG, DataObject.DataType.FLOAT, DataObject.DataType.DOUBLE})
+		public static DataObject numberFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject value = valueObject.convertToNumberAndCreateNewDataObject();
+			if(value.getType() == DataType.NULL)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.LIST, SCOPE_ID);
+			
+			return value;
 		}
 	}
 	
