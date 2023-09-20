@@ -14,9 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -58,13 +56,6 @@ final class LangPredefinedFunctions {
 		this.interpreter = interpreter;
 	}
 	
-	private DataObject throwErrorOnNullHelper(DataObject dataObject, final int SCOPE_ID) {
-		if(dataObject == null)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-		
-		return dataObject;
-	}
-	
 	private DataObject requireArgumentCount(List<DataObject> combinedArgumentList, int argCount, final int SCOPE_ID) {
 		if(combinedArgumentList.size() < argCount)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
@@ -82,61 +73,6 @@ final class LangPredefinedFunctions {
 		return null;
 	}
 	
-	private DataObject unaryOperationHelper(List<DataObject> argumentList, Function<DataObject, DataObject> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		if(combinedArgumentList.size() > 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		
-		DataObject dataObject = combinedArgumentList.get(0);
-		return operation.apply(dataObject);
-	}
-	private DataObject binaryOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, DataObject> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		if(combinedArgumentList.size() > 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		
-		DataObject leftDataObject = combinedArgumentList.get(0);
-		DataObject rightDataObject = combinedArgumentList.get(1);
-		return operation.apply(leftDataObject, rightDataObject);
-	}
-	
-	private DataObject unaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, Function<DataObject, Boolean> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		if(combinedArgumentList.size() > 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		
-		DataObject dataObject = combinedArgumentList.get(0);
-		return new DataObject().setBoolean(!operation.apply(dataObject));
-	}
-	private DataObject binaryFromBooleanValueOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		if(combinedArgumentList.size() > 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		
-		DataObject leftDataObject = combinedArgumentList.get(0);
-		DataObject rightDataObject = combinedArgumentList.get(1);
-		return new DataObject().setBoolean(operation.apply(leftDataObject, rightDataObject));
-	}
-	private DataObject binaryFromBooleanValueInvertedOperationHelper(List<DataObject> argumentList, BiFunction<DataObject, DataObject, Boolean> operation, final int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		if(combinedArgumentList.size() > 2)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, 2), SCOPE_ID);
-		
-		DataObject leftDataObject = combinedArgumentList.get(0);
-		DataObject rightDataObject = combinedArgumentList.get(1);
-		return new DataObject().setBoolean(!operation.apply(leftDataObject, rightDataObject));
-	}
-	
 	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		//Add non-static @LangNativeFunction functions
 		//TODO
@@ -151,6 +87,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCharacterFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedTextFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedConversionFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedOperationFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedMathFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
@@ -160,112 +97,10 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedOperationFunctions(funcs);
 		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedOperationFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		//General operator functions
-		funcs.put("len", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opLen(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("deepCopy", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opDeepCopy(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("concat", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opConcat(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("spaceship", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opSpaceship(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("elvis", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
-			return leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand;
-		}, SCOPE_ID));
-		funcs.put("nullCoalescing", (argumentList, SCOPE_ID) -> binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> {
-			return (leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand;
-		}, SCOPE_ID));
-		funcs.put("inlineIf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			return combinedArgumentList.get(combinedArgumentList.get(0).getBoolean()?1:2);
-		});
-		
-		//Math operator functions
-		funcs.put("inc", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opInc(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("dec", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opDec(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("pos", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opPos(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("inv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opInv(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("add", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opAdd(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("sub", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opSub(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("mul", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opMul(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("pow", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opPow(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("div", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("truncDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opTruncDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("floorDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opFloorDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("ceilDiv", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opCeilDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("mod", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opMod(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("and", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opAnd(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("or", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opOr(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("xor", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opXor(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("not", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(unaryOperationHelper(argumentList, operand -> interpreter.operators.
-				opNot(operand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("lshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opLshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("rshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opRshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("rzshift", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opRzshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("cast", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opCast(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("getItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opGetItem(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("optionalGetItem", (argumentList, SCOPE_ID) -> throwErrorOnNullHelper(binaryOperationHelper(argumentList, (leftSideOperand, rightSideOperand) -> interpreter.operators.
-				opOptionalGetItem(leftSideOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID), SCOPE_ID));
-		funcs.put("setItem", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject leftSideOperand = combinedArgumentList.get(0);
-			DataObject middleOperand = combinedArgumentList.get(1);
-			DataObject rightSideOperand = combinedArgumentList.get(2);
-			
-			return throwErrorOnNullHelper(interpreter.operators.
-					opSetItem(leftSideOperand, middleOperand, rightSideOperand, -1, SCOPE_ID), SCOPE_ID);
-		});
-		
-		//Condition operator functions
-		funcs.put("conNot", (argumentList, SCOPE_ID) -> unaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::toBoolean, SCOPE_ID));
-		funcs.put("conAnd", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (leftSideOperand, rightSideOperand) ->
-			leftSideOperand.toBoolean() && rightSideOperand.toBoolean(), SCOPE_ID));
-		funcs.put("conOr", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, (leftSideOperand, rightSideOperand) ->
-			leftSideOperand.toBoolean() || rightSideOperand.toBoolean(), SCOPE_ID));
-		funcs.put("conEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
-		funcs.put("conNotEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::isEquals, SCOPE_ID));
-		funcs.put("conStrictEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isStrictEquals, SCOPE_ID));
-		funcs.put("conStrictNotEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueInvertedOperationHelper(argumentList, DataObject::isStrictEquals, SCOPE_ID));
-		funcs.put("conLessThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThan, SCOPE_ID));
-		funcs.put("conGreaterThan", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThan, SCOPE_ID));
-		funcs.put("conLessThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isLessThanOrEquals, SCOPE_ID));
-		funcs.put("conGreaterThanOrEquals", (argumentList, SCOPE_ID) -> binaryFromBooleanValueOperationHelper(argumentList, DataObject::isGreaterThanOrEquals, SCOPE_ID));
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("arrayCreate", (argumentList, SCOPE_ID) -> {
@@ -5178,6 +5013,428 @@ final class LangPredefinedFunctions {
 						"Argument 1 (\"$value\") can not be converted to type " + DataObject.DataType.LIST, SCOPE_ID);
 			
 			return value;
+		}
+	}
+	
+	public static final class LangPredefinedOperationFunctions {
+		private LangPredefinedOperationFunctions() {}
+		
+		@LangFunction("len")
+		public static DataObject lenFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opLen(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The len operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("deepCopy")
+		public static DataObject deepCopyFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opDeepCopy(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The deep copy operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("concat")
+		public static DataObject concatFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opConcat(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The concat operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("spaceship")
+		public static DataObject spaceshipFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opSpaceship(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The spaceship operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("elvis")
+		public static DataObject elvisFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject(leftSideOperand.getBoolean()?leftSideOperand:rightSideOperand);
+		}
+		
+		@LangFunction("nullCoalescing")
+		public static DataObject nullCoalescingFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject((leftSideOperand.getType() != DataType.NULL && leftSideOperand.getType() != DataType.VOID)?leftSideOperand:rightSideOperand);
+		}
+		
+		@LangFunction("inlineIf")
+		public static DataObject inlineIfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$middleOperand") DataObject middleOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject(leftSideOperand.getBoolean()?middleOperand:rightSideOperand);
+		}
+		
+		@LangFunction("inc")
+		public static DataObject incFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opInc(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The inc operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("dec")
+		public static DataObject decFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opDec(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The dec operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("pos")
+		public static DataObject posFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opPos(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The pos operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("inv")
+		public static DataObject invFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opInv(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The inv operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("add")
+		public static DataObject addFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opAdd(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The add operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("sub")
+		public static DataObject subFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opSub(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The sub operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("mul")
+		public static DataObject mulFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opMul(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The mul operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("pow")
+		public static DataObject powFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opPow(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The pow operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("div")
+		public static DataObject divFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The div operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("truncDiv")
+		public static DataObject truncDivFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opTruncDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The trunc div operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("floorDiv")
+		public static DataObject floorDivFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opFloorDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The floor div operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("ceilDiv")
+		public static DataObject ceilDivFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opCeilDiv(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The ceil div operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("mod")
+		public static DataObject modFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opMod(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The mod operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("and")
+		public static DataObject andFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opAnd(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The and operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("or")
+		public static DataObject orFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opOr(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The or operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("xor")
+		public static DataObject xorFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opXor(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The xor operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("not")
+		public static DataObject notFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			DataObject ret = interpreter.operators.opNot(operand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The not operator is not defined for " + operand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("lshift")
+		public static DataObject lshiftFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opLshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The lshift operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("rshift")
+		public static DataObject rshiftFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opRshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The rshift operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("rzshift")
+		public static DataObject rzshiftFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opRzshift(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The rzshift operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("cast")
+		public static DataObject castFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opCast(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The cast operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("getItem")
+		public static DataObject getItemFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opGetItem(leftSideOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The get item operator is not defined for " + leftSideOperand.getType() + " and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("setItem")
+		public static DataObject setItemFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$middleOperand") DataObject middleOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			DataObject ret = interpreter.operators.opSetItem(leftSideOperand, middleOperand, rightSideOperand, -1, SCOPE_ID);
+			if(ret == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+						"The get item operator is not defined for " + leftSideOperand.getType() + ", " +
+								middleOperand.getType() + ", and " + rightSideOperand.getType(), SCOPE_ID);
+			
+			return ret;
+		}
+		
+		@LangFunction("conNot")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject conNotFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$operand") DataObject operand) {
+			return new DataObject().setBoolean(!operand.toBoolean());
+		}
+		
+		@LangFunction("conAnd")
+		public static DataObject conAndFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.toBoolean() && rightSideOperand.toBoolean());
+		}
+		
+		@LangFunction("conOr")
+		public static DataObject conOrFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.toBoolean() || rightSideOperand.toBoolean());
+		}
+		
+		@LangFunction("conEquals")
+		public static DataObject conEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isEquals(rightSideOperand));
+		}
+		
+		@LangFunction("conNotEquals")
+		public static DataObject conNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(!leftSideOperand.isEquals(rightSideOperand));
+		}
+		
+		@LangFunction("conStrictEquals")
+		public static DataObject conStrictEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isStrictEquals(rightSideOperand));
+		}
+		
+		@LangFunction("conStrictNotEquals")
+		public static DataObject conStrictNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(!leftSideOperand.isStrictEquals(rightSideOperand));
+		}
+		
+		@LangFunction("conLessThan")
+		public static DataObject conLessThanFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isLessThan(rightSideOperand));
+		}
+		
+		@LangFunction("conGreaterThan")
+		public static DataObject conGreaterThanFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isGreaterThan(rightSideOperand));
+		}
+		
+		@LangFunction("conLessThanOrEquals")
+		public static DataObject conLessThanOrEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isLessThanOrEquals(rightSideOperand));
+		}
+		
+		@LangFunction("conGreaterThanOrEquals")
+		public static DataObject conGreaterThanOrEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$leftSideOperand") DataObject leftSideOperand,
+				@LangParameter("$rightSideOperand") DataObject rightSideOperand) {
+			return new DataObject().setBoolean(leftSideOperand.isGreaterThanOrEquals(rightSideOperand));
 		}
 	}
 	
