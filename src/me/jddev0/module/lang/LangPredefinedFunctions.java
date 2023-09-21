@@ -92,6 +92,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedCombinatorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedByteBufferFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedArrayFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedComplexStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
@@ -103,121 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayCreate", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject lengthObject = combinedArgumentList.get(0);
-			
-			Number lengthNumber = lengthObject.toNumber();
-			if(lengthNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.LENGTH_NAN, SCOPE_ID);
-			int length = lengthNumber.intValue();
-			
-			if(length < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
-			
-			DataObject[] arr = new DataObject[length];
-			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject();
-			
-			return new DataObject().setArray(arr);
-		});
-		funcs.put("arrayOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
-			
-			return new DataObject().setArray(elements.toArray(new DataObject[0]));
-		});
-		funcs.put("arrayGenerateFrom", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			DataObject countObject = combinedArgumentList.get(1);
-			Number countNumber = countObject.toNumber();
-			if(countNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "number"), SCOPE_ID);
-			
-			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						new DataObject().setInt(i)
-				), SCOPE_ID));
-			}).collect(Collectors.toList());
-			return new DataObject().setArray(elements.toArray(new DataObject[0]));
-		});
-		funcs.put("arrayZip", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			int len = -1;
-			List<DataObject[]> arrays = new LinkedList<>();
-			for(int i = 0;i < combinedArgumentList.size();i++) {
-				DataObject arg = combinedArgumentList.get(i);
-				if(arg.getType() != DataType.ARRAY)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.ARRAY), SCOPE_ID);
-				
-				arrays.add(arg.getArray());
-				
-				int lenTest = arg.getArray().length;
-				if(len == -1) {
-					len = lenTest;
-					
-					continue;
-				}
-				
-				if(len != lenTest)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (i + 1) + "] must be " + len, SCOPE_ID);
-			}
-			
-			DataObject[] zippedArray = new DataObject[len];
-			for(int i = 0;i < len;i++) {
-				DataObject[] arr = new DataObject[combinedArgumentList.size()];
-				for(int j = 0;j < arr.length;j++)
-					arr[j] = arrays.get(j)[i];
-				
-				zippedArray[i] = new DataObject().setArray(arr);
-			}
-			
-			return new DataObject().setArray(zippedArray);
-		});
-		funcs.put("arraySet", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int index = indexNumber.intValue();
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(index < 0)
-				index += arr.length;
-			
-			if(index < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(index >= arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			arr[index] = new DataObject(valueObject);
-			
-			return null;
-		});
 		funcs.put("arraySetAll", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			if(combinedArgumentList.size() < 2)
@@ -9206,6 +9092,103 @@ final class LangPredefinedFunctions {
 		public static DataObject byteBufferSetFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$byteBuffer") @AllowedTypes(DataObject.DataType.BYTE_BUFFER) DataObject byteBufferObject) {
 			return new DataObject().setInt(byteBufferObject.getByteBuffer().length);
+		}
+	}
+	
+	public static final class LangPredefinedArrayFunctions {
+		private LangPredefinedArrayFunctions() {}
+		
+		@LangFunction("arrayCreate")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayCreateCreateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$length") @NumberValue Number lengthNumber) {
+			int length = lengthNumber.intValue();
+			
+			if(length < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.NEGATIVE_ARRAY_LEN, SCOPE_ID);
+			
+			DataObject[] arr = new DataObject[length];
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject();
+			
+			return new DataObject().setArray(arr);
+		}
+		
+		@LangFunction("arrayOf")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&elements") @VarArgs List<DataObject> elements) {
+			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
+			
+			return new DataObject().setArray(elements.toArray(new DataObject[0]));
+		}
+		
+		@LangFunction("arrayGenerateFrom")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayGenerateFromFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcPointerObject,
+				@LangParameter("$count") @NumberValue Number countNumber) {
+			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						new DataObject().setInt(i)
+				), SCOPE_ID));
+			}).collect(Collectors.toList());
+			return new DataObject().setArray(elements.toArray(new DataObject[0]));
+		}
+		
+		@LangFunction("arrayZip")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayZipFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arrays") @AllowedTypes(DataObject.DataType.ARRAY) @VarArgs List<DataObject> arrays) {
+			int len = -1;
+			for(int i = 0;i < arrays.size();i++) {
+				int lenTest = arrays.get(i).getArray().length;
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The size of argument " + (i + 1) + " (for var args parameter \"&arrays\") must have a length of " + len, SCOPE_ID);
+			}
+			
+			if(len == -1)
+				len = 0;
+			
+			DataObject[] zippedArray = new DataObject[len];
+			for(int i = 0;i < len;i++) {
+				DataObject[] arr = new DataObject[arrays.size()];
+				for(int j = 0;j < arr.length;j++)
+					arr[j] = new DataObject(arrays.get(j).getArray()[i]);
+				
+				zippedArray[i] = new DataObject().setArray(arr);
+			}
+			
+			return new DataObject().setArray(zippedArray);
+		}
+		
+		@LangFunction("arraySet")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arraySetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$index") @NumberValue Number indexNumber,
+				@LangParameter("$value") DataObject valueObject) {
+			int index = indexNumber.intValue();
+			
+			DataObject[] arr = arrayObject.getArray();
+			if(index < 0)
+				index += arr.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			arr[index] = new DataObject(valueObject);
+			
+			return null;
 		}
 	}
 	
