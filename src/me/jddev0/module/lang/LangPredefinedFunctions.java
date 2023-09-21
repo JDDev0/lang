@@ -104,128 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arraySetAll", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 2)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
-			
-			DataObject arrPointerObject = combinedArgumentList.remove(0);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(arr.length == 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Array must not be empty", SCOPE_ID);
-			
-			if(combinedArgumentList.size() == 1) { //arraySetAll with one value
-				DataObject valueObject = combinedArgumentList.get(0);
-				for(int i = 0;i < arr.length;i++)
-					arr[i] = new DataObject(valueObject);
-				
-				return null;
-			}
-			
-			if(combinedArgumentList.size() < arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
-			if(combinedArgumentList.size() > arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "2 or (len + 1)"), SCOPE_ID);
-			
-			Iterator<DataObject> combinedArgumentIterator = combinedArgumentList.iterator();
-			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject(combinedArgumentIterator.next());
-			
-			return null;
-		});
-		funcs.put("arrayGet", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int index = indexNumber.intValue();
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(index < 0)
-				index += arr.length;
-			
-			if(index < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(index >= arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			return arr[index];
-		});
-		funcs.put("arrayGetAll", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			return new DataObject(Arrays.stream(arrPointerObject.getArray()).map(DataObject::getText).collect(Collectors.joining(", ")));
-		});
-		funcs.put("arrayRead", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			if(combinedArgumentList.size() < 1)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
-			
-			DataObject arrPointerObject = combinedArgumentList.remove(0);
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(combinedArgumentList.size() < arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
-			if(combinedArgumentList.size() > arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, "len + 1"), SCOPE_ID);
-			
-			for(int i = 0;i < combinedArgumentList.size();i++)
-				if(combinedArgumentList.get(i).getType() != DataType.VAR_POINTER)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.VAR_POINTER), SCOPE_ID);
-			
-			for(int i = 0;i < combinedArgumentList.size();i++) {
-				DataObject dereferencedPointer = combinedArgumentList.get(i).getVarPointer().getVar();
-				if(!dereferencedPointer.getTypeConstraint().isTypeAllowed(arr[i].getType()))
-					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE, "The dereferenced pointer (arguments [" + (i + 1) + "]) does not allow the type " +
-					arr[i].getType(), SCOPE_ID);
-				
-				dereferencedPointer.setData(arr[i]);
-			}
-			
-			return null;
-		});
-		funcs.put("arrayFill", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject valueObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			for(int i = 0;i < arr.length;i++)
-				arr[i] = new DataObject(valueObject);
-			
-			return null;
-		});
 		funcs.put("arrayFillFrom", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -9187,6 +9065,102 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 			
 			arr[index] = new DataObject(valueObject);
+			
+			return null;
+		}
+		
+		@LangFunction(value="arraySetAll", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arraySetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arraySetAll") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(valueObject);
+			
+			return null;
+		}
+		@LangFunction("arraySetAll")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arraySetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arraySetAll") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&values") @VarArgs List<DataObject> values) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			if(values.size() < arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT,
+						"The var args argument (\"&values\") has not enough values (" + arr.length + " needed)", SCOPE_ID);
+			if(values.size() > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT,
+						"The var args argument (\"&values\") has too many values (" + arr.length + " needed)", SCOPE_ID);
+			
+			Iterator<DataObject> valueIterator = values.iterator();
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(valueIterator.next());
+			
+			return null;
+		}
+		
+		@LangFunction("arrayGet")
+		public static DataObject arrayGetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$index") @NumberValue Number indexNumber) {
+			int index = indexNumber.intValue();
+			
+			DataObject[] arr = arrayObject.getArray();
+			if(index < 0)
+				index += arr.length;
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			return new DataObject(arr[index]);
+		}
+		
+		@LangFunction("arrayGetAll")
+		@AllowedTypes(DataObject.DataType.TEXT)
+		public static DataObject arrayGetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+			return new DataObject(Arrays.stream(arrayObject.getArray()).map(DataObject::getText).collect(Collectors.joining(", ")));
+		}
+		
+		@LangFunction("arrayRead")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayReadFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arraySetAll") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&pointers") @AllowedTypes(DataObject.DataType.VAR_POINTER) @VarArgs List<DataObject> pointers) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			if(pointers.size() < arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT,
+						"The var args argument (\"&pointers\") has not enough values (" + arr.length + " needed)", SCOPE_ID);
+			if(pointers.size() > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT,
+						"The var args argument (\"&pointers\") has too many values (" + arr.length + " needed)", SCOPE_ID);
+			
+			for(int i = 0;i < pointers.size();i++) {
+				DataObject dereferencedPointer = pointers.get(i).getVarPointer().getVar();
+				if(!dereferencedPointer.getTypeConstraint().isTypeAllowed(arr[i].getType()))
+					return interpreter.setErrnoErrorObject(InterpretingError.INCOMPATIBLE_DATA_TYPE,
+							"The dereferenced pointer (argument " + (i + 1) +
+							" for var args parameter (\"&pointers\")) does not allow the type " + arr[i].getType(), SCOPE_ID);
+				
+				dereferencedPointer.setData(arr[i]);
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("arrayFill")
+		public static DataObject arrayFillFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			for(int i = 0;i < arr.length;i++)
+				arr[i] = new DataObject(valueObject);
 			
 			return null;
 		}
