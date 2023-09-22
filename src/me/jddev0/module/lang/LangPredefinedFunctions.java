@@ -9139,7 +9139,7 @@ final class LangPredefinedFunctions {
 				@LangParameter("$startIndex") @NumberValue Number startIndexNumber,
 				@LangParameter("$value") DataObject valueObject) {
 			int startIndex = startIndexNumber.intValue();
-
+			
 			DataObject[] arr = arrayObject.getArray();
 			if(startIndex < 0)
 				startIndex += arr.length;
