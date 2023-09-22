@@ -104,38 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayFillTo", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject endIndexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			Number endIndexNumber = endIndexObject.toNumber();
-			if(endIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int endIndex = endIndexNumber.intValue();
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(endIndex < 0)
-				endIndex += arr.length;
-			
-			if(endIndex < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(endIndex >= arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			for(int i = 0;i <= endIndex;i++)
-				arr[i] = new DataObject(valueObject);
-			
-			return null;
-		});
 		funcs.put("arrayCountOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -9150,6 +9118,28 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
 			
 			for(int i = startIndex;i < arr.length;i++)
+				arr[i] = new DataObject(valueObject);
+			
+			return null;
+		}
+		
+		@LangFunction("arrayFillTo")
+		public static DataObject arrayFillToFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$endIndex") @NumberValue Number endIndexNumber,
+				@LangParameter("$value") DataObject valueObject) {
+			int endIndex = endIndexNumber.intValue();
+			
+			DataObject[] arr = arrayObject.getArray();
+			if(endIndex < 0)
+				endIndex += arr.length;
+			
+			if(endIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(endIndex >= arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			for(int i = 0;i <= endIndex;i++)
 				arr[i] = new DataObject(valueObject);
 			
 			return null;
