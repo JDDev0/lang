@@ -93,6 +93,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedFuncPtrFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedByteBufferFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedArrayFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedListFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedComplexStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
@@ -8092,7 +8093,7 @@ final class LangPredefinedFunctions {
 		
 		@LangFunction("arrayCreate")
 		@AllowedTypes(DataObject.DataType.ARRAY)
-		public static DataObject arrayCreateCreateFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject arrayCreateFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("$length") @NumberValue Number lengthNumber) {
 			int length = lengthNumber.intValue();
 			
@@ -8986,6 +8987,16 @@ final class LangPredefinedFunctions {
 				ele.setNull();
 			
 			return null;
+		}
+	}
+	
+	public static final class LangPredefinedListFunctions {
+		private LangPredefinedListFunctions() {}
+		
+		@LangFunction("listCreate")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listCreateFunction(LangInterpreter interpreter, int SCOPE_ID) {
+			return new DataObject().setList(new LinkedList<>());
 		}
 	}
 	
