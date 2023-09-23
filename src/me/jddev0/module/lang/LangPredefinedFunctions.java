@@ -104,73 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listCountLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			long count = list.stream().filter(ele -> ele.isEquals(elementObject)).count();
-			return new DataObject().setLong(count);
-		});
-		funcs.put("listIndexLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = list.size() - 1;i >= 0;i--)
-				if(list.get(i).isEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
-		funcs.put("listLastIndexLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = list.size() - 1;i >= 0;i--)
-				if(list.get(i).isEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
-		funcs.put("listLength", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			return new DataObject().setInt(listObject.getList().size());
-		});
 		funcs.put("listDistinctValuesOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8849,6 +8782,49 @@ final class LangPredefinedFunctions {
 					return new DataObject().setInt(i);
 			
 			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("listCountLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listCountLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			long count = list.stream().filter(ele -> ele.isEquals(valueObject)).count();
+			return new DataObject().setInt((int)count);
+		}
+		
+		@LangFunction("listIndexLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listIndexLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			for(int i = 0;i < list.size();i++)
+				if(list.get(i).isEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("listLastIndexLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listLastIndexLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			for(int i = list.size() - 1;i >= 0;i--)
+				if(list.get(i).isEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("listLength")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listLengthFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			return new DataObject().setInt(listObject.getList().size());
 		}
 	}
 	
