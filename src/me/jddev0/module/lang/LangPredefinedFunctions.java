@@ -104,72 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayCountLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			long count = Arrays.stream(arr).filter(ele -> ele.isEquals(elementObject)).count();
-			return new DataObject().setLong(count);
-		});
-		funcs.put("arrayIndexLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			for(int i = 0;i < arr.length;i++)
-				if(arr[i].isEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
-		funcs.put("arrayLastIndexLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			DataObject[] arr = arrPointerObject.getArray();
-			for(int i = arr.length - 1;i >= 0;i--)
-				if(arr[i].isEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
-		funcs.put("arrayLength", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			return new DataObject().setInt(arrPointerObject.getArray().length);
-		});
 		funcs.put("arrayDistinctValuesOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -9129,6 +9063,49 @@ final class LangPredefinedFunctions {
 					return new DataObject().setInt(i);
 			
 			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("arrayCountLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayCountLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			long count = Arrays.stream(arr).filter(ele -> ele.isEquals(valueObject)).count();
+			return new DataObject().setInt((int)count);
+		}
+		
+		@LangFunction("arrayIndexLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayIndexLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			for(int i = 0;i < arr.length;i++)
+				if(arr[i].isEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("arrayLastIndexLike")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayLastIndexLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			for(int i = arr.length - 1;i >= 0;i--)
+				if(arr[i].isEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("arrayLength")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayLengthFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+			return new DataObject().setInt(arrayObject.getArray().length);
 		}
 	}
 	
