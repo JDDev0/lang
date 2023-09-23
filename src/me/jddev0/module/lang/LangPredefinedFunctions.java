@@ -104,193 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayMap", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			for(int i = 0;i < arr.length;i++) {
-				arr[i] = new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						arr[i]
-				), SCOPE_ID));
-			}
-			
-			return null;
-		});
-		funcs.put("arrayMapToNew", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] newArr = new DataObject[arr.length];
-			for(int i = 0;i < arr.length;i++) {
-				newArr[i] = new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						arr[i]
-				), SCOPE_ID));
-			}
-			
-			return new DataObject().setArray(newArr);
-		});
-		funcs.put("arrayMapToOne", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
-			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			for(DataObject ele:arr) {
-				if(currentValueObject == null) { //Set first element as currentValue if non was provided
-					currentValueObject = ele;
-					
-					continue;
-				}
-				
-				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								currentValueObject,
-								ele
-						)
-				), SCOPE_ID);
-			}
-			
-			return currentValueObject;
-		});
-		funcs.put("arrayReduce", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
-			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			for(DataObject ele:arr) {
-				if(currentValueObject == null) { //Set first element as currentValue if non was provided
-					currentValueObject = ele;
-					
-					continue;
-				}
-				
-				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								currentValueObject,
-								ele
-						)
-				), SCOPE_ID);
-			}
-			
-			return currentValueObject;
-		});
-		funcs.put("arrayReduceColumn", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject currentValueStartObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
-			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arrayOfArrays = arrPointerObject.getArray();
-			
-			int len = -1;
-			List<DataObject[]> arrays = new LinkedList<>();
-			for(int i = 0;i < arrayOfArrays.length;i++) {
-				DataObject arg = arrayOfArrays[i];
-				if(arg.getType() != DataType.ARRAY)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", DataType.ARRAY), SCOPE_ID);
-				
-				arrays.add(arg.getArray());
-				
-				int lenTest = arg.getArray().length;
-				if(len == -1) {
-					len = lenTest;
-					
-					continue;
-				}
-				
-				if(len != lenTest)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of the element [" + i + "] of array must be " + len, SCOPE_ID);
-			}
-			
-			if(arrays.size() == 0)
-				return new DataObject().setArray(new DataObject[0]);
-			
-			DataObject[] reducedArrays = new DataObject[len];
-			for(int i = 0;i < len;i++) {
-				DataObject currentValueObject = currentValueStartObject == null?null:new DataObject(currentValueStartObject);
-				
-				for(DataObject[] arr:arrays) {
-					DataObject ele = arr[i];
-					
-					if(currentValueObject == null) { //Set first element as currentValue if non was provided
-						currentValueObject = ele;
-						
-						continue;
-					}
-					
-					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									currentValueObject,
-									ele
-							)
-					), SCOPE_ID);
-				}
-				
-				reducedArrays[i] = currentValueObject == null?new DataObject().setVoid():currentValueObject;
-			}
-			
-			return new DataObject().setArray(reducedArrays);
-		});
 		funcs.put("arrayForEach", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8754,7 +8567,7 @@ final class LangPredefinedFunctions {
 		@LangFunction(value="arraySetAll", hasInfo=true)
 		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject arraySetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
-				@LangParameter("&arraySetAll") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("$value") DataObject valueObject) {
 			DataObject[] arr = arrayObject.getArray();
 			
@@ -8766,7 +8579,7 @@ final class LangPredefinedFunctions {
 		@LangFunction("arraySetAll")
 		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject arraySetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
-				@LangParameter("&arraySetAll") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("&values") @VarArgs List<DataObject> values) {
 			DataObject[] arr = arrayObject.getArray();
 			
@@ -9073,6 +8886,157 @@ final class LangPredefinedFunctions {
 				), SCOPE_ID).getBoolean();
 			}).count();
 			return new DataObject().setInt((int)count);
+		}
+		
+		@LangFunction("arrayMap")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayMapFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.map") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject mapFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			for(int i = 0;i < arr.length;i++) {
+				arr[i] = new DataObject(interpreter.callFunctionPointer(mapFunction.getFunctionPointer(), mapFunction.getVariableName(), Arrays.asList(
+						new DataObject(arr[i])
+				), SCOPE_ID));
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("arrayMapToNew")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayMapToNewFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.map") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject mapFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			DataObject[] newArr = new DataObject[arr.length];
+			for(int i = 0;i < arr.length;i++) {
+				newArr[i] = new DataObject(interpreter.callFunctionPointer(mapFunction.getFunctionPointer(), mapFunction.getVariableName(), Arrays.asList(
+						new DataObject(arr[i])
+				), SCOPE_ID));
+			}
+			
+			return new DataObject().setArray(newArr);
+		}
+		
+		@LangFunction(value="arrayMapToOne", hasInfo=true)
+		@LangInfo("Alias for \"func.arrayReduce()\"")
+		public static DataObject arrayMapToOneFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return arrayReduceFunction(interpreter, SCOPE_ID, arrayObject, combineFunction);
+		}
+		@LangFunction("arrayMapToOne")
+		public static DataObject arrayMapToOneFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$initialValue") DataObject initialValueObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return arrayReduceFunction(interpreter, SCOPE_ID, arrayObject, initialValueObject, combineFunction);
+		}
+		
+		@LangFunction(value="arrayReduce", hasInfo=true)
+		public static DataObject arrayReduceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return arrayReduceFunction(interpreter, SCOPE_ID, arrayObject, null, combineFunction);
+		}
+		@LangFunction("arrayReduce")
+		public static DataObject arrayReduceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$initialValue") DataObject initialValueObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			DataObject currentValueObject = initialValueObject;
+			
+			for(DataObject ele:arr) {
+				if(currentValueObject == null) {
+					//Set first element as currentValue if no initial value was provided
+					
+					currentValueObject = ele;
+					
+					continue;
+				}
+				
+				currentValueObject = interpreter.callFunctionPointer(combineFunction.getFunctionPointer(), combineFunction.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								new DataObject(currentValueObject),
+								new DataObject(ele)
+						)
+				), SCOPE_ID);
+			}
+			
+			return currentValueObject == null?null:new DataObject(currentValueObject);
+		}
+		
+		@LangFunction(value="arrayReduceColumn", hasInfo=true)
+		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return arrayReduceColumnFunction(interpreter, SCOPE_ID, arrayObject, null, combineFunction);
+		}
+		@LangFunction("arrayReduceColumn")
+		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$initialValue") DataObject initialValueObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			DataObject[] arrayOfArrays = arrayObject.getArray();
+			
+			int len = -1;
+			List<DataObject[]> arrays = new LinkedList<>();
+			for(int i = 0;i < arrayOfArrays.length;i++) {
+				DataObject arg = arrayOfArrays[i];
+				if(arg.getType() != DataType.ARRAY)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The element at index " + i + " of argument 1 (\"&array\") must be of type " + DataObject.DataType.ARRAY, SCOPE_ID);
+				
+				arrays.add(arg.getArray());
+				
+				int lenTest = arg.getArray().length;
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The length of the array at index " + i + " of argument 1 (\"&array\") must be " + len, SCOPE_ID);
+			}
+			
+			if(arrays.size() == 0)
+				return new DataObject().setArray(new DataObject[0]);
+			
+			DataObject[] reducedArrays = new DataObject[len];
+			for(int i = 0;i < len;i++) {
+				DataObject currentValueObject = initialValueObject == null?null:new DataObject(initialValueObject);
+				
+				for(DataObject[] arr:arrays) {
+					DataObject ele = arr[i];
+					
+					if(currentValueObject == null) {
+						//Set first element as currentValue if no initial value was provided
+						currentValueObject = ele;
+						
+						continue;
+					}
+					
+					currentValueObject = interpreter.callFunctionPointer(combineFunction.getFunctionPointer(), combineFunction.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject(currentValueObject),
+									new DataObject(ele)
+							)
+					), SCOPE_ID);
+				}
+				
+				reducedArrays[i] = currentValueObject == null?new DataObject().setVoid():new DataObject(currentValueObject);
+			}
+			
+			return new DataObject().setArray(reducedArrays);
 		}
 	}
 	
