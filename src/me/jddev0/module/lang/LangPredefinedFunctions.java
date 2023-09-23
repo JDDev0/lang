@@ -104,188 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayForEach", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				
-				for(DataObject ele:arr) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									ele,
-									breakFunc
-							)
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				for(DataObject ele:arr) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-							ele
-					), SCOPE_ID);
-				}
-			}
-			
-			return null;
-		});
-		funcs.put("arrayEnumerate", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				for(int i = 0;i < arr.length;i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									new DataObject().setInt(i),
-									arr[i],
-									breakFunc
-							)
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				for(int i = 0;i < arr.length;i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									new DataObject().setInt(i),
-									arr[i]
-							)
-					), SCOPE_ID);
-				}
-			}
-			
-			return null;
-		});
-		funcs.put("arrayMatchEvery", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			return new DataObject().setBoolean(Arrays.stream(arr).allMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
-		funcs.put("arrayMatchAny", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			return new DataObject().setBoolean(Arrays.stream(arr).anyMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
-		funcs.put("arrayMatchNon", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			return new DataObject().setBoolean(Arrays.stream(arr).noneMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
 		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArrays = new LinkedList<>();
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
@@ -9039,6 +8857,155 @@ final class LangPredefinedFunctions {
 			}
 			
 			return new DataObject().setArray(reducedArrays);
+		}
+		
+		@LangFunction(value="arrayForEach", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			return arrayForEachFunction(interpreter, SCOPE_ID, arrayObject, functionObject, false);
+		}
+		@LangFunction("arrayForEach")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				for(DataObject ele:arr) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+							LangUtils.separateArgumentsWithArgumentSeparators(
+									Arrays.asList(
+											new DataObject(ele),
+											breakFunc
+									)
+							), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(DataObject ele:arr) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(), Arrays.asList(
+							new DataObject(ele)
+					), SCOPE_ID);
+				}
+			}
+			
+			return null;
+		}
+		
+		@LangFunction(value="arrayEnumerate", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayEnumerateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			return arrayEnumerateFunction(interpreter, SCOPE_ID, arrayObject, functionObject, false);
+		}
+		@LangFunction("arrayEnumerate")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayEnumerateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				for(int i = 0;i < arr.length;i++) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+							LangUtils.separateArgumentsWithArgumentSeparators(
+									Arrays.asList(
+											new DataObject().setInt(i),
+											new DataObject(arr[i]),
+											breakFunc
+									)
+							), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < arr.length;i++) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									new DataObject(arr[i])
+							)
+					), SCOPE_ID);
+				}
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("arrayMatchEvery")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayMatchEveryFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).allMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
+		}
+		
+		@LangFunction("arrayMatchAny")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayMatchAnyFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).anyMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
+		}
+		
+		@LangFunction("arrayMatchNon")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayMatchNonFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).noneMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
 		}
 	}
 	
