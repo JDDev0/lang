@@ -899,7 +899,7 @@ public class DataObject {
 			case ARRAY:
 				return arr;
 			case LIST:
-				return list.toArray(new DataObject[0]);
+				return list.stream().map(DataObject::new).toArray(len -> new DataObject[len]);
 			case STRUCT:
 				try {
 					return Arrays.stream(sp.getMemberNames()).
@@ -930,7 +930,7 @@ public class DataObject {
 	public LinkedList<DataObject> toList() {
 		switch(type) {
 			case ARRAY:
-				return new LinkedList<DataObject>(Arrays.asList(arr));
+				return new LinkedList<DataObject>(Arrays.stream(arr).map(DataObject::new).collect(Collectors.toList()));
 			case LIST:
 				return list;
 			case STRUCT:
