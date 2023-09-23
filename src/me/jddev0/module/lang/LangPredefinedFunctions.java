@@ -104,106 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listShift", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			if(list.size() == 0)
-				return null;
-			
-			return list.pollFirst();
-		});
-		funcs.put("listUnshift", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject valueObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			list.addFirst(valueObject);
-			return null;
-		});
-		funcs.put("listPeekFirst", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			if(list.size() == 0)
-				return null;
-			
-			return list.peekFirst();
-		});
-		funcs.put("listPop", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			if(list.size() == 0)
-				return null;
-			
-			return list.pollLast();
-		});
-		funcs.put("listPush", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject valueObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			list.addLast(valueObject);
-			return null;
-		});
-		funcs.put("listPeekLast", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> list = listObject.getList();
-			if(list.size() == 0)
-				return null;
-			
-			return list.peekLast();
-		});
 		funcs.put("listRemove", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8971,6 +8871,66 @@ final class LangPredefinedFunctions {
 			list.set(index, new DataObject(valueObject));
 			
 			return null;
+		}
+		
+		@LangFunction("listShift")
+		public static DataObject listShiftFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			if(list.size() == 0)
+				return null;
+			
+			return new DataObject(list.pollFirst());
+		}
+		
+		@LangFunction("listUnshift")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listUnshiftFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			list.addFirst(new DataObject(valueObject));
+			return null;
+		}
+		
+		@LangFunction("listPeekFirst")
+		public static DataObject listPeekFirstFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			if(list.size() == 0)
+				return null;
+			
+			return new DataObject(list.peekFirst());
+		}
+		
+		@LangFunction("listPop")
+		public static DataObject listPopFirstFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			if(list.size() == 0)
+				return null;
+			
+			return new DataObject(list.pollLast());
+		}
+		
+		@LangFunction("listPush")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listPushFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			list.addLast(new DataObject(valueObject));
+			return null;
+		}
+		
+		@LangFunction("listPeekLast")
+		public static DataObject listPeekLastFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> list = listObject.getList();
+			if(list.size() == 0)
+				return null;
+			
+			return new DataObject(list.peekLast());
 		}
 	}
 	
