@@ -8973,12 +8973,14 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction(value="arrayReduceColumn", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.ARRAY)
 		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
 			return arrayReduceColumnFunction(interpreter, SCOPE_ID, arrayObject, null, combineFunction);
 		}
 		@LangFunction("arrayReduceColumn")
+		@AllowedTypes(DataObject.DataType.ARRAY)
 		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("$initialValue") DataObject initialValueObject,
