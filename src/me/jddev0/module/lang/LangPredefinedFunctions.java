@@ -104,142 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listFill", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject valueObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = 0;i < list.size();i++)
-				list.set(i, new DataObject(valueObject));
-			
-			return null;
-		});
-		funcs.put("listFillFrom", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject startIndexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			Number startIndexNumber = startIndexObject.toNumber();
-			if(startIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int startIndex = startIndexNumber.intValue();
-			
-			List<DataObject> list = listObject.getList();
-			if(startIndex < 0)
-				startIndex += list.size();
-			
-			if(startIndex < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(startIndex >= list.size())
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			for(int i = startIndex;i < list.size();i++)
-				list.set(i, new DataObject(valueObject));
-			
-			return null;
-		});
-		funcs.put("listFillTo", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject endIndexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			Number endIndexNumber = endIndexObject.toNumber();
-			if(endIndexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int endIndex = endIndexNumber.intValue();
-			
-			List<DataObject> list = listObject.getList();
-			if(endIndex < 0)
-				endIndex += list.size();
-			
-			if(endIndex < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(endIndex >= list.size())
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			for(int i = 0;i <= endIndex;i++)
-				list.set(i, new DataObject(valueObject));
-			
-			return null;
-		});
-		funcs.put("listCountOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			long count = list.stream().filter(ele -> ele.isStrictEquals(elementObject)).count();
-			return new DataObject().setLong(count);
-		});
-		funcs.put("listIndexOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = 0;i < list.size();i++)
-				if(list.get(i).isStrictEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
-		funcs.put("listLastIndexOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = list.size() - 1;i >= 0;i--)
-				if(list.get(i).isStrictEquals(elementObject))
-					return new DataObject().setInt(i);
-			
-			return new DataObject().setInt(-1);
-		});
 		funcs.put("listCountLike", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8869,7 +8733,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("listGet")
-		public static DataObject listGetAtFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject listGetFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
 				@LangParameter("$index") @NumberValue Number indexNumber) {
 			int index = indexNumber.intValue();
@@ -8891,6 +8755,100 @@ final class LangPredefinedFunctions {
 		public static DataObject listGetAllFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
 			return new DataObject(listObject.getList().stream().map(DataObject::getText).collect(Collectors.joining(", ")));
+		}
+		
+		@LangFunction("listFill")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listFillFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			for(int i = 0;i < list.size();i++)
+				list.set(i, new DataObject(valueObject));
+			
+			return null;
+		}
+		
+		@LangFunction("listFillFrom")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listFillFromFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$startIndex") @NumberValue Number startIndexNumber,
+				@LangParameter("$value") DataObject valueObject) {
+			int startIndex = startIndexNumber.intValue();
+			
+			List<DataObject> list = listObject.getList();
+			if(startIndex < 0)
+				startIndex += list.size();
+			
+			if(startIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(startIndex >= list.size())
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			for(int i = startIndex;i < list.size();i++)
+				list.set(i, new DataObject(valueObject));
+			
+			return null;
+		}
+		
+		@LangFunction("listFillTo")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listFillToFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$endIndex") @NumberValue Number endIndexNumber,
+				@LangParameter("$value") DataObject valueObject) {
+			int endIndex = endIndexNumber.intValue();
+			
+			List<DataObject> list = listObject.getList();
+			if(endIndex < 0)
+				endIndex += list.size();
+			
+			if(endIndex < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(endIndex >= list.size())
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			for(int i = 0;i <= endIndex;i++)
+				list.set(i, new DataObject(valueObject));
+			
+			return null;
+		}
+		
+		@LangFunction("listCountOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listCountOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			long count = list.stream().filter(ele -> ele.isStrictEquals(valueObject)).count();
+			return new DataObject().setInt((int)count);
+		}
+		
+		@LangFunction("listIndexOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listIndexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			for(int i = 0;i < list.size();i++)
+				if(list.get(i).isStrictEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
+		}
+		
+		@LangFunction("listLastIndexOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listLastIndexOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			List<DataObject> list = listObject.getList();
+			for(int i = list.size() - 1;i >= 0;i--)
+				if(list.get(i).isStrictEquals(valueObject))
+					return new DataObject().setInt(i);
+			
+			return new DataObject().setInt(-1);
 		}
 	}
 	
