@@ -104,119 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> elements = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
-			
-			return new DataObject().setList(new LinkedList<>(elements));
-		});
-		funcs.put("listGenerateFrom", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject funcPointerObject = combinedArgumentList.get(0);
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			DataObject countObject = combinedArgumentList.get(1);
-			Number countNumber = countObject.toNumber();
-			if(countNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "number"), SCOPE_ID);
-			
-			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
-				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						new DataObject().setInt(i)
-				), SCOPE_ID));
-			}).collect(Collectors.toList());
-			return new DataObject().setList(new LinkedList<>(elements));
-		});
-		funcs.put("listZip", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			int len = -1;
-			List<Iterator<DataObject>> listIters = new LinkedList<>();
-			for(int i = 0;i < combinedArgumentList.size();i++) {
-				DataObject arg = combinedArgumentList.get(i);
-				if(arg.getType() != DataType.LIST)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, (i + 1) + " ", DataType.LIST), SCOPE_ID);
-				
-				listIters.add(arg.getList().iterator());
-				
-				int lenTest = arg.getList().size();
-				if(len == -1) {
-					len = lenTest;
-					
-					continue;
-				}
-				
-				if(len != lenTest)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (i + 1) + "] must be " + len, SCOPE_ID);
-			}
-			
-			LinkedList<DataObject> zippedList = new LinkedList<>();
-			for(int i = 0;i < len;i++) {
-				DataObject[] arr = new DataObject[combinedArgumentList.size()];
-				for(int j = 0;j < arr.length;j++) {
-					Iterator<DataObject> iter = listIters.get(j);
-					if(!iter.hasNext())
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of argument[" + (j + 1) + "] must be " + len, SCOPE_ID);
-					
-					arr[j] = iter.next();
-				}
-				
-				zippedList.add(new DataObject().setArray(arr));
-			}
-			
-			return new DataObject().setList(zippedList);
-		});
-		funcs.put("listAdd", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject valueObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			listObject.getList().add(new DataObject(valueObject));
-			return null;
-		});
-		funcs.put("listSet", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject indexObject = combinedArgumentList.get(1);
-			DataObject valueObject = combinedArgumentList.get(2);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			Number indexNumber = indexObject.toNumber();
-			if(indexNumber == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.NO_NUM, SCOPE_ID);
-			int index = indexNumber.intValue();
-			
-			List<DataObject> list = listObject.getList();
-			if(index < 0)
-				index += list.size();
-			
-			if(index < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			else if(index >= list.size())
-				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
-			
-			listObject.getList().set(index, new DataObject(valueObject));
-			
-			return null;
-		});
 		funcs.put("listShift", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8144,7 +8031,7 @@ final class LangPredefinedFunctions {
 				
 				if(len != lenTest)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
-							"The size of argument " + (i + 1) + " (for var args parameter \"&arrays\") must have a length of " + len, SCOPE_ID);
+							"The size of argument " + (i + 1) + " (for var args parameter \"&arrays\") must be " + len, SCOPE_ID);
 			}
 			
 			if(len == -1)
@@ -8997,6 +8884,93 @@ final class LangPredefinedFunctions {
 		@AllowedTypes(DataObject.DataType.LIST)
 		public static DataObject listCreateFunction(LangInterpreter interpreter, int SCOPE_ID) {
 			return new DataObject().setList(new LinkedList<>());
+		}
+		
+		@LangFunction("listOf")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&elements") @VarArgs List<DataObject> elements) {
+			elements = elements.stream().map(DataObject::new).collect(Collectors.toList());
+			
+			return new DataObject().setList(new LinkedList<>(elements));
+		}
+		
+		@LangFunction("listGenerateFrom")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listGenerateFromFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject funcPointerObject,
+				@LangParameter("$count") @NumberValue Number countNumber) {
+			List<DataObject> elements = IntStream.range(0, countNumber.intValue()).mapToObj(i -> {
+				return new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
+						new DataObject().setInt(i)
+				), SCOPE_ID));
+			}).collect(Collectors.toList());
+			return new DataObject().setList(new LinkedList<>(elements));
+		}
+		
+		@LangFunction("listZip")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listZipFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&lists") @AllowedTypes(DataObject.DataType.LIST) @VarArgs List<DataObject> lists) {
+			int len = -1;
+			for(int i = 0;i < lists.size();i++) {
+				int lenTest = lists.get(i).getList().size();
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The size of argument " + (i + 1) + " (for var args parameter \"&lists\") must be " + len, SCOPE_ID);
+			}
+			
+			if(len == -1)
+				len = 0;
+			
+			LinkedList<DataObject> zippedList = new LinkedList<>();
+			for(int i = 0;i < len;i++) {
+				LinkedList<DataObject> list = new LinkedList<>();
+				for(int j = 0;j < lists.size();j++)
+					list.add(new DataObject(lists.get(j).getList().get(i)));
+				
+				zippedList.add(new DataObject().setList(list));
+			}
+			
+			return new DataObject().setList(zippedList);
+		}
+		
+		@LangFunction("listAdd")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listAddFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$value") DataObject valueObject) {
+			listObject.getList().add(new DataObject(valueObject));
+			
+			return null;
+		}
+		
+		@LangFunction("listSet")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listSetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$index") @NumberValue Number indexNumber,
+				@LangParameter("$value") DataObject valueObject) {
+			int index = indexNumber.intValue();
+			
+			List<DataObject> list = listObject.getList();
+			if(index < 0)
+				index += list.size();
+			
+			if(index < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			else if(index >= list.size())
+				return interpreter.setErrnoErrorObject(InterpretingError.INDEX_OUT_OF_BOUNDS, SCOPE_ID);
+			
+			list.set(index, new DataObject(valueObject));
+			
+			return null;
 		}
 	}
 	
