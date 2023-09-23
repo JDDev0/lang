@@ -98,208 +98,9 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedArrayFunctions(funcs);
 		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayCombine", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArrays = new LinkedList<>();
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			
-			for(DataObject arrayPointerObject:combinedArgumentList) {
-				if(arrayPointerObject.getType() != DataType.ARRAY)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-				
-				for(DataObject ele:arrayPointerObject.getArray())
-					combinedArrays.add(ele);
-			}
-			
-			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
-		});
-		funcs.put("arrayPermutations", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			
-			DataObject countObject = null;
-			if(combinedArgumentList.size() == 2)
-				countObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			Number countNumber = arr.length;
-			if(countObject != null) {
-				countNumber = countObject.toNumber();
-				if(countNumber == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "number"), SCOPE_ID);
-			}
-			int count = countNumber.intValue();
-			
-			if(count < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be less than 0!", SCOPE_ID);
-			
-			if(count > arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 must not be greater than the array!", SCOPE_ID);
-			
-			if(arr.length == 0 || count == 0)
-				return new DataObject().setArray(new DataObject[0]);
-			
-			List<DataObject> permutations = new LinkedList<>();
-			int[] indices = new int[count];
-			int currentPermutationIndex = count - 1;
-			for(int i = 0;i < count;i++)
-				indices[i] = i;
-			
-			outer:
-			while(true) {
-				DataObject[] permutationArr = new DataObject[count];
-				for(int i = 0;i < count;i++)
-					permutationArr[i] = arr[indices[i]];
-				permutations.add(new DataObject().setArray(permutationArr));
-				
-				List<Integer> usedIndices = new LinkedList<>();
-				for(int i = 0;i < currentPermutationIndex;i++)
-					usedIndices.add(indices[i]);
-				
-				for(;currentPermutationIndex < count;currentPermutationIndex++) {
-					int index = indices[currentPermutationIndex] + 1;
-					while(usedIndices.contains(index))
-						index++;
-					
-					if(index == arr.length) {
-						if(!usedIndices.isEmpty())
-							usedIndices.remove(usedIndices.size() - 1);
-						
-						indices[currentPermutationIndex] = -1;
-						currentPermutationIndex -= 2; //Will be incremented in for loop
-						if(currentPermutationIndex < -1)
-							break outer;
-						
-						continue;
-					}
-					
-					indices[currentPermutationIndex] = index;
-					
-					usedIndices.add(index);
-				}
-				currentPermutationIndex = count - 1;
-			}
-			
-			return new DataObject().setArray(permutations.toArray(new DataObject[0]));
-		});
-		funcs.put("arrayPermutationsForEach", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			DataObject countObject = null;
-			if(combinedArgumentList.size() == 3)
-				countObject = combinedArgumentList.get(2);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			Number countNumber = arr.length;
-			if(countObject != null) {
-				countNumber = countObject.toNumber();
-				if(countNumber == null)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", "number"), SCOPE_ID);
-			}
-			int count = countNumber.intValue();
-			
-			if(count < 0)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 must not be less than 0!", SCOPE_ID);
-			
-			if(count > arr.length)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 must not be greater than the array!", SCOPE_ID);
-			
-			if(arr.length == 0 || count == 0)
-				return null;
-			
-			int[] indices = new int[count];
-			int currentPermutationIndex = count - 1;
-			for(int i = 0;i < count;i++)
-				indices[i] = i;
-			
-			int permutationNumber = 0;
-			
-			outer:
-			while(true) {
-				DataObject[] permutationArr = new DataObject[count];
-				for(int i = 0;i < count;i++)
-					permutationArr[i] = arr[indices[i]];
-				
-				if(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								new DataObject().setArray(permutationArr),
-								new DataObject().setInt(permutationNumber++)
-						)
-				), SCOPE_ID).getBoolean())
-					return null;
-				
-				List<Integer> usedIndices = new LinkedList<>();
-				for(int i = 0;i < currentPermutationIndex;i++)
-					usedIndices.add(indices[i]);
-				
-				for(;currentPermutationIndex < count;currentPermutationIndex++) {
-					int index = indices[currentPermutationIndex] + 1;
-					while(usedIndices.contains(index))
-						index++;
-					
-					if(index == arr.length) {
-						if(!usedIndices.isEmpty())
-							usedIndices.remove(usedIndices.size() - 1);
-						
-						indices[currentPermutationIndex] = -1;
-						currentPermutationIndex -= 2; //Will be incremented in for loop
-						if(currentPermutationIndex < -1)
-							break outer;
-						
-						continue;
-					}
-					
-					indices[currentPermutationIndex] = index;
-					
-					usedIndices.add(index);
-				}
-				currentPermutationIndex = count - 1;
-			}
-			
-			return null;
-		});
-		funcs.put("arrayReset", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			for(DataObject ele:arr)
-				ele.setNull();
-			
-			return null;
-		});
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("listOf", (argumentList, SCOPE_ID) -> {
@@ -9006,6 +8807,185 @@ final class LangPredefinedFunctions {
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
+		}
+		
+		@LangFunction("arrayCombine")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayCombineFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&arrays") @AllowedTypes(DataObject.DataType.ARRAY) @VarArgs List<DataObject> arrayObjects) {
+			List<DataObject> combinedArrays = new LinkedList<>();
+			
+			for(DataObject arrayObject:arrayObjects)
+				for(DataObject ele:arrayObject.getArray())
+					combinedArrays.add(new DataObject(ele));
+			
+			return new DataObject().setArray(combinedArrays.toArray(new DataObject[0]));
+		}
+		
+		@LangFunction(value="arrayPermutations", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayPermutationsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+			return arrayPermutationsFunction(interpreter, SCOPE_ID, arrayObject, arrayObject.getArray().length);
+		}
+		@LangFunction("arrayPermutations")
+		@AllowedTypes(DataObject.DataType.ARRAY)
+		public static DataObject arrayPermutationsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$r")
+					@LangInfo("The amount of selected items per permutation")
+					@NumberValue Number countNumber) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			int count = countNumber.intValue();
+			
+			if(count < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 (\"$count\") must be >= 0!", SCOPE_ID);
+			
+			if(count > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 2 (\"$count\") must be <= " + arr.length + "!", SCOPE_ID);
+			
+			if(arr.length == 0 || count == 0)
+				return new DataObject().setArray(new DataObject[0]);
+			
+			List<DataObject> permutations = new LinkedList<>();
+			int[] indices = new int[count];
+			int currentPermutationIndex = count - 1;
+			for(int i = 0;i < count;i++)
+				indices[i] = i;
+			
+			outer:
+			while(true) {
+				DataObject[] permutationArr = new DataObject[count];
+				for(int i = 0;i < count;i++)
+					permutationArr[i] = new DataObject(arr[indices[i]]);
+				permutations.add(new DataObject().setArray(permutationArr));
+				
+				List<Integer> usedIndices = new LinkedList<>();
+				for(int i = 0;i < currentPermutationIndex;i++)
+					usedIndices.add(indices[i]);
+				
+				for(;currentPermutationIndex < count;currentPermutationIndex++) {
+					int index = indices[currentPermutationIndex] + 1;
+					while(usedIndices.contains(index))
+						index++;
+					
+					if(index == arr.length) {
+						if(!usedIndices.isEmpty())
+							usedIndices.remove(usedIndices.size() - 1);
+						
+						indices[currentPermutationIndex] = -1;
+						currentPermutationIndex -= 2; //Will be incremented in for loop
+						if(currentPermutationIndex < -1)
+							break outer;
+						
+						continue;
+					}
+					
+					indices[currentPermutationIndex] = index;
+					
+					usedIndices.add(index);
+				}
+				currentPermutationIndex = count - 1;
+			}
+			
+			return new DataObject().setArray(permutations.toArray(new DataObject[0]));
+		}
+		
+		@LangFunction(value="arrayPermutationsForEach", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayPermutationsForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func")
+					@LangInfo("If the value returned by fp.func evaluates to true, this function will stop the execution early.")
+					@AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			return arrayPermutationsForEachFunction(interpreter, SCOPE_ID, arrayObject, functionObject, arrayObject.getArray().length);
+		}
+		@LangFunction("arrayPermutationsForEach")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayPermutationsForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("fp.func")
+					@LangInfo("If the value returned by fp.func evaluates to true, this function will stop the execution early.")
+					@AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject,
+				@LangParameter("$r")
+					@LangInfo("The amount of selected items per permutation")
+					@NumberValue Number countNumber) {
+			DataObject[] arr = arrayObject.getArray();
+			
+			int count = countNumber.intValue();
+			
+			if(count < 0)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 (\"$count\") must be >= 0!", SCOPE_ID);
+			
+			if(count > arr.length)
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 3 (\"$count\") must be <= " + arr.length + "!", SCOPE_ID);
+			
+			if(arr.length == 0 || count == 0)
+				return new DataObject().setArray(new DataObject[0]);
+			
+			int[] indices = new int[count];
+			int currentPermutationIndex = count - 1;
+			for(int i = 0;i < count;i++)
+				indices[i] = i;
+			
+			int permutationNumber = 0;
+			
+			outer:
+			while(true) {
+				DataObject[] permutationArr = new DataObject[count];
+				for(int i = 0;i < count;i++)
+					permutationArr[i] = new DataObject(arr[indices[i]]);
+				
+				if(interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+						LangUtils.separateArgumentsWithArgumentSeparators(
+								Arrays.asList(
+										new DataObject().setArray(permutationArr),
+										new DataObject().setInt(permutationNumber++)
+								)
+						), SCOPE_ID).getBoolean())
+							return null;
+				
+				List<Integer> usedIndices = new LinkedList<>();
+				for(int i = 0;i < currentPermutationIndex;i++)
+					usedIndices.add(indices[i]);
+				
+				for(;currentPermutationIndex < count;currentPermutationIndex++) {
+					int index = indices[currentPermutationIndex] + 1;
+					while(usedIndices.contains(index))
+						index++;
+					
+					if(index == arr.length) {
+						if(!usedIndices.isEmpty())
+							usedIndices.remove(usedIndices.size() - 1);
+						
+						indices[currentPermutationIndex] = -1;
+						currentPermutationIndex -= 2; //Will be incremented in for loop
+						if(currentPermutationIndex < -1)
+							break outer;
+						
+						continue;
+					}
+					
+					indices[currentPermutationIndex] = index;
+					
+					usedIndices.add(index);
+				}
+				currentPermutationIndex = count - 1;
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("arrayReset")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject arrayResetFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+			DataObject[] arr = arrayObject.getArray();
+			for(DataObject ele:arr)
+				ele.setNull();
+			
+			return null;
 		}
 	}
 	
