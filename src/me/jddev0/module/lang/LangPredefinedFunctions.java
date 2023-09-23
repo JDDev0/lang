@@ -104,140 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listDistinctValuesOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> distinctValues = new LinkedList<>();
-			for(DataObject ele:listObject.getList()) {
-				boolean flag = true;
-				for(DataObject distinctEle:distinctValues) {
-					if(ele.isStrictEquals(distinctEle)) {
-						flag = false;
-						break;
-					}
-				}
-				
-				if(flag)
-					distinctValues.add(ele);
-			}
-			
-			return new DataObject().setList(distinctValues);
-		});
-		funcs.put("listDistinctValuesLike", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			LinkedList<DataObject> distinctValues = new LinkedList<>();
-			for(DataObject ele:listObject.getList()) {
-				boolean flag = true;
-				for(DataObject distinctEle:distinctValues) {
-					if(ele.isEquals(distinctEle)) {
-						flag = false;
-						break;
-					}
-				}
-				
-				if(flag)
-					distinctValues.add(ele);
-			}
-			
-			return new DataObject().setList(distinctValues);
-		});
-		funcs.put("listSorted", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			List<DataObject> elements = list.stream().sorted((a, b) -> {
-				DataObject retObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								a, b
-						)
-				), SCOPE_ID);
-				Number retNumber = retObject.toNumber();
-				if(retNumber == null) {
-					interpreter.setErrno(InterpretingError.NO_NUM, SCOPE_ID);
-					
-					return 0;
-				}
-				
-				return retNumber.intValue();
-			}).collect(Collectors.toList());
-			return new DataObject().setList(new LinkedList<>(elements));
-		});
-		funcs.put("listFiltered", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			List<DataObject> elements = list.stream().filter(dataObject -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						dataObject
-				), SCOPE_ID).getBoolean();
-			}).collect(Collectors.toList());
-			return new DataObject().setList(new LinkedList<>(elements));
-		});
-		funcs.put("listFilteredCount", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			int count = (int)list.stream().filter(dataObject -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						dataObject
-				), SCOPE_ID).getBoolean();
-			}).count();
-			return new DataObject().setInt(count);
-		});
 		funcs.put("listMap", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -8825,6 +8691,104 @@ final class LangPredefinedFunctions {
 		public static DataObject listLengthFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
 			return new DataObject().setInt(listObject.getList().size());
+		}
+		
+		@LangFunction("listDistinctValuesOf")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listDistinctValuesOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> distinctValues = new LinkedList<>();
+			for(DataObject ele:listObject.getList()) {
+				boolean flag = true;
+				for(DataObject distinctEle:distinctValues) {
+					if(ele.isStrictEquals(distinctEle)) {
+						flag = false;
+						break;
+					}
+				}
+				
+				if(flag)
+					distinctValues.add(new DataObject(ele));
+			}
+			
+			return new DataObject().setList(distinctValues);
+		}
+		
+		@LangFunction("listDistinctValuesLike")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listDistinctValuesLikeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			LinkedList<DataObject> distinctValues = new LinkedList<>();
+			for(DataObject ele:listObject.getList()) {
+				boolean flag = true;
+				for(DataObject distinctEle:distinctValues) {
+					if(ele.isEquals(distinctEle)) {
+						flag = false;
+						break;
+					}
+				}
+				
+				if(flag)
+					distinctValues.add(new DataObject(ele));
+			}
+			
+			return new DataObject().setList(distinctValues);
+		}
+		
+		@LangFunction("listSorted")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listSortedFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.comparator") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject comparatorObject) {
+			List<DataObject> list = listObject.getList();
+			
+			List<DataObject> elements = list.stream().map(DataObject::new).sorted((a, b) -> {
+				DataObject retObject = interpreter.callFunctionPointer(comparatorObject.getFunctionPointer(), comparatorObject.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								a, b
+						)
+				), SCOPE_ID);
+				Number retNumber = retObject.toNumber();
+				if(retNumber == null) {
+					interpreter.setErrno(InterpretingError.NO_NUM, "The value returned by Argument 2 (\"fp.comparator\") must be a number.", SCOPE_ID);
+					
+					return 0;
+				}
+				
+				return retNumber.intValue();
+			}).collect(Collectors.toList());
+			return new DataObject().setList(new LinkedList<>(elements));
+		}
+		
+		@LangFunction("listFiltered")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listFilteredFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.filter") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject filterObject) {
+			List<DataObject> list = listObject.getList();
+			
+			List<DataObject> elements = list.stream().map(DataObject::new).filter(dataObject -> {
+				return interpreter.callFunctionPointer(filterObject.getFunctionPointer(), filterObject.getVariableName(), Arrays.asList(
+						dataObject
+				), SCOPE_ID).getBoolean();
+			}).collect(Collectors.toList());
+			return new DataObject().setList(new LinkedList<>(elements));
+		}
+		
+		@LangFunction("listFilteredCount")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listFilteredCountFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.filter") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject filterObject) {
+			List<DataObject> list = listObject.getList();
+			
+			long count = list.stream().map(DataObject::new).filter(dataObject -> {
+				return interpreter.callFunctionPointer(filterObject.getFunctionPointer(), filterObject.getVariableName(), Arrays.asList(
+						dataObject
+				), SCOPE_ID).getBoolean();
+			}).count();
+			return new DataObject().setInt((int)count);
 		}
 	}
 	
