@@ -104,22 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedArrayFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("arrayCountOf", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject arrPointerObject = combinedArgumentList.get(0);
-			DataObject elementObject = combinedArgumentList.get(1);
-			
-			if(arrPointerObject.getType() != DataType.ARRAY)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, SCOPE_ID);
-			
-			DataObject[] arr = arrPointerObject.getArray();
-			long count = Arrays.stream(arr).filter(ele -> ele.isStrictEquals(elementObject)).count();
-			return new DataObject().setLong(count);
-		});
 		funcs.put("arrayIndexOf", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -9091,6 +9075,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("arrayFill")
+		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject arrayFillFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("$value") DataObject valueObject) {
@@ -9102,6 +9087,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("arrayFillFrom")
+		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject arrayFillFromFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("$startIndex") @NumberValue Number startIndexNumber,
@@ -9124,6 +9110,7 @@ final class LangPredefinedFunctions {
 		}
 		
 		@LangFunction("arrayFillTo")
+		@AllowedTypes(DataObject.DataType.VOID)
 		public static DataObject arrayFillToFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
 				@LangParameter("$endIndex") @NumberValue Number endIndexNumber,
@@ -9143,6 +9130,16 @@ final class LangPredefinedFunctions {
 				arr[i] = new DataObject(valueObject);
 			
 			return null;
+		}
+		
+		@LangFunction("arrayCountOf")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject arrayCountOfFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("$value") DataObject valueObject) {
+			DataObject[] arr = arrayObject.getArray();
+			long count = Arrays.stream(arr).filter(ele -> ele.isStrictEquals(valueObject)).count();
+			return new DataObject().setInt((int)count);
 		}
 	}
 	
