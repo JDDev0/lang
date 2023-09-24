@@ -7735,43 +7735,43 @@ final class LangPredefinedFunctions {
 			return null;
 		}
 		
-		@LangFunction("arrayMatchEvery")
+		@LangFunction("arrayAllMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject arrayMatchEveryFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject arrayAllMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			DataObject[] arr = arrayObject.getArray();
 			
 			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).allMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
 		}
 		
-		@LangFunction("arrayMatchAny")
+		@LangFunction("arrayAnyMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject arrayMatchAnyFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject arrayAnyMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			DataObject[] arr = arrayObject.getArray();
 			
 			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).anyMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
 		}
 		
-		@LangFunction("arrayMatchNon")
+		@LangFunction("arrayNoneMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject arrayMatchNonFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject arrayNoneMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			DataObject[] arr = arrayObject.getArray();
 			
 			return new DataObject().setBoolean(Arrays.stream(arr).map(DataObject::new).noneMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
@@ -8670,43 +8670,43 @@ final class LangPredefinedFunctions {
 			return null;
 		}
 		
-		@LangFunction("listMatchEvery")
+		@LangFunction("listAllMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject listMatchEveryFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject listAllMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			List<DataObject> list = listObject.getList();
 			
 			return new DataObject().setBoolean(list.stream().map(DataObject::new).allMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
 		}
 		
-		@LangFunction("listMatchAny")
+		@LangFunction("listAnyMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject listMatchAnyFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject listAnyMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			List<DataObject> list = listObject.getList();
 			
 			return new DataObject().setBoolean(list.stream().map(DataObject::new).anyMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
 		}
 		
-		@LangFunction("listMatchNon")
+		@LangFunction("listNoneMatch")
 		@AllowedTypes(DataObject.DataType.INT)
-		public static DataObject listMatchNonFunction(LangInterpreter interpreter, int SCOPE_ID,
+		public static DataObject listNoneMatchFunction(LangInterpreter interpreter, int SCOPE_ID,
 				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
-				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+				@LangParameter("fp.predicate") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject predicateFunction) {
 			List<DataObject> list = listObject.getList();
 			
 			return new DataObject().setBoolean(list.stream().map(DataObject::new).noneMatch(ele -> {
-				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+				return interpreter.callFunctionPointer(predicateFunction.getFunctionPointer(), predicateFunction.getVariableName(), Arrays.asList(
 						ele
 				), SCOPE_ID).getBoolean();
 			}));
