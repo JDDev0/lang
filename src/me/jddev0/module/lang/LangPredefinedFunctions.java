@@ -99,222 +99,8 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedListFunctions(funcs);
 		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listForEach", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			
-			List<DataObject> list = listObject.getList();
-			
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				
-				for(int i = 0;i < list.size();i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									list.get(i),
-									breakFunc
-							)
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				for(int i = 0;i < list.size();i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-							list.get(i)
-					), SCOPE_ID);
-				}
-			}
-			
-			return null;
-		});
-		funcs.put("listEnumerate", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			DataObject isBreakableObject = combinedArgumentList.size() > 2?combinedArgumentList.get(2):null;
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			boolean isBreakable = isBreakableObject != null && isBreakableObject.getBoolean();
-			
-			List<DataObject> list = listObject.getList();
-			if(isBreakable) {
-				boolean[] shouldBreak = new boolean[] {false};
-				
-				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject((interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> innerCombinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					DataObject innerError;
-					if((innerError = requireArgumentCount(innerCombinedArgumentList, 0, INNER_SCOPE_ID)) != null)
-						return innerError;
-					
-					shouldBreak[0] = true;
-					
-					return null;
-				}));
-				for(int i = 0;i < list.size();i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									new DataObject().setInt(i),
-									list.get(i),
-									breakFunc
-							)
-					), SCOPE_ID);
-					
-					if(shouldBreak[0])
-						break;
-				}
-			}else {
-				for(int i = 0;i < list.size();i++) {
-					interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									new DataObject().setInt(i),
-									list.get(i)
-							)
-					), SCOPE_ID);
-				}
-			}
-			
-			return null;
-		});
-		funcs.put("listMatchEvery", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			return new DataObject().setBoolean(list.stream().allMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
-		funcs.put("listMatchAny", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			return new DataObject().setBoolean(list.stream().anyMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
-		funcs.put("listMatchNon", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			return new DataObject().setBoolean(list.stream().noneMatch(ele -> {
-				return interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						ele
-				), SCOPE_ID).getBoolean();
-			}));
-		});
-		funcs.put("listCombine", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			LinkedList<DataObject> combinedLists = new LinkedList<>();
-			
-			for(DataObject listObject:combinedArgumentList) {
-				if(listObject.getType() != DataType.LIST)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.LIST), SCOPE_ID);
-				
-				combinedLists.addAll(listObject.getList());
-			}
-			
-			return new DataObject().setList(combinedLists);
-		});
-		funcs.put("listClear", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.LIST), SCOPE_ID);
-			
-			listObject.getList().clear();
-			
-			return null;
-		});
 	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("getLoadedModules", (argumentList, SCOPE_ID) -> {
@@ -8775,6 +8561,177 @@ final class LangPredefinedFunctions {
 			}
 			
 			return new DataObject().setList(reduceedLists);
+		}
+		
+		@LangFunction(value="listForEach", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			return listForEachFunction(interpreter, SCOPE_ID, listObject, functionObject, false);
+		}
+		@LangFunction("listForEach")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listForEachFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			List<DataObject> list = listObject.getList();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				for(DataObject ele:list) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+							LangUtils.separateArgumentsWithArgumentSeparators(
+									Arrays.asList(
+											new DataObject(ele),
+											breakFunc
+									)
+							), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(DataObject ele:list) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(), Arrays.asList(
+							new DataObject(ele)
+					), SCOPE_ID);
+				}
+			}
+			
+			return null;
+		}
+		
+		@LangFunction(value="listEnumerate", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listEnumerateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			return listEnumerateFunction(interpreter, SCOPE_ID, listObject, functionObject, false);
+		}
+		@LangFunction("listEnumerate")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listEnumerateFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject,
+				@LangParameter("$breakable") @BooleanValue boolean breakable) {
+			List<DataObject> list = listObject.getList();
+			
+			if(breakable) {
+				boolean[] shouldBreak = new boolean[] {false};
+				
+				DataObject breakFunc = new DataObject().setFunctionPointer(new FunctionPointerObject(LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("break")
+					@AllowedTypes(DataObject.DataType.VOID)
+					public DataObject breakFunction(int SCOPE_ID) {
+						shouldBreak[0] = true;
+						
+						return null;
+					}
+				})));
+				
+				for(int i = 0;i < list.size();i++) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+							LangUtils.separateArgumentsWithArgumentSeparators(
+									Arrays.asList(
+											new DataObject().setInt(i),
+											new DataObject(list.get(i)),
+											breakFunc
+									)
+							), SCOPE_ID);
+					
+					if(shouldBreak[0])
+						break;
+				}
+			}else {
+				for(int i = 0;i < list.size();i++) {
+					interpreter.callFunctionPointer(functionObject.getFunctionPointer(), functionObject.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject().setInt(i),
+									new DataObject(list.get(i))
+							)
+					), SCOPE_ID);
+				}
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("listMatchEvery")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listMatchEveryFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			return new DataObject().setBoolean(list.stream().map(DataObject::new).allMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
+		}
+		
+		@LangFunction("listMatchAny")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listMatchAnyFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			return new DataObject().setBoolean(list.stream().map(DataObject::new).anyMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
+		}
+		
+		@LangFunction("listMatchNon")
+		@AllowedTypes(DataObject.DataType.INT)
+		public static DataObject listMatchNonFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.check") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject checkFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			return new DataObject().setBoolean(list.stream().map(DataObject::new).noneMatch(ele -> {
+				return interpreter.callFunctionPointer(checkFunction.getFunctionPointer(), checkFunction.getVariableName(), Arrays.asList(
+						ele
+				), SCOPE_ID).getBoolean();
+			}));
+		}
+		
+		@LangFunction("listCombine")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listCombineFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&lists") @AllowedTypes(DataObject.DataType.LIST) @VarArgs List<DataObject> listObjects) {
+			LinkedList<DataObject> combinedLists = new LinkedList<>();
+			
+			for(DataObject listObject:listObjects)
+				for(DataObject ele:listObject.getList())
+					combinedLists.add(new DataObject(ele));
+			
+			return new DataObject().setList(combinedLists);
+		}
+		
+		@LangFunction("listClear")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listClearFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject) {
+			listObject.getList().clear();
+			
+			return null;
 		}
 	}
 	
