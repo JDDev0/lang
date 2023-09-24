@@ -53,6 +53,11 @@ public @interface LangFunction {
 		@Retention(RetentionPolicy.RUNTIME)
 		@Target(ElementType.PARAMETER)
 		public static @interface VarArgs {}
+		
+		@Documented
+		@Retention(RetentionPolicy.RUNTIME)
+		@Target(ElementType.PARAMETER)
+		public static @interface RawVarArgs {}
 	}
 	
 	@Documented

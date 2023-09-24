@@ -222,6 +222,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		List<String> paramaterInfoList = new ArrayList<>(parameters.length - diff);
 		int varArgsParameterIndex = -1;
 		boolean textVarArgsParameter = false;
+		boolean rawVarArgsParameter = false;
 		
 		for(int i = diff;i < parameters.length;i++) {
 			Parameter parameter = parameters[i];
@@ -246,9 +247,15 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			if(specialTypeConstraintingParameterCount > 1)
 				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @NumberValue, @BooleanValue, @CallByPointer, or @VarArgs");
 			
+			boolean isContainsRawVarArgsParameter = parameter.isAnnotationPresent(RawVarArgs.class) && typeConstraintingParameterCount++ >= 0 && specialTypeConstraintingParameterCount++ >= 0;
+			if(isContainsRawVarArgsParameter && combinatorFunction)
+				throw new IllegalArgumentException("@RawVarArgs can not be used for combinator functions");
+			if(typeConstraintingParameterCount > 1 || specialTypeConstraintingParameterCount > 1)
+				throw new IllegalArgumentException("@LangParameter which are annotated with @RawVarArgs can not be annotated with other lang parameter annotations apart from @LangInfo");
+			
 			String variableName = langParameter.value();
 			
-			//TODO error if parameter name already exists or if name is invalid [Check for all cases: {NUMBER, CALL_BY_POINTER -> $, VAR_ARGS -> $, &, NORMAL -> $, &, fp.}]
+			//TODO error if parameter name already exists or if name is invalid [Check for all cases: {NUMBER, BOOLEAN, CALL_BY_POINTER -> $, VAR_ARGS -> $, &, NORMAL -> $, &, fp.}]
 			
 			if(isBooleanValue) {
 				parameterAnnotation = ParameterAnnotation.BOOLEAN;
@@ -265,6 +272,28 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				
 				if(!parameter.getType().isAssignableFrom(DataObject.class))
 					throw new IllegalArgumentException("@LangParameter which are annotated with @CallByPointer must be of type DataObject");
+			}else if(isContainsRawVarArgsParameter) {
+				parameterAnnotation = ParameterAnnotation.RAW_VAR_ARGS;
+				
+				varArgsParameterIndex = parameterList.size();
+				
+				rawVarArgsParameter = true;
+				
+				boolean isListParameter = parameter.getType().isAssignableFrom(List.class);
+				if(isListParameter) {
+					Type parameterType = parameter.getParameterizedType();
+					if(parameterType instanceof ParameterizedType) {
+						ParameterizedType parameterizedType = (ParameterizedType)parameterType;
+						Type[] types = parameterizedType.getActualTypeArguments();
+						
+						isListParameter = types.length == 1 && types[0] instanceof Class<?> && ((Class<?>)types[0]).isAssignableFrom(DataObject.class);
+					}else {
+						isListParameter = false;
+					}
+				}
+				
+				if(!isListParameter)
+					throw new IllegalArgumentException("@LangParameter which are annotated with @RawVarArgs must be of type List<DataObject>");
 			}else if(isContainsVarArgsParameter) {
 				parameterAnnotation = ParameterAnnotation.VAR_ARGS;
 				
@@ -322,14 +351,14 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				typeConstraint = DataTypeConstraint.fromNotAllowedTypes(Arrays.asList(notAllowedTypes.value()));
 			
 			if(typeConstraintingParameterCount > 1)
-				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @AllowedTypes, @NotAllowedTypes, @NumberValue, or @BooleanValue");
+				throw new IllegalArgumentException("DataObject parameter must be annotated with at most one of @RawVarArgs, @AllowedTypes, @NotAllowedTypes, @NumberValue, or @BooleanValue");
 			
 			langInfo = parameter.getAnnotation(LangInfo.class);
 			String paramaterInfo = langInfo == null?null:langInfo.value();
 			
 			//Allow all types for var args parameters
 			if(typeConstraint == null)
-				typeConstraint = isContainsVarArgsParameter?DataObject.CONSTRAINT_NORMAL:DataObject.getTypeConstraintFor(variableName);
+				typeConstraint = (isContainsVarArgsParameter || isContainsRawVarArgsParameter)?DataObject.CONSTRAINT_NORMAL:DataObject.getTypeConstraintFor(variableName);
 			
 			methodParameterTypeList.add(parameter.getType());
 			parameterList.add(new DataObject().setVariableName(variableName));
@@ -338,8 +367,11 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			parameterAnnotationList.add(parameterAnnotation);
 		}
 		
+		if(rawVarArgsParameter && parameterList.size() != 1)
+			throw new IllegalArgumentException("If @RawVarArgs is used there must be exactly one lang parameter");
+		
 		return new InternalFunction(methodParameterTypeList, parameterList, paramaterDataTypeConstraintList,
-				parameterAnnotationList, paramaterInfoList, varArgsParameterIndex, textVarArgsParameter,
+				parameterAnnotationList, paramaterInfoList, varArgsParameterIndex, textVarArgsParameter, rawVarArgsParameter,
 				returnValueTypeConstraint, instance, functionBody, hasInterpreterParameter, combinatorFunction, 0, new ArrayList<>());
 	}
 	
@@ -351,6 +383,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		private final List<String> paramaterInfoList;
 		private final int varArgsParameterIndex;
 		private final boolean textVarArgsParameter;
+		private final boolean rawVarArgsParameter;
 		private final DataTypeConstraint returnValueTypeConstraint;
 		private final Object instance;
 		private final Method functionBody;
@@ -363,9 +396,10 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		private InternalFunction(List<Class<?>> methodParameterTypeList, List<DataObject> parameterList,
 				List<DataTypeConstraint> paramaterDataTypeConstraintList,
 				List<ParameterAnnotation> parameterAnnotationList, List<String> paramaterInfoList,
-				int varArgsParameterIndex, boolean textVarArgsParameter, DataTypeConstraint returnValueTypeConstraint,
-				Object instance, Method functionBody, boolean hasInterpreterParameter, boolean combinatorFunction,
-				int combinatorFunctionCallCount, List<DataObject> combinatorProvidedArgumentList) {
+				int varArgsParameterIndex, boolean textVarArgsParameter, boolean rawVarArgsParameter,
+				DataTypeConstraint returnValueTypeConstraint, Object instance, Method functionBody,
+				boolean hasInterpreterParameter, boolean combinatorFunction, int combinatorFunctionCallCount,
+				List<DataObject> combinatorProvidedArgumentList) {
 			this.methodParameterTypeList = methodParameterTypeList;
 			this.parameterList = parameterList;
 			this.paramaterDataTypeConstraintList = paramaterDataTypeConstraintList;
@@ -373,6 +407,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			this.paramaterInfoList = paramaterInfoList;
 			this.varArgsParameterIndex = varArgsParameterIndex;
 			this.textVarArgsParameter = textVarArgsParameter;
+			this.rawVarArgsParameter = rawVarArgsParameter;
 			this.returnValueTypeConstraint = returnValueTypeConstraint;
 			this.instance = instance;
 			this.functionBody = functionBody;
@@ -402,12 +437,12 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			}
 			
 			int diff = hasInterpreterParameter?2:1;
-			Object[] methodArgumentList = new Object[diff + argCount];
+			Object[] methodArguments = new Object[diff + argCount];
 			if(hasInterpreterParameter) {
-				methodArgumentList[0] = interpreter;
-				methodArgumentList[1] = SCOPE_ID;
+				methodArguments[0] = interpreter;
+				methodArguments[1] = SCOPE_ID;
 			}else {
-				methodArgumentList[0] = SCOPE_ID;
+				methodArguments[0] = SCOPE_ID;
 			}
 			
 			int argumentIndex = 0;
@@ -417,7 +452,8 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				
 				String variableName = parameterList.get(i).getVariableName();
 				
-				boolean ignoreTypeCheck = parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER || parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS;
+				boolean ignoreTypeCheck = parameterAnnotationList.get(i) == ParameterAnnotation.CALL_BY_POINTER || parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS ||
+						parameterAnnotationList.get(i) == ParameterAnnotation.RAW_VAR_ARGS;
 				
 				if(!ignoreTypeCheck && !paramaterDataTypeConstraintList.get(i).isTypeAllowed(combinedArgumentList.get(argumentIndex).getType()))
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format("The type of argument %d (\"%s\") must be one of %s", argumentIndex + 1,
@@ -431,7 +467,9 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				
 				try {
 					Object argument;
-					if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS) {
+					if(parameterAnnotationList.get(i) == ParameterAnnotation.RAW_VAR_ARGS) {
+						argument = new LinkedList<>(argumentList);
+					}else if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS) {
 						//Infinite combinator functions (= Combinator functions with var args argument) must be called exactly two times
 						if(combinatorFunction && combinatorFunctionCallCount == 0)
 							return combinatorCall(interpreter, combinedArgumentList, SCOPE_ID);
@@ -497,7 +535,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 						return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR, "Invalid native method parameter argument type", SCOPE_ID);
 					}
 					
-					methodArgumentList[i + diff] = argument;
+					methodArguments[i + diff] = argument;
 				}catch(DataTypeConstraintException e) {
 					return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
 							String.format("Native method contains invalid type constraint combinations for Argument %d (\"%s\"): %s", i + 1, variableName, e.getMessage()), SCOPE_ID);
@@ -508,7 +546,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 			
 			try {
 				//TODO check return type in LangInterpreter
-				return (DataObject)functionBody.invoke(instance, methodArgumentList);
+				return (DataObject)functionBody.invoke(instance, methodArguments);
 			}catch(IllegalAccessException|IllegalArgumentException e) {
 				return interpreter.setErrnoErrorObject(InterpretingError.SYSTEM_ERROR,
 						"Native Error (\"" + e.getClass().getSimpleName() + "\"): " + e.getMessage(), SCOPE_ID);
@@ -527,7 +565,7 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 					linkerFunction, deprecated, deprecatedRemoveVersion, deprecatedReplacementFunction);
 			
 			InternalFunction internalFunction = new InternalFunction(methodParameterTypeList, parameterList, paramaterDataTypeConstraintList,
-							parameterAnnotationList, paramaterInfoList, varArgsParameterIndex, textVarArgsParameter,
+							parameterAnnotationList, paramaterInfoList, varArgsParameterIndex, textVarArgsParameter, rawVarArgsParameter,
 							returnValueTypeConstraint, instance, functionBody, hasInterpreterParameter, combinatorFunction,
 							combinatorFunctionCallCount + 1, combinedArgumentList);
 			
@@ -559,6 +597,8 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 				builder.append(variableName);
 				if(parameterAnnotationList.get(i) == ParameterAnnotation.VAR_ARGS)
 					builder.append("...");
+				else if(parameterAnnotationList.get(i) == ParameterAnnotation.RAW_VAR_ARGS)
+					builder.append("...{raw}");
 				else if(parameterAnnotationList.get(i) == ParameterAnnotation.NUMBER)
 					builder.append("{number}");
 				else if(parameterAnnotationList.get(i) == ParameterAnnotation.BOOLEAN)
@@ -598,6 +638,10 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 		
 		public boolean isTextVarArgsParameter() {
 			return textVarArgsParameter;
+		}
+		
+		public boolean isRawVarArgsParameter() {
+			return rawVarArgsParameter;
 		}
 		
 		public DataTypeConstraint getReturnValueTypeConstraint() {
@@ -650,6 +694,6 @@ public class LangNativeFunction implements LangPredefinedFunctionObject {
 	}
 	
 	public static enum ParameterAnnotation {
-		NORMAL, NUMBER, BOOLEAN, CALL_BY_POINTER, VAR_ARGS;
+		NORMAL, NUMBER, BOOLEAN, CALL_BY_POINTER, VAR_ARGS, RAW_VAR_ARGS;
 	}
 }
