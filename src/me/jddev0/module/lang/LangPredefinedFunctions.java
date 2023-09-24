@@ -56,14 +56,6 @@ final class LangPredefinedFunctions {
 		this.interpreter = interpreter;
 	}
 	
-	private DataObject requireArgumentCount(List<DataObject> combinedArgumentList, int argCount, final int SCOPE_ID) {
-		if(combinedArgumentList.size() < argCount)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
-		if(combinedArgumentList.size() > argCount)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(TOO_MANY_ARGUMENTS_FORMAT, argCount), SCOPE_ID);
-		
-		return null;
-	}
 	private DataObject requireArgumentCount(List<DataObject> combinedArgumentList, int minArgCount, int maxArgCount, final int SCOPE_ID) {
 		if(combinedArgumentList.size() < minArgCount)
 			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, minArgCount + " to " + maxArgCount), SCOPE_ID);
@@ -100,190 +92,7 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedModuleFunctions.class));
 		
 		//Add non @LangNativeFunction functions
-		addPredefinedModuleFunctions(funcs);
 		addPredefinedLangTestFunctions(funcs);
-	}
-	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("moduleExportFunction", (argumentList, SCOPE_ID) -> {
-			LangModule module = interpreter.getCurrentCallStackElement().getModule();
-			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportFunction\" can only be used inside a module which "
-						+ "is in the \"load\" state", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject functionNameObject = combinedArgumentList.get(0);
-			DataObject fpObject = combinedArgumentList.get(1);
-			if(fpObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			String functionName = functionNameObject.getText();
-			for(int i = 0;i < functionName.length();i++) {
-				char c = functionName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			module.getExportedFunctions().add(functionName);
-			
-			FunctionPointerObject fp = fpObject.getFunctionPointer();
-			
-			interpreter.funcs.put(functionName, (innerArgumentList, INNER_SCOPE_ID) -> {
-				return interpreter.callFunctionPointer(fp, functionName, innerArgumentList, INNER_SCOPE_ID);
-			});
-			
-			return null;
-		});
-		funcs.put("moduleExportLinkerFunction", (argumentList, SCOPE_ID) -> {
-			LangModule module = interpreter.getCurrentCallStackElement().getModule();
-			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportLinkerFunction\" can only be used inside a module which "
-						+ "is in the \"load\" state", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject functionNameObject = combinedArgumentList.get(0);
-			DataObject fpObject = combinedArgumentList.get(1);
-			if(fpObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			String functionName = functionNameObject.getText();
-			for(int i = 0;i < functionName.length();i++) {
-				char c = functionName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			module.getExportedFunctions().add(functionName);
-			
-			FunctionPointerObject fp = fpObject.getFunctionPointer();
-			
-			interpreter.funcs.put(functionName, new LangPredefinedFunctionObject() {
-				@Override
-				public DataObject callFunc(List<DataObject> innerArgumentList, final int INNER_SCOPE_ID) {
-					return interpreter.callFunctionPointer(fp, functionName, innerArgumentList, INNER_SCOPE_ID);
-				}
-				
-				@Override
-				public boolean isLinkerFunction() {
-					return true;
-				}
-			});
-			
-			return null;
-		});
-		funcs.put("moduleExportNormalVariable", (argumentList, SCOPE_ID) -> {
-			LangModule module = interpreter.getCurrentCallStackElement().getModule();
-			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportNormalVariable\" can only be used inside a module which "
-						+ "is in the \"load\" state", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject variableNameObject = combinedArgumentList.get(0);
-			DataObject variableObject = combinedArgumentList.get(1);
-			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
-			
-			String variableName = variableNameObject.getText();
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			if(variableName.startsWith("LANG"))
-				throw new RuntimeException("The variable name may not start with LANG");
-			
-			variableName = "$" + variableName;
-			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
-			
-			return null;
-		});
-		funcs.put("moduleExportCompositeVariable", (argumentList, SCOPE_ID) -> {
-			LangModule module = interpreter.getCurrentCallStackElement().getModule();
-			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportCompositeVariable\" can only be used inside a module which "
-						+ "is in the \"load\" state", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject variableNameObject = combinedArgumentList.get(0);
-			DataObject variableObject = combinedArgumentList.get(1);
-			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
-			
-			if(!DataObject.CONSTRAINT_COMPOSITE.isTypeAllowed(variableObject.getType()))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", "composite"), SCOPE_ID);
-			
-			String variableName = variableNameObject.getText();
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			if(variableName.startsWith("LANG"))
-				throw new RuntimeException("The variable name may not start with LANG");
-			
-			variableName = "&" + variableName;
-			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
-			
-			return null;
-		});
-		funcs.put("moduleExportFunctionPointerVariable", (argumentList, SCOPE_ID) -> {
-			LangModule module = interpreter.getCurrentCallStackElement().getModule();
-			if(module == null || !module.isLoad())
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleExportFunctionPointerVariable\" can only be used inside a module which "
-						+ "is in the \"load\" state", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject variableNameObject = combinedArgumentList.get(0);
-			DataObject variableObject = combinedArgumentList.get(1);
-			DataObject finalDataObject = combinedArgumentList.size() >= 3?combinedArgumentList.get(2):null;
-			
-			if(variableObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "2 ", DataType.FUNCTION_POINTER), SCOPE_ID);
-			
-			String variableName = variableNameObject.getText();
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			if(variableName.startsWith("LANG"))
-				throw new RuntimeException("The variable name may not start with LANG");
-			
-			variableName = "fp." + variableName;
-			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalDataObject == null?false:finalDataObject.getBoolean()).setVariableName(variableName));
-			
-			return null;
-		});
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.put("testUnit", (argumentList, SCOPE_ID) -> {
@@ -9166,6 +8975,156 @@ final class LangPredefinedFunctions {
 						+ moduleName + "\"", SCOPE_ID);
 			
 			return variable;
+		}
+		
+		@LangFunction("moduleExportFunction")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportFunctionFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$functionName") DataObject functionNameObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"func.moduleExportFunction\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String functionName = functionNameObject.getText();
+			
+			if(containsNonWordChars(functionName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			module.getExportedFunctions().add(functionName);
+			
+			FunctionPointerObject function = functionObject.getFunctionPointer();
+			
+			interpreter.funcs.put(functionName, LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction("module-wrapped-func")
+				public DataObject breakFunction(LangInterpreter interpreter, int SCOPE_ID,
+						@LangParameter("&args") @RawVarArgs List<DataObject> argumentList) {
+					return interpreter.callFunctionPointer(function, functionName, argumentList, SCOPE_ID);
+				}
+			}));
+			
+			return null;
+		}
+		
+		@LangFunction("moduleExportLinkerFunction")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportLinkerFunctionFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$functionName") DataObject functionNameObject,
+				@LangParameter("fp.func") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject functionObject) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"func.moduleExportLinkerFunction\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String functionName = functionNameObject.getText();
+			
+			if(containsNonWordChars(functionName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The function name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			module.getExportedFunctions().add(functionName);
+			
+			FunctionPointerObject function = functionObject.getFunctionPointer();
+			
+			interpreter.funcs.put(functionName, LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+				@LangFunction(value="module-wrapped-linker-func", isLinkerFunction=true)
+				public DataObject breakFunction(LangInterpreter interpreter, int SCOPE_ID,
+						@LangParameter("&args") @RawVarArgs List<DataObject> argumentList) {
+					return interpreter.callFunctionPointer(function, functionName, argumentList, SCOPE_ID);
+				}
+			}));
+			
+			return null;
+		}
+		
+		@LangFunction(value="moduleExportNormalVariable", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportNormalVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject) {
+			return moduleExportNormalVariableFunction(interpreter, SCOPE_ID, variableNameObject, variableObject, false);
+		}
+		@LangFunction("moduleExportNormalVariable")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportNormalVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject,
+				@LangParameter("$final") @BooleanValue boolean finalData) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"func.moduleExportNormalVariable\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "$" + variableName;
+			
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalData).setVariableName(variableName));
+			
+			return null;
+		}
+		
+		@LangFunction(value="moduleExportCompositeVariable", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportCompositeVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject) {
+			return moduleExportCompositeVariableFunction(interpreter, SCOPE_ID, variableNameObject, variableObject, false);
+		}
+		@LangFunction("moduleExportCompositeVariable")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportCompositeVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject,
+				@LangParameter("$final") @BooleanValue boolean finalData) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"func.moduleExportNormalVariable\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "&" + variableName;
+			
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalData).setVariableName(variableName));
+			
+			return null;
+		}
+		
+		@LangFunction(value="moduleExportFunctionPointerVariable", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportFunctionPointerVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject) {
+			return moduleExportFunctionPointerVariableFunction(interpreter, SCOPE_ID, variableNameObject, variableObject, false);
+		}
+		@LangFunction("moduleExportFunctionPointerVariable")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject moduleExportFunctionPointerVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$variableName") DataObject variableNameObject,
+				@LangParameter("$variable") DataObject variableObject,
+				@LangParameter("$final") @BooleanValue boolean finalData) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"func.moduleExportNormalVariable\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "fp." + variableName;
+			
+			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalData).setVariableName(variableName));
+			
+			return null;
 		}
 	}
 }
