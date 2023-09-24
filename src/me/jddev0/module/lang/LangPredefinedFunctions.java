@@ -104,173 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedModuleFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("getModuleVariable", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject moduleNameObject = combinedArgumentList.get(0);
-			DataObject variableNameObject = combinedArgumentList.get(1);
-			
-			String moduleName = moduleNameObject.getText();
-			String variableName = variableNameObject.getText();
-			
-			for(int i = 0;i < moduleName.length();i++) {
-				char c = moduleName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			if(!variableName.startsWith("$") && !variableName.startsWith("&") && !variableName.startsWith("fp."))
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name must start with \"$\", \"&\", or \"fp.\"", SCOPE_ID);
-			
-			int variablePrefixLen = (variableName.charAt(0) == '$' || variableName.charAt(0) == '&')?1:3;
-			
-			for(int i = variablePrefixLen;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			LangModule module = interpreter.modules.get(moduleName);
-			if(module == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
-			
-			DataObject variable = module.getExportedVariables().get(variableName);
-			if(variable == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
-						+ moduleName + "\"", SCOPE_ID);
-			
-			return variable;
-		});
-		funcs.put("getModuleVariableNormal", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject moduleNameObject = combinedArgumentList.get(0);
-			DataObject variableNameObject = combinedArgumentList.get(1);
-			
-			String moduleName = moduleNameObject.getText();
-			String variableName = variableNameObject.getText();
-			
-			for(int i = 0;i < moduleName.length();i++) {
-				char c = moduleName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			variableName = "$" + variableName;
-			
-			LangModule module = interpreter.modules.get(moduleName);
-			if(module == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
-			
-			DataObject variable = module.getExportedVariables().get(variableName);
-			if(variable == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
-						+ moduleName + "\"", SCOPE_ID);
-			
-			return variable;
-		});
-		funcs.put("getModuleVariableComposite", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject moduleNameObject = combinedArgumentList.get(0);
-			DataObject variableNameObject = combinedArgumentList.get(1);
-			
-			String moduleName = moduleNameObject.getText();
-			String variableName = variableNameObject.getText();
-			
-			for(int i = 0;i < moduleName.length();i++) {
-				char c = moduleName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			variableName = "&" + variableName;
-			
-			LangModule module = interpreter.modules.get(moduleName);
-			if(module == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
-			
-			DataObject variable = module.getExportedVariables().get(variableName);
-			if(variable == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
-						+ moduleName + "\"", SCOPE_ID);
-			
-			return variable;
-		});
-		funcs.put("getModuleVariableFunctionPointer", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject moduleNameObject = combinedArgumentList.get(0);
-			DataObject variableNameObject = combinedArgumentList.get(1);
-			
-			String moduleName = moduleNameObject.getText();
-			String variableName = variableNameObject.getText();
-			
-			for(int i = 0;i < moduleName.length();i++) {
-				char c = moduleName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			for(int i = 0;i < variableName.length();i++) {
-				char c = variableName.charAt(i);
-				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-					continue;
-				
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-			}
-			
-			variableName = "fp." + variableName;
-			
-			LangModule module = interpreter.modules.get(moduleName);
-			if(module == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
-			
-			DataObject variable = module.getExportedVariables().get(variableName);
-			if(variable == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
-						+ moduleName + "\"", SCOPE_ID);
-			
-			return variable;
-		});
 		funcs.put("moduleExportFunction", (argumentList, SCOPE_ID) -> {
 			LangModule module = interpreter.getCurrentCallStackElement().getModule();
 			if(module == null || !module.isLoad())
@@ -9169,7 +9002,7 @@ final class LangPredefinedFunctions {
 	public static final class LangPredefinedModuleFunctions {
 		private LangPredefinedModuleFunctions() {}
 		
-		private static boolean isModuleNameInvalid(String moduleName) {
+		private static boolean containsNonWordChars(String moduleName) {
 			for(int i = 0;i < moduleName.length();i++) {
 				char c = moduleName.charAt(i);
 				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
@@ -9193,7 +9026,7 @@ final class LangPredefinedFunctions {
 				@LangParameter("$moduleName") DataObject moduleNameObject) {
 			String moduleName = moduleNameObject.getText();
 			
-			if(isModuleNameInvalid(moduleName))
+			if(containsNonWordChars(moduleName))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
 			
 			LangModule module = interpreter.modules.get(moduleName);
@@ -9209,7 +9042,7 @@ final class LangPredefinedFunctions {
 				@LangParameter("$moduleName") DataObject moduleNameObject) {
 			String moduleName = moduleNameObject.getText();
 			
-			if(isModuleNameInvalid(moduleName))
+			if(containsNonWordChars(moduleName))
 				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
 			
 			LangModule module = interpreter.modules.get(moduleName);
@@ -9217,6 +9050,122 @@ final class LangPredefinedFunctions {
 				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
 			
 			return new DataObject().setArray(module.getExportedFunctions().stream().map(DataObject::new).toArray(DataObject[]::new));
+		}
+		
+		@LangFunction("getModuleVariable")
+		public static DataObject getModuleVariableFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleName") DataObject moduleNameObject,
+				@LangParameter("$variableName") DataObject variableNameObject) {
+			String moduleName = moduleNameObject.getText();
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(moduleName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			if(!variableName.startsWith("$") && !variableName.startsWith("&") && !variableName.startsWith("fp."))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name must start with \"$\", \"&\", or \"fp.\"", SCOPE_ID);
+			
+			int variablePrefixLen = (variableName.charAt(0) == '$' || variableName.charAt(0) == '&')?1:3;
+			
+			for(int i = variablePrefixLen;i < variableName.length();i++) {
+				char c = variableName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			DataObject variable = module.getExportedVariables().get(variableName);
+			if(variable == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
+						+ moduleName + "\"", SCOPE_ID);
+			
+			return variable;
+		}
+		
+		@LangFunction("getModuleVariableNormal")
+		public static DataObject getModuleVariableNormalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleName") DataObject moduleNameObject,
+				@LangParameter("$variableName") DataObject variableNameObject) {
+			String moduleName = moduleNameObject.getText();
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(moduleName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "$" + variableName;
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			DataObject variable = module.getExportedVariables().get(variableName);
+			if(variable == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
+						+ moduleName + "\"", SCOPE_ID);
+			
+			return variable;
+		}
+		
+		@LangFunction("getModuleVariableComposite")
+		public static DataObject getModuleVariableCompositeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleName") DataObject moduleNameObject,
+				@LangParameter("$variableName") DataObject variableNameObject) {
+			String moduleName = moduleNameObject.getText();
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(moduleName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "&" + variableName;
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			DataObject variable = module.getExportedVariables().get(variableName);
+			if(variable == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
+						+ moduleName + "\"", SCOPE_ID);
+			
+			return variable;
+		}
+		
+		@LangFunction("getModuleVariableFunctionPointer")
+		public static DataObject getModuleVariableFunctionPointerFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleName") DataObject moduleNameObject,
+				@LangParameter("$variableName") DataObject variableNameObject) {
+			String moduleName = moduleNameObject.getText();
+			String variableName = variableNameObject.getText();
+			
+			if(containsNonWordChars(moduleName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			if(containsNonWordChars(variableName))
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The variable name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			
+			variableName = "fp." + variableName;
+			
+			LangModule module = interpreter.modules.get(moduleName);
+			if(module == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The module \"" + moduleName + "\" was not found", SCOPE_ID);
+			
+			DataObject variable = module.getExportedVariables().get(variableName);
+			if(variable == null)
+				return interpreter.setErrnoErrorObject(InterpretingError.MODULE_LOAD_UNLOAD_ERR, "The variable \"" + variableName + "\" was not found in the module \""
+						+ moduleName + "\"", SCOPE_ID);
+			
+			return variable;
 		}
 	}
 }
