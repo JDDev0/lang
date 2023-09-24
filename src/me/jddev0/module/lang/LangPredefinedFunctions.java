@@ -90,39 +90,12 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedComplexStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedPairStructFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedModuleFunctions.class));
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedLangTestFunctions.class));
 		
 		//Add non @LangNativeFunction functions
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("testUnit", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			interpreter.langTestStore.addUnit(textObject.getText());
-			
-			return null;
-		});
-		funcs.put("testSubUnit", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			DataObject textObject = LangUtils.combineDataObjects(argumentList);
-			if(textObject == null)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, SCOPE_ID);
-			
-			try {
-				interpreter.langTestStore.addSubUnit(textObject.getText());
-			}catch(IllegalStateException e) {
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
-			}
-			
-			return null;
-		});
 		funcs.put("testAssertError", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
@@ -9123,6 +9096,38 @@ final class LangPredefinedFunctions {
 			variableName = "fp." + variableName;
 			
 			module.getExportedVariables().put(variableName, new DataObject(variableObject).setFinalData(finalData).setVariableName(variableName));
+			
+			return null;
+		}
+	}
+	
+	public static final class LangPredefinedLangTestFunctions {
+		private LangPredefinedLangTestFunctions() {}
+		
+		@LangFunction("testUnit")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testUnitFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			interpreter.langTestStore.addUnit(textObject.getText());
+			
+			return null;
+		}
+		
+		@LangFunction("testSubUnit")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testSubUnitFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$text") @VarArgs DataObject textObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			try {
+				interpreter.langTestStore.addSubUnit(textObject.getText());
+			}catch(IllegalStateException e) {
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, e.getMessage(), SCOPE_ID);
+			}
 			
 			return null;
 		}
