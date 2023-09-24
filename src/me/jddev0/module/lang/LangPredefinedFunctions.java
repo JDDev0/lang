@@ -104,158 +104,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedListFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("listMap", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(int i = 0;i < list.size();i++) {
-				list.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						list.get(i)
-				), SCOPE_ID)));
-			}
-			
-			return null;
-		});
-		funcs.put("listMapToNew", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject funcPointerObject = combinedArgumentList.get(1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			LinkedList<DataObject> newList = new LinkedList<>();
-			for(int i = 0;i < list.size();i++) {
-				newList.set(i, new DataObject(interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(), Arrays.asList(
-						list.get(i)
-				), SCOPE_ID)));
-			}
-			
-			return new DataObject().setList(newList);
-		});
-		funcs.put("listReduce", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject currentValueObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
-			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			List<DataObject> list = listObject.getList();
-			for(DataObject ele:list) {
-				if(currentValueObject == null) { //Set first element as currentValue if non was provided
-					currentValueObject = ele;
-					
-					continue;
-				}
-				
-				currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-				LangUtils.separateArgumentsWithArgumentSeparators(
-						Arrays.asList(
-								currentValueObject,
-								ele
-						)
-				), SCOPE_ID);
-			}
-			
-			return currentValueObject;
-		});
-		funcs.put("listReduceColumn", (argumentList, SCOPE_ID) -> {
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject listObject = combinedArgumentList.get(0);
-			DataObject currentValueStartObject = combinedArgumentList.size() == 3?combinedArgumentList.get(1):null;
-			DataObject funcPointerObject = combinedArgumentList.get(combinedArgumentList.size() == 3?2:1);
-			
-			if(listObject.getType() != DataType.LIST)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1 ", DataType.LIST), SCOPE_ID);
-			
-			if(funcPointerObject.getType() != DataType.FUNCTION_POINTER)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, SCOPE_ID);
-			
-			LinkedList<DataObject> listOfLists = listObject.getList();
-			
-			int len = -1;
-			List<LinkedList<DataObject>> lists = new LinkedList<>();
-			for(int i = 0;i < listOfLists.size();i++) {
-				DataObject arg = listOfLists.get(i);
-				if(arg.getType() != DataType.LIST)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, String.format(ARGUMENT_TYPE_FORMAT, "1[" + i + "] ", DataType.LIST), SCOPE_ID);
-				
-				lists.add(arg.getList());
-				
-				int lenTest = arg.getList().size();
-				if(len == -1) {
-					len = lenTest;
-					
-					continue;
-				}
-				
-				if(len != lenTest)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The size of the element [" + i + "] of list must be " + len, SCOPE_ID);
-			}
-			
-			if(lists.size() == 0)
-				return new DataObject().setList(new LinkedList<>());
-			
-			LinkedList<DataObject> reduceedLists = new LinkedList<>();
-			for(int i = 0;i < len;i++) {
-				DataObject currentValueObject = currentValueStartObject == null?null:new DataObject(currentValueStartObject);
-				
-				for(LinkedList<DataObject> list:lists) {
-					DataObject ele = list.get(i);
-					
-					if(currentValueObject == null) { //Set first element as currentValue if non was provided
-						currentValueObject = ele;
-						
-						continue;
-					}
-					
-					currentValueObject = interpreter.callFunctionPointer(funcPointerObject.getFunctionPointer(), funcPointerObject.getVariableName(),
-					LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(
-									currentValueObject,
-									ele
-							)
-					), SCOPE_ID);
-				}
-				
-				reduceedLists.add(currentValueObject == null?new DataObject().setVoid():currentValueObject);
-			}
-			
-			return new DataObject().setList(reduceedLists);
-		});
 		funcs.put("listForEach", (argumentList, SCOPE_ID) -> {
 			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
 			DataObject error;
@@ -7928,17 +7776,17 @@ final class LangPredefinedFunctions {
 		@LangFunction(value="arrayReduceColumn", hasInfo=true)
 		@AllowedTypes(DataObject.DataType.ARRAY)
 		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
-				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&arrays") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObjects,
 				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
-			return arrayReduceColumnFunction(interpreter, SCOPE_ID, arrayObject, null, combineFunction);
+			return arrayReduceColumnFunction(interpreter, SCOPE_ID, arrayObjects, null, combineFunction);
 		}
 		@LangFunction("arrayReduceColumn")
 		@AllowedTypes(DataObject.DataType.ARRAY)
 		public static DataObject arrayReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
-				@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject,
+				@LangParameter("&arrays") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObjects,
 				@LangParameter("$initialValue") DataObject initialValueObject,
 				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
-			DataObject[] arrayOfArrays = arrayObject.getArray();
+			DataObject[] arrayOfArrays = arrayObjects.getArray();
 			
 			int len = -1;
 			List<DataObject[]> arrays = new LinkedList<>();
@@ -7946,7 +7794,7 @@ final class LangPredefinedFunctions {
 				DataObject arg = arrayOfArrays[i];
 				if(arg.getType() != DataType.ARRAY)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
-							"The element at index " + i + " of argument 1 (\"&array\") must be of type " + DataObject.DataType.ARRAY, SCOPE_ID);
+							"The element at index " + i + " of argument 1 (\"&arrays\") must be of type " + DataObject.DataType.ARRAY, SCOPE_ID);
 				
 				arrays.add(arg.getArray());
 				
@@ -7959,7 +7807,7 @@ final class LangPredefinedFunctions {
 				
 				if(len != lenTest)
 					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
-							"The length of the array at index " + i + " of argument 1 (\"&array\") must be " + len, SCOPE_ID);
+							"The length of the array at index " + i + " of argument 1 (\"&arrays\") must be " + len, SCOPE_ID);
 			}
 			
 			if(arrays.size() == 0)
@@ -8789,6 +8637,144 @@ final class LangPredefinedFunctions {
 				), SCOPE_ID).getBoolean();
 			}).count();
 			return new DataObject().setInt((int)count);
+		}
+		
+		@LangFunction("listMap")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject listMapFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.map") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject mapFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			for(int i = 0;i < list.size();i++) {
+				list.set(i, new DataObject(interpreter.callFunctionPointer(mapFunction.getFunctionPointer(), mapFunction.getVariableName(), Arrays.asList(
+						new DataObject(list.get(i))
+				), SCOPE_ID)));
+			}
+			
+			return null;
+		}
+		
+		@LangFunction("listMapToNew")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listMapToNewFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.map") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject mapFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			LinkedList<DataObject> newList = new LinkedList<>();
+			for(int i = 0;i < list.size();i++) {
+				newList.add(new DataObject(interpreter.callFunctionPointer(mapFunction.getFunctionPointer(), mapFunction.getVariableName(), Arrays.asList(
+						new DataObject(list.get(i))
+				), SCOPE_ID)));
+			}
+			
+			return new DataObject().setList(newList);
+		}
+		
+		@LangFunction(value="listReduce", hasInfo=true)
+		public static DataObject listReduceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return listReduceFunction(interpreter, SCOPE_ID, listObject, null, combineFunction);
+		}
+		@LangFunction("listReduce")
+		public static DataObject listReduceFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&list") @AllowedTypes(DataObject.DataType.LIST) DataObject listObject,
+				@LangParameter("$initialValue") DataObject initialValueObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			List<DataObject> list = listObject.getList();
+			
+			DataObject currentValueObject = initialValueObject;
+			
+			for(DataObject ele:list) {
+				if(currentValueObject == null) {
+					//Set first element as currentValue if no initial value was provided
+					
+					currentValueObject = ele;
+					
+					continue;
+				}
+				
+				currentValueObject = interpreter.callFunctionPointer(combineFunction.getFunctionPointer(), combineFunction.getVariableName(),
+				LangUtils.separateArgumentsWithArgumentSeparators(
+						Arrays.asList(
+								new DataObject(currentValueObject),
+								new DataObject(ele)
+						)
+				), SCOPE_ID);
+			}
+			
+			return currentValueObject == null?null:new DataObject(currentValueObject);
+		}
+		
+		@LangFunction(value="listReduceColumn", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&lists") @AllowedTypes(DataObject.DataType.LIST) DataObject listObjects,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			return listReduceColumnFunction(interpreter, SCOPE_ID, listObjects, null, combineFunction);
+		}
+		@LangFunction("listReduceColumn")
+		@AllowedTypes(DataObject.DataType.LIST)
+		public static DataObject listReduceColumnFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("&lists") @AllowedTypes(DataObject.DataType.LIST) DataObject listObjects,
+				@LangParameter("$initialValue") DataObject initialValueObject,
+				@LangParameter("fp.combine") @AllowedTypes(DataObject.DataType.FUNCTION_POINTER) DataObject combineFunction) {
+			LinkedList<DataObject> listOfLists = listObjects.getList();
+			
+			int len = -1;
+			List<LinkedList<DataObject>> lists = new LinkedList<>();
+			for(int i = 0;i < listOfLists.size();i++) {
+				DataObject arg = listOfLists.get(i);
+				if(arg.getType() != DataType.LIST)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The element at index " + i + " of argument 1 (\"&lists\") must be of type " + DataObject.DataType.LIST, SCOPE_ID);
+				
+				lists.add(arg.getList());
+				
+				int lenTest = arg.getList().size();
+				if(len == -1) {
+					len = lenTest;
+					
+					continue;
+				}
+				
+				if(len != lenTest)
+					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS,
+							"The length of the array at index " + i + " of argument 1 (\"&lists\") must be " + len, SCOPE_ID);
+			}
+			
+			if(lists.size() == 0)
+				return new DataObject().setList(new LinkedList<>());
+			
+			LinkedList<DataObject> reduceedLists = new LinkedList<>();
+			for(int i = 0;i < len;i++) {
+				DataObject currentValueObject = initialValueObject == null?null:new DataObject(initialValueObject);
+				
+				for(LinkedList<DataObject> list:lists) {
+					DataObject ele = list.get(i);
+					
+					if(currentValueObject == null) {
+						//Set first element as currentValue if no initial value was provided
+						currentValueObject = ele;
+						
+						continue;
+					}
+					
+					currentValueObject = interpreter.callFunctionPointer(combineFunction.getFunctionPointer(), combineFunction.getVariableName(),
+					LangUtils.separateArgumentsWithArgumentSeparators(
+							Arrays.asList(
+									new DataObject(currentValueObject),
+									new DataObject(ele)
+							)
+					), SCOPE_ID);
+				}
+				
+				reduceedLists.add(currentValueObject == null?new DataObject().setVoid():new DataObject(currentValueObject));
+			}
+			
+			return new DataObject().setList(reduceedLists);
 		}
 	}
 	
