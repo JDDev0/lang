@@ -96,78 +96,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("testAssertFinal", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFinal(actualValueObject.isFinalData(),
-					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
-					actualValueObject));
-			
-			return null;
-		});
-		funcs.put("testAssertNotFinal", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotFinal(
-					!actualValueObject.isFinalData(), interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), actualValueObject));
-			
-			return null;
-		});
-		funcs.put("testAssertStatic", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(
-					actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), actualValueObject));
-			
-			return null;
-		});
-		funcs.put("testAssertNotStatic", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(
-					!actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), actualValueObject));
-			
-			return null;
-		});
 		funcs.put("testAssertThrow", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
@@ -9187,6 +9115,90 @@ final class LangPredefinedFunctions {
 			
 			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotVoid(
 					actualValueObject.getType() != DataType.VOID, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertFinal", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject) {
+			return testAssertFinalFunction(interpreter, SCOPE_ID, actualValueObject, null);
+		}
+		@LangFunction("testAssertFinal")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultFinal(actualValueObject.isFinalData(),
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
+					actualValueObject));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertNotFinal", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertNotFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject) {
+			return testAssertNotFinalFunction(interpreter, SCOPE_ID, actualValueObject, null);
+		}
+		@LangFunction("testAssertNotFinal")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertNotFinalFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotFinal(
+					!actualValueObject.isFinalData(), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertStatic", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject) {
+			return testAssertStaticFunction(interpreter, SCOPE_ID, actualValueObject, null);
+		}
+		@LangFunction("testAssertStatic")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultStatic(
+					actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertNotStatic", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertNotStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject) {
+			return testAssertNotStaticFunction(interpreter, SCOPE_ID, actualValueObject, null);
+		}
+		@LangFunction("testAssertNotStatic")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertNotStaticFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultNotStatic(
+					!actualValueObject.isStaticData(), interpreter.printStackTrace(-1),
 					messageObject == null?null:messageObject.getText(), actualValueObject));
 			
 			return null;
