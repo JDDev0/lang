@@ -96,113 +96,6 @@ final class LangPredefinedFunctions {
 		addPredefinedLangTestFunctions(funcs);
 	}
 	private void addPredefinedLangTestFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("testAssertTranslationValueNotEquals", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject translationKey = combinedArgumentList.get(0);
-			DataObject expectedValueObject = combinedArgumentList.get(1);
-			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(
-					translationValue != null && !translationValue.equals(expectedValueObject.getText()),
-					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
-							translationKey.getText(), translationValue, expectedValueObject.getText()));
-			
-			return null;
-		});
-		funcs.put("testAssertTranslationKeyFound", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject translationKey = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(
-					translationValue != null, interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue));
-			
-			return null;
-		});
-		funcs.put("testAssertTranslationKeyNotFound", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 1, 2, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject translationKey = combinedArgumentList.get(0);
-			DataObject messageObject = combinedArgumentList.size() < 2?null:combinedArgumentList.get(1);
-			
-			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKey.getText());
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(
-					translationValue == null, interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), translationKey.getText(), translationValue));
-			
-			return null;
-		});
-		funcs.put("testAssertTypeEquals", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject expectedTypeObject = combinedArgumentList.get(1);
-			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(expectedTypeObject.getType() != DataType.TYPE)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			DataType expectedType = expectedTypeObject.getTypeValue();
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeEquals(
-					actualValueObject.getType() == expectedType, interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
-			
-			return null;
-		});
-		funcs.put("testAssertTypeNotEquals", (argumentList, SCOPE_ID) -> {
-			if(!interpreter.executionFlags.langTest)
-				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
-			
-			List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-			DataObject error;
-			if((error = requireArgumentCount(combinedArgumentList, 2, 3, SCOPE_ID)) != null)
-				return error;
-			
-			DataObject actualValueObject = combinedArgumentList.get(0);
-			DataObject expectedTypeObject = combinedArgumentList.get(1);
-			DataObject messageObject = combinedArgumentList.size() < 3?null:combinedArgumentList.get(2);
-			
-			if(expectedTypeObject.getType() != DataType.TYPE)
-				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-			
-			DataType expectedType = expectedTypeObject.getTypeValue();
-			
-			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeNotEquals(
-					actualValueObject.getType() != expectedType, interpreter.printStackTrace(-1),
-					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
-			
-			return null;
-		});
 		funcs.put("testAssertNull", (argumentList, SCOPE_ID) -> {
 			if(!interpreter.executionFlags.langTest)
 				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
@@ -9164,6 +9057,125 @@ final class LangPredefinedFunctions {
 					translationValue != null && translationValue.equals(expectedValueObject.getText()),
 					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
 							translationKeyObject.getText(), translationValue, expectedValueObject.getText()));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertTranslationValueNotEquals", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationValueNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject,
+				@LangParameter("$expectedValue") DataObject expectedValueObject) {
+			return testAssertTranslationValueNotEqualsFunction(interpreter, SCOPE_ID, translationKeyObject, expectedValueObject, null);
+		}
+		@LangFunction("testAssertTranslationValueNotEquals")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationValueNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject,
+				@LangParameter("$expectedValue") DataObject expectedValueObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationValueNotEquals(
+					translationValue != null && !translationValue.equals(expectedValueObject.getText()),
+					interpreter.printStackTrace(-1), messageObject == null?null:messageObject.getText(),
+							translationKeyObject.getText(), translationValue, expectedValueObject.getText()));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertTranslationKeyFound", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationKeyFoundFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject) {
+			return testAssertTranslationKeyFoundFunction(interpreter, SCOPE_ID, translationKeyObject, null);
+		}
+		@LangFunction("testAssertTranslationKeyFound")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationKeyFoundFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyFound(
+					translationValue != null, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), translationKeyObject.getText(), translationValue));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertTranslationKeyNotFound", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationKeyNotFoundFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject) {
+			return testAssertTranslationKeyNotFoundFunction(interpreter, SCOPE_ID, translationKeyObject, null);
+		}
+		@LangFunction("testAssertTranslationKeyNotFound")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTranslationKeyNotFoundFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$translationKey") DataObject translationKeyObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			String translationValue = interpreter.getData().get(SCOPE_ID).lang.get(translationKeyObject.getText());
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTranslationKeyNotFound(
+					translationValue == null, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), translationKeyObject.getText(), translationValue));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertTypeEquals", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTypeEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$expectedType") @AllowedTypes(DataObject.DataType.TYPE) DataObject expectedTypeObject) {
+			return testAssertTypeEqualsFunction(interpreter, SCOPE_ID, actualValueObject, expectedTypeObject, null);
+		}
+		@LangFunction("testAssertTypeEquals")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTypeEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$expectedType") @AllowedTypes(DataObject.DataType.TYPE) DataObject expectedTypeObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			DataType expectedType = expectedTypeObject.getTypeValue();
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeEquals(
+					actualValueObject.getType() == expectedType, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
+			
+			return null;
+		}
+		
+		@LangFunction(value="testAssertTypeNotEquals", hasInfo=true)
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTypeNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$expectedType") @AllowedTypes(DataObject.DataType.TYPE) DataObject expectedTypeObject) {
+			return testAssertTypeNotEqualsFunction(interpreter, SCOPE_ID, actualValueObject, expectedTypeObject, null);
+		}
+		@LangFunction("testAssertTypeNotEquals")
+		@AllowedTypes(DataObject.DataType.VOID)
+		public static DataObject testAssertTypeNotEqualsFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$actualValue") DataObject actualValueObject,
+				@LangParameter("$expectedType") @AllowedTypes(DataObject.DataType.TYPE) DataObject expectedTypeObject,
+				@LangParameter("$message") DataObject messageObject) {
+			if(!interpreter.executionFlags.langTest)
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "langTest functions can only be used if the langTest flag is true", SCOPE_ID);
+			
+			DataType expectedType = expectedTypeObject.getTypeValue();
+			
+			interpreter.langTestStore.addAssertResult(new LangTest.AssertResultTypeNotEquals(
+					actualValueObject.getType() != expectedType, interpreter.printStackTrace(-1),
+					messageObject == null?null:messageObject.getText(), actualValueObject, expectedType));
 			
 			return null;
 		}
