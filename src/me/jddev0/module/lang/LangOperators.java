@@ -195,13 +195,17 @@ final class LangOperators {
 				final FunctionPointerObject aFunc = leftSideOperand.getFunctionPointer();
 				final FunctionPointerObject bFunc = rightSideOperand.getFunctionPointer();
 				return new DataObject().setFunctionPointer(new FunctionPointerObject("<concat-func(" + aFunc + ", " + bFunc + ")>",
-				(interpreter, args, INNER_SCOPE_ID) -> {
-					DataObject retA = interpreter.callFunctionPointer(aFunc, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
-					
-					return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), Arrays.asList(
-							retA == null?new DataObject().setVoid():retA
-					), INNER_SCOPE_ID);
-				}));
+						LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("concat-func")
+					public DataObject concatFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
+							@LangParameter("&args") @RawVarArgs List<DataObject> args) {
+						DataObject retA = interpreter.callFunctionPointer(aFunc, leftSideOperand.getVariableName(), args, SCOPE_ID);
+						
+						return interpreter.callFunctionPointer(bFunc, rightSideOperand.getVariableName(), Arrays.asList(
+								retA == null?new DataObject().setVoid():new DataObject(retA)
+						), SCOPE_ID);
+					}
+				})));
 			
 			case STRUCT:
 			case ERROR:
