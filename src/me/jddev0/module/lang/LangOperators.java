@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
@@ -11,6 +12,7 @@ import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
 import me.jddev0.module.lang.LangFunction.AllowedTypes;
 import me.jddev0.module.lang.LangFunction.LangParameter;
+import me.jddev0.module.lang.LangFunction.LangParameter.RawVarArgs;
 import me.jddev0.module.lang.LangFunction.LangParameter.VarArgs;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
@@ -252,7 +254,7 @@ final class LangOperators {
 					public DataObject autoUnpackFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
 							@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
 						return interpreter.callFunctionPointer(func, operand.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-								Arrays.asList(arrayObject.getArray())
+								Arrays.stream(arrayObject.getArray()).map(DataObject::new).collect(Collectors.toList())
 						), SCOPE_ID);
 					}
 				})));
@@ -295,9 +297,9 @@ final class LangOperators {
 						LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
 					@LangFunction("auto-pack-func")
 					public DataObject autopackFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
-							@LangParameter("&args") @VarArgs List<DataObject> arrayObject) {
+							@LangParameter("&args") @VarArgs List<DataObject> args) {
 						return interpreter.callFunctionPointer(func, operand.getVariableName(), Arrays.asList(
-								new DataObject().setArray(arrayObject.stream().map(DataObject::new).toArray(DataObject[]::new))
+								new DataObject().setArray(args.stream().map(DataObject::new).toArray(DataObject[]::new))
 						), SCOPE_ID);
 					}
 				})));
@@ -1000,23 +1002,33 @@ final class LangOperators {
 				final FunctionPointerObject func = leftSideOperand.getFunctionPointer();
 				
 				if(count == 0)
-					return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">", (interpreter, args, INNER_SCOPE_ID) -> {
-						return new DataObject().setVoid();
-					}));
+					return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">",
+							LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+						@LangFunction("pow-func")
+						public DataObject powFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
+								@LangParameter("&args") @RawVarArgs List<DataObject> args) {
+							return new DataObject().setVoid();
+						}
+					})));
 				
-				return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">", (interpreter, args, INNER_SCOPE_ID) -> {
-					DataObject retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, INNER_SCOPE_ID);
-					DataObject ret = retN == null?new DataObject().setVoid():retN;
-					
-					for(int i = 1;i < count;i++) {
-						retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), Arrays.asList(
-								ret
-						), INNER_SCOPE_ID);
-						ret = retN == null?new DataObject().setVoid():retN;
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<" + func + " ** " + count + ">",
+						LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("pow-func")
+					public DataObject powFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
+							@LangParameter("&args") @RawVarArgs List<DataObject> args) {
+						DataObject retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), args, SCOPE_ID);
+						DataObject ret = retN == null?new DataObject().setVoid():new DataObject(retN);
+						
+						for(int i = 1;i < count;i++) {
+							retN = interpreter.callFunctionPointer(func, leftSideOperand.getVariableName(), Arrays.asList(
+									ret
+							), SCOPE_ID);
+							ret = retN == null?new DataObject().setVoid():new DataObject(retN);
+						}
+						
+						return ret;
 					}
-					
-					return ret;
-				}));
+				})));
 			
 			case TEXT:
 			case CHAR:
