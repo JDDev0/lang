@@ -9,6 +9,9 @@ import me.jddev0.module.lang.DataObject.DataType;
 import me.jddev0.module.lang.DataObject.DataTypeConstraintException;
 import me.jddev0.module.lang.DataObject.FunctionPointerObject;
 import me.jddev0.module.lang.DataObject.StructObject;
+import me.jddev0.module.lang.LangFunction.AllowedTypes;
+import me.jddev0.module.lang.LangFunction.LangParameter;
+import me.jddev0.module.lang.LangFunction.LangParameter.VarArgs;
 import me.jddev0.module.lang.LangInterpreter.InterpretingError;
 
 /**
@@ -243,22 +246,16 @@ final class LangOperators {
 			
 			case FUNCTION_POINTER:
 				final FunctionPointerObject func = operand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-unpack-func:" + func + ">", (interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					if(combinedArgumentList.size() < 1)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Not enough arguments (%s needed)", 1), INNER_SCOPE_ID);
-					if(combinedArgumentList.size() > 1)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format("Too many arguments (%s needed)", 1), INNER_SCOPE_ID);
-					
-					DataObject arrPointerObject = combinedArgumentList.get(0);
-					
-					if(arrPointerObject.getType() != DataType.ARRAY)
-						return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARR_PTR, INNER_SCOPE_ID);
-					
-					return interpreter.callFunctionPointer(func, operand.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
-							Arrays.asList(arrPointerObject.getArray())
-					), INNER_SCOPE_ID);
-				}));
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-unpack-func(" + func + ")>",
+						LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("auto-unpack-func")
+					public DataObject autoUnpackFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
+							@LangParameter("&array") @AllowedTypes(DataObject.DataType.ARRAY) DataObject arrayObject) {
+						return interpreter.callFunctionPointer(func, operand.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
+								Arrays.asList(arrayObject.getArray())
+						), SCOPE_ID);
+					}
+				})));
 			
 			case STRUCT:
 			case TEXT:
@@ -294,13 +291,16 @@ final class LangOperators {
 			
 			case FUNCTION_POINTER:
 				final FunctionPointerObject func = operand.getFunctionPointer();
-				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-pack-func:" + func + ">", (interpreter, args, INNER_SCOPE_ID) -> {
-					List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(args);
-					
-					return interpreter.callFunctionPointer(func, operand.getVariableName(), Arrays.asList(
-							new DataObject().setArray(combinedArgumentList.toArray(new DataObject[0]))
-					), INNER_SCOPE_ID);
-				}));
+				return new DataObject().setFunctionPointer(new FunctionPointerObject("<auto-pack-func(" + func + ")>",
+						LangNativeFunction.getSingleLangFunctionFromObject(interpreter, new Object() {
+					@LangFunction("auto-pack-func")
+					public DataObject autopackFuncFunction(LangInterpreter interpreter, int SCOPE_ID,
+							@LangParameter("&args") @VarArgs List<DataObject> arrayObject) {
+						return interpreter.callFunctionPointer(func, operand.getVariableName(), Arrays.asList(
+								new DataObject().setArray(arrayObject.stream().map(DataObject::new).toArray(DataObject[]::new))
+						), SCOPE_ID);
+					}
+				})));
 			
 			case TEXT:
 			case ARRAY:
