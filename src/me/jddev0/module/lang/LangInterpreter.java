@@ -78,9 +78,8 @@ public final class LangInterpreter {
 	//Predefined functions & linker functions (= Predefined functions)
 	Map<String, LangPredefinedFunctionObject> funcs = new HashMap<>();
 	{
-		LangPredefinedFunctions predefinedFunctions = new LangPredefinedFunctions(this);
-		predefinedFunctions.addPredefinedFunctions(funcs);
-		predefinedFunctions.addLinkerFunctions(funcs);
+		LangPredefinedFunctions.addPredefinedFunctions(this, funcs);
+		LangPredefinedFunctions.addLinkerFunctions(this, funcs);
 	}
 	final LangOperators operators = new LangOperators(this);
 	final LangVars langVars = new LangVars(this);

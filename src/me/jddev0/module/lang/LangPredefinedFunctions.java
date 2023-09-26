@@ -45,21 +45,9 @@ import static me.jddev0.module.lang.LangFunction.LangParameter.*;
  * @version v1.0.0
  */
 final class LangPredefinedFunctions {
-	//Error string formats
-	private static final String NOT_ENOUGH_ARGUMENTS_FORMAT = "Not enough arguments (%s needed)";
-	private static final String ARGUMENT_TYPE_FORMAT = "Argument %smust be of type %s";
+	private LangPredefinedFunctions() {}
 	
-	private final LangInterpreter interpreter;
-	
-	public LangPredefinedFunctions(LangInterpreter interpreter) {
-		this.interpreter = interpreter;
-	}
-	
-	public void addPredefinedFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		//Add non-static @LangNativeFunction functions
-		//TODO
-		
-		//Add static @LangNativeFunction functions
+	static void addPredefinedFunctions(LangInterpreter interpreter, Map<String, LangPredefinedFunctionObject> funcs) {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedResetFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedErrorFunctions.class));
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedLangFunctions.class));
@@ -83,237 +71,8 @@ final class LangPredefinedFunctions {
 		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedLangTestFunctions.class));
 	}
 	
-	private DataObject executeLinkerFunction(List<DataObject> argumentList, Consumer<Integer> function, int SCOPE_ID) {
-		List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-		if(combinedArgumentList.size() < 1)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-		
-		DataObject langFileNameObject = combinedArgumentList.remove(0);
-		if(langFileNameObject.getType() != DataType.TEXT)
-			return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, SCOPE_ID);
-		
-		String[] langArgs = combinedArgumentList.stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
-		String langFileName = langFileNameObject.getText();
-		if(!langFileName.endsWith(".lang"))
-			return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, SCOPE_ID);
-		
-		String absolutePath;
-		
-		LangModule module = interpreter.getCurrentCallStackElement().getModule();
-		boolean insideModule = module != null;
-		if(insideModule) {
-			absolutePath = LangModuleManager.getModuleFilePath(module, interpreter.getCurrentCallStackElement().getLangPath(), langFileName);
-		}else {
-			if(new File(langFileName).isAbsolute())
-				absolutePath = langFileName;
-			else
-				absolutePath = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + langFileName;
-		}
-		
-		final int NEW_SCOPE_ID = SCOPE_ID + 1;
-		
-		String langPathTmp = absolutePath;
-		if(insideModule) {
-			langPathTmp = absolutePath.substring(0, absolutePath.lastIndexOf('/'));
-			
-			//Update call stack
-			interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>" + langPathTmp,
-					langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module), -1);
-		}else {
-			langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
-			
-			//Update call stack
-			interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null), -1);
-		}
-		
-		//Create an empty data map
-		interpreter.createDataMap(NEW_SCOPE_ID, langArgs);
-		
-		DataObject retTmp;
-		
-		int originalLineNumber = interpreter.getParserLineNumber();
-		try(BufferedReader reader = insideModule?LangModuleManager.readModuleLangFile(module, absolutePath):interpreter.langPlatformAPI.getLangReader(absolutePath)) {
-			interpreter.resetParserPositionVars();
-			interpreter.interpretLines(reader, NEW_SCOPE_ID);
-			
-			function.accept(NEW_SCOPE_ID);
-		}catch(IOException e) {
-			interpreter.data.remove(NEW_SCOPE_ID);
-			return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
-		}finally {
-			interpreter.setParserLineNumber(originalLineNumber);
-			
-			//Remove data map
-			interpreter.data.remove(NEW_SCOPE_ID);
-			
-			//Get returned value from executed Lang file
-			retTmp = interpreter.getAndResetReturnValue(SCOPE_ID);
-			
-			//Update call stack
-			interpreter.popStackElement();
-		}
-		
-		return retTmp;
-	}
-	
-	public void addLinkerFunctions(Map<String, LangPredefinedFunctionObject> funcs) {
-		funcs.put("bindLibrary", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				return executeLinkerFunction(argumentList, NEW_SCOPE_ID -> {
-					//Copy all vars, arrPtrs and funcPtrs
-					interpreter.data.get(NEW_SCOPE_ID).var.forEach((name, val) -> {
-						DataObject oldData = interpreter.data.get(SCOPE_ID).var.get(name);
-						if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars and no final data
-							interpreter.data.get(SCOPE_ID).var.put(name, val);
-						}
-					});
-				}, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("link", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				return executeLinkerFunction(argumentList, NEW_SCOPE_ID -> {
-					//Copy linked translation map (not "lang.* = *") to the "link caller"'s translation map
-					interpreter.data.get(NEW_SCOPE_ID).lang.forEach((k, v) -> {
-						if(!k.startsWith("lang.")) {
-							interpreter.data.get(SCOPE_ID).lang.put(k, v); //Copy to "old" SCOPE_ID
-						}
-					});
-				}, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("include", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				return executeLinkerFunction(argumentList, NEW_SCOPE_ID -> {
-					//Copy linked translation map (not "lang.* = *") to the "link caller"'s translation map
-					interpreter.data.get(NEW_SCOPE_ID).lang.forEach((k, v) -> {
-						if(!k.startsWith("lang.")) {
-							interpreter.data.get(SCOPE_ID).lang.put(k, v); //Copy to "old" SCOPE_ID
-						}
-					});
-					
-					//Copy all vars, arrPtrs and funcPtrs
-					interpreter.data.get(NEW_SCOPE_ID).var.forEach((name, val) -> {
-						DataObject oldData = interpreter.data.get(SCOPE_ID).var.get(name);
-						if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars and no final data
-							interpreter.data.get(SCOPE_ID).var.put(name, val);
-						}
-					});
-				}, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("loadModule", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				if(combinedArgumentList.size() < 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-				
-				DataObject moduleFileObject = combinedArgumentList.remove(0);
-				String moduleFile = moduleFileObject.getText();
-				
-				if(!moduleFile.endsWith(".lm"))
-					return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, "Modules must have a file extension of\".lm\"", SCOPE_ID);
-				
-				if(!new File(moduleFile).isAbsolute())
-					moduleFile = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + moduleFile;
-				
-				return interpreter.moduleManager.load(moduleFile, argumentList, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("unloadModule", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				if(combinedArgumentList.size() < 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-				
-				DataObject moduleNameObject = combinedArgumentList.remove(0);
-				String moduleName = moduleNameObject.getText();
-				for(int i = 0;i < moduleName.length();i++) {
-					char c = moduleName.charAt(i);
-					if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
-						continue;
-					
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
-				}
-				
-				return interpreter.moduleManager.unload(moduleName, argumentList, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("moduleLoadNative", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				LangModule module = interpreter.getCurrentCallStackElement().getModule();
-				if(module == null || !module.isLoad())
-					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleLoadNative\" can only be used inside a module which "
-							+ "is in the \"load\" state", SCOPE_ID);
-				
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				if(combinedArgumentList.size() < 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-				
-				DataObject entryPointObject = combinedArgumentList.remove(0);
-				String entryPoint = entryPointObject.getText();
-				
-				return interpreter.moduleManager.loadNative(entryPoint, module, argumentList, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
-		funcs.put("moduleUnloadNative", new LangPredefinedFunctionObject() {
-			@Override
-			public DataObject callFunc(List<DataObject> argumentList, final int SCOPE_ID) {
-				LangModule module = interpreter.getCurrentCallStackElement().getModule();
-				if(module == null || module.isLoad())
-					return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleUnloadNative\" can only be used inside a module which "
-							+ "is in the \"unload\" state", SCOPE_ID);
-				
-				List<DataObject> combinedArgumentList = LangUtils.combineArgumentsWithoutArgumentSeparators(argumentList);
-				if(combinedArgumentList.size() < 1)
-					return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARG_COUNT, String.format(NOT_ENOUGH_ARGUMENTS_FORMAT, 1), SCOPE_ID);
-				
-				DataObject entryPointObject = combinedArgumentList.remove(0);
-				String entryPoint = entryPointObject.getText();
-				return interpreter.moduleManager.unloadNative(entryPoint, module, argumentList, SCOPE_ID);
-			}
-			
-			@Override
-			public boolean isLinkerFunction() {
-				return true;
-			}
-		});
+	static void addLinkerFunctions(LangInterpreter interpreter, Map<String, LangPredefinedFunctionObject> funcs) {
+		funcs.putAll(LangNativeFunction.getLangFunctionsOfClass(interpreter, LangPredefinedLinkerFunctions.class));
 	}
 	
 	public static final class LangPredefinedResetFunctions {
@@ -5795,8 +5554,8 @@ final class LangPredefinedFunctions {
 									retX == null?new DataObject().setVoid():retX
 							), SCOPE_ID);
 							if(retF == null || retF.getType() != DataType.FUNCTION_POINTER)
-								return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, String.format(ARGUMENT_TYPE_FORMAT, "", DataType.FUNCTION_POINTER)
-										+ "\nThe implementation of the function provided to \"func.combY\" is incorrect!", SCOPE_ID);
+								return interpreter.setErrnoErrorObject(InterpretingError.INVALID_FUNC_PTR, "The value returned by $f() must be of type " +
+										DataType.FUNCTION_POINTER + "\nThe implementation of the function provided to \"func.combY\" is incorrect!", SCOPE_ID);
 							FunctionPointerObject retFFunc = retF.getFunctionPointer();
 							
 							return interpreter.callFunctionPointer(retFFunc, retF.getVariableName(), LangUtils.separateArgumentsWithArgumentSeparators(
@@ -9198,6 +8957,185 @@ final class LangPredefinedFunctions {
 				interpreter.langTestStore.printResultsToTerminal(interpreter.term);
 			
 			return null;
+		}
+	}
+	
+	public static final class LangPredefinedLinkerFunctions {
+		private LangPredefinedLinkerFunctions() {}
+		
+		private static DataObject executeLinkerFunction(LangInterpreter interpreter, String langFileName,
+				List<DataObject> args, Consumer<Integer> function, int SCOPE_ID) {
+			String[] langArgs = args.stream().map(DataObject::getText).collect(Collectors.toList()).toArray(new String[0]);
+			if(!langFileName.endsWith(".lang"))
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, SCOPE_ID);
+			
+			String absolutePath;
+			
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			boolean insideModule = module != null;
+			if(insideModule) {
+				absolutePath = LangModuleManager.getModuleFilePath(module, interpreter.getCurrentCallStackElement().getLangPath(), langFileName);
+			}else {
+				if(new File(langFileName).isAbsolute())
+					absolutePath = langFileName;
+				else
+					absolutePath = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + langFileName;
+			}
+			
+			final int NEW_SCOPE_ID = SCOPE_ID + 1;
+			
+			String langPathTmp = absolutePath;
+			if(insideModule) {
+				langPathTmp = absolutePath.substring(0, absolutePath.lastIndexOf('/'));
+				
+				//Update call stack
+				interpreter.pushStackElement(new StackElement("<module:" + module.getFile() + "[" + module.getLangModuleConfiguration().getName() + "]>" + langPathTmp,
+						langFileName.substring(langFileName.lastIndexOf('/') + 1), null, module), -1);
+			}else {
+				langPathTmp = interpreter.langPlatformAPI.getLangPath(langPathTmp);
+				
+				//Update call stack
+				interpreter.pushStackElement(new StackElement(langPathTmp, interpreter.langPlatformAPI.getLangFileName(langFileName), null, null), -1);
+			}
+			
+			//Create an empty data map
+			interpreter.createDataMap(NEW_SCOPE_ID, langArgs);
+			
+			DataObject retTmp;
+			
+			int originalLineNumber = interpreter.getParserLineNumber();
+			try(BufferedReader reader = insideModule?LangModuleManager.readModuleLangFile(module, absolutePath):interpreter.langPlatformAPI.getLangReader(absolutePath)) {
+				interpreter.resetParserPositionVars();
+				interpreter.interpretLines(reader, NEW_SCOPE_ID);
+				
+				function.accept(NEW_SCOPE_ID);
+			}catch(IOException e) {
+				interpreter.data.remove(NEW_SCOPE_ID);
+				return interpreter.setErrnoErrorObject(InterpretingError.FILE_NOT_FOUND, e.getMessage(), SCOPE_ID);
+			}finally {
+				interpreter.setParserLineNumber(originalLineNumber);
+				
+				//Remove data map
+				interpreter.data.remove(NEW_SCOPE_ID);
+				
+				//Get returned value from executed Lang file
+				retTmp = interpreter.getAndResetReturnValue(SCOPE_ID);
+				
+				//Update call stack
+				interpreter.popStackElement();
+			}
+			
+			return retTmp;
+		}
+		
+		@LangFunction(value="bindLibrary", isLinkerFunction=true)
+		public static DataObject bindLibraryFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$fileName") DataObject fileNameObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			return executeLinkerFunction(interpreter, fileNameObject.getText(), args, NEW_SCOPE_ID -> {
+				//Copy all vars, arrPtrs and funcPtrs
+				interpreter.data.get(NEW_SCOPE_ID).var.forEach((name, val) -> {
+					DataObject oldData = interpreter.data.get(SCOPE_ID).var.get(name);
+					if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars nor final data
+						interpreter.data.get(SCOPE_ID).var.put(name, val);
+					}
+				});
+			}, SCOPE_ID);
+		}
+		
+		@LangFunction(value="link", isLinkerFunction=true)
+		public static DataObject linkFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$fileName") DataObject fileNameObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			return executeLinkerFunction(interpreter, fileNameObject.getText(), args, NEW_SCOPE_ID -> {
+				//Copy linked translation map (except "lang.* = *") to the "link caller"'s translation map
+				interpreter.data.get(NEW_SCOPE_ID).lang.forEach((k, v) -> {
+					if(!k.startsWith("lang.")) {
+						interpreter.data.get(SCOPE_ID).lang.put(k, v); //Copy to "old" SCOPE_ID
+					}
+				});
+			}, SCOPE_ID);
+		}
+		
+		@LangFunction(value="include", isLinkerFunction=true)
+		public static DataObject includeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$fileName") DataObject fileNameObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			return executeLinkerFunction(interpreter, fileNameObject.getText(), args, NEW_SCOPE_ID -> {
+				//Copy linked translation map (except "lang.* = *") to the "link caller"'s translation map
+				interpreter.data.get(NEW_SCOPE_ID).lang.forEach((k, v) -> {
+					if(!k.startsWith("lang.")) {
+						interpreter.data.get(SCOPE_ID).lang.put(k, v); //Copy to "old" SCOPE_ID
+					}
+				});
+				
+				//Copy all vars, arrPtrs and funcPtrs
+				interpreter.data.get(NEW_SCOPE_ID).var.forEach((name, val) -> {
+					DataObject oldData = interpreter.data.get(SCOPE_ID).var.get(name);
+					if(oldData == null || (!oldData.isFinalData() && !oldData.isLangVar())) { //No LANG data vars nor final data
+						interpreter.data.get(SCOPE_ID).var.put(name, val);
+					}
+				});
+			}, SCOPE_ID);
+		}
+		
+		@LangFunction(value="loadModule", isLinkerFunction=true)
+		public static DataObject loadModuleFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleFile") DataObject moduleFileObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			String moduleFile = moduleFileObject.getText();
+			
+			if(!moduleFile.endsWith(".lm"))
+				return interpreter.setErrnoErrorObject(InterpretingError.NO_LANG_FILE, "Modules must have a file extension of\".lm\"", SCOPE_ID);
+			
+			if(!new File(moduleFile).isAbsolute())
+				moduleFile = interpreter.getCurrentCallStackElement().getLangPath() + File.separator + moduleFile;
+			
+			return interpreter.moduleManager.load(moduleFile, LangUtils.separateArgumentsWithArgumentSeparators(args), SCOPE_ID);
+		}
+		
+		@LangFunction(value="unloadModule", isLinkerFunction=true)
+		public static DataObject unloadModuleFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$moduleName") DataObject moduleNameObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			String moduleName = moduleNameObject.getText();
+			for(int i = 0;i < moduleName.length();i++) {
+				char c = moduleName.charAt(i);
+				if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_')
+					continue;
+				
+				return interpreter.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "The module name may only contain alphanumeric characters and underscore (_)", SCOPE_ID);
+			}
+			
+			return interpreter.moduleManager.unload(moduleName, LangUtils.separateArgumentsWithArgumentSeparators(args), SCOPE_ID);
+		}
+		
+		@LangFunction(value="moduleLoadNative", isLinkerFunction=true)
+		public static DataObject moduleLoadNativeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$entryPoint") DataObject entryPointObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || !module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleLoadNative\" can only be used inside a module which "
+						+ "is in the \"load\" state", SCOPE_ID);
+			
+			String entryPoint = entryPointObject.getText();
+			
+			return interpreter.moduleManager.loadNative(entryPoint, module, LangUtils.separateArgumentsWithArgumentSeparators(args), SCOPE_ID);
+		}
+		
+		@LangFunction(value="moduleUnloadNative", isLinkerFunction=true)
+		public static DataObject moduleUnloadNativeFunction(LangInterpreter interpreter, int SCOPE_ID,
+				@LangParameter("$entryPoint") DataObject entryPointObject,
+				@LangParameter("&args") @VarArgs List<DataObject> args) {
+			LangModule module = interpreter.getCurrentCallStackElement().getModule();
+			if(module == null || module.isLoad())
+				return interpreter.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "\"moduleUnloadNative\" can only be used inside a module which "
+						+ "is in the \"unload\" state", SCOPE_ID);
+			
+			String entryPoint = entryPointObject.getText();
+			
+			return interpreter.moduleManager.unloadNative(entryPoint, module, LangUtils.separateArgumentsWithArgumentSeparators(args), SCOPE_ID);
 		}
 	}
 }
