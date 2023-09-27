@@ -56,7 +56,7 @@ import at.jddev0.lang.LangFunction;
 import at.jddev0.lang.LangInterpreter;
 import at.jddev0.lang.LangInterpreter.InterpretingError;
 import at.jddev0.lang.LangNativeFunction;
-import me.jddev0.platform.desktop.swing.LangPlatformAPI;
+import at.jddev0.lang.platform.swing.LangPlatformAPI;
 import at.jddev0.lang.ILangPlatformAPI;
 import at.jddev0.lang.LangPredefinedFunctionObject;
 import at.jddev0.lang.LangUtils;

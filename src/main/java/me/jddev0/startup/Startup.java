@@ -18,7 +18,7 @@ import at.jddev0.lang.DataObject;
 import at.jddev0.lang.Lang;
 import at.jddev0.lang.LangInterpreter;
 import at.jddev0.lang.LangInterpreter.LangInterpreterInterface;
-import me.jddev0.platform.desktop.swing.LangPlatformAPI;
+import at.jddev0.lang.platform.swing.LangPlatformAPI;
 import at.jddev0.lang.LangParser;
 import at.jddev0.lang.ILangPlatformAPI;
 
