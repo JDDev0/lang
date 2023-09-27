@@ -51,4 +51,4 @@ You can use the "-log" argument to enable log file logging<br>
 - If a breaking change is introduced in the lang-interpreter this project will most likely not compile with the latest released lang-interpreter version
   - In that case you should check out the [Building from source](https://github.com/lang-programming/lang-interpreter#build-from-source) section of the lang-interpreter project
   - This project is already setup to use a locally built version of the lang-interpreter if it is newer than the latest release of the lang-interpreter
-- If a breaking change is introduced in the lang-platform-api-swing you should publish the lang platform API to maven locally (See the [Building from source](https://github.com/lang-programming/lang-platform-api-swing#build-from-source))
+- If a breaking change is introduced in the lang-platform-api-swing you should publish the lang platform API to maven locally (See the [Building from source](https://github.com/lang-programming/lang-platform-api-swing#build-from-source) section)
