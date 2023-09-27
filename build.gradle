@@ -22,3 +22,18 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'me.jddev0.startup.Startup'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
