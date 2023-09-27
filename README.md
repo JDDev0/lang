@@ -45,3 +45,9 @@ If "-e CODE" is used in Linux single quotes should be used for the CODE argument
 func.println($a)')<br>
 You can use the "-log" argument to enable log file logging<br>
 
+## Building from source
+
+- This project uses the latest version (= latest commit) of the [Lang Interpreter Project](https://github.com/lang-programming/lang-interpreter)
+- If a breaking change is introduced in the lang-interpreter this project will most likely not compile with the latest released lang-interpreter version
+  - In that case you should check out the [Building from source](https://github.com/lang-programming/lang-interpreter#build-from-source) section of the lang-interpreter project
+  - This project is already setup to use a locally built version of the lang-interpreter if it is newer than the latest release of the lang-interpreter
