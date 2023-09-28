@@ -319,7 +319,7 @@ public class Startup {
 			boolean isThrowValue = lii.isReturnedValueThrowValue();
 			DataObject retValue = lii.getAndResetReturnValue();
 			if(isThrowValue) {
-				System.out.println("------------- Throwed value --------------");
+				System.out.println("-------------- Thrown value --------------");
 				System.out.printf("Error code: \"%d\"\nError message: \"%s\"\n", retValue.getError().getErrno(), retValue.getError().getErrtxt());
 			}else {
 				System.out.println("------------- Returned Value -------------");
