@@ -266,7 +266,7 @@ public class LangShellWindow extends JDialog {
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_I && e.isControlDown() && !e.isShiftDown()) {
 					if(specialCharInputWindow == null) {
-						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "▲", "▼"});
+						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "\u25b2", "\u25bc"});
 						specialCharInputWindow.setVisible(true);
 					}
 				}else if(e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
