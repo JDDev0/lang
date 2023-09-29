@@ -800,8 +800,6 @@ public class LangShellWindow extends JDialog {
 					}
 					builder.append("\n}");
 				}
-				builder.append("\nExternal Function: ");
-				builder.append(dataObject.getFunctionPointer().getExternalFunction());
 				break;
 			
 			case ERROR:
