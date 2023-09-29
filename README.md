@@ -1,6 +1,6 @@
 # The Lang Programming Language
 
-This project makes simple translation files Turing complete
+This project provides a CLI and GUI interface to the Standard Lang implementation of the Lang Programming Language 
 
 ## Features
 
