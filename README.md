@@ -4,11 +4,22 @@ This project makes simple translation files Turing complete
 
 ## Features
 
-In Lang there a many predefined functions and operators which make development of programs easy.
+Uses the [Lang interpreter](https://github.com/lang-programming/lang-interpreter) reference implementation with support for Native Modules and Native Functions
+
+### Lang CLI
+
+You can execute lang files with the Lang CLI.
 
 ### LangShell (REPL)
 
-The Lang Shell is a REPL shell with syntax highlighting and autocompletes to aid you during development.
+The Lang Shell is a REPL shell with many features to aid you during development.<br>
+Features:
+- Syntax highlighting
+- Code autocompletion
+- Command history
+- Loading and saving of lang files
+- Additional debug functions (like `func.printDebug()`) 
+- 4k font size support
 
 ### Combinator functions
 
@@ -16,7 +27,7 @@ One of the main feature of this programming language is the combinator function 
 
 ## Lang Modules
 
-Lang modules can be used to put common code into one library which can be re-used easily.
+Lang Modules can be used to put common code into one library which can be re-used easily.
 Here is a list of all existing modules for lang:
 - The [Lang Example Native Module](https://github.com/JDDev0/LangExampleNativeModule) is a reference implementation of a Lang native module. It can be used as a base for creating new modules.
 - The [Lang IO Module](https://github.com/JDDev0/LangIOModule) is a Lang native module providing basic IO operations for files.
