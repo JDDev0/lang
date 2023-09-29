@@ -10,7 +10,7 @@ Uses the [Lang interpreter](https://github.com/lang-programming/lang-interpreter
 
 You can execute lang files with the Lang CLI.
 
-### LangShell (REPL)
+### Lang Shell (REPL)
 
 The Lang Shell is a REPL shell with many features to aid you during development.<br>
 Features:
