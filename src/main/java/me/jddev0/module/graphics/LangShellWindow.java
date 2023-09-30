@@ -50,15 +50,9 @@ import javax.swing.text.Document;
 
 import at.jddev0.io.TerminalIO;
 import at.jddev0.io.TerminalIO.Level;
-import at.jddev0.lang.DataObject;
-import at.jddev0.lang.Lang;
-import at.jddev0.lang.LangFunction;
-import at.jddev0.lang.LangInterpreter;
+import at.jddev0.lang.*;
 import at.jddev0.lang.LangInterpreter.InterpretingError;
-import at.jddev0.lang.LangNativeFunction;
 import at.jddev0.lang.platform.swing.LangPlatformAPI;
-import at.jddev0.lang.ILangPlatformAPI;
-import at.jddev0.lang.LangUtils;
 import at.jddev0.lang.LangFunction.AllowedTypes;
 import at.jddev0.lang.LangFunction.LangParameter;
 import at.jddev0.lang.LangFunction.LangParameter.CallByPointer;
@@ -70,30 +64,30 @@ import at.jddev0.lang.LangFunction.LangParameter.VarArgs;
  * <br>
  * Graphics-Module<br>
  * Lang Shell
- * 
+ *
  * @author JDDev0
  * @version v1.0.0
  */
 public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
-	
+
 	private final JTextPane shell;
 	private final KeyListener shellKeyListener;
 	private final TerminalIO term;
-	
+
 	private SpecialCharInputWindow specialCharInputWindow = null;
-	
+
 	private File lastLangFileSavedTo = null;
 	private StringBuilder langFileOutputBuilder = new StringBuilder();
-	
+
 	private List<String> history = new LinkedList<String>();
 	private int historyPos = 0;
 	private String currentCommand = "";
-	
+
 	private String autoCompleteText = "";
 	private int autoCompletePos = 0;
 	private Color lastColor = Color.BLACK;
-	
+
 	private Queue<String> executionQueue = new LinkedList<String>();
 	private StringBuilder multiLineTmp = new StringBuilder();
 	private int indent = 0;
@@ -102,19 +96,19 @@ public class LangShellWindow extends JDialog {
 	private boolean flagEnd = false;
 	private boolean flagRunning = false;
 	private boolean flagExecutingQueue = false;
-	
+
 	private AutoPrintMode autoPrintMode = AutoPrintMode.AUTO;
-	
+
 	private final ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
 	private PrintStream oldOut;
-	
+
 	//Lists for auto complete
 	private final List<String> langDataAndExecutionFlags = Arrays.asList("allowTermRedirect = ", "errorOutput = ", "name = ", "test = ", "rawVariableNames = ", "version = ");
 	private final List<String> controlFlowStatements = Arrays.asList("break", "catch", "continue", "elif(", "else", "endif", "endloop", "endtry", "finally", "foreach(", "if(", "loop", "nontry",
 			"repeat(", "softtry", "try", "until(", "while(");
 	private final List<String> parserFunctions = Arrays.asList("con(", "math(", "norm(", "op(");
-	
+
 	public LangShellWindow(Frame owner, TerminalIO term) {
 		this(owner, term, 12);
 	}
@@ -123,33 +117,33 @@ public class LangShellWindow extends JDialog {
 	}
 	public LangShellWindow(Frame owner, TerminalIO term, int fontSize, String[] langArgs) {
 		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
-		
+
 		this.term = term;
-		
+
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("LangShell");
 		setSize(owner.getSize());
 		setLocationRelativeTo(owner);
 		addWindowListener(new WindowAdapter() {
 			@Override
-			 public void windowClosing(WindowEvent e) {
+			public void windowClosing(WindowEvent e) {
 				if(specialCharInputWindow != null)
 					specialCharInputWindow.dispatchEvent(new WindowEvent(specialCharInputWindow, WindowEvent.WINDOW_CLOSING));
-				
+
 				lii.stop(); //Stop interpreter if window is closed
 			}
 		});
-		
+
 		JPanel contentPane = new JPanel();
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setDoubleBuffered(true);
 		scrollPane.setRequestFocusEnabled(false);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
-		
+
 		//Pane for displaying output
 		shell = new JTextPane();
 		shell.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
@@ -162,18 +156,18 @@ public class LangShellWindow extends JDialog {
 		shellKeyListener = new KeyAdapter() {
 			private StringBuilder lineTmp = new StringBuilder();
 			private String lastHistoryEntryUsed = "";
-			
+
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if(flagEnd)
 					return;
-				
+
 				char c = e.getKeyChar();
 				if(c == KeyEvent.CHAR_UNDEFINED)
 					return;
 				if((c > -1 && c < 8) || c == 12 || (c > 13 && c < 32) || c == 127) //Ignores certain control chars
 					return;
-				
+
 				if(c == '\b') {
 					//Remove the last char (if line is not empty)
 					if(lineTmp.length() > 0) {
@@ -212,16 +206,16 @@ public class LangShellWindow extends JDialog {
 					updateAutoCompleteText(lineTmp.toString());
 				}
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(flagEnd) {
 					if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && !e.isShiftDown())
 						dispatchEvent(new WindowEvent(LangShellWindow.this, WindowEvent.WINDOW_CLOSING));
-					
+
 					return;
 				}
-				
+
 				if(e.getKeyCode() == KeyEvent.VK_C && e.isControlDown() && e.isShiftDown()) {
 					Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(shell.getSelectedText()), null);
 				}else if(e.getKeyCode() == KeyEvent.VK_V && e.isControlDown() && e.isShiftDown()) {
@@ -241,12 +235,12 @@ public class LangShellWindow extends JDialog {
 									lineTmp.delete(0, lineTmp.length());
 								}
 							}
-							
+
 							if(lines.length > 1) {
 								addLine(lines[lines.length - 1], true, false);
 								lineTmp.delete(0, lineTmp.length());
 							}
-							
+
 							if(flagRunning) {
 								if(!flagExecutingQueue) {
 									executionQueue.clear();
@@ -256,7 +250,7 @@ public class LangShellWindow extends JDialog {
 								executeCodeFromExecutionQueue();
 							}
 						}
-						
+
 						updateAutoCompleteText(lineTmp.toString());
 					}catch(UnsupportedFlavorException e1) {
 						term.logln(Level.WARNING, "The clipboard contains no string data!", LangShellWindow.class);
@@ -276,14 +270,14 @@ public class LangShellWindow extends JDialog {
 						fileChooser.setDialogTitle("Select file for inserting the path");
 						if(fileChooser.showOpenDialog(LangShellWindow.this) == JFileChooser.APPROVE_OPTION) {
 							File file = fileChooser.getSelectedFile();
-							
+
 							removeAutoCompleteText();
-							
+
 							String textInsert = file.getAbsolutePath();
 							GraphicsHelper.addText(shell, textInsert, Color.WHITE);
 							highlightSyntaxLastLine();
 							lineTmp.append(textInsert);
-							
+
 							updateAutoCompleteText(lineTmp.toString());
 						}
 					}
@@ -300,14 +294,14 @@ public class LangShellWindow extends JDialog {
 					removeAutoCompleteText();
 					if(historyPos < history.size() - 1) {
 						historyPos++;
-						
+
 						String historyRet = history.get(historyPos);
 						String[] lines = historyRet.split("\n");
 						String lastLine = lines[lines.length - 1];
-						
+
 						lineTmp.delete(0, lineTmp.length());
 						lineTmp.append(lastLine);
-						
+
 						removeLines(lastHistoryEntryUsed);
 						lastHistoryEntryUsed = historyRet;
 						addLinesWithoutExec(historyRet);
@@ -317,10 +311,10 @@ public class LangShellWindow extends JDialog {
 							historyPos++;
 						else
 							return;
-						
+
 						removeLines(lastHistoryEntryUsed);
 						multiLineTmp.delete(0, multiLineTmp.length());
-						
+
 						String[] lines = currentCommand.split("\n");
 						for(int i = 0;i < lines.length - 1;i++) {
 							String line = lines[i];
@@ -345,16 +339,16 @@ public class LangShellWindow extends JDialog {
 								currentCommand = multiLineTmp.toString() + " " + currentCommand; //Add tmp space for split at "\n" in removeLines()
 							lastHistoryEntryUsed = currentCommand;
 						}
-						
+
 						historyPos--;
-						
+
 						String historyRet = history.get(historyPos);
 						String[] lines = historyRet.split("\n");
 						String lastLine = lines[lines.length - 1];
-						
+
 						lineTmp.delete(0, lineTmp.length());
 						lineTmp.append(lastLine);
-						
+
 						removeLines(lastHistoryEntryUsed);
 						lastHistoryEntryUsed = historyRet;
 						addLinesWithoutExec(historyRet);
@@ -365,88 +359,88 @@ public class LangShellWindow extends JDialog {
 		};
 		shell.addKeyListener(shellKeyListener);
 		scrollPane.setViewportView(shell);
-		
+
 		initShell(langArgs);
 	}
-	
+
 	public void setFontSize(int fontSize) {
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
-		
+
 		revalidate();
-		
+
 		//Auto scroll
 		shell.setCaretPosition(shell.getDocument().getLength());
 	}
-	
+
 	private void initShell(String[] langArgs) {
 		//Sets System.out
 		oldOut = System.out;
 		System.setOut(new PrintStream(new OutputStream() {
 			//Tmp for multibyte char
 			private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-			
+
 			private int charsLeftInLogOutput;
 			private int type = 0;
 			//Colors for the levels
 			private Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
-			
+
 			@Override
 			public void write(int b) throws IOException {
 				oldOut.write(b);
 				byteOut.write(b);
 			}
-			
+
 			@Override
 			public void flush() throws IOException {
 				String output = byteOut.toString();
 				byteOut.reset();
-				
+
 				updateOutput(output);
-				
+
 				//Auto scroll
 				shell.setCaretPosition(shell.getDocument().getLength());
 			}
-			
+
 			private void updateOutput(String output) {
 				if(output.length() == 0)
 					return;
-				
+
 				if(charsLeftInLogOutput > 0) {
 					if(output.length() > charsLeftInLogOutput) {
 						GraphicsHelper.addText(shell, output.substring(0, charsLeftInLogOutput), colors[type]);
-						
+
 						String outputLeft = output.substring(charsLeftInLogOutput);
 						charsLeftInLogOutput = 0;
 						updateOutput(outputLeft);
 					}else {
 						charsLeftInLogOutput -= output.length();
-						
+
 						GraphicsHelper.addText(shell, output, colors[type]);
 					}
-					
+
 					return;
 				}
-				
+
 				int outputLength = getOutputLength(output);
 				if(outputLength == -1) {
 					type = 0;
-					
+
 					int bracketIndex = output.indexOf('[', 1); //Ignore "[" at start, because it was already tested
-					
+
 					if(bracketIndex == -1) {
 						GraphicsHelper.addText(shell, output, colors[type]);
 					}else {
 						GraphicsHelper.addText(shell, output.substring(0, bracketIndex), colors[type]);
-						
+
 						String outputLeft = output.substring(bracketIndex);
 						updateOutput(outputLeft);
 					}
-					
+
 					return;
 				}
-				
+
 				charsLeftInLogOutput = outputLength;
-				
+
 				//Sets color of message after new line
 				if(output.startsWith("[" + Level.NOTSET + "]")) {
 					type = 0;
@@ -465,32 +459,32 @@ public class LangShellWindow extends JDialog {
 				}else if(output.startsWith("[" + Level.CRITICAL + "]")) {
 					type = 7;
 				}
-				
+
 				//Extract message from debug output
 				output = output.split("]: ", 2)[1];
-				
+
 				if(output.startsWith("[From Lang file]: ")) { //Drop "[From Lang file]: " prefix
 					output = output.substring(18);
-					
+
 					charsLeftInLogOutput -= 18;
 				}
-				
+
 				updateOutput(output);
 			}
-			
+
 			private int getOutputLength(String output) {
 				if(!output.startsWith("[") || !output.contains("]: "))
 					return -1;
-				
+
 				int msgLenIndex = output.indexOf("][Msg len: ");
 				if(msgLenIndex == -1)
 					return -1;
-				
+
 				msgLenIndex += 11; //Index at end of "][Msg len: "
 				int endMsgLenIndex = output.indexOf(']', msgLenIndex);
 				if(endMsgLenIndex == -1)
 					return -1;
-				
+
 				String msgLen = output.substring(msgLenIndex, endMsgLenIndex);
 				try {
 					return Integer.parseInt(msgLen);
@@ -499,30 +493,30 @@ public class LangShellWindow extends JDialog {
 				}
 			}
 		}, true));
-		
+
 		lii = Lang.createInterpreterInterface(term, langPlatformAPI, langArgs);
 		//Change the "errorOutput" flag to ALL
 		lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
-		
+
 		lii.addPredefinedFunctions(this);
-		
+
 		printWelcomeText();
 	}
 	private void printWelcomeText() {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
-		"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
-		"• Press CTRL + S for saving all inputs to a .lang file (Save)\n" +
-		"• Press CTRL + SHIFT + S for saving all inputs to a .lang file (Save As...)\n" +
-		"• Press CTRL + I for opening the special char input window\n" +
-		"• Press CTRL + SHIFT + F for opening a file chooser to insert file paths\n" +
-		"• Press UP and DOWN for scrolling through the history\n" +
-		"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
-		"    ◦ Press ENTER for accepting the auto complete text\n" +
-		"• Press CTRL + L to clear the screen\n" +
-		"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
+				"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
+				"• Press CTRL + S for saving all inputs to a .lang file (Save)\n" +
+				"• Press CTRL + SHIFT + S for saving all inputs to a .lang file (Save As...)\n" +
+				"• Press CTRL + I for opening the special char input window\n" +
+				"• Press CTRL + SHIFT + F for opening a file chooser to insert file paths\n" +
+				"• Press UP and DOWN for scrolling through the history\n" +
+				"• Press TAB and SHIFT + TAB for scrolling trough auto complete texts\n" +
+				"    ◦ Press ENTER for accepting the auto complete text\n" +
+				"• Press CTRL + L to clear the screen\n" +
+				"• Use func.printHelp() to get information about LangShell functions\n> ", Color.WHITE);
 	}
-	
+
 	//Debug functions
 	@LangFunction("printHelp")
 	@AllowedTypes(DataObject.DataType.VOID)
@@ -530,39 +524,39 @@ public class LangShellWindow extends JDialog {
 		term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 				"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
 				"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
-		
+
 		return null;
 	}
 	@LangFunction("printDebug")
 	@AllowedTypes(DataObject.DataType.VOID)
 	public DataObject printDebugFunction(int SCOPE_ID,
-			@LangParameter("$value") @CallByPointer DataObject pointerObject) {
+										 @LangParameter("$value") @CallByPointer DataObject pointerObject) {
 		DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("Debug[");
 		builder.append(dereferencedVarPointer.getVariableName() == null?"<ANONYMOUS>":dereferencedVarPointer.getVariableName());
 		builder.append("]:\n");
 		builder.append(getDebugString(dereferencedVarPointer, 4));
-		
+
 		term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
-		
+
 		return null;
 	}
 	@LangFunction("setAutoPrintMode")
 	@AllowedTypes(DataObject.DataType.VOID)
 	public DataObject setAutoPrintModeFunction(int SCOPE_ID,
-			@LangParameter("$value") DataObject valueObject) {
+											   @LangParameter("$value") DataObject valueObject) {
 		try {
 			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.getText());
 			if(autoPrintMode == null)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
-			
+
 			LangShellWindow.this.autoPrintMode = autoPrintMode;
 		}catch(IllegalArgumentException e) {
 			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") mode must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
 		}
-		
+
 		return null;
 	}
 	@LangFunction("getParserLineNumber")
@@ -573,20 +567,20 @@ public class LangShellWindow extends JDialog {
 	@LangFunction("setParserLineNumber")
 	@AllowedTypes(DataObject.DataType.VOID)
 	public DataObject setParserLineNumberFunction(int SCOPE_ID,
-			@LangParameter("$lineNumber") @NumberValue Number number) {
+												  @LangParameter("$lineNumber") @NumberValue Number number) {
 		int lineNumber = number.intValue();
 		if(lineNumber < 0)
 			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$lineNumber\") must be >= 0", SCOPE_ID);
-		
+
 		lii.setParserLineNumber(lineNumber);
-		
+
 		return null;
 	}
 	@LangFunction("resetParserLineNumber")
 	@AllowedTypes(DataObject.DataType.VOID)
 	public DataObject resetParserLineNumberFunction(int SCOPE_ID) {
 		lii.resetParserPositionVars();
-		
+
 		return null;
 	}
 	/**
@@ -595,17 +589,17 @@ public class LangShellWindow extends JDialog {
 	@LangFunction("input")
 	@AllowedTypes(DataObject.DataType.VOID)
 	public DataObject inputFunctionRemoval(int SCOPE_ID,
-			@LangParameter("$dummy") @VarArgs DataObject dummy) {
+										   @LangParameter("$dummy") @VarArgs DataObject dummy) {
 		return lii.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
 	}
-	
+
 	private String getDebugString(DataObject dataObject, int maxRecursionDepth) {
 		if(dataObject == null)
 			return "<NULL>";
-		
+
 		if(maxRecursionDepth < 1)
 			return "<Max recursion depth reached>";
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("Raw Text: ");
 		builder.append(dataObject.getText());
@@ -638,7 +632,7 @@ public class LangShellWindow extends JDialog {
 				}
 				builder.append("}");
 				break;
-			
+
 			case STRUCT:
 				boolean isStructDefinition = dataObject.getStruct().isDefinition();
 				builder.append("\nIs struct definition: ");
@@ -647,7 +641,7 @@ public class LangShellWindow extends JDialog {
 				for(String memberName:dataObject.getStruct().getMemberNames()) {
 					builder.append("\n    ");
 					builder.append(memberName);
-					
+
 					if(isStructDefinition) {
 						if(dataObject.getStruct().getTypeConstraint(memberName) == null)
 							builder.append(DataObject.DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>()).toTypeConstraintSyntax());
@@ -655,7 +649,7 @@ public class LangShellWindow extends JDialog {
 							builder.append(dataObject.getStruct().getTypeConstraint(memberName).toTypeConstraintSyntax());
 					}else {
 						DataObject member = dataObject.getStruct().getMember(memberName);
-						
+
 						builder.append(": {\n");
 						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
 						for(String debugStringLine:debugStringLines) {
@@ -667,12 +661,12 @@ public class LangShellWindow extends JDialog {
 					}
 				}
 				break;
-			
+
 			case BYTE_BUFFER:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getByteBuffer().length);
 				break;
-			
+
 			case ARRAY:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getArray().length);
@@ -691,7 +685,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("    }");
 				}
 				break;
-			
+
 			case LIST:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getList().size());
@@ -710,7 +704,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("    }");
 				}
 				break;
-			
+
 			case FUNCTION_POINTER:
 				builder.append("\nLang-Path: ");
 				builder.append(dataObject.getFunctionPointer().getLangPath());
@@ -720,15 +714,37 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getFunctionPointer().getFunctionName());
 				builder.append("\nFunction-Type: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
-				builder.append("\nParameter List: ");
-				builder.append(String.valueOf(dataObject.getFunctionPointer().getParameterList()).replace("\n", ""));
-				builder.append("\nReturn Value Type Constraint: ");
-				if(dataObject.getFunctionPointer().getReturnValueTypeConstraint() == null)
-					builder.append(DataObject.DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>()).toTypeConstraintSyntax());
-				else
-					builder.append(dataObject.getFunctionPointer().getReturnValueTypeConstraint().toTypeConstraintSyntax());
-				builder.append("\nFunction Body: ");
-				builder.append(dataObject.getFunctionPointer().getFunctionBody());
+				builder.append("\nNormal Function: ");
+				LangNormalFunction normalFunction = dataObject.getFunctionPointer().getNormalFunction();
+				if(normalFunction == null) {
+					builder.append(normalFunction);
+				}else {
+					builder.append("{");
+					builder.append("\n    Raw String: ");
+					builder.append(normalFunction);
+					builder.append("\n    Function signature:");
+					{
+						List<DataObject> parameterList = normalFunction.getParameterList();
+						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = normalFunction.getParameterDataTypeConstraintList();
+						builder.append("\n        Function Signature: ");
+						builder.append(normalFunction.toFunctionSignatureSyntax());
+						builder.append("\n        Return Value Type Constraint: ");
+						builder.append(normalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
+						builder.append("\n        Parameters: ");
+						for(int i = 0;i < parameterList.size();i++) {
+							builder.append("\n            Parameter ");
+							builder.append(i + 1);
+							builder.append(" (\"");
+							builder.append(parameterList.get(i).getVariableName());
+							builder.append("\"): ");
+							builder.append("\n                Data type constraint: ");
+							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+						}
+					}
+					builder.append("\nFunction Body: ");
+					builder.append(normalFunction.getFunctionBody());
+					builder.append("\n}");
+				}
 				builder.append("\nNative Function: ");
 				LangNativeFunction nativeFunction = dataObject.getFunctionPointer().getNativeFunction();
 				if(nativeFunction == null) {
@@ -744,8 +760,8 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    Function signatures:");
 					for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
 						List<DataObject> parameterList = internalFunction.getParameterList();
-						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParamaterDataTypeConstraintList();
-						List<String> parameterInfoList = internalFunction.getParamaterInfoList();
+						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParameterDataTypeConstraintList();
+						List<String> parameterInfoList = internalFunction.getParameterInfoList();
 						builder.append("\n        Combinator Function: ");
 						builder.append(internalFunction.isCombinatorFunction());
 						builder.append("\n        Combinator Function Call Count: ");
@@ -781,7 +797,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n}");
 				}
 				break;
-			
+
 			case ERROR:
 				builder.append("\nError-Code: ");
 				builder.append(dataObject.getError().getErrno());
@@ -790,14 +806,14 @@ public class LangShellWindow extends JDialog {
 				builder.append("\nError-Message: ");
 				builder.append(dataObject.getError().getMessage());
 				break;
-			
+
 			default:
 				break;
 		}
-		
+
 		return builder.toString();
 	}
-	
+
 	private void highlightSyntaxLastLine() {
 		try {
 			Document doc = shell.getDocument();
@@ -806,24 +822,24 @@ public class LangShellWindow extends JDialog {
 				if(doc.getText(startOfLine, 1).charAt(0) == '\n')
 					break;
 			startOfLine++; //The line starts on char after '\n'
-			
+
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
-			
+
 			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
-			nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false;
+					nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
-				
+
 				if(!nullFlag)
 					nullFlag = line.substring(i).startsWith("null");
-				
+
 				if(!commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
 					commentFlag = true;
-				
+
 				if(!varFlag && (c == '$' || c == '&'))
 					varFlag = true;
-				
+
 				if(!varFlag && !modulePrefixFlag) {
 					String checkTmp = line.substring(i);
 					if(checkTmp.startsWith("[[")) {
@@ -833,36 +849,36 @@ public class LangShellWindow extends JDialog {
 						}
 					}
 				}
-				
+
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
 					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("fn.") || checkTmp.startsWith("linker.") ||
-					checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") || checkTmp.startsWith("parser.");
+							checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") || checkTmp.startsWith("parser.");
 				}
-				
+
 				if(!returnFlag)
 					returnFlag = line.substring(i).startsWith("return");
 				if(!throwFlag)
 					throwFlag = line.substring(i).startsWith("throw");
-				
+
 				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
 				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
-				
+
 				if(modulePrefixFlag) {
 					if(modulePrefixHasColon) {
 						String checkTmpPrev = line.substring(i - 3);
-						
+
 						modulePrefixHasColon = checkTmpPrev.startsWith("]]::");
 						if(!modulePrefixHasColon)
 							modulePrefixFlag = false;
 					}else if(c == ':') {
 						modulePrefixHasColon = true;
 					}
-					
+
 					if(modulePrefixFlag && !modulePrefixHasColon && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']'))
 						modulePrefixFlag = false;
 				}
-				
+
 				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '*' || c == '&'))
 					varFlag = false;
 				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
@@ -873,14 +889,14 @@ public class LangShellWindow extends JDialog {
 					throwFlag = false;
 				if(nullFlag && i > 3 && line.substring(i - 4).startsWith("null"))
 					nullFlag = false;
-				
+
 				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
 					varFlag = false;
-				
+
 				//Remove var highlighting if "&&"
 				if(line.substring(i).startsWith("&&") || (i > 0 && line.substring(i - 1).startsWith("&&")))
 					varFlag = false;
-				
+
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
@@ -900,27 +916,27 @@ public class LangShellWindow extends JDialog {
 					col = Color.YELLOW;
 				else if(nullFlag)
 					col = Color.YELLOW;
-				
+
 				GraphicsHelper.addText(shell, c + "", col);
 				lastColor = col;
 			}
 		}catch(BadLocationException e) {}
-		
+
 		//Auto scroll
 		shell.setCaretPosition(shell.getDocument().getLength());
 	}
-	
+
 	private void updateAutoCompleteText(String line) {
 		Color col = lastColor.darker().darker();
 		if(col.equals(lastColor)) //Color is already the darkest
 			col = lastColor.brighter().brighter();
-		
+
 		if(line.startsWith("lang.") && !line.contains(" ")) {
 			int indexConNameStart = line.indexOf('.') + 1;
 			String conNameStart = indexConNameStart == line.length()?"":line.substring(indexConNameStart);
 			List<String> autoCompletes = langDataAndExecutionFlags.stream().
-			filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
-			collect(Collectors.toList());
+					filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
+					collect(Collectors.toList());
 			if(autoCompletes.isEmpty())
 				return;
 			autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
@@ -932,7 +948,7 @@ public class LangShellWindow extends JDialog {
 			String[] tokens = line.split(".(?=\\[\\[|(\\[\\[\\w+\\]\\]::)(\\$|&|fp\\.)|(?<!\\w]]::)(\\$|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.|con\\.|parser\\.)");
 			if(tokens.length == 0)
 				return;
-			
+
 			String lastToken = tokens[tokens.length - 1];
 			if(lastToken.matches("(\\[\\[\\w+\\]\\]::)?(\\$|&|fp\\.).*")) {
 				Map<String, DataObject> moduleVariables = null;
@@ -940,16 +956,16 @@ public class LangShellWindow extends JDialog {
 					int moduleIdentifierEndIndex = lastToken.indexOf(']');
 					String moduleName = lastToken.substring(2, moduleIdentifierEndIndex);
 					lastToken = lastToken.substring(moduleIdentifierEndIndex + 4);
-					
+
 					moduleVariables = lii.getModuleExportedVariables(moduleName);
 				}
-				
+
 				final int appendClosingBracketCount;
 				if(lastToken.matches("\\$\\**\\[*\\w*")) {
 					//Handle var pointer referencing and dereferencing "$*" and "$["
-					
+
 					lastToken = lastToken.replace("*", ""); //Ignore "*"
-					
+
 					int oldLen = lastToken.length();
 					lastToken = lastToken.replace("[", ""); //Ignore "["
 					int diff = oldLen - lastToken.length();
@@ -960,12 +976,12 @@ public class LangShellWindow extends JDialog {
 				}else {
 					appendClosingBracketCount = -1;
 				}
-				
+
 				final String lastTokenCopy = lastToken;
 				List<String> autoCompletes = (moduleVariables == null?lii.getData(0).var:moduleVariables).keySet().stream().filter(varName -> {
 					int oldLen = varName.length();
 					varName = varName.replace("[", "");
-					
+
 					return (oldLen == varName.length() || appendClosingBracketCount > -1) && varName.startsWith(lastTokenCopy) && !varName.equals(lastTokenCopy);
 				}).sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
@@ -975,23 +991,23 @@ public class LangShellWindow extends JDialog {
 					autoCompleteText = "";
 				}else {
 					autoCompleteText = autoCompletes.get(autoCompletePos).replace("]", "");
-					
+
 					int openingBracketCountVarName = (int)autoCompleteText.chars().filter(c -> c == '[').count();
 					int diff = Math.max(0, openingBracketCountVarName - Math.max(0, appendClosingBracketCount));
 					for(int i = 0;i < diff;i++)
 						autoCompleteText = "$[" + autoCompleteText.substring(1);
-					
+
 					autoCompleteText = autoCompleteText.substring(openingBracketCountVarName - diff + lastTokenCopy.length()) + (lastTokenCopy.startsWith("fp.")?"(":"");
-					
+
 					for(int i = 0;i < Math.max(appendClosingBracketCount, openingBracketCountVarName);i++)
 						autoCompleteText += "]";
 				}
 			}else if(lastToken.matches("\\[\\[.*")) {
 				final String lastTokenCopy = lastToken.substring(2); //Remove "[["
-				
+
 				List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
 					int oldLen = moduleName.length();
-					
+
 					return oldLen == moduleName.length() && moduleName.startsWith(lastTokenCopy);
 				}).sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
@@ -1008,11 +1024,11 @@ public class LangShellWindow extends JDialog {
 				boolean hasParentheses = argumentStart.startsWith("(");
 				if(hasParentheses)
 					argumentStart = argumentStart.substring(1);
-				
+
 				final String argumentStartCopy = argumentStart;
 				List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
 					int oldLen = moduleName.length();
-					
+
 					return oldLen == moduleName.length() && moduleName.startsWith(argumentStartCopy);
 				}).sorted().collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
@@ -1028,24 +1044,24 @@ public class LangShellWindow extends JDialog {
 				int indexFunctionNameStart = lastToken.indexOf('.') + 1;
 				String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
 				List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
-					return entry.getValue().isLinkerFunction() == isLinkerFunction;
-				}).map(Entry<String, LangNativeFunction>::getKey).filter(functionName ->
-				functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
-				sorted().collect(Collectors.toList());
-				
+							return entry.getValue().isLinkerFunction() == isLinkerFunction;
+						}).map(Entry<String, LangNativeFunction>::getKey).filter(functionName ->
+								functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
+						sorted().collect(Collectors.toList());
+
 				if(autoCompletes.contains("setAutoPrintMode")) {
 					autoCompletes = new LinkedList<>(autoCompletes);
-					
+
 					int index = autoCompletes.indexOf("setAutoPrintMode");
-					
+
 					//Replace original
 					autoCompletes.set(index, "setAutoPrintMode(NONE)");
-					
+
 					//Add other modes
 					autoCompletes.add(index + 1, "setAutoPrintMode(AUTO)");
 					autoCompletes.add(index + 2, "setAutoPrintMode(DEBUG)");
 				}
-				
+
 				if(autoCompletes.isEmpty())
 					return;
 				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
@@ -1054,12 +1070,12 @@ public class LangShellWindow extends JDialog {
 				}else {
 					String autoComplete = autoCompletes.get(autoCompletePos);
 					autoCompleteText = autoComplete.substring(functionNameStart.length());
-					
+
 					if(!autoComplete.startsWith("setAutoPrintMode")) {
 						//Mark deprecated function
 						if(lii.getPredefinedFunctions().get(functionNameStart + autoCompleteText).isDeprecated())
 							col = Color.RED.darker().darker();
-						
+
 						autoCompleteText += "(";
 					}
 				}
@@ -1067,8 +1083,8 @@ public class LangShellWindow extends JDialog {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String conNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
 				List<String> autoCompletes = controlFlowStatements.stream().
-				filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
-				collect(Collectors.toList());
+						filter(conName -> conName.startsWith(conNameStart) && !conName.equals(conNameStart)).
+						collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
 				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
@@ -1080,8 +1096,8 @@ public class LangShellWindow extends JDialog {
 				int indexConNameStart = lastToken.indexOf('.') + 1;
 				String functionNameStart = indexConNameStart == lastToken.length()?"":lastToken.substring(indexConNameStart);
 				List<String> autoCompletes = parserFunctions.stream().
-				filter(functionName -> functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
-				collect(Collectors.toList());
+						filter(functionName -> functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
+						collect(Collectors.toList());
 				if(autoCompletes.isEmpty())
 					return;
 				autoCompletePos = Math.max(-1, Math.min(autoCompletePos, autoCompletes.size()));
@@ -1093,7 +1109,7 @@ public class LangShellWindow extends JDialog {
 				return;
 			}
 		}
-		
+
 		GraphicsHelper.addText(shell, autoCompleteText, col);
 	}
 	private void removeAutoCompleteText() {
@@ -1105,15 +1121,15 @@ public class LangShellWindow extends JDialog {
 		autoCompleteText = "";
 		autoCompletePos = 0;
 	}
-	
+
 	private void addToHistory(String str) {
 		if(!str.trim().isEmpty() && (history.isEmpty() || !history.get(history.size() - 1).equals(str)))
 			history.add(str);
-		
+
 		historyPos = history.size();
 		currentCommand = "";
 	}
-	
+
 	private void resetAddLineFlags() {
 		flagMultilineText = flagLineContinuation = false;
 	}
@@ -1121,7 +1137,7 @@ public class LangShellWindow extends JDialog {
 		resetAddLineFlags();
 		multiLineTmp.delete(0, multiLineTmp.length());
 		indent = 0;
-		
+
 		String[] lines = str.split("\n");
 		for(int i = 0;i < lines.length;i++) {
 			try {
@@ -1133,7 +1149,7 @@ public class LangShellWindow extends JDialog {
 				doc.remove(startOfLine, doc.getLength() - startOfLine);
 			}catch(BadLocationException ignore) {}
 		}
-		
+
 		GraphicsHelper.addText(shell, "\n> ", Color.WHITE);
 	}
 	private void addLinesWithoutExec(String str) {
@@ -1142,15 +1158,15 @@ public class LangShellWindow extends JDialog {
 			String[] lines = str.split("\n");
 			for(int i = 0;i < lines.length - 1;i++) {
 				String line = lines[i];
-				
+
 				GraphicsHelper.addText(shell, line, Color.WHITE);
 				highlightSyntaxLastLine();
-				
+
 				addLine(line, false, false);
 			}
 			lastLine = lines[lines.length - 1];
 		}
-		
+
 		GraphicsHelper.addText(shell, lastLine, Color.WHITE);
 		highlightSyntaxLastLine();
 	}
@@ -1162,14 +1178,14 @@ public class LangShellWindow extends JDialog {
 				line = line.substring(startIndex + 3);
 				continue;
 			}
-			
+
 			int index = line.indexOf("}}}");
 			if(index == -1)
 				return true;
-			
+
 			line = line.substring(index + 3);
 		}
-		
+
 		return false;
 	}
 	private boolean hasMultilineTextEnd(String line) {
@@ -1177,26 +1193,26 @@ public class LangShellWindow extends JDialog {
 			int index = line.indexOf("{{{");
 			if(index == -1)
 				return true;
-			
+
 			line = line.substring(index + 3);
 		}
-		
+
 		return false;
 	}
 	private void addLine(String line, boolean addToExecutionQueueOrExecute, boolean addNewLinePromptForLinesPutInExecutionQueue) {
 		if(!flagMultilineText && !flagLineContinuation && indent == 0) {
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
-			
+
 			flagMultilineText = containsMultilineText(line);
 			if(!flagMultilineText)
 				flagLineContinuation = line.endsWith("\\");
 			if(line.trim().endsWith("{") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.end") && !line.trim().startsWith("con.break") &&
 					!line.trim().startsWith("con.continue")) ||
-			flagMultilineText || flagLineContinuation) {
+					flagMultilineText || flagLineContinuation) {
 				indent++;
 				multiLineTmp.append(line);
 				multiLineTmp.append("\n");
-				
+
 				GraphicsHelper.addText(shell, "    > ", Color.WHITE);
 			}else {
 				addToHistory(line);
@@ -1218,24 +1234,24 @@ public class LangShellWindow extends JDialog {
 						indent++;
 				}
 			}
-			
+
 			if(!flagMultilineText && (line.trim().endsWith("{") || line.trim().startsWith("con.if") || line.trim().startsWith("con.loop") || line.trim().startsWith("con.while") ||
 					line.trim().startsWith("con.until") || line.trim().startsWith("con.repeat") || line.trim().startsWith("con.foreach") || line.trim().startsWith("con.try") ||
 					line.trim().startsWith("con.softtry") || line.trim().startsWith("con.nontry")))
 				indent++;
-			
+
 			multiLineTmp.append(line);
 			multiLineTmp.append("\n");
-			
+
 			if(!flagMultilineText && (line.trim().startsWith("}") || (line.trim().startsWith("con.") && !line.trim().startsWith("con.loop") && !line.trim().startsWith("con.while") &&
 					!line.trim().startsWith("con.until") && !line.trim().startsWith("con.repeat") && !line.trim().startsWith("con.foreach") && !line.trim().startsWith("con.if") &&
 					!line.trim().startsWith("con.try") && !line.trim().startsWith("con.starttry") && !line.trim().startsWith("con.nontry") && !line.trim().startsWith("con.break") &&
 					!line.trim().startsWith("con.continue")))) {
 				indent--;
-				
+
 				if(line.trim().startsWith("con.") && !line.trim().startsWith("con.end"))
 					indent++;
-				
+
 				//Remove the first indent from actual line
 				try {
 					Document doc = shell.getDocument();
@@ -1247,11 +1263,11 @@ public class LangShellWindow extends JDialog {
 					doc.remove(startOfLine, 4);
 				}catch(BadLocationException e) {}
 			}
-			
+
 			if(flagMultilineText && hasMultilineTextEnd(line)) {
 				flagMultilineText = false;
 				indent--;
-				
+
 				//Remove the first indent from actual line
 				try {
 					Document doc = shell.getDocument();
@@ -1263,7 +1279,7 @@ public class LangShellWindow extends JDialog {
 					doc.remove(startOfLine, 4);
 				}catch(BadLocationException e) {}
 			}
-			
+
 			if(!flagMultilineText) {
 				if(flagLineContinuation) {
 					flagLineContinuation = line.endsWith("\\");
@@ -1275,13 +1291,13 @@ public class LangShellWindow extends JDialog {
 						indent++;
 				}
 			}
-			
+
 			GraphicsHelper.addText(shell, "\n", Color.WHITE);
 			if(indent < 1) {
 				indent = 0;
 				String multiLineTmpString = multiLineTmp.toString();
 				addToHistory(multiLineTmpString.substring(0, multiLineTmpString.length() - 1)); //Remove "\n"
-				
+
 				String code = multiLineTmp.toString();
 				if(addToExecutionQueueOrExecute) {
 					executionQueue.add(code);
@@ -1290,7 +1306,7 @@ public class LangShellWindow extends JDialog {
 				}else {
 					executeCode(code);
 				}
-				
+
 				multiLineTmp.delete(0, multiLineTmp.length());
 				currentCommand = "";
 			}else {
@@ -1300,7 +1316,7 @@ public class LangShellWindow extends JDialog {
 			}
 		}
 	}
-	
+
 	private void executeCode(String code) {
 		if(flagRunning) {
 			term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
@@ -1321,14 +1337,14 @@ public class LangShellWindow extends JDialog {
 					lii.resetStopFlag();
 				}
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
-				
+
 				flagRunning = false;
 			});
 			t.setDaemon(true);
 			t.start();
 		}
 	}
-	
+
 	private void executeCodeFromExecutionQueue() {
 		if(flagRunning) {
 			term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
@@ -1354,7 +1370,7 @@ public class LangShellWindow extends JDialog {
 					}
 				}
 				GraphicsHelper.addText(shell, "> ", Color.WHITE);
-				
+
 				flagExecutingQueue = false;
 				flagRunning = false;
 			});
@@ -1362,7 +1378,7 @@ public class LangShellWindow extends JDialog {
 			t.start();
 		}
 	}
-	
+
 	private void saveLangFile(boolean chooseFile) {
 		File file = null;
 		if(chooseFile || lastLangFileSavedTo == null) {
@@ -1373,55 +1389,55 @@ public class LangShellWindow extends JDialog {
 				public String getDescription() {
 					return "Lang files";
 				}
-				
+
 				@Override
 				public boolean accept(File f) {
 					return f.isDirectory() || f.getName().endsWith(".lang");
 				}
 			});
-			
+
 			if(fileChooser.showSaveDialog(LangShellWindow.this) != JFileChooser.APPROVE_OPTION)
 				return;
-			
+
 			file = fileChooser.getSelectedFile();
 			if(!file.getName().contains("."))
 				file = new File(file.getAbsolutePath() + ".lang");
 		}else {
 			file = lastLangFileSavedTo;
 		}
-		
+
 		if(file.exists() && (chooseFile || lastLangFileSavedTo == null)) {
 			if(JOptionPane.showOptionDialog(LangShellWindow.this, "The file already exists!\nDo you want to override it?",
 					"Select an option", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null) != JOptionPane.YES_OPTION) {
 				return;
 			}
 		}
-		
+
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
 			writer.write(langFileOutputBuilder.toString());
-			
+
 			JOptionPane.showOptionDialog(this, "The file was saved successfully!", "Successfully saved!", JOptionPane.DEFAULT_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, null, null);
-			
+
 			lastLangFileSavedTo = file;
 		}catch(IOException e1) {
 			term.logStackTrace(e1, LangShellWindow.class);
 		}
 	}
-	
+
 	private void clear() {
 		shell.setText("");
 		printWelcomeText();
 	}
 	private void end() {
 		flagEnd = true;
-		
+
 		GraphicsHelper.addText(shell, "^C\nTranslation map:\n", Color.WHITE);
 		Map<String, String> lang = lii.getTranslationMap(0);
 		lang.forEach((key, value) -> {
 			term.logln(Level.DEBUG, key + " = " + value, LangShellWindow.class);
 		});
-		
+
 		boolean isThrowValue = lii.isReturnedValueThrowValue();
 		DataObject retValue = lii.getAndResetReturnValue();
 		if(isThrowValue) {
@@ -1434,17 +1450,17 @@ public class LangShellWindow extends JDialog {
 			else
 				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.getText());
 		}
-		
+
 		//Reset the printStream output
 		System.setOut(oldOut);
 	}
-	
+
 	private final class SpecialCharInputWindow extends JDialog {
 		private static final long serialVersionUID = -5520154945750708443L;
-		
+
 		public SpecialCharInputWindow(Dialog owner, String[] specialCharInputs) {
 			super(owner, false); //Make this window to an modal window (Focus won't be given back to owner window)
-			
+
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			setTitle("Special Char Input");
 			addWindowListener(new WindowAdapter() {
@@ -1453,35 +1469,35 @@ public class LangShellWindow extends JDialog {
 					specialCharInputWindow = null;
 				}
 			});
-			
+
 			int buttonCount = specialCharInputs.length;
 			int gridXCount = (int)Math.ceil(Math.sqrt(buttonCount));
 			int gridYCount = buttonCount / gridXCount + (buttonCount % gridXCount > 0?1:0);
-			
+
 			JPanel contentPane = new JPanel();
 			setContentPane(contentPane);
 			contentPane.setLayout(new GridLayout(gridYCount, gridXCount, 10, 10));
 			contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			
+
 			for(String specialCharInput:specialCharInputs) {
 				JButton button = new JButton("   " + specialCharInput + "   ");
 				button.addActionListener(e -> {
 					for(char c:specialCharInput.toCharArray())
 						shellKeyListener.keyTyped(new KeyEvent(this, 0, 0, 0, 0, c, KeyEvent.KEY_LOCATION_UNKNOWN));
-					
+
 					LangShellWindow.this.requestFocus();
 					shell.requestFocus();
 				});
 				button.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 24));
 				contentPane.add(button);
 			}
-			
+
 			pack();
 			setMinimumSize(getSize());
 			setLocationRelativeTo(owner);
 		}
 	}
-	
+
 	private enum AutoPrintMode {
 		NONE, AUTO, DEBUG
 	}
