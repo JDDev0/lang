@@ -15,7 +15,7 @@ lang.version = v1.0.0
 fp.testStates = ($i, $ele) -> {
 	items.test.state.$i = State $ele
 }
-func.split(&a, XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY, ;)
+&a = func.split(XYA;XYZ;XYG;XYV;XYB;GXY;GXY;FXY, ;)
 func.arrayEnumerate(&a, fp.testStates)
 
 # Easy to expand: Simply add a new Text to the func.split call
