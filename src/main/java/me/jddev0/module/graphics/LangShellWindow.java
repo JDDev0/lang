@@ -520,7 +520,9 @@ public class LangShellWindow extends JDialog {
 	//Debug functions
 	@LangFunction("printHelp")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject printHelpFunction(int SCOPE_ID) {
+	public DataObject printHelpFunction(
+			int SCOPE_ID
+	) {
 		term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 				"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
 				"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
@@ -529,8 +531,10 @@ public class LangShellWindow extends JDialog {
 	}
 	@LangFunction("printDebug")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject printDebugFunction(int SCOPE_ID,
-										 @LangParameter("$value") @CallByPointer DataObject pointerObject) {
+	public DataObject printDebugFunction(
+			int SCOPE_ID,
+			@LangParameter("$value") @CallByPointer DataObject pointerObject
+	) {
 		DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 
 		StringBuilder builder = new StringBuilder();
@@ -545,8 +549,10 @@ public class LangShellWindow extends JDialog {
 	}
 	@LangFunction("setAutoPrintMode")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject setAutoPrintModeFunction(int SCOPE_ID,
-											   @LangParameter("$value") DataObject valueObject) {
+	public DataObject setAutoPrintModeFunction(
+			int SCOPE_ID,
+			@LangParameter("$value") DataObject valueObject
+	) {
 		try {
 			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.getText());
 			if(autoPrintMode == null)
@@ -561,13 +567,17 @@ public class LangShellWindow extends JDialog {
 	}
 	@LangFunction("getParserLineNumber")
 	@AllowedTypes(DataObject.DataType.INT)
-	public DataObject getParserLineNumberFunction(int SCOPE_ID) {
+	public DataObject getParserLineNumberFunction(
+			int SCOPE_ID
+	) {
 		return new DataObject().setInt(lii.getParserLineNumber());
 	}
 	@LangFunction("setParserLineNumber")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject setParserLineNumberFunction(int SCOPE_ID,
-												  @LangParameter("$lineNumber") @NumberValue Number number) {
+	public DataObject setParserLineNumberFunction(
+			int SCOPE_ID,
+			@LangParameter("$lineNumber") @NumberValue Number number
+	) {
 		int lineNumber = number.intValue();
 		if(lineNumber < 0)
 			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$lineNumber\") must be >= 0", SCOPE_ID);
@@ -578,7 +588,9 @@ public class LangShellWindow extends JDialog {
 	}
 	@LangFunction("resetParserLineNumber")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject resetParserLineNumberFunction(int SCOPE_ID) {
+	public DataObject resetParserLineNumberFunction(
+			int SCOPE_ID
+	) {
 		lii.resetParserPositionVars();
 
 		return null;
@@ -588,8 +600,10 @@ public class LangShellWindow extends JDialog {
 	 */
 	@LangFunction("input")
 	@AllowedTypes(DataObject.DataType.VOID)
-	public DataObject inputFunctionRemoval(int SCOPE_ID,
-										   @LangParameter("$dummy") @VarArgs DataObject dummy) {
+	public DataObject inputFunctionRemoval(
+			int SCOPE_ID,
+			@LangParameter("$dummy") @VarArgs DataObject dummy
+	) {
 		return lii.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
 	}
 
