@@ -58,7 +58,6 @@ import at.jddev0.lang.LangInterpreter.InterpretingError;
 import at.jddev0.lang.LangNativeFunction;
 import at.jddev0.lang.platform.swing.LangPlatformAPI;
 import at.jddev0.lang.ILangPlatformAPI;
-import at.jddev0.lang.LangPredefinedFunctionObject;
 import at.jddev0.lang.LangUtils;
 import at.jddev0.lang.LangFunction.AllowedTypes;
 import at.jddev0.lang.LangFunction.LangParameter;
@@ -505,7 +504,7 @@ public class LangShellWindow extends JDialog {
 		//Change the "errorOutput" flag to ALL
 		lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
 		
-		lii.addPredefinedFunctions(LangNativeFunction.getLangFunctionsFromObject(lii.getInterpreter(), this));
+		lii.addPredefinedFunctions(this);
 		
 		printWelcomeText();
 	}
@@ -781,25 +780,6 @@ public class LangShellWindow extends JDialog {
 					}
 					builder.append("\n}");
 				}
-				builder.append("\nPredefined Function: ");
-				LangPredefinedFunctionObject predefinedFunction = dataObject.getFunctionPointer().getPredefinedFunction();
-				if(predefinedFunction == null) {
-					builder.append(predefinedFunction);
-				}else {
-					builder.append("{");
-					builder.append("\n    Raw String: ");
-					builder.append(predefinedFunction);
-					builder.append("\n    Deprecated: ");
-					boolean deprecated = predefinedFunction.isDeprecated();
-					builder.append(deprecated);
-					if(deprecated) {
-						builder.append("\n        Will be removed in: ");
-						builder.append(predefinedFunction.getDeprecatedRemoveVersion());
-						builder.append("\n        Replacement function: ");
-						builder.append(predefinedFunction.getDeprecatedReplacementFunction());
-					}
-					builder.append("\n}");
-				}
 				break;
 			
 			case ERROR:
@@ -1049,7 +1029,7 @@ public class LangShellWindow extends JDialog {
 				String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
 				List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
 					return entry.getValue().isLinkerFunction() == isLinkerFunction;
-				}).map(Entry<String, LangPredefinedFunctionObject>::getKey).filter(functionName ->
+				}).map(Entry<String, LangNativeFunction>::getKey).filter(functionName ->
 				functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
 				sorted().collect(Collectors.toList());
 				
