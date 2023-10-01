@@ -263,8 +263,11 @@ public class LangShellWindow extends JDialog {
 					String functionName = input;
 					DataObject.FunctionPointerObject function = null;
 					if(input.matches("(func\\.|fn\\.|linker\\.|ln\\.)\\w+")) {
-						function = new DataObject.FunctionPointerObject(lii.getPredefinedFunctions().
-								get(functionName.substring(functionName.indexOf('.') + 1)));
+						LangNativeFunction nativeFunction = lii.getPredefinedFunctions().
+								get(functionName.substring(functionName.indexOf('.') + 1));
+
+						if(nativeFunction != null)
+							function = new DataObject.FunctionPointerObject(nativeFunction);
 					}else if(input.matches("(\\[\\[\\w+\\]\\]::)?(\\$|fp\\.)\\w+")) {
 						String variableName = input.contains("::")?input.substring(input.indexOf(':') + 2):input;
 
