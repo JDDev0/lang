@@ -1561,10 +1561,9 @@ public class LangShellWindow extends JDialog {
 			outputPane.setText(generateHTML(functionName, function));
 			scrollPane.setViewportView(outputPane);
 
-			pack();
-			Dimension thisSize = this.getSize();
+			Dimension thisSize = owner.getPreferredSize();
 			Dimension ownerSize = owner.getSize();
-			setMinimumSize(new Dimension(Math.min(thisSize.width, ownerSize.width), Math.min(thisSize.height, ownerSize.height)));
+			setSize(new Dimension(Math.min(thisSize.width, ownerSize.width), (int)Math.min(thisSize.height * 1.5, ownerSize.height)));
 			setLocationRelativeTo(owner);
 		}
 
