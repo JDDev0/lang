@@ -16,6 +16,7 @@ The Lang Shell is a REPL shell with many features to aid you during development.
 Features:
 - Syntax highlighting
 - Code autocompletion
+- Function help popup
 - Command history
 - Loading and saving of lang files
 - Additional debug functions (like `func.printDebug()`) 
