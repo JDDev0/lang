@@ -1645,7 +1645,15 @@ public class LangShellWindow extends JDialog {
 					internalFunction.getCombinatorProvidedArgumentList():new ArrayList<>();
 			boolean hideCombinatorArgument = false;
 
-			builder.append("<li><code>").append(functionName).append(function.toFunctionSignatureSyntax()).append("</code></li>");
+			builder.append("<li><code>");
+			{
+				builder.append(functionName).append(function.toFunctionSignatureSyntax());
+				DataObject.DataTypeConstraint returnTypeConstraint = function.getReturnValueTypeConstraint();
+				if(!returnTypeConstraint.equals(DataObject.CONSTRAINT_NORMAL)) {
+					builder.append(":").append(returnTypeConstraint.toTypeConstraintSyntax());
+				}
+			}
+			builder.append("</code></li>");
 			builder.append("<ul class='lvl2'>");
 			for(int i = 0;i < function.getParameterList().size();i++) {
 				hideCombinatorArgument |= function.getParameterAnnotationList().get(i) == LangBaseFunction.ParameterAnnotation.VAR_ARGS;
