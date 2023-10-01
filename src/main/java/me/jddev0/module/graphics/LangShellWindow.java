@@ -1,15 +1,6 @@
 package me.jddev0.module.graphics;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dialog;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -34,16 +25,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -75,12 +57,14 @@ public class LangShellWindow extends JDialog {
 	private final KeyListener shellKeyListener;
 	private final TerminalIO term;
 
+	private int fontSize;
+
 	private SpecialCharInputWindow specialCharInputWindow = null;
 
 	private File lastLangFileSavedTo = null;
 	private StringBuilder langFileOutputBuilder = new StringBuilder();
 
-	private List<String> history = new LinkedList<String>();
+	private List<String> history = new LinkedList<>();
 	private int historyPos = 0;
 	private String currentCommand = "";
 
@@ -88,7 +72,7 @@ public class LangShellWindow extends JDialog {
 	private int autoCompletePos = 0;
 	private Color lastColor = Color.BLACK;
 
-	private Queue<String> executionQueue = new LinkedList<String>();
+	private Queue<String> executionQueue = new LinkedList<>();
 	private StringBuilder multiLineTmp = new StringBuilder();
 	private int indent = 0;
 	private boolean flagMultilineText = false;
@@ -116,9 +100,10 @@ public class LangShellWindow extends JDialog {
 		this(owner, term, fontSize, null);
 	}
 	public LangShellWindow(Frame owner, TerminalIO term, int fontSize, String[] langArgs) {
-		super(owner, true); //Make this window to an modal window (Focus won't be given back to owner window)
+		super(owner, true);
 
 		this.term = term;
+		this.fontSize = fontSize;
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("LangShell");
@@ -257,6 +242,41 @@ public class LangShellWindow extends JDialog {
 					}catch(HeadlessException|IOException e1) {
 						term.logStackTrace(e1, LangShellWindow.class);
 					}
+				}else if(e.getKeyCode() == KeyEvent.VK_F1 && e.isControlDown()) {
+					String line = lineTmp.toString();
+
+					String[] tokens = line.split(".(?=\\[\\[|(\\[\\[\\w+\\]\\]::)(\\$|&|fp\\.)|(?<!\\w]]::)(\\$|&|fp\\.)|func\\.|fn\\.|linker\\.|ln\\.|con\\.|parser\\.)");
+					if(tokens.length == 0)
+						return;
+
+					String input = tokens[tokens.length - 1] + autoCompleteText;
+
+					int bracketIndex = input.indexOf('(');
+					if(bracketIndex != -1)
+						input = input.substring(0, bracketIndex);
+
+					String moduleName = null;
+					if(input.matches("\\[\\[\\w+\\]\\]::.+")) {
+						moduleName = input.substring(2, input.indexOf(']'));
+					}
+
+					String functionName = input;
+					DataObject.FunctionPointerObject function = null;
+					if(input.matches("(func\\.|fn\\.|linker\\.|ln\\.)\\w+")) {
+						function = new DataObject.FunctionPointerObject(lii.getPredefinedFunctions().
+								get(functionName.substring(functionName.indexOf('.') + 1)));
+					}else if(input.matches("(\\[\\[\\w+\\]\\]::)?(\\$|fp\\.)\\w+")) {
+						String variableName = input.contains("::")?input.substring(input.indexOf(':') + 2):input;
+
+						Map<String, DataObject> moduleVars = lii.getModuleExportedVariables(moduleName);
+						DataObject value = moduleVars == null?lii.getVar(0, variableName):moduleVars.get(variableName);
+
+						if(value != null && value.getType() == DataObject.DataType.FUNCTION_POINTER) {
+							function = value.getFunctionPointer();
+						}
+					}
+
+					new FunctionHelpWindow(LangShellWindow.this, functionName, function).setVisible(true);
 				}else if(e.getKeyCode() == KeyEvent.VK_I && e.isControlDown() && !e.isShiftDown()) {
 					if(specialCharInputWindow == null) {
 						specialCharInputWindow = new SpecialCharInputWindow(LangShellWindow.this, new String[] {"^", "\u25b2", "\u25bc"});
@@ -364,6 +384,8 @@ public class LangShellWindow extends JDialog {
 	}
 
 	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+
 		shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
 
 		revalidate();
@@ -506,6 +528,7 @@ public class LangShellWindow extends JDialog {
 		GraphicsHelper.addText(shell, "Lang-Shell", Color.RED);
 		GraphicsHelper.addText(shell, " - Press CTRL + C for cancelling execution or for exiting!\n" +
 				"• Copy with (CTRL + SHIFT + C) and paste with (CTRL + SHIT + V)\n" +
+				"• Press CTRL + F1 for getting a help popup for the current function\n" +
 				"• Press CTRL + S for saving all inputs to a .lang file (Save)\n" +
 				"• Press CTRL + SHIFT + S for saving all inputs to a .lang file (Save As...)\n" +
 				"• Press CTRL + I for opening the special char input window\n" +
@@ -1473,7 +1496,7 @@ public class LangShellWindow extends JDialog {
 		private static final long serialVersionUID = -5520154945750708443L;
 
 		public SpecialCharInputWindow(Dialog owner, String[] specialCharInputs) {
-			super(owner, false); //Make this window to an modal window (Focus won't be given back to owner window)
+			super(owner, false);
 
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			setTitle("Special Char Input");
@@ -1509,6 +1532,138 @@ public class LangShellWindow extends JDialog {
 			pack();
 			setMinimumSize(getSize());
 			setLocationRelativeTo(owner);
+		}
+	}
+
+	private final class FunctionHelpWindow extends JDialog {
+		public FunctionHelpWindow(Dialog owner, String rawFunctionName, DataObject.FunctionPointerObject function) {
+			super(owner, false);
+
+			String functionName = (function == null || function.getFunctionName() == null)?
+					(rawFunctionName == null?function + "":rawFunctionName):(function + "");
+
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			setTitle("Function Help for " + functionName);
+
+			JPanel contentPane = new JPanel();
+			setContentPane(contentPane);
+			contentPane.setLayout(new BorderLayout());
+			contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+			JScrollPane scrollPane = new JScrollPane();
+			scrollPane.setDoubleBuffered(true);
+			scrollPane.setRequestFocusEnabled(false);
+			contentPane.add(scrollPane, BorderLayout.CENTER);
+
+			JEditorPane outputPane = new JEditorPane();
+			outputPane.setEditable(false);
+			outputPane.setContentType("text/html");
+			outputPane.setText(generateHTML(functionName, function));
+			scrollPane.setViewportView(outputPane);
+
+			pack();
+			Dimension thisSize = this.getSize();
+			Dimension ownerSize = owner.getSize();
+			setMinimumSize(new Dimension(Math.min(thisSize.width, ownerSize.width), Math.min(thisSize.height, ownerSize.height)));
+			setLocationRelativeTo(owner);
+		}
+
+		private String generateHTML(String functionName, DataObject.FunctionPointerObject function) {
+			functionName = functionName.replace("<", "&lt;").replace(">", "&gt;");
+
+			StringBuilder builder = new StringBuilder();
+			builder.append("<html>");
+			{
+				builder.append("<head>");
+				{
+					builder.append("<style>");
+					{
+						builder.append("h1 { font-size: ").append(fontSize * 1.5).append("px; }");
+						builder.append("h2 { font-size: ").append(fontSize * 1.4).append("px; }");
+						builder.append("p, code, li { font-size: ").append(fontSize).append("px; }");
+
+						builder.append("ul.lvl2 { list-style-type: circle; }");
+
+						builder.append(".error { color: red; }");
+					}
+					builder.append("</style>");
+				}
+				builder.append("</head>");
+
+				builder.append("<body>");
+				{
+					builder.append("<h1>").append(functionName).append("</h1>");
+					if(function == null) {
+						builder.append("<p class='error'>No function found at cursor position!</p>");
+					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL) {
+						LangNormalFunction normalFunction = function.getNormalFunction();
+
+						builder.append("<h2>Function signatures</h2>");
+						builder.append("<ul>");
+						generateFunctionSignatureHTML(builder, functionName, normalFunction);
+						builder.append("</ul>");
+					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NATIVE) {
+						LangNativeFunction nativeFunction = function.getNativeFunction();
+
+						String description = nativeFunction.getFunctionInfo();
+						builder.append("<p>Description: ").append(description == null?"No description available":description).append("</p>");
+
+						if(!nativeFunction.getInternalFunctions().isEmpty()) {
+							LangNativeFunction.InternalFunction internalFunction = nativeFunction.getInternalFunctions().get(0);
+
+							if(internalFunction.isCombinatorFunction()) {
+								builder.append("<p>Combinator function info:").append("</p>");
+								builder.append("<ul>");
+								{
+									builder.append("<li>Call count: ").append(internalFunction.getCombinatorFunctionCallCount()).append("</li>");
+								}
+								builder.append("</ul>");
+							}
+						}
+
+						builder.append("<h2>Function signatures</h2>");
+						builder.append("<ul>");
+						for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
+							generateFunctionSignatureHTML(builder, functionName, internalFunction);
+						}
+						builder.append("</ul>");
+					}else {
+						builder.append("<p class='error'>Invalid function type (Must be <code>NORMAL</code> or <code>NATIVE</code>)!</p>");
+					}
+				}
+				builder.append("</body>");
+			}
+			builder.append("</html>");
+			return builder.toString();
+		}
+
+		private void generateFunctionSignatureHTML(StringBuilder builder, String functionName, LangBaseFunction function) {
+			LangNativeFunction.InternalFunction internalFunction = (function instanceof LangNativeFunction.InternalFunction)?
+					(LangNativeFunction.InternalFunction)function:null;
+
+			List<DataObject> combinatorArguments = (internalFunction != null && internalFunction.isCombinatorFunction())?
+					internalFunction.getCombinatorProvidedArgumentList():new ArrayList<>();
+			boolean hideCombinatorArgument = false;
+
+			builder.append("<li><code>").append(functionName).append(function.toFunctionSignatureSyntax()).append("</code></li>");
+			builder.append("<ul class='lvl2'>");
+			for(int i = 0;i < function.getParameterList().size();i++) {
+				hideCombinatorArgument |= function.getParameterAnnotationList().get(i) == LangBaseFunction.ParameterAnnotation.VAR_ARGS;
+
+				builder.append("<li>");
+				{
+					builder.append(function.getParameterList().get(i).getVariableName()).append("</code>");
+
+					if(!hideCombinatorArgument && combinatorArguments.size() > i) {
+						builder.append(" (= <code>").append(combinatorArguments.get(i).toText()).append("</code>)");
+					}
+
+					String description = internalFunction == null?null:internalFunction.getParameterInfoList().get(i);
+					builder.append(": ").append(description == null?"No description available":description).append("</p>");
+				}
+				builder.append("</li>");
+			}
+			builder.append("</ul>");
 		}
 	}
 
