@@ -101,6 +101,7 @@ lang.version = v1.0.0
 # V1: func.combV1(a, b, c)
 # V : func.combV(a, b, c)
 # V3: func.combV3(a, b, c, d)
+# V4: func.combV4(a, b, c, d, e)
 # W : func.combW(a, b)
 # W3: func.combW3(a, b)
 # W4: func.combW4(a, b)
@@ -288,6 +289,7 @@ lang.version = v1.0.0
 # V1   | 3     | a, b, c       |     c       | c(a)                           | -
 # V    | 3     | a, b, c       |     c       | c(a, b)                        | -
 # V3   | 4     | a, b, c, d    |       d     | d(a, b, c)                     | -
+# V4   | 5     | a, b, c, d, e |         e   | e(a, b, c, d)                  | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # W    | 2     | a, b          | a           | a(b, b)                        | -
 # W3   | 2     | a, b          | a           | a(b, b, b)                     | -
