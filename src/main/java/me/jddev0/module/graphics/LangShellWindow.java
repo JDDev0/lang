@@ -781,9 +781,13 @@ public class LangShellWindow extends JDialog {
 							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
 						}
 					}
-					builder.append("\nFunction Body: ");
-					builder.append(normalFunction.getFunctionBody());
-					builder.append("\n}");
+					builder.append("\n\tFunction Body: {");
+					String[] tokens = normalFunction.getFunctionBody().toString().split("\\n");
+					for(String token:tokens) {
+						builder.append("\n\t\t");
+						builder.append(token);
+					}
+					builder.append("\n\t}");
 				}
 				builder.append("\nNative Function: ");
 				LangNativeFunction nativeFunction = dataObject.getFunctionPointer().getNativeFunction();
@@ -797,6 +801,8 @@ public class LangShellWindow extends JDialog {
 					builder.append(nativeFunction.getFunctionName());
 					builder.append("\n    Function info: ");
 					builder.append(nativeFunction.getFunctionInfo());
+					builder.append("\n    Is method: ");
+					builder.append(nativeFunction.isMethod());
 					builder.append("\n    Function signatures:");
 					for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
 						List<DataObject> parameterList = internalFunction.getParameterList();
@@ -892,8 +898,9 @@ public class LangShellWindow extends JDialog {
 
 				if(!funcFlag) {
 					String checkTmp = line.substring(i);
-					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("fn.") || checkTmp.startsWith("linker.") ||
-							checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") || checkTmp.startsWith("parser.");
+					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("mp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("fn.") ||
+							checkTmp.startsWith("linker.") || checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") ||
+							checkTmp.startsWith("parser.");
 				}
 
 				if(!returnFlag)
