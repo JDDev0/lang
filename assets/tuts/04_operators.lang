@@ -57,6 +57,7 @@ lang.version = v1.0.0
 # opr1[opr2]          - Get item
 # opr1?.[opr2]        - Optional get item
 # opr1::opr2          - Member access
+# ::opr1              - Member access this (Member access operator where composite type is "&this")
 # opr1?::opr2         - Optional member access
 # opr1->opr2          - Member access pointer
 
@@ -99,6 +100,7 @@ lang.version = v1.0.0
 #            | opr1[opr2]         | left-to-right | Get item
 #            | opr1?.[opr2]       | left-to-right | Optional get item
 #            | opr1::opr2         | left-to-right | Member access [1]
+#            | ::opr1             | right-to-left | Member access this
 #            | opr1?::opr2        | left-to-right | Optional member access [1]
 #            | opr1->opr2         | left-to-right | Member access pointer [1]
 # -----------|--------------------|---------------|------------------------------------------
@@ -187,7 +189,7 @@ lang.version = v1.0.0
 #            | opr1 ??= opr2      |               | Null coalescing assignment
 #
 # Footnotes:
-# 1) The unary operators (@, ^, +, -, ~, +|, ▲, -|, ▼, and !) have a higher binding than the member access operators if they are on the right of a member access operator.
+# 1) The unary operators (::, @, ^, +, -, ~, +|, ▲, -|, ▼, and !) have a higher binding than the member access operators if they are on the right of a member access operator.
 # 2) The unary operators (+, -, ~, +|, ▲, -|, ▼, and !) have a higher binding than the power operator if they are on the right of the power operator.
 # 
 # Some operators have multiple meanings but they keep the same precedence and associativity
