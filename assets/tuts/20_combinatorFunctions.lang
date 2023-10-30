@@ -2,45 +2,52 @@ lang.name = Combinator functions
 lang.version = v1.0.0
 
 # Finite argument combinator functions
-# A0: func.combA0(a)
 # A : func.combA(a, b)
+# A0: func.combA0(a)
 # A2: func.combA2(a, b, c)
 # A3: func.combA3(a, b, c, d)
 # A4: func.combA4(a, b, c, d, e)
 # AE: func.combAE(a, b)
 # AX: func.combAX(a, b, c, d)
-# B0: func.combB0(a, b)
 # B : func.combB(a, b, c)
+# B0: func.combB0(a, b)
 # B2: func.combB2(a, b, c, d)
 # B3: func.combB3(a, b, c, d, e)
 # BE: func.combBE(a, b, c)
 # BX: func.combBX(a, b, c, d)
+# C : func.combC(a, b, c)
 # C0: func.combC0(a, b, c)
 # C1: func.combC1(a, b, c)
-# C : func.combC(a, b, c)
+# C2: func.combC2(a, b, c)
 # C3: func.combC3(a, b, c, d)
 # C4: func.combC4(a, b, c, d, e)
 # CE: func.combCE(a, b, c)
 # CX: func.combCX(a, b, c, d)
 # D : func.combD(a, b, c, d)
+# D2: func.combD2(a, b, c, d)
 # DE: func.combDE(a, b, c, d)
 # E : func.combE(a, b, c, d, e)
+# E3: func.combE3(a, b, c, d, e)
 # EE: func.combEE(a, b, c, d, e)
 # EX: func.combEX(a, b, c, d, e)
 # F1: func.combF1(a, b, c)
 # F : func.combF(a, b, c)
+# F2: func.combF2(a, b, c)
 # F3: func.combF3(a, b, c, d)
 # F4: func.combF4(a, b, c, d, e)
 # FE: func.combFE(a, b, c)
 # G : func.combG(a, b, c, d)
+# G2: func.combG2(a, b, c, d)
 # GE: func.combGE(a, b, c, d)
 # GX: func.combGX(a, b, c, d)
 # H : func.combH(a, b, c)
+# H3: func.combH3(a, b, c)
 # HB: func.combHB(a, b, c, d)
 # HE: func.combHE(a, b, c)
 # HX: func.combHX(a, b, c)
 # I : func.combI(a)
 # J : func.combJ(a, b, c, d)
+# J3: func.combJ3(a, b, c, d)
 # JE: func.combJE(a, b, c, d)
 # JX: func.combJX(a, b, c, d)
 # K : func.combK(a, b)
@@ -67,27 +74,29 @@ lang.version = v1.0.0
 # N4: func.combN4(a, b, c, d, e)
 # NE: func.combNE(a, b, c)
 # NM: func.combNM(a)
-# NW: func.combNW(a, b)
-# NX: func.combNX(a, b, c)
 # O : func.combO(a, b)
 # O2: func.combO2(a, b, c)
 # O3: func.combO3(a, b, c, d)
 # O4: func.combO4(a, b, c, d, e)
 # P : func.combP(a, b, c, d)
+# P2: func.combP2(a, b, c, d)
 # P3: func.combP3(a, b, c, d, e)
 # PE: func.combPE(a, b, c, d)
 # PX: func.combPX(a, b, c, d)
 # Q : func.combQ(a, b, c)
+# Q0: func.combQ0(a, b, c)
 # QE: func.combQE(a, b, c)
 # QX: func.combQX(a, b, c)
+# R : func.combR(a, b, c)
 # R0: func.combR0(a, b, c)
 # R1: func.combR1(a, b, c)
-# R : func.combR(a, b, c)
+# R2: func.combR2(a, b, c)
 # R3: func.combR3(a, b, c, d)
 # R4: func.combR4(a, b, c, d, e)
 # RE: func.combRE(a, b, c)
 # RX: func.combRX(a, b, c)
 # S : func.combS(a, b, c)
+# S2: func.combS2(a, b, c)
 # SE: func.combSE(a, b, c)
 # SX: func.combSX(a, b, c)
 # T : func.combT(a, b)
@@ -96,13 +105,16 @@ lang.version = v1.0.0
 # TE: func.combTE(a, b)
 # TX: func.combTX(a, b, c, d)
 # U : func.combU(a, b, c, d, e)
+# U2: func.combU2(a, b, c, d, e)
 # UE: func.combUE(a, b, c, d, e)
 # UX: func.combUX(a, b, c, d, e)
 # V1: func.combV1(a, b, c)
 # V : func.combV(a, b, c)
+# V2: func.combV2(a, b, c)
 # V3: func.combV3(a, b, c, d)
 # V4: func.combV4(a, b, c, d, e)
 # W : func.combW(a, b)
+# W2: func.combW2(a, b)
 # W3: func.combW3(a, b)
 # W4: func.combW4(a, b)
 # W5: func.combW5(a, b)
@@ -152,8 +164,8 @@ lang.version = v1.0.0
 # Combinator functions
 # Comb | #Args | Arguments     | Func args   | Execution                      | Comment
 # =====|=======|===============|=============|================================|===========================================================
-# A0   | 1     | a             | a           | a()                            | -
 # A    | 2     | a, b          | a           | a(b)                           | -
+# A0   | 1     | a             | a           | a()                            | -
 # A2   | 3     | a, b, c       | a           | a(b, c)                        | -
 # A3   | 4     | a, b, c, d    | a           | a(b, c, d)                     | -
 # A4   | 5     | a, b, c, d, e | a           | a(b, c, d, e)                  | -
@@ -163,8 +175,8 @@ lang.version = v1.0.0
 # AX   | 4     | a, b, c, d    | a           | a(b, d, c)                     | -
 # AZ   | 1+    | a, ...        | a           | a(..., ...[1], ...[0])         | Same as AN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# B0   | 2     | a, b          | a b         | a(b())                         | -
 # B    | 3     | a, b, c       | a b         | a(b(c))                        | -
+# B0   | 2     | a, b          | a b         | a(b())                         | -
 # B2   | 4     | a, b, c, d    | a b         | a(b(c), b(d))                  | -
 # B3   | 5     | a, b, c, d, e | a b         | a(b(c), b(d), b(e))            | -
 # BE   | 3     | a, b, c       | a b         | a(b())                         | -
@@ -173,39 +185,46 @@ lang.version = v1.0.0
 # BX   | 4     | a, b, c, d    | a b         | a(b(c, d))                     | -
 # BZ   | 2+    | a, b, ...     | a b         | a(..., b(...[1]), b(...[0]))   | Same as BN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# C    | 3     | a, b, c       | a           | a(c)(b)                        | -
 # C0   | 3     | a, b, c       | a           | a(b)                           | -
 # C1   | 3     | a, b, c       | a           | a(c)                           | -
-# C    | 3     | a, b, c       | a           | a(c, b)                        | -
+# C2   | 3     | a, b, c       | a           | a(c, b)                        | -
 # C3   | 4     | a, b, c, d    | a           | a(d, c, b)                     | -
 # C4   | 5     | a, b, c, d, e | a           | a(e, d, c, b)                  | -
 # CE   | 3     | a, b, c       | a           | a()                            | -
 # CX   | 4     | a, b, c, d    | a           | a(c, d, b)                     | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# D    | 4     | a, b, c, d    | a   c       | a(b, c(d))                     | -
+# D    | 4     | a, b, c, d    | a   c       | a(b)(c(d))                     | -
+# D2   | 4     | a, b, c, d    | a   c       | a(b, c(d))                     | -
 # DE   | 4     | a, b, c, d    | a   c       | a(c())                         | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# E    | 5     | a, b, c, d, e | a   c       | a(b, c(d, e))                  | -
+# E    | 5     | a, b, c, d, e | a   c       | a(b)(c(d)(e))                  | -
+# Ee   | 5     | a, b, c, d, e | a   c       | a(b, c(d, e))                  | -
 # EE   | 5     | a, b, c, d, e | a   c       | a(b, c())                      | -
 # EX   | 5     | a, b, c, d, e | a b         | a(c, b(d, e))                  | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# F    | 3     | a, b, c       |     c       | c(b)(a)                        | -
 # F1   | 3     | a, b, c       |     c       | c(b)                           | -
-# F    | 3     | a, b, c       |     c       | c(b, a)                        | -
+# F2   | 3     | a, b, c       |     c       | c(b, a)                        | -
 # F3   | 4     | a, b, c, d    |       d     | d(c, b, a)                     | -
 # F4   | 5     | a, b, c, d, e |         e   | e(d, c, b, a)                  | -
 # FE   | 3     | a, b, c       |     c       | c()                            | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# G    | 4     | a, b, c, d    | a b         | a(d, b(c))                     | -
+# G    | 4     | a, b, c, d    | a b         | a(d)(b(c))                     | -
+# G2   | 4     | a, b, c, d    | a b         | a(d, b(c))                     | -
 # GE   | 4     | a, b, c, d    | a b         | a(d, b())                      | -
 # GX   | 4     | a, b, c, d    | a b         | a(b(d), c)                     | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# H    | 3     | a, b, c       | a           | a(b, c, b)                     | -
+# H    | 3     | a, b, c       | a           | a(b)(c)(b)                     | -
+# H3   | 3     | a, b, c       | a           | a(b, c, b)                     | -
 # HB   | 4     | a, b, c, d    | a b         | a(b(c), b(d), b(c))            | -
 # HE   | 3     | a, b, c       | a b c       | a(b(), c(), b())               | -
 # HX   | 3     | a, b, c       | a           | a(c, b, c)                     | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # I    | 1     | a             |             | a                              | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# J    | 4     | a, b, c, d    | a           | a(b, a(d, c))                  | -
+# J    | 4     | a, b, c, d    | a           | a(b)(a(d)(c))                  | -
+# J3   | 4     | a, b, c, d    | a           | a(b, a(d, c))                  | -
 # JX   | 4     | a, b, c, d    | a           | a(b, a(c, d))                  | -
 # JE   | 4     | a, b, c, d    | a           | a(b, a())                      | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
@@ -229,17 +248,15 @@ lang.version = v1.0.0
 # M4   | 4     | a, b, c, d    | a           | a(a, b, c, d)                  | -
 # M5   | 5     | a, b, c, d, e | a           | a(a, b, c, d, e)               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# N    | 3     | a, b, c       | a           | a(b)(c)                        | -
 # N0   | 1     | a             | a           | a()()                          | -
 # N1   | 3     | a, b, c       | a           | a()(c)                         | -
-# N    | 3     | a, b, c       | a           | a(b)(c)                        | -
 # N3   | 4     | a, b, c, d    | a           | a(b)(c)(d)                     | -
 # N4   | 5     | a, b, c, d, e | a           | a(b)(c)(d)(e)                  | -
 # NE   | 3     | a, b, c       | a           | a()()                          | -
 # NN   | 1+    | a, ...        | a           | a(...[0])(...[1])(...)         | -
 # NM   | 1     | a             | a           | a(a)(a)                        | -
 # NV   | 2     | a, args[]     | a           | a(args[0])(args[1])(...)       | -
-# NW   | 2     | a, b          | a           | a(b)(b)                        | -
-# NX   | 3     | a, b, c       | a           | a(c)(b)                        | -
 # NZ   | 1+    | a, ...        | a           | a(...)(...[1])(...[0])         | Same as NN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # O    | 2     | a, b          | a b         | b(a(b))                        | -
@@ -247,7 +264,8 @@ lang.version = v1.0.0
 # O3   | 4     | a, b, c, d    | a b         | b(a(b, c, d))                  | -
 # O4   | 5     | a, b, c, d, e | a b         | b(a(b, c, d, e))               | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# P    | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                  | -
+# P    | 4     | a, b, c, d    | a b c       | a(b(d))(c(d))                  | -
+# P2   | 4     | a, b, c, d    | a b c       | a(b(d), c(d))                  | -
 # P3   | 5     | a, b, c, d, e | a b c d     | a(b(e), c(e), d(e))            | -
 # PE   | 4     | a, b, c, d    | a b c       | a(b(), c())                    | -
 # PN   | 2+    | a, b, ...     | a         + | a(...[0](b), ...[1](b), ...)   | Every varargs argument will be applied on b first
@@ -256,21 +274,24 @@ lang.version = v1.0.0
 # PZ   | 2+    | a, b, ...     | a         + | a(..., ...[1](b), ...[0](b))   | Same as PN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
 # Q    | 3     | a, b, c       | a b         | b(a(c))                        | -
+# Q0   | 3     | a, b, c       | a b         | b(a())                         | -
 # QE   | 3     | a, b, c       | a b         | b(a())                         | -
 # QN   | 1+    | a, ...        |           + | ...(...[1](...[0](a)))         | Every varargs argument will be consecutively applied on a
 # QV   | 2     | a, args[]     |           + | ...(args[1](args[0](a)))       | Every array element will be consecutively applied on a
 # QX   | 3     | a, b, c       |   b c       | c(b(a))                        | -
 # QZ   | 1+    | a, ...        |           + | ...[0](...[1](...(a)))         | Same as QN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# R    | 3     | a, b, c       |   b         | b(c)(a)                        | -
 # R0   | 3     | a, b, c       |   b         | b(a)                           | -
 # R1   | 3     | a, b, c       |   b         | b(c)                           | -
-# R    | 3     | a, b, c       |   b         | b(c, a)                        | -
+# R2   | 3     | a, b, c       |   b         | b(c, a)                        | -
 # R3   | 4     | a, b, c, d    |   b         | b(d, c, a)                     | -
 # R4   | 5     | a, b, c, d, e |   b         | b(e, d, c, a)                  | -
 # RE   | 3     | a, b, c       |   b         | b()                            | -
 # RX   | 3     | a, b, c       |   b         | b(a, c)                        | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# S    | 3     | a, b, c       | a b         | a(c, b(c))                     | -
+# S    | 3     | a, b, c       | a b         | a(c)(b(c))                     | -
+# S2   | 3     | a, b, c       | a b         | a(c, b(c))                     | -
 # SE   | 3     | a, b, c       | a b         | a(c, b())                      | -
 # SX   | 3     | a, b, c       | a b         | a(b(c), c)                     | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
@@ -283,16 +304,19 @@ lang.version = v1.0.0
 # TX   | 4     | a, b, c, d    |   b         | b(d, c, a)                     | -
 # TZ   | 1+    | ..., z        |           + | ...[0](...[1](...(z)))         | Same as TN but with inverse varargs ordering
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# U    | 5     | a, b, c, d, e | a b c       | a(b(d), c(e))                  | -
+# U    | 5     | a, b, c, d, e | a b c       | a(b(d))(c(e))                  | -
+# U2   | 5     | a, b, c, d, e | a b c       | a(b(d), c(e))                  | -
 # UE   | 5     | a, b, c, d, e | a b c       | a(b(), c())                    | -
 # UX   | 5     | a, b, c, d, e | a     d e   | a(d(b), e(c))                  | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
+# V    | 3     | a, b, c       |     c       | c(a)(b)                        | -
 # V1   | 3     | a, b, c       |     c       | c(a)                           | -
-# V    | 3     | a, b, c       |     c       | c(a, b)                        | -
+# V2   | 3     | a, b, c       |     c       | c(a, b)                        | -
 # V3   | 4     | a, b, c, d    |       d     | d(a, b, c)                     | -
 # V4   | 5     | a, b, c, d, e |         e   | e(a, b, c, d)                  | -
 # -----|-------|---------------|-------------|--------------------------------|-----------------------------------------------------------
-# W    | 2     | a, b          | a           | a(b, b)                        | -
+# W    | 2     | a, b          | a           | a(b)(b)                        | -
+# W2   | 2     | a, b          | a           | a(b, b)                        | -
 # W3   | 2     | a, b          | a           | a(b, b, b)                     | -
 # W4   | 2     | a, b          | a           | a(b, b, b, b)                  | -
 # W5   | 2     | a, b          | a           | a(b, b, b, b, b)               | -
@@ -318,22 +342,6 @@ lang.version = v1.0.0
 # Y    | 1     | f             |           f | (x -> f(x(x)))(x -> f(x(x)))   | -
 
 # Examples
-# A0
-func.println(Examples A0)
-func.println(===========)
-func.println()
-
-# A0-1: Map to executed functions
-func.println(Example A0-1: Map to executed functions)
-func.println(---------------------------------------)
-&funcs $= [func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
-&executedFuncs = func.arrayMapToNew(&funcs, func.combA0)
-
-func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
-func.println(&executedFuncs)
-
-func.printf(%n%n)
-
 # A
 func.println(Examples  A)
 func.println(===========)
@@ -347,6 +355,22 @@ func.println(&values)
 
 func.arrayMap(&values, func.combA(func.inc))
 func.println(&values)
+
+func.printf(%n%n)
+
+# A0
+func.println(Examples A0)
+func.println(===========)
+func.println()
+
+# A0-1: Map to executed functions
+func.println(Example A0-1: Map to executed functions)
+func.println(---------------------------------------)
+&funcs $= [func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
+&executedFuncs = func.arrayMapToNew(&funcs, func.combA0)
+
+func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println(&executedFuncs)
 
 func.printf(%n%n)
 
@@ -509,22 +533,6 @@ func.arrayEnumerate(&values, fp.arrayFunc)
 
 func.printf(%n%n)
 
-# B0
-func.println(Examples B0)
-func.println(===========)
-func.println()
-
-# B0-1: Map to executed functions and pass to other function
-func.println(Example B0-1: Map to executed functions and pass to other function)
-func.println(------------------------------------------------------------------)
-&funcs $= [func.rand, func.currentTimeMillis, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
-&executedFuncs = func.arrayMapToNew(&funcs, func.combB0(func.inv))
-
-func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
-func.println(&executedFuncs)
-
-func.printf(%n%n)
-
 # B
 func.println(Examples  B)
 func.println(===========)
@@ -538,6 +546,22 @@ func.println(&values)
 
 func.arrayMap(&values, func.combB(func.inc, func.inv))
 func.println(&values)
+
+func.printf(%n%n)
+
+# B0
+func.println(Examples B0)
+func.println(===========)
+func.println()
+
+# B0-1: Map to executed functions and pass to other function
+func.println(Example B0-1: Map to executed functions and pass to other function)
+func.println(------------------------------------------------------------------)
+&funcs $= [func.rand, func.currentTimeMillis, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
+&executedFuncs = func.arrayMapToNew(&funcs, func.combB0(func.inv))
+
+func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println(&executedFuncs)
 
 func.printf(%n%n)
 
