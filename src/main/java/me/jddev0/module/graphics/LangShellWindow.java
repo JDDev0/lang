@@ -683,9 +683,7 @@ public class LangShellWindow extends JDialog {
 					builder.append(memberName);
 
 					if(isStructDefinition) {
-						if(dataObject.getStruct().getTypeConstraint(memberName) == null)
-							builder.append(DataObject.DataTypeConstraint.fromNotAllowedTypes(new ArrayList<>()).toTypeConstraintSyntax());
-						else
+						if(dataObject.getStruct().getTypeConstraint(memberName) != null)
 							builder.append(dataObject.getStruct().getTypeConstraint(memberName).toTypeConstraintSyntax());
 					}else {
 						DataObject member = dataObject.getStruct().getMember(memberName);
@@ -707,10 +705,13 @@ public class LangShellWindow extends JDialog {
 				builder.append("\nIs class: ");
 				builder.append(isClass);
 
-
 				builder.append("\nStatic members:");
 				for(DataObject staticMember:dataObject.getObject().getStaticMembers()) {
 					builder.append("\n    ");
+
+					//TODO visibility
+					builder.append("+");
+
 					builder.append(staticMember.getVariableName());
 
 					if(!staticMember.getTypeConstraint().equals(DataObject.getTypeConstraintFor(staticMember.getVariableName())))
@@ -724,6 +725,36 @@ public class LangShellWindow extends JDialog {
 						builder.append("\n");
 					}
 					builder.append("    }");
+				}
+
+				builder.append("\nMembers:");
+				for(int i = 0;i < dataObject.getObject().getMemberNames().length;i++) {
+					String memberName = dataObject.getObject().getMemberNames()[i];
+					builder.append("\n    ");
+
+					//TODO visibility
+					builder.append("+");
+
+					if(dataObject.getObject().getMemberFinalFlags()[i])
+						builder.append("final:");
+
+					builder.append(memberName);
+
+					if(isClass) {
+						if(dataObject.getObject().getMemberTypeConstraints()[i] != null)
+							builder.append(dataObject.getObject().getMemberTypeConstraints()[i].toTypeConstraintSyntax());
+					}else {
+						DataObject member = dataObject.getObject().getMember(memberName);
+
+						builder.append(": {\n");
+						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+						for(String debugStringLine:debugStringLines) {
+							builder.append("        ");
+							builder.append(debugStringLine);
+							builder.append("\n");
+						}
+						builder.append("    }");
+					}
 				}
 				break;
 
