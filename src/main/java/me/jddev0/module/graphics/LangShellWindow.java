@@ -702,6 +702,31 @@ public class LangShellWindow extends JDialog {
 				}
 				break;
 
+			case OBJECT:
+				boolean isClass = dataObject.getObject().isClass();
+				builder.append("\nIs class: ");
+				builder.append(isClass);
+
+
+				builder.append("\nStatic members:");
+				for(DataObject staticMember:dataObject.getObject().getStaticMembers()) {
+					builder.append("\n    ");
+					builder.append(staticMember.getVariableName());
+
+					if(!staticMember.getTypeConstraint().equals(DataObject.getTypeConstraintFor(staticMember.getVariableName())))
+						builder.append(staticMember.getTypeConstraint().toTypeConstraintSyntax());
+
+					builder.append(": {\n");
+					debugStringLines = getDebugString(staticMember, maxRecursionDepth > 1?1:0).toString().split("\\n");
+					for(String debugStringLine:debugStringLines) {
+						builder.append("        ");
+						builder.append(debugStringLine);
+						builder.append("\n");
+					}
+					builder.append("    }");
+				}
+				break;
+
 			case BYTE_BUFFER:
 				builder.append("\nSize: ");
 				builder.append(dataObject.getByteBuffer().length);
