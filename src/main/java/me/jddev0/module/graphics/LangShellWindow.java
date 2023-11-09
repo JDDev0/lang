@@ -784,6 +784,36 @@ public class LangShellWindow extends JDialog {
 					}
 					builder.append("    }");
 				}
+
+				builder.append("\nMethods:");
+				dataObject.getObject().getMethods().forEach((methodName, overloadedMethodDefinitions) -> {
+					for(int i = 0;i < overloadedMethodDefinitions.length;i++) {
+						DataObject.FunctionPointerObject methodDefinition = overloadedMethodDefinitions[i];
+
+						List<? extends LangBaseFunction> baseFunctions = methodDefinition.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL?
+								Arrays.asList(methodDefinition.getNormalFunction()):methodDefinition.getNativeFunction().getInternalFunctions();
+						for(LangBaseFunction baseFunction:baseFunctions) {
+							builder.append("\n    ");
+
+							//TODO visibility
+							builder.append("+");
+
+							builder.append(methodName);
+							builder.append(baseFunction.toFunctionSignatureSyntax());
+						}
+
+
+						builder.append(": {\n");
+						String[] debugStringLinesMethod = getDebugString(new DataObject().setFunctionPointer(methodDefinition),
+								maxRecursionDepth > 1?1:0).toString().split("\\n");
+						for(String debugStringLine:debugStringLinesMethod) {
+							builder.append("        ");
+							builder.append(debugStringLine);
+							builder.append("\n");
+						}
+						builder.append("    }");
+					}
+				});
 				break;
 
 			case BYTE_BUFFER:
