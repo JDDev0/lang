@@ -756,6 +756,34 @@ public class LangShellWindow extends JDialog {
 						builder.append("    }");
 					}
 				}
+
+				builder.append("\nConstructors:");
+				for(int i = 0;i < dataObject.getObject().getConstructors().length;i++) {
+					DataObject.FunctionPointerObject constructor = dataObject.getObject().getConstructors()[i];
+
+					List<? extends LangBaseFunction> baseFunctions = constructor.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL?
+							Arrays.asList(constructor.getNormalFunction()):constructor.getNativeFunction().getInternalFunctions();
+					for(LangBaseFunction baseFunction:baseFunctions) {
+						builder.append("\n    ");
+
+						//TODO visibility
+						builder.append("+");
+
+						builder.append("construct");
+						builder.append(baseFunction.toFunctionSignatureSyntax());
+					}
+
+
+					builder.append(": {\n");
+					debugStringLines = getDebugString(new DataObject().setFunctionPointer(constructor),
+							maxRecursionDepth > 1?1:0).toString().split("\\n");
+					for(String debugStringLine:debugStringLines) {
+						builder.append("        ");
+						builder.append(debugStringLine);
+						builder.append("\n");
+					}
+					builder.append("    }");
+				}
 				break;
 
 			case BYTE_BUFFER:
