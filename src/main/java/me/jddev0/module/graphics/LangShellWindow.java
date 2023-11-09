@@ -866,6 +866,10 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getFunctionPointer().getLangFile());
 				builder.append("\nFunction-Name: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionName());
+				builder.append("\nIs bound: ");
+				builder.append(dataObject.getFunctionPointer().getThisObject() != null);
+				builder.append("\nSuper level: ");
+				builder.append(dataObject.getFunctionPointer().getSuperLevel());
 				builder.append("\nFunction-Type: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
 				builder.append("\nNormal Function: ");
