@@ -1008,7 +1008,7 @@ public class LangShellWindow extends JDialog {
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 
 			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
-					nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false;
+					nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false, numberValueFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
 
@@ -1043,7 +1043,7 @@ public class LangShellWindow extends JDialog {
 				if(!throwFlag)
 					throwFlag = line.substring(i).startsWith("throw");
 
-				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ',';
+				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || (!numberValueFlag && c == '.') || c == ',';
 				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
 
 				if(modulePrefixFlag) {
@@ -1079,6 +1079,16 @@ public class LangShellWindow extends JDialog {
 				if(line.substring(i).startsWith("&&") || (i > 0 && line.substring(i - 1).startsWith("&&")))
 					varFlag = false;
 
+				if(numberValueFlag && !Character.isDigit(c)) {
+					if((i > 1 && Character.isDigit(line.charAt(i - 1)) && c != '.' && c != 'f' && c != 'F' && c != 'l' && c != 'L') ||
+							(i > 1 && (line.charAt(i - 1) == 'f' || line.charAt(i - 1) == 'F' || line.charAt(i - 1) == 'l' || line.charAt(i - 1) == 'L')) ||
+							(i > 2 && Character.isDigit(line.charAt(i - 2)) && line.charAt(i - 1) == '.' && c != 'f' && c != 'F') ||
+							(i > 2 && !Character.isDigit(line.charAt(i - 2)) && !Character.isDigit(line.charAt(i - 1))))
+						numberValueFlag = false;
+				}else {
+					numberValueFlag = Character.isDigit(c);
+				}
+
 				Color col = Color.WHITE;
 				if(commentFlag)
 					col = Color.GREEN;
@@ -1094,7 +1104,7 @@ public class LangShellWindow extends JDialog {
 					col = Color.MAGENTA;
 				else if(returnFlag || throwFlag)
 					col = Color.LIGHT_GRAY;
-				else if(Character.isDigit(c))
+				else if(numberValueFlag)
 					col = Color.YELLOW;
 				else if(nullFlag)
 					col = Color.YELLOW;
