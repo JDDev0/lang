@@ -814,6 +814,23 @@ public class LangShellWindow extends JDialog {
 						builder.append("    }");
 					}
 				});
+
+				builder.append("\nParrent classes:");
+				for(int i = 0;i < dataObject.getObject().getParentClasses().length;i++) {
+					DataObject.LangObject parentClass = dataObject.getObject().getParentClasses()[i];
+
+					builder.append("\n    ");
+					builder.append(i);
+					builder.append(": {\n");
+					String[] debugStringLinesMethod = getDebugString(new DataObject().setObject(parentClass),
+							maxRecursionDepth > 1?1:0).toString().split("\\n");
+					for(String debugStringLine:debugStringLinesMethod) {
+						builder.append("        ");
+						builder.append(debugStringLine);
+						builder.append("\n");
+					}
+					builder.append("    }");
+				}
 				break;
 
 			case BYTE_BUFFER:
