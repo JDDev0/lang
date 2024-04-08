@@ -35,7 +35,7 @@ Here is a list of all existing modules for lang:
 
 ### Native Lang Modules
 
-Lang modules can contain native code (In the standard Lang implementation native code is Java code). In the [Lang Example Native Module](https://github.com/JDDev0/LangExampleNativeModule) repository a build script can be found in order to create modules containing nativ code easily.
+Lang modules can contain native code (In the standard Lang implementation native code is Java code). In the [Lang Example Native Module](https://github.com/JDDev0/LangExampleNativeModule) repository a build script can be found in order to create modules containing native code easily.
 
 ## Docs and examples
 
