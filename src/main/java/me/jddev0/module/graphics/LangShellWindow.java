@@ -580,7 +580,7 @@ public class LangShellWindow extends JDialog {
 			@LangParameter("$value") DataObject valueObject
 	) {
 		try {
-			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.getText());
+			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.toText());
 			if(autoPrintMode == null)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
 
@@ -642,7 +642,7 @@ public class LangShellWindow extends JDialog {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("Raw Text: ");
-		builder.append(dataObject.getText());
+		builder.append(dataObject.toText());
 		builder.append("\nType: ");
 		builder.append(dataObject.getType());
 		builder.append("\nFinal: ");
@@ -1640,7 +1640,7 @@ public class LangShellWindow extends JDialog {
 			if(retValue == null)
 				term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
 			else
-				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.getText());
+				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.toText());
 		}
 
 		//Reset the printStream output
