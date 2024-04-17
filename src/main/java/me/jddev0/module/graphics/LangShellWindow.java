@@ -567,7 +567,7 @@ public class LangShellWindow extends JDialog {
 		builder.append("Debug[");
 		builder.append(dereferencedVarPointer.getVariableName() == null?"<ANONYMOUS>":dereferencedVarPointer.getVariableName());
 		builder.append("]:\n");
-		builder.append(getDebugString(dereferencedVarPointer, 4));
+		builder.append(getDebugString(dereferencedVarPointer, 4, SCOPE_ID));
 
 		term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
 
@@ -580,7 +580,7 @@ public class LangShellWindow extends JDialog {
 			@LangParameter("$value") DataObject valueObject
 	) {
 		try {
-			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(valueObject.toText());
+			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, -1, SCOPE_ID));
 			if(autoPrintMode == null)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'", SCOPE_ID);
 
@@ -633,7 +633,7 @@ public class LangShellWindow extends JDialog {
 		return lii.setErrnoErrorObject(InterpretingError.FUNCTION_NOT_SUPPORTED, "Function not supported in the LangShell", SCOPE_ID);
 	}
 
-	private String getDebugString(DataObject dataObject, int maxRecursionDepth) {
+	private String getDebugString(DataObject dataObject, int maxRecursionDepth, final int SCOPE_ID) {
 		if(dataObject == null)
 			return "<NULL>";
 
@@ -642,7 +642,7 @@ public class LangShellWindow extends JDialog {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("Raw Text: ");
-		builder.append(dataObject.toText());
+		builder.append(lii.getInterpreter().conversions.toText(dataObject, -1, SCOPE_ID));
 		builder.append("\nType: ");
 		builder.append(dataObject.getType());
 		builder.append("\nFinal: ");
@@ -664,7 +664,8 @@ public class LangShellWindow extends JDialog {
 		switch(dataObject.getType()) {
 			case VAR_POINTER:
 				builder.append("\nPointing to: {\n");
-				String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar(), maxRecursionDepth - 1).toString().split("\\n");
+				String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar(), maxRecursionDepth - 1, SCOPE_ID).
+						toString().split("\\n");
 				for(String debugStringLine:debugStringLines) {
 					builder.append("    ");
 					builder.append(debugStringLine);
@@ -689,7 +690,7 @@ public class LangShellWindow extends JDialog {
 						DataObject member = dataObject.getStruct().getMember(memberName);
 
 						builder.append(": {\n");
-						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 						for(String debugStringLine:debugStringLines) {
 							builder.append("        ");
 							builder.append(debugStringLine);
@@ -718,7 +719,7 @@ public class LangShellWindow extends JDialog {
 						builder.append(staticMember.getTypeConstraint().toTypeConstraintSyntax());
 
 					builder.append(": {\n");
-					debugStringLines = getDebugString(staticMember, maxRecursionDepth > 1?1:0).toString().split("\\n");
+					debugStringLines = getDebugString(staticMember, maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -747,7 +748,7 @@ public class LangShellWindow extends JDialog {
 						DataObject member = dataObject.getObject().getMember(memberName);
 
 						builder.append(": {\n");
-						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+						debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 						for(String debugStringLine:debugStringLines) {
 							builder.append("        ");
 							builder.append(debugStringLine);
@@ -776,7 +777,7 @@ public class LangShellWindow extends JDialog {
 
 					builder.append(": {\n");
 					debugStringLines = getDebugString(new DataObject().setFunctionPointer(constructor),
-							maxRecursionDepth > 1?1:0).toString().split("\\n");
+							maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -805,7 +806,7 @@ public class LangShellWindow extends JDialog {
 
 						builder.append(": {\n");
 						String[] debugStringLinesMethod = getDebugString(new DataObject().setFunctionPointer(methodDefinition),
-								maxRecursionDepth > 1?1:0).toString().split("\\n");
+								maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 						for(String debugStringLine:debugStringLinesMethod) {
 							builder.append("        ");
 							builder.append(debugStringLine);
@@ -823,7 +824,7 @@ public class LangShellWindow extends JDialog {
 					builder.append(i);
 					builder.append(": {\n");
 					String[] debugStringLinesMethod = getDebugString(new DataObject().setObject(parentClass),
-							maxRecursionDepth > 1?1:0).toString().split("\\n");
+							maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 					for(String debugStringLine:debugStringLinesMethod) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -847,7 +848,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    arr(");
 					builder.append(i);
 					builder.append("): {\n");
-					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
+					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -866,7 +867,7 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    list(");
 					builder.append(i);
 					builder.append("): {\n");
-					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
+					debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0, SCOPE_ID).toString().split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -1519,9 +1520,9 @@ public class LangShellWindow extends JDialog {
 				try {
 					DataObject lastVal = lii.exec(0, code);
 					if(autoPrintMode == AutoPrintMode.AUTO)
-						GraphicsHelper.addText(shell, " ==> " + lastVal + "\n", Color.PINK);
+						GraphicsHelper.addText(shell, " ==> " + lii.getInterpreter().conversions.toText(lastVal, -1, 0) + "\n", Color.PINK);
 					else if(autoPrintMode == AutoPrintMode.DEBUG)
-						GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
+						GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4, 0) + "\n", Color.PINK);
 				}catch(IOException e) {
 					term.logStackTrace(e, LangShellWindow.class);
 				}catch(LangInterpreter.StoppedException e) {
@@ -1550,9 +1551,9 @@ public class LangShellWindow extends JDialog {
 						DataObject lastVal = lii.exec(0, executionQueue.poll());
 						if(executionQueue.isEmpty()) {
 							if(autoPrintMode == AutoPrintMode.AUTO)
-								GraphicsHelper.addText(shell, " ==> " + lastVal + "\n", Color.PINK);
+								GraphicsHelper.addText(shell, " ==> " + lii.getInterpreter().conversions.toText(lastVal, -1, 0) + "\n", Color.PINK);
 							else if(autoPrintMode == AutoPrintMode.DEBUG)
-								GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
+								GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4, 0) + "\n", Color.PINK);
 						}
 					}catch(IOException e) {
 						term.logStackTrace(e, LangShellWindow.class);
@@ -1640,7 +1641,8 @@ public class LangShellWindow extends JDialog {
 			if(retValue == null)
 				term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
 			else
-				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class, retValue.toText());
+				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class,
+						lii.getInterpreter().conversions.toText(retValue, -1, 0));
 		}
 
 		//Reset the printStream output
@@ -1817,7 +1819,8 @@ public class LangShellWindow extends JDialog {
 					builder.append(function.getParameterList().get(i).getVariableName()).append("</code>");
 
 					if(!hideCombinatorArgument && combinatorArguments.size() > i) {
-						builder.append(" (= <code>").append(combinatorArguments.get(i).toText()).append("</code>)");
+						builder.append(" (= <code>").append(lii.getInterpreter().conversions.
+								toText(combinatorArguments.get(i), -1, 0)).append("</code>)");
 					}
 
 					String description = internalFunction == null?null:internalFunction.getParameterInfoList().get(i);
