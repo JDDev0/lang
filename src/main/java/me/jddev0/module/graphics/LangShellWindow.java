@@ -1520,7 +1520,7 @@ public class LangShellWindow extends JDialog {
 				try {
 					DataObject lastVal = lii.exec(0, code);
 					if(autoPrintMode == AutoPrintMode.AUTO)
-						GraphicsHelper.addText(shell, " ==> " + lii.getInterpreter().conversions.toText(lastVal, -1, 0) + "\n", Color.PINK);
+						GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.toText(lastVal, -1, 0)) + "\n", Color.PINK);
 					else if(autoPrintMode == AutoPrintMode.DEBUG)
 						GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4, 0) + "\n", Color.PINK);
 				}catch(IOException e) {
@@ -1551,7 +1551,7 @@ public class LangShellWindow extends JDialog {
 						DataObject lastVal = lii.exec(0, executionQueue.poll());
 						if(executionQueue.isEmpty()) {
 							if(autoPrintMode == AutoPrintMode.AUTO)
-								GraphicsHelper.addText(shell, " ==> " + lii.getInterpreter().conversions.toText(lastVal, -1, 0) + "\n", Color.PINK);
+								GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.toText(lastVal, -1, 0)) + "\n", Color.PINK);
 							else if(autoPrintMode == AutoPrintMode.DEBUG)
 								GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4, 0) + "\n", Color.PINK);
 						}
