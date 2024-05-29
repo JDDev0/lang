@@ -131,7 +131,7 @@ public class Startup {
 			try {
 				term.logln(Level.DEBUG, "------------- Start of Lang --------------", Startup.class);
 				LangInterpreterInterface lii = Lang.createInterpreterInterface(input[langFileIndex], false, term, langPlatformAPI, errorOutput, langArgs);
-				Map<String, String> translations = lii.getTranslationMap(0);
+				Map<String, String> translations = lii.getTranslationMap();
 				term.logln(Level.DEBUG, "-------------- Translations --------------", Startup.class);
 				translations.forEach((key, value) -> {
 					term.logln(Level.DEBUG, key + " = " + value, Startup.class);
@@ -147,7 +147,7 @@ public class Startup {
 						term.logln(Level.DEBUG, "No returned value", Startup.class);
 					else
 						term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", Startup.class, lii.getInterpreter().conversions.
-								toText(retValue, -1, 0));
+								toText(retValue, -1));
 				}
 				term.logln(Level.DEBUG, "-------------- End of Lang ---------------", Startup.class);
 			}catch(IOException e) {
@@ -286,7 +286,7 @@ public class Startup {
 			if(warnings)
 				lii.setErrorOutputFlag(LangInterpreter.ExecutionFlags.ErrorOutputFlag.ALL);
 			
-			lii.exec(0, langCode);
+			lii.exec(langCode);
 			printPostExecutionOutput(lii, printTranslations, printReturnedValue);
 		}catch(IOException e) {
 			e.printStackTrace();
@@ -311,7 +311,7 @@ public class Startup {
 	}
 	
 	private static void printPostExecutionOutput(LangInterpreterInterface lii, boolean printTranslations, boolean printReturnedValue) {
-		Map<String, String> translations = lii.getTranslationMap(0);
+		Map<String, String> translations = lii.getTranslationMap();
 		if(printTranslations) {
 			System.out.println("-------------- Translations --------------");
 			translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
@@ -327,7 +327,7 @@ public class Startup {
 				if(retValue == null)
 					System.out.println("No returned value");
 				else
-					System.out.printf("Returned Value: \"%s\"\n", lii.getInterpreter().conversions.toText(retValue, -1, 0));
+					System.out.printf("Returned Value: \"%s\"\n", lii.getInterpreter().conversions.toText(retValue, -1));
 			}
 		}
 	}
