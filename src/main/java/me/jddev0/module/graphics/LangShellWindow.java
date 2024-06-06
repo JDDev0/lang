@@ -263,11 +263,8 @@ public class LangShellWindow extends JDialog {
 					String functionName = input;
 					DataObject.FunctionPointerObject function = null;
 					if(input.matches("(func\\.|fn\\.|linker\\.|ln\\.)\\w+")) {
-						LangNativeFunction nativeFunction = lii.getPredefinedFunctions().
+						function = lii.getPredefinedFunctions().
 								get(functionName.substring(functionName.indexOf('.') + 1));
-
-						if(nativeFunction != null)
-							function = new DataObject.FunctionPointerObject(nativeFunction);
 					}else if(input.matches("(\\[\\[\\w+\\]\\]::)?(\\$|fp\\.)\\w+")) {
 						String variableName = input.contains("::")?input.substring(input.indexOf(':') + 2):input;
 
@@ -1228,7 +1225,7 @@ public class LangShellWindow extends JDialog {
 				String functionNameStart = indexFunctionNameStart == lastToken.length()?"":lastToken.substring(indexFunctionNameStart);
 				List<String> autoCompletes = lii.getPredefinedFunctions().entrySet().stream().filter(entry -> {
 							return entry.getValue().isLinkerFunction() == isLinkerFunction;
-						}).map(Entry<String, LangNativeFunction>::getKey).filter(functionName ->
+						}).map(Entry::getKey).filter(functionName ->
 								functionName.startsWith(functionNameStart) && !functionName.equals(functionNameStart)).
 						sorted().collect(Collectors.toList());
 
