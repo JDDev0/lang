@@ -746,25 +746,22 @@ public class LangShellWindow extends JDialog {
 				}
 
 				builder.append("\nConstructors:");
-				for(int i = 0;i < dataObject.getObject().getConstructors().length;i++) {
-					DataObject.FunctionPointerObject constructor = dataObject.getObject().getConstructors()[i];
+				for(int i = 0;i < dataObject.getObject().getConstructors().getOverloadedFunctionCount();i++) {
+					DataObject.FunctionPointerObject.InternalFunction constructor = dataObject.getObject().getConstructors().getFunction(i);
 
-					List<? extends LangBaseFunction> baseFunctions = constructor.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL?
-							Arrays.asList(constructor.getNormalFunction()):constructor.getNativeFunction().getInternalFunctions();
-					for(LangBaseFunction baseFunction:baseFunctions) {
-						builder.append("\n    ");
+					builder.append("\n    ");
 
-						//TODO visibility
-						builder.append("+");
+					//TODO visibility
+					builder.append("+");
 
-						builder.append("construct");
-						builder.append(baseFunction.toFunctionSignatureSyntax());
-					}
+					builder.append("construct");
+					builder.append(constructor.toFunctionSignatureSyntax());
 
 
 					builder.append(": {\n");
-					debugStringLines = getDebugString(new DataObject().setFunctionPointer(constructor),
-							maxRecursionDepth > 1?1:0).toString().split("\\n");
+					debugStringLines = getDebugString(new DataObject().setFunctionPointer(dataObject.getObject().
+									getConstructors().withFunctions(Arrays.asList(constructor))),
+							maxRecursionDepth > 1?1:0).split("\\n");
 					for(String debugStringLine:debugStringLines) {
 						builder.append("        ");
 						builder.append(debugStringLine);
@@ -775,25 +772,22 @@ public class LangShellWindow extends JDialog {
 
 				builder.append("\nMethods:");
 				dataObject.getObject().getMethods().forEach((methodName, overloadedMethodDefinitions) -> {
-					for(int i = 0;i < overloadedMethodDefinitions.length;i++) {
-						DataObject.FunctionPointerObject methodDefinition = overloadedMethodDefinitions[i];
+					for(int i = 0;i < overloadedMethodDefinitions.getOverloadedFunctionCount();i++) {
+						DataObject.FunctionPointerObject.InternalFunction methodDefinition = overloadedMethodDefinitions.getFunction(i);
 
-						List<? extends LangBaseFunction> baseFunctions = methodDefinition.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL?
-								Arrays.asList(methodDefinition.getNormalFunction()):methodDefinition.getNativeFunction().getInternalFunctions();
-						for(LangBaseFunction baseFunction:baseFunctions) {
-							builder.append("\n    ");
+						builder.append("\n    ");
 
-							//TODO visibility
-							builder.append("+");
+						//TODO visibility
+						builder.append("+");
 
-							builder.append(methodName);
-							builder.append(baseFunction.toFunctionSignatureSyntax());
-						}
+						builder.append(methodName);
+						builder.append(methodDefinition.toFunctionSignatureSyntax());
 
 
 						builder.append(": {\n");
-						String[] debugStringLinesMethod = getDebugString(new DataObject().setFunctionPointer(methodDefinition),
-								maxRecursionDepth > 1?1:0).toString().split("\\n");
+						String[] debugStringLinesMethod = getDebugString(new DataObject().setFunctionPointer(overloadedMethodDefinitions.
+										withFunctions(Arrays.asList(methodDefinition))),
+								maxRecursionDepth > 1?1:0).split("\\n");
 						for(String debugStringLine:debugStringLinesMethod) {
 							builder.append("        ");
 							builder.append(debugStringLine);
@@ -875,10 +869,6 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getFunctionPointer().getFunctionInfo());
 				builder.append("\nIs bound: ");
 				builder.append(dataObject.getFunctionPointer().getThisObject() != null);
-				builder.append("\nSuper level: ");
-				builder.append(dataObject.getFunctionPointer().getSuperLevel());
-				builder.append("\nFunction-Type: ");
-				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
 				builder.append("\nLinker Function: ");
 				builder.append(dataObject.getFunctionPointer().isLinkerFunction());
 				builder.append("\nDeprecated: ");
@@ -890,71 +880,76 @@ public class LangShellWindow extends JDialog {
 					builder.append("\n    Replacement function: ");
 					builder.append(dataObject.getFunctionPointer().getDeprecatedReplacementFunction());
 				}
-				builder.append("\nNormal Function: ");
-				LangNormalFunction normalFunction = dataObject.getFunctionPointer().getNormalFunction();
-				if(normalFunction == null) {
-					builder.append(normalFunction);
-				}else {
-					builder.append("{");
-					builder.append("\n    Raw String: ");
-					builder.append(normalFunction);
-					builder.append("\n    Function signature:");
-					{
-						List<DataObject> parameterList = normalFunction.getParameterList();
-						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = normalFunction.getParameterDataTypeConstraintList();
-						List<String> parameterInfoList = normalFunction.getParameterInfoList();
-						builder.append("\n        Function Signature: ");
-						builder.append(normalFunction.toFunctionSignatureSyntax());
-						builder.append("\n        Return Value Type Constraint: ");
-						builder.append(normalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
-						builder.append("\n        Parameters: ");
-						for(int i = 0;i < parameterList.size();i++) {
-							builder.append("\n            Parameter ");
-							builder.append(i + 1);
-							builder.append(" (\"");
-							builder.append(parameterList.get(i).getVariableName());
-							builder.append("\"): ");
-							builder.append("\n                Data type constraint: ");
-							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
-							builder.append("\n                Parameter info: ");
-							builder.append(parameterInfoList.get(i));
+				builder.append("\nInternal Functions: {");
+				for(DataObject.FunctionPointerObject.InternalFunction internalFunction:dataObject.getFunctionPointer().getFunctions()) {
+					builder.append("\n    Super level: ");
+					builder.append(internalFunction.getSuperLevel());
+					builder.append("\n    Function-Type: ");
+					builder.append(internalFunction.getFunctionPointerType());
+					builder.append("\n    Normal Function: ");
+					LangNormalFunction normalFunction = internalFunction.getNormalFunction();
+					if(normalFunction == null) {
+						builder.append(normalFunction);
+					}else {
+						builder.append("{");
+						builder.append("\n        Raw String: ");
+						builder.append(normalFunction);
+						builder.append("\n        Function signature:");
+						{
+							List<DataObject> parameterList = normalFunction.getParameterList();
+							List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = normalFunction.getParameterDataTypeConstraintList();
+							List<String> parameterInfoList = normalFunction.getParameterInfoList();
+							builder.append("\n            Function Signature: ");
+							builder.append(normalFunction.toFunctionSignatureSyntax());
+							builder.append("\n            Return Value Type Constraint: ");
+							builder.append(normalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
+							builder.append("\n            Parameters: ");
+							for(int i = 0;i < parameterList.size();i++) {
+								builder.append("\n                Parameter ");
+								builder.append(i + 1);
+								builder.append(" (\"");
+								builder.append(parameterList.get(i).getVariableName());
+								builder.append("\"): ");
+								builder.append("\n                    Data type constraint: ");
+								builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+								builder.append("\n                    Parameter info: ");
+								builder.append(parameterInfoList.get(i));
+							}
 						}
+						builder.append("\n        Function Body: {");
+						String[] tokens = normalFunction.getFunctionBody().toString().split("\\n");
+						for(String token:tokens) {
+							builder.append("\n            ");
+							builder.append(token);
+						}
+						builder.append("\n    }");
 					}
-					builder.append("\n\tFunction Body: {");
-					String[] tokens = normalFunction.getFunctionBody().toString().split("\\n");
-					for(String token:tokens) {
-						builder.append("\n\t\t");
-						builder.append(token);
-					}
-					builder.append("\n\t}");
-				}
-				builder.append("\nNative Function: ");
-				LangNativeFunction nativeFunction = dataObject.getFunctionPointer().getNativeFunction();
-				if(nativeFunction == null) {
-					builder.append(nativeFunction);
-				}else {
-					builder.append("{");
-					builder.append("\n    Raw String: ");
-					builder.append(nativeFunction);
-					builder.append("\n    Function name: ");
-					builder.append(nativeFunction.getFunctionName());
-					builder.append("\n    Function signatures:");
-					for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
-						List<DataObject> parameterList = internalFunction.getParameterList();
-						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParameterDataTypeConstraintList();
-						List<String> parameterInfoList = internalFunction.getParameterInfoList();
+					builder.append("\n    Native Function: ");
+					LangNativeFunction nativeFunction = internalFunction.getNativeFunction();
+					if(nativeFunction == null) {
+						builder.append(nativeFunction);
+					}else {
+						builder.append("{");
+						builder.append("\n        Raw String: ");
+						builder.append(nativeFunction);
+						builder.append("\n        Function name: ");
+						builder.append(nativeFunction.getFunctionName());
+						builder.append("\n        Function signatures:");
+						List<DataObject> parameterList = nativeFunction.getParameterList();
+						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = nativeFunction.getParameterDataTypeConstraintList();
+						List<String> parameterInfoList = nativeFunction.getParameterInfoList();
 						builder.append("\n        Is method: ");
-						builder.append(internalFunction.isMethod());
+						builder.append(nativeFunction.isMethod());
 						builder.append("\n        Combinator Function: ");
-						builder.append(internalFunction.isCombinatorFunction());
+						builder.append(nativeFunction.isCombinatorFunction());
 						builder.append("\n        Combinator Function Call Count: ");
-						builder.append(internalFunction.getCombinatorFunctionCallCount());
+						builder.append(nativeFunction.getCombinatorFunctionCallCount());
 						builder.append("\n        Combinator Function Arguments: ");
-						builder.append(internalFunction.getCombinatorProvidedArgumentList());
+						builder.append(nativeFunction.getCombinatorProvidedArgumentList());
 						builder.append("\n        Function Signature: ");
-						builder.append(internalFunction.toFunctionSignatureSyntax());
+						builder.append(nativeFunction.toFunctionSignatureSyntax());
 						builder.append("\n        Return Value Type Constraint: ");
-						builder.append(internalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
+						builder.append(nativeFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
 						builder.append("\n        Parameters: ");
 						for(int i = 0;i < parameterList.size();i++) {
 							builder.append("\n            Parameter ");
@@ -967,9 +962,10 @@ public class LangShellWindow extends JDialog {
 							builder.append("\n                Parameter info: ");
 							builder.append(parameterInfoList.get(i));
 						}
+						builder.append("\n    }");
 					}
-					builder.append("\n}");
 				}
+				builder.append("\n}");
 				break;
 
 			case ERROR:
@@ -1743,30 +1739,18 @@ public class LangShellWindow extends JDialog {
 					builder.append("<h1>").append(functionName).append("</h1>");
 					if(function == null) {
 						builder.append("<p class='error'>No function found at cursor position!</p>");
-					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL) {
-						LangNormalFunction normalFunction = function.getNormalFunction();
-
+					}else {
 						String description = function.getFunctionInfo();
 						builder.append("<p>Description: ").append(description == null?"No description available":description).append("</p>");
 
-						builder.append("<h2>Function signatures</h2>");
-						builder.append("<ul>");
-						generateFunctionSignatureHTML(builder, functionName, normalFunction);
-						builder.append("</ul>");
-					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NATIVE) {
-						LangNativeFunction nativeFunction = function.getNativeFunction();
+						if(function.getOverloadedFunctionCount() > 0) {
+							DataObject.FunctionPointerObject.InternalFunction internalFunction = function.getFunction(0);
 
-						String description = function.getFunctionInfo();
-						builder.append("<p>Description: ").append(description == null?"No description available":description).append("</p>");
-
-						if(!nativeFunction.getInternalFunctions().isEmpty()) {
-							LangNativeFunction.InternalFunction internalFunction = nativeFunction.getInternalFunctions().get(0);
-
-							if(internalFunction.isCombinatorFunction()) {
+							if(internalFunction.getFunctionPointerType() == DataObject.FunctionPointerObject.NATIVE) {
 								builder.append("<p>Combinator function info:").append("</p>");
 								builder.append("<ul>");
 								{
-									builder.append("<li>Call count: ").append(internalFunction.getCombinatorFunctionCallCount()).append("</li>");
+									builder.append("<li>Call count: ").append(internalFunction.getNativeFunction().getCombinatorFunctionCallCount()).append("</li>");
 								}
 								builder.append("</ul>");
 							}
@@ -1774,12 +1758,10 @@ public class LangShellWindow extends JDialog {
 
 						builder.append("<h2>Function signatures</h2>");
 						builder.append("<ul>");
-						for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
-							generateFunctionSignatureHTML(builder, functionName, internalFunction);
+						for(DataObject.FunctionPointerObject.InternalFunction internalFunction:function.getFunctions()) {
+							generateFunctionSignatureHTML(builder, functionName, internalFunction.getFunction());
 						}
 						builder.append("</ul>");
-					}else {
-						builder.append("<p class='error'>Invalid function type (Must be <code>NORMAL</code> or <code>NATIVE</code>)!</p>");
 					}
 				}
 				builder.append("</body>");
@@ -1789,11 +1771,10 @@ public class LangShellWindow extends JDialog {
 		}
 
 		private void generateFunctionSignatureHTML(StringBuilder builder, String functionName, LangBaseFunction function) {
-			LangNativeFunction.InternalFunction internalFunction = (function instanceof LangNativeFunction.InternalFunction)?
-					(LangNativeFunction.InternalFunction)function:null;
+			LangNativeFunction nativeFunction = (function instanceof LangNativeFunction)?(LangNativeFunction)function:null;
 
-			List<DataObject> combinatorArguments = (internalFunction != null && internalFunction.isCombinatorFunction())?
-					internalFunction.getCombinatorProvidedArgumentList():new ArrayList<>();
+			List<DataObject> combinatorArguments = (nativeFunction != null && nativeFunction.isCombinatorFunction())?
+					nativeFunction.getCombinatorProvidedArgumentList():new ArrayList<>();
 			boolean hideCombinatorArgument = false;
 
 			builder.append("<li><code>");
@@ -1818,7 +1799,7 @@ public class LangShellWindow extends JDialog {
 								toText(combinatorArguments.get(i), -1)).append("</code>)");
 					}
 
-					String description = internalFunction == null?null:internalFunction.getParameterInfoList().get(i);
+					String description = function.getParameterInfoList().get(i);
 					builder.append(": ").append(description == null?"No description available":description).append("</p>");
 				}
 				builder.append("</li>");
