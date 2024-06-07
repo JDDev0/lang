@@ -871,12 +871,25 @@ public class LangShellWindow extends JDialog {
 				builder.append(dataObject.getFunctionPointer().getLangFile());
 				builder.append("\nFunction-Name: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionName());
+				builder.append("\nFunction info: ");
+				builder.append(dataObject.getFunctionPointer().getFunctionInfo());
 				builder.append("\nIs bound: ");
 				builder.append(dataObject.getFunctionPointer().getThisObject() != null);
 				builder.append("\nSuper level: ");
 				builder.append(dataObject.getFunctionPointer().getSuperLevel());
 				builder.append("\nFunction-Type: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionPointerType());
+				builder.append("\nLinker Function: ");
+				builder.append(dataObject.getFunctionPointer().isLinkerFunction());
+				builder.append("\nDeprecated: ");
+				boolean deprecated = dataObject.getFunctionPointer().isDeprecated();
+				builder.append(deprecated);
+				if(deprecated) {
+					builder.append("\n    Will be removed in: ");
+					builder.append(dataObject.getFunctionPointer().getDeprecatedRemoveVersion());
+					builder.append("\n    Replacement function: ");
+					builder.append(dataObject.getFunctionPointer().getDeprecatedReplacementFunction());
+				}
 				builder.append("\nNormal Function: ");
 				LangNormalFunction normalFunction = dataObject.getFunctionPointer().getNormalFunction();
 				if(normalFunction == null) {
@@ -889,6 +902,7 @@ public class LangShellWindow extends JDialog {
 					{
 						List<DataObject> parameterList = normalFunction.getParameterList();
 						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = normalFunction.getParameterDataTypeConstraintList();
+						List<String> parameterInfoList = normalFunction.getParameterInfoList();
 						builder.append("\n        Function Signature: ");
 						builder.append(normalFunction.toFunctionSignatureSyntax());
 						builder.append("\n        Return Value Type Constraint: ");
@@ -902,6 +916,8 @@ public class LangShellWindow extends JDialog {
 							builder.append("\"): ");
 							builder.append("\n                Data type constraint: ");
 							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+							builder.append("\n                Parameter info: ");
+							builder.append(parameterInfoList.get(i));
 						}
 					}
 					builder.append("\n\tFunction Body: {");
@@ -922,15 +938,13 @@ public class LangShellWindow extends JDialog {
 					builder.append(nativeFunction);
 					builder.append("\n    Function name: ");
 					builder.append(nativeFunction.getFunctionName());
-					builder.append("\n    Function info: ");
-					builder.append(nativeFunction.getFunctionInfo());
-					builder.append("\n    Is method: ");
-					builder.append(nativeFunction.isMethod());
 					builder.append("\n    Function signatures:");
 					for(LangNativeFunction.InternalFunction internalFunction:nativeFunction.getInternalFunctions()) {
 						List<DataObject> parameterList = internalFunction.getParameterList();
 						List<DataObject.DataTypeConstraint> paramaterDataTypeConstraintList = internalFunction.getParameterDataTypeConstraintList();
 						List<String> parameterInfoList = internalFunction.getParameterInfoList();
+						builder.append("\n        Is method: ");
+						builder.append(internalFunction.isMethod());
 						builder.append("\n        Combinator Function: ");
 						builder.append(internalFunction.isCombinatorFunction());
 						builder.append("\n        Combinator Function Call Count: ");
@@ -953,15 +967,6 @@ public class LangShellWindow extends JDialog {
 							builder.append("\n                Parameter info: ");
 							builder.append(parameterInfoList.get(i));
 						}
-					}
-					builder.append("\n    Deprecated: ");
-					boolean deprecated = nativeFunction.isDeprecated();
-					builder.append(deprecated);
-					if(deprecated) {
-						builder.append("\n        Will be removed in: ");
-						builder.append(nativeFunction.getDeprecatedRemoveVersion());
-						builder.append("\n        Replacement function: ");
-						builder.append(nativeFunction.getDeprecatedReplacementFunction());
 					}
 					builder.append("\n}");
 				}
@@ -1741,6 +1746,9 @@ public class LangShellWindow extends JDialog {
 					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NORMAL) {
 						LangNormalFunction normalFunction = function.getNormalFunction();
 
+						String description = function.getFunctionInfo();
+						builder.append("<p>Description: ").append(description == null?"No description available":description).append("</p>");
+
 						builder.append("<h2>Function signatures</h2>");
 						builder.append("<ul>");
 						generateFunctionSignatureHTML(builder, functionName, normalFunction);
@@ -1748,7 +1756,7 @@ public class LangShellWindow extends JDialog {
 					}else if(function.getFunctionPointerType() == DataObject.FunctionPointerObject.NATIVE) {
 						LangNativeFunction nativeFunction = function.getNativeFunction();
 
-						String description = nativeFunction.getFunctionInfo();
+						String description = function.getFunctionInfo();
 						builder.append("<p>Description: ").append(description == null?"No description available":description).append("</p>");
 
 						if(!nativeFunction.getInternalFunctions().isEmpty()) {
