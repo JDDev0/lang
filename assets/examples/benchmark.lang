@@ -7,14 +7,13 @@ fp.benchmark = ($runs, fp.func) -> {
 	}
 	
 	$time = 0
+    $start = func.currentTimeMillis()
 	repeat(null, $runs) {
-		$start = func.currentTimeMillis()
 		fp.func()
-		$end = func.currentTimeMillis()
-		$time += $end - $start
 	}
+    $end = func.currentTimeMillis()
 	
-	return func.divd($time, $runs)
+	return parser.op(($end - $start) / $runs)
 }
 
 $i
