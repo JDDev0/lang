@@ -859,10 +859,6 @@ public class LangShellWindow extends JDialog {
 				break;
 
 			case FUNCTION_POINTER:
-				builder.append("\nLang-Path: ");
-				builder.append(dataObject.getFunctionPointer().getLangPath());
-				builder.append("\nLang-File: ");
-				builder.append(dataObject.getFunctionPointer().getLangFile());
 				builder.append("\nFunction-Name: ");
 				builder.append(dataObject.getFunctionPointer().getFunctionName());
 				builder.append("\nFunction info: ");
@@ -881,11 +877,17 @@ public class LangShellWindow extends JDialog {
 					builder.append(dataObject.getFunctionPointer().getDeprecatedReplacementFunction());
 				}
 				builder.append("\nInternal Functions: {");
-				for(DataObject.FunctionPointerObject.InternalFunction internalFunction:dataObject.getFunctionPointer().getFunctions()) {
+				for(int i = 0;i < dataObject.getFunctionPointer().getOverloadedFunctionCount();i++) {
+					DataObject.FunctionPointerObject.InternalFunction internalFunction = dataObject.getFunctionPointer().getFunction(i);
+					builder.append("\n    ").append(i).append(": ");
 					builder.append("\n    Super level: ");
 					builder.append(internalFunction.getSuperLevel());
 					builder.append("\n    Function-Type: ");
 					builder.append(internalFunction.getFunctionPointerType());
+					builder.append("\n    Lang-Path: ");
+					builder.append(internalFunction.getLangPath());
+					builder.append("\n    Lang-File: ");
+					builder.append(internalFunction.getLangFile());
 					builder.append("\n    Normal Function: ");
 					LangNormalFunction normalFunction = internalFunction.getNormalFunction();
 					if(normalFunction == null) {
@@ -904,16 +906,16 @@ public class LangShellWindow extends JDialog {
 							builder.append("\n            Return Value Type Constraint: ");
 							builder.append(normalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
 							builder.append("\n            Parameters: ");
-							for(int i = 0;i < parameterList.size();i++) {
+							for(int j = 0;j < parameterList.size();j++) {
 								builder.append("\n                Parameter ");
-								builder.append(i + 1);
+								builder.append(j + 1);
 								builder.append(" (\"");
-								builder.append(parameterList.get(i).getVariableName());
+								builder.append(parameterList.get(j).getVariableName());
 								builder.append("\"): ");
 								builder.append("\n                    Data type constraint: ");
-								builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+								builder.append(paramaterDataTypeConstraintList.get(j).toTypeConstraintSyntax());
 								builder.append("\n                    Parameter info: ");
-								builder.append(parameterInfoList.get(i));
+								builder.append(parameterInfoList.get(j));
 							}
 						}
 						builder.append("\n        Function Body: {");
@@ -951,19 +953,20 @@ public class LangShellWindow extends JDialog {
 						builder.append("\n        Return Value Type Constraint: ");
 						builder.append(nativeFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
 						builder.append("\n        Parameters: ");
-						for(int i = 0;i < parameterList.size();i++) {
+						for(int j = 0;j < parameterList.size();j++) {
 							builder.append("\n            Parameter ");
-							builder.append(i + 1);
+							builder.append(j + 1);
 							builder.append(" (\"");
-							builder.append(parameterList.get(i).getVariableName());
+							builder.append(parameterList.get(j).getVariableName());
 							builder.append("\"): ");
 							builder.append("\n                Data type constraint: ");
-							builder.append(paramaterDataTypeConstraintList.get(i).toTypeConstraintSyntax());
+							builder.append(paramaterDataTypeConstraintList.get(j).toTypeConstraintSyntax());
 							builder.append("\n                Parameter info: ");
-							builder.append(parameterInfoList.get(i));
+							builder.append(parameterInfoList.get(j));
 						}
 						builder.append("\n    }");
 					}
+					builder.append("\n");
 				}
 				builder.append("\n}");
 				break;
