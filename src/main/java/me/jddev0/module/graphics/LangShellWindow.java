@@ -999,7 +999,8 @@ public class LangShellWindow extends JDialog {
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 
-			boolean commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false, dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
+			boolean docCommentFlag = false, commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false,
+					dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
 					nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false, numberValueFlag = false;
 			for(int i = 0;i < line.length();i++) {
 				char c = line.charAt(i);
@@ -1007,7 +1008,10 @@ public class LangShellWindow extends JDialog {
 				if(!nullFlag)
 					nullFlag = line.substring(i).startsWith("null");
 
-				if(!commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
+				if(!docCommentFlag && c == '#' && (i < line.length() - 1 && line.charAt(i + 1) == '#') && !(i > 0 && line.charAt(i - 1) == '\\'))
+					docCommentFlag = true;
+
+				if(!docCommentFlag && !commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
 					commentFlag = true;
 
 				if(!varFlag && (c == '$' || c == '&'))
@@ -1082,7 +1086,9 @@ public class LangShellWindow extends JDialog {
 				}
 
 				Color col = Color.WHITE;
-				if(commentFlag)
+				if(docCommentFlag)
+					col = new Color(0, 127, 0);
+				else if(commentFlag)
 					col = Color.GREEN;
 				else if(modulePrefixFlag)
 					col = Color.ORANGE.darker();
