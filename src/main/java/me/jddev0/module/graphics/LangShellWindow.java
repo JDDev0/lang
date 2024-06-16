@@ -47,6 +47,18 @@ import at.jddev0.lang.LangFunction.LangParameter.VarArgs;
 public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
 
+	private static final Color VARIABLE_IDENTIFIER_COLOR = new Color(152, 118, 170);
+	private static final Color MODULE_PREFIX_COLOR = new Color(178, 82, 0).darker();
+	private static final Color OPERATOR_BRACKET_COLOR = new Color(192, 192, 192);
+	private static final Color COMMENT_COLOR = new Color(98, 151, 85);
+	private static final Color DOC_COMMENT_COLOR = new Color(0, 127, 0);
+	private static final Color NUMBER_COLOR = new Color(104, 151, 187);
+	private static final Color KEYWORD_COLOR = new Color(204, 120, 50);
+	private static final Color FUNCTION_COLOR = new Color(255, 198, 109);
+	private static final Color TEXT_COLOR = new Color(110, 184, 63);
+	private static final Color MIGHT_BE_TEXT_COLOR = new Color(136, 162, 122);
+	private static final Color NORMAL_COLOR = new Color(255, 255, 255);
+
 	private final JTextPane shell;
 	private final KeyListener shellKeyListener;
 	private final TerminalIO term;
@@ -79,6 +91,7 @@ public class LangShellWindow extends JDialog {
 
 	private final ILangPlatformAPI langPlatformAPI = new LangPlatformAPI();
 	private LangInterpreter.LangInterpreterInterface lii;
+	private final LangLexer lexer = new LangLexer();
 	private PrintStream oldOut;
 
 	//Lists for auto complete
@@ -569,7 +582,8 @@ public class LangShellWindow extends JDialog {
 			@LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
 	) {
 		try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText()))) {
-			List<Token> tokens = new LangLexer().readTokens(reader);
+			lexer.resetPositionVars();
+			List<Token> tokens = lexer.readTokens(reader);
 
 			term.logln(Level.DEBUG, tokens.stream().map(Token::toString).collect(Collectors.joining("\n")), LangShellWindow.class);
 		}catch(IOException e) {
@@ -1023,120 +1037,211 @@ public class LangShellWindow extends JDialog {
 			startOfLine++; //The line starts on char after '\n'
 
 			String line = doc.getText(startOfLine, doc.getLength() - startOfLine);
+
+			//Skip "> "
+			startOfLine += line.indexOf('>') + 2;
+			line = line.substring(line.indexOf('>') + 2);
+
+			String code = (multiLineTmp.length() == 0?"":(multiLineTmp.toString())) + line;
+			List<Token> tokens;
+			try(BufferedReader reader = new BufferedReader(new StringReader(code))) {
+				lexer.resetPositionVars();
+
+				tokens = lexer.readTokens(reader);
+			}catch(IOException e) {
+				term.logStackTrace(e, LangShellWindow.class);
+
+				return;
+			}
+
+			//Extract tokens for last line
+			int lineStartIndex = -2;
+			for(int i = tokens.size() - 1;i >= 0;i--) {
+				if(tokens.get(i).getTokenType() == Token.TokenType.EOL) {
+					if(lineStartIndex == -2) {
+						//Skip EOL after last line
+						lineStartIndex = -1;
+					}else {
+						lineStartIndex = i + 1;
+						break;
+					}
+				}
+			}
+
+			if(lineStartIndex < 0)
+				lineStartIndex = 0;
+
+			if(lineStartIndex >= tokens.size())
+				return;
+
+			List<Token> tokensBeforeCurrentLine = new ArrayList<>(tokens.subList(0, lineStartIndex));
+			tokens = new ArrayList<>(tokens.subList(lineStartIndex, tokens.size()));
+
+			//Add not yet closed START_COMMENT and START_DOC_COMMENT tokens to current line
+			for(int i = tokensBeforeCurrentLine.size() - 1;i >= 0;i--) {
+				Token t = tokensBeforeCurrentLine.get(i);
+				Token.TokenType tokenType = t.getTokenType();
+				if(tokenType == Token.TokenType.END_COMMENT)
+					break;
+
+				if(tokenType == Token.TokenType.START_COMMENT || tokenType == Token.TokenType.START_DOC_COMMENT) {
+					tokens.add(0, new Token(CodePosition.EMPTY, t.getValue(), t.getTokenType()));
+
+					break;
+				}
+			}
+
 			doc.remove(startOfLine, doc.getLength() - startOfLine);
 
-			boolean docCommentFlag = false, commentFlag = false, varFlag = false, funcFlag = false, bracketsFlag = false,
-					dereferencingAndReferencingOperatorFlag = false, returnFlag = false, throwFlag = false,
-					nullFlag = false, modulePrefixFlag = false, modulePrefixHasColon = false, numberValueFlag = false;
-			for(int i = 0;i < line.length();i++) {
-				char c = line.charAt(i);
+			//TODO:
+			//- modulePrefixFlag: MODULE_PREFIX_COLOR
+			//- dereferencingAndReferencingOperatorFlag: OPERATOR_BRACKET_COLOR;
 
-				if(!nullFlag)
-					nullFlag = line.substring(i).startsWith("null");
+			boolean docCommentFlag = false;
+			boolean commentFlag = false;
+			int columnFromIndex = 0;
+			for(int i = 0;i < tokens.size();i++) {
+				int tokenSize = 0;
+				Color col = NORMAL_COLOR;
 
-				if(!docCommentFlag && c == '#' && (i < line.length() - 1 && line.charAt(i + 1) == '#') && !(i > 0 && line.charAt(i - 1) == '\\'))
-					docCommentFlag = true;
+				Token t = tokens.get(i);
+				switch(t.getTokenType()) {
+					case START_COMMENT:
+						commentFlag = true;
 
-				if(!docCommentFlag && !commentFlag && c == '#' && !(i > 0 && line.charAt(i - 1) == '\\'))
-					commentFlag = true;
+						if(!t.getPos().equals(CodePosition.EMPTY))
+							tokenSize = t.getValue().length();
 
-				if(!varFlag && (c == '$' || c == '&'))
-					varFlag = true;
+						break;
 
-				if(!varFlag && !modulePrefixFlag) {
-					String checkTmp = line.substring(i);
-					if(checkTmp.startsWith("[[")) {
-						int endIndex = checkTmp.indexOf("]]::");
-						if(endIndex != -1) {
-							modulePrefixFlag = true;
-						}
-					}
+					case START_DOC_COMMENT:
+						docCommentFlag = true;
+
+						if(!t.getPos().equals(CodePosition.EMPTY))
+							tokenSize = t.getValue().length();
+
+						break;
+
+					case END_COMMENT:
+						commentFlag = false;
+						docCommentFlag = false;
+
+						tokenSize = t.getValue().length();
+
+						break;
+
+					case WHITESPACE:
+						tokenSize = t.getValue().length();
+
+						break;
+
+					case OPERATOR:
+					case OPENING_BRACKET:
+					case CLOSING_BRACKET:
+					case ASSIGNMENT:
+					case ARGUMENT_SEPARATOR:
+						tokenSize = t.getValue().length();
+
+						col = OPERATOR_BRACKET_COLOR;
+
+						break;
+
+					case IDENTIFIER:
+						tokenSize = t.getValue().length();
+
+						if(t.getValue().contains("$") || t.getValue().contains("&"))
+							col = VARIABLE_IDENTIFIER_COLOR;
+						else
+							col = FUNCTION_COLOR;
+
+						break;
+
+					case LITERAL_NUMBER:
+						tokenSize = t.getValue().length();
+
+						col = NUMBER_COLOR;
+
+						break;
+
+					case START_MULTILINE_TEXT:
+					case END_MULTILINE_TEXT:
+					case LITERAL_TEXT:
+						tokenSize = t.getValue().length();
+
+						col = TEXT_COLOR;
+
+						break;
+
+					case LITERAL_NULL:
+					case ESCAPE_SEQUENCE:
+					case LINE_CONTINUATION:
+						tokenSize = t.getValue().length();
+
+						col = KEYWORD_COLOR;
+
+						break;
+
+					case PARSER_FUNCTION_IDENTIFIER:
+						tokenSize = t.getValue().length();
+
+						col = FUNCTION_COLOR;
+
+						break;
+
+					case OTHER:
+						tokenSize = t.getValue().length();
+
+						if(t.getValue().equals("return") || t.getValue().equals("throw") ||
+								t.getValue().equals("class") || t.getValue().equals("struct") ||
+								t.getValue().equals("function") || t.getValue().equals("super") ||
+								t.getValue().equals("override") || t.getValue().equals("final") ||
+								t.getValue().equals("static"))
+							col = KEYWORD_COLOR;
+						else if(t.getValue().startsWith("fp.") || t.getValue().startsWith("mp.") ||
+								t.getValue().startsWith("fn.") || t.getValue().startsWith("ln.") ||
+								t.getValue().startsWith("func.") || t.getValue().startsWith("linker.") ||
+								t.getValue().startsWith("parser.") || t.getValue().equals("construct"))
+							col = FUNCTION_COLOR;
+						else
+							col = MIGHT_BE_TEXT_COLOR;
+
+						break;
+
+					case EOF:
+					case EOL:
+					case LEXER_ERROR:
+						break;
 				}
 
-				if(!funcFlag) {
-					String checkTmp = line.substring(i);
-					funcFlag = checkTmp.startsWith("fp.") || checkTmp.startsWith("mp.") || checkTmp.startsWith("func.") || checkTmp.startsWith("fn.") ||
-							checkTmp.startsWith("linker.") || checkTmp.startsWith("ln.") || checkTmp.startsWith("con.") || checkTmp.startsWith("math.") ||
-							checkTmp.startsWith("parser.");
-				}
+				if(tokenSize == 0)
+					continue;
 
-				if(!returnFlag)
-					returnFlag = line.substring(i).startsWith("return");
-				if(!throwFlag)
-					throwFlag = line.substring(i).startsWith("throw");
-
-				bracketsFlag = c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || (!numberValueFlag && c == '.') || c == ',';
-				dereferencingAndReferencingOperatorFlag = varFlag && (c == '*' || c == '[' || c == ']');
-
-				if(modulePrefixFlag) {
-					if(modulePrefixHasColon) {
-						String checkTmpPrev = line.substring(i - 3);
-
-						modulePrefixHasColon = checkTmpPrev.startsWith("]]::");
-						if(!modulePrefixHasColon)
-							modulePrefixFlag = false;
-					}else if(c == ':') {
-						modulePrefixHasColon = true;
-					}
-
-					if(modulePrefixFlag && !modulePrefixHasColon && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']'))
-						modulePrefixFlag = false;
-				}
-
-				if(varFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.' || c == '$' || c == '*' || c == '&'))
-					varFlag = false;
-				if(funcFlag && !(Character.isAlphabetic(c) || Character.isDigit(c) || c == '_' || c == '[' || c == ']' || c == '.'))
-					funcFlag = false;
-				if(returnFlag && i > 5 && line.substring(i - 6).startsWith("return"))
-					returnFlag = false;
-				if(throwFlag && i > 4 && line.substring(i - 5).startsWith("throw"))
-					throwFlag = false;
-				if(nullFlag && i > 3 && line.substring(i - 4).startsWith("null"))
-					nullFlag = false;
-
-				if(varFlag && i > 0 && line.charAt(i - 1) == '\\')
-					varFlag = false;
-
-				//Remove var highlighting if "&&"
-				if(line.substring(i).startsWith("&&") || (i > 0 && line.substring(i - 1).startsWith("&&")))
-					varFlag = false;
-
-				if(numberValueFlag && !Character.isDigit(c)) {
-					if((i > 1 && Character.isDigit(line.charAt(i - 1)) && c != '.' && c != 'f' && c != 'F' && c != 'l' && c != 'L') ||
-							(i > 1 && (line.charAt(i - 1) == 'f' || line.charAt(i - 1) == 'F' || line.charAt(i - 1) == 'l' || line.charAt(i - 1) == 'L')) ||
-							(i > 2 && Character.isDigit(line.charAt(i - 2)) && line.charAt(i - 1) == '.' && c != 'f' && c != 'F') ||
-							(i > 2 && !Character.isDigit(line.charAt(i - 2)) && !Character.isDigit(line.charAt(i - 1))))
-						numberValueFlag = false;
-				}else {
-					numberValueFlag = Character.isDigit(c);
-				}
-
-				Color col = Color.WHITE;
+				//Override color with comment color if inside comment
 				if(docCommentFlag)
-					col = new Color(0, 127, 0);
+					col = DOC_COMMENT_COLOR;
 				else if(commentFlag)
-					col = Color.GREEN;
-				else if(modulePrefixFlag)
-					col = Color.ORANGE.darker();
-				else if(dereferencingAndReferencingOperatorFlag)
-					col = Color.GRAY;
-				else if(bracketsFlag)
-					col = Color.LIGHT_GRAY;
-				else if(funcFlag)
-					col = Color.CYAN;
-				else if(varFlag)
-					col = Color.MAGENTA;
-				else if(returnFlag || throwFlag)
-					col = Color.LIGHT_GRAY;
-				else if(numberValueFlag)
-					col = Color.YELLOW;
-				else if(nullFlag)
-					col = Color.YELLOW;
+					col = COMMENT_COLOR;
 
-				GraphicsHelper.addText(shell, c + "", col);
+				if(columnFromIndex >= line.length())
+					break;
+
+				String token = line.substring(columnFromIndex, Math.min(columnFromIndex + tokenSize, line.length()));
+				columnFromIndex += tokenSize;
+				GraphicsHelper.addText(shell, token, col);
+				lastColor = col;
+
+				if(columnFromIndex >= line.length())
+					break;
+			}
+
+			if(columnFromIndex < line.length() - 1) {
+				Color col = NORMAL_COLOR;
+
+				String token = line.substring(columnFromIndex);
+				GraphicsHelper.addText(shell, token, col);
 				lastColor = col;
 			}
-		}catch(BadLocationException e) {}
+		}catch(BadLocationException ignore) {}
 
 		//Auto scroll
 		shell.setCaretPosition(shell.getDocument().getLength());
