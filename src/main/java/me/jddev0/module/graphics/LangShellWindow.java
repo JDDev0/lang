@@ -599,7 +599,7 @@ public class LangShellWindow extends JDialog {
 			@LangParameter("$value") DataObject valueObject
 	) {
 		try {
-			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, -1));
+			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, CodePosition.EMPTY));
 			if(autoPrintMode == null)
 				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'");
 
@@ -655,7 +655,7 @@ public class LangShellWindow extends JDialog {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("Raw Text: ");
-		builder.append(lii.getInterpreter().conversions.toText(dataObject, -1));
+		builder.append(lii.getInterpreter().conversions.toText(dataObject, CodePosition.EMPTY));
 		builder.append("\nType: ");
 		builder.append(dataObject.getType());
 		builder.append("\nFinal: ");
@@ -1543,7 +1543,8 @@ public class LangShellWindow extends JDialog {
 				try {
 					DataObject lastVal = lii.exec(code);
 					if(autoPrintMode == AutoPrintMode.AUTO)
-						GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.toText(lastVal, -1)) + "\n", Color.PINK);
+						GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.
+								toText(lastVal, CodePosition.EMPTY)) + "\n", Color.PINK);
 					else if(autoPrintMode == AutoPrintMode.DEBUG)
 						GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
 				}catch(IOException e) {
@@ -1574,7 +1575,8 @@ public class LangShellWindow extends JDialog {
 						DataObject lastVal = lii.exec(executionQueue.poll());
 						if(executionQueue.isEmpty()) {
 							if(autoPrintMode == AutoPrintMode.AUTO)
-								GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.toText(lastVal, -1)) + "\n", Color.PINK);
+								GraphicsHelper.addText(shell, " ==> " + (lastVal == null?null:lii.getInterpreter().conversions.
+										toText(lastVal, CodePosition.EMPTY)) + "\n", Color.PINK);
 							else if(autoPrintMode == AutoPrintMode.DEBUG)
 								GraphicsHelper.addText(shell, " ==> " + getDebugString(lastVal, 4) + "\n", Color.PINK);
 						}
@@ -1665,7 +1667,7 @@ public class LangShellWindow extends JDialog {
 				term.logln(Level.DEBUG, "No returned value", LangShellWindow.class);
 			else
 				term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", LangShellWindow.class,
-						lii.getInterpreter().conversions.toText(retValue, -1));
+						lii.getInterpreter().conversions.toText(retValue, CodePosition.EMPTY));
 		}
 
 		//Reset the printStream output
@@ -1831,7 +1833,7 @@ public class LangShellWindow extends JDialog {
 
 					if(!hideCombinatorArgument && combinatorArguments.size() > i) {
 						builder.append(" (= <code>").append(lii.getInterpreter().conversions.
-								toText(combinatorArguments.get(i), -1)).append("</code>)");
+								toText(combinatorArguments.get(i), CodePosition.EMPTY)).append("</code>)");
 					}
 
 					String description = function.getParameterInfoList().get(i);

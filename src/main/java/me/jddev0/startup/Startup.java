@@ -145,7 +145,7 @@ public class Startup {
 						term.logln(Level.DEBUG, "No returned value", Startup.class);
 					else
 						term.logf(Level.DEBUG, "Returned Value: \"%s\"\n", Startup.class, lii.getInterpreter().conversions.
-								toText(retValue, -1));
+								toText(retValue, CodePosition.EMPTY));
 				}
 				term.logln(Level.DEBUG, "-------------- End of Lang ---------------", Startup.class);
 			}catch(IOException e) {
@@ -347,7 +347,7 @@ public class Startup {
 				if(retValue == null)
 					System.out.println("No returned value");
 				else
-					System.out.printf("Returned Value: \"%s\"\n", lii.getInterpreter().conversions.toText(retValue, -1));
+					System.out.printf("Returned Value: \"%s\"\n", lii.getInterpreter().conversions.toText(retValue, CodePosition.EMPTY));
 			}
 		}
 	}
