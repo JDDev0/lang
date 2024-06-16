@@ -1097,6 +1097,20 @@ public class LangShellWindow extends JDialog {
 			//- modulePrefixFlag: MODULE_PREFIX_COLOR
 			//- dereferencingAndReferencingOperatorFlag: OPERATOR_BRACKET_COLOR;
 
+			boolean lineEndsWithBracket = false;
+			for(int i = tokens.size() - 1;i >= 0;i--) {
+				if(tokens.get(i).getTokenType() == Token.TokenType.WHITESPACE ||
+						tokens.get(i).getTokenType() == Token.TokenType.EOL ||
+						tokens.get(i).getTokenType() == Token.TokenType.EOF)
+					continue;
+
+				if(tokens.get(i).getTokenType() == Token.TokenType.OPENING_BRACKET &&
+						tokens.get(i).getValue().equals("{"))
+					lineEndsWithBracket = true;
+
+				break;
+			}
+
 			boolean docCommentFlag = false;
 			boolean commentFlag = false;
 			int columnFromIndex = 0;
@@ -1195,7 +1209,16 @@ public class LangShellWindow extends JDialog {
 								t.getValue().equals("class") || t.getValue().equals("struct") ||
 								t.getValue().equals("function") || t.getValue().equals("super") ||
 								t.getValue().equals("override") || t.getValue().equals("final") ||
-								t.getValue().equals("static") || t.getValue().equals("construct"))
+								t.getValue().equals("static") || t.getValue().equals("construct") ||
+								t.getValue().startsWith("con.") || (lineEndsWithBracket && (
+										t.getValue().equals("if") || t.getValue().equals("break") ||
+												t.getValue().equals("catch") || t.getValue().equals("continue") ||
+												t.getValue().equals("elif") || t.getValue().equals("else") ||
+												t.getValue().equals("finally") || t.getValue().equals("foreach") ||
+												t.getValue().equals("if") || t.getValue().equals("loop") ||
+												t.getValue().equals("nontry") || t.getValue().equals("repeat") ||
+												t.getValue().equals("softtry") || t.getValue().equals("contry") ||
+												t.getValue().equals("until") || t.getValue().equals("while"))))
 							col = KEYWORD_COLOR;
 						else if(t.getValue().startsWith("fp.") || t.getValue().startsWith("mp.") ||
 								t.getValue().startsWith("fn.") || t.getValue().startsWith("ln.") ||
