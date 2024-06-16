@@ -7,20 +7,18 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import at.jddev0.lang.*;
 import me.jddev0.module.graphics.LangShellWindow;
 import me.jddev0.module.graphics.TerminalWindow;
 import at.jddev0.io.ReaderActionObject;
 import at.jddev0.io.TerminalIO;
 import at.jddev0.io.TerminalIO.Level;
-import at.jddev0.lang.DataObject;
-import at.jddev0.lang.Lang;
-import at.jddev0.lang.LangInterpreter;
 import at.jddev0.lang.LangInterpreter.LangInterpreterInterface;
 import at.jddev0.lang.platform.swing.LangPlatformAPI;
-import at.jddev0.lang.LangParser;
-import at.jddev0.lang.ILangPlatformAPI;
 
 public class Startup {
 	private static boolean is4k;
@@ -155,7 +153,7 @@ public class Startup {
 			}
 		}).addCommand("printAST", input -> {
 			if(input.length != 1) {
-				term.logf(Level.ERROR, "To many arguments: %d/1!\n", Startup.class, input.length);
+				term.logf(Level.ERROR, "Too many arguments: %d/1!\n", Startup.class, input.length);
 				
 				return;
 			}
@@ -172,12 +170,33 @@ public class Startup {
 			}catch(IOException e) {
 				term.logStackTrace(e, Startup.class);
 			}
+		}).addCommand("printTokens", input -> {
+			if(input.length != 1) {
+				term.logf(Level.ERROR, "Too many arguments: %d/1!\n", Startup.class, input.length);
+
+				return;
+			}
+
+			File lang = new File(input[0]);
+			if(!lang.exists()) {
+				term.logf(Level.ERROR, "The Lang file %s wasn't found!\n", Startup.class, input[0]);
+
+				return;
+			}
+
+			try(BufferedReader reader = new BufferedReader(new FileReader(lang))) {
+				List<Token> tokens = new LangLexer().readTokens(reader);
+
+				System.out.println(tokens.stream().map(Token::toString).collect(Collectors.joining("\n")));
+			}catch(IOException e) {
+				term.logStackTrace(e, Startup.class);
+			}
 		}).addCommand("startShell", input -> {
 			LangShellWindow langShellWin = new LangShellWindow(termWin, term, getFontSize(), input);
 			langShellWin.setVisible(true);
 		}).addCommand("toggle4k", input -> {
 			if(input.length != 0) {
-				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
+				term.logf(Level.ERROR, "Too many arguments: %d/0!\n", Startup.class, input.length);
 				
 				return;
 			}
@@ -190,7 +209,7 @@ public class Startup {
 			termWin.clearOutput();
 		}).addCommand("exit", input -> {
 			if(input.length != 0) {
-				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
+				term.logf(Level.ERROR, "Too many arguments: %d/0!\n", Startup.class, input.length);
 				
 				return;
 			}
@@ -198,7 +217,7 @@ public class Startup {
 			System.exit(0);
 		}).addCommand("commands", input -> {
 			if(input.length != 0) {
-				term.logf(Level.ERROR, "To many arguments: %d/0!\n", Startup.class, input.length);
+				term.logf(Level.ERROR, "Too many arguments: %d/0!\n", Startup.class, input.length);
 				
 				return;
 			}
@@ -256,6 +275,7 @@ public class Startup {
 		System.out.println("    -executeLang -FILE                Executes a Lang file in the \"TermIO-Control\" window");
 		System.out.println("    -executeLang -warnings -FILE      Executes a Lang file in the \"TermIO-Control\" window with warnings output");
 		System.out.println("    -printAST -FILE                   Prints the AST of a Lang file to standard output");
+		System.out.println("    -printTokens -FILE                Prints the tokens of a Lang file to standard output");
 		System.out.println("    -startShell                       Opens the \"LangShell\" (REPL) window");
 		System.out.println("    -toogle4k                         Changes the fontSize");
 		System.out.println("    -printHelp                        Prints this help page");
