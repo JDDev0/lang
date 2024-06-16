@@ -1195,12 +1195,12 @@ public class LangShellWindow extends JDialog {
 								t.getValue().equals("class") || t.getValue().equals("struct") ||
 								t.getValue().equals("function") || t.getValue().equals("super") ||
 								t.getValue().equals("override") || t.getValue().equals("final") ||
-								t.getValue().equals("static"))
+								t.getValue().equals("static") || t.getValue().equals("construct"))
 							col = KEYWORD_COLOR;
 						else if(t.getValue().startsWith("fp.") || t.getValue().startsWith("mp.") ||
 								t.getValue().startsWith("fn.") || t.getValue().startsWith("ln.") ||
 								t.getValue().startsWith("func.") || t.getValue().startsWith("linker.") ||
-								t.getValue().startsWith("parser.") || t.getValue().equals("construct"))
+								t.getValue().startsWith("parser."))
 							col = FUNCTION_COLOR;
 						else
 							col = MIGHT_BE_TEXT_COLOR;
