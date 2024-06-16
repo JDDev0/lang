@@ -9,13 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -546,6 +540,8 @@ public class LangShellWindow extends JDialog {
 	public DataObject printHelpFunction() {
 		term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
 				"func.printDebug(value) # Prints debug information about the provided DataObject\n" +
+				"func.printTokens(text) # Prints the tokens returned by the LangLexer for the input text\n" +
+				"func.printAST(text) # Prints the AST tree returned by the LangParser for the input text\n" +
 				"func.setAutoPrintMode(value) # Sets the auto print mode [Value can be one of 'NONE', 'AUTO', and 'DEBUG']", LangShellWindow.class);
 
 		return null;
@@ -564,6 +560,36 @@ public class LangShellWindow extends JDialog {
 		builder.append(getDebugString(dereferencedVarPointer, 4));
 
 		term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
+
+		return null;
+	}
+	@LangFunction("printTokens")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject printTokensFunction(
+			@LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
+	) {
+		try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText()))) {
+			List<Token> tokens = new LangLexer().readTokens(reader);
+
+			term.logln(Level.DEBUG, tokens.stream().map(Token::toString).collect(Collectors.joining("\n")), LangShellWindow.class);
+		}catch(IOException e) {
+			term.logStackTrace(e, LangShellWindow.class);
+		}
+
+		return null;
+	}
+	@LangFunction("printAST")
+	@AllowedTypes(DataObject.DataType.VOID)
+	public DataObject printASTFunction(
+			@LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
+	) {
+		try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText()))) {
+			AbstractSyntaxTree ast = new LangParser().parseLines(reader);
+
+			term.logln(Level.DEBUG, ast.toString(), LangShellWindow.class);
+		}catch(IOException e) {
+			term.logStackTrace(e, LangShellWindow.class);
+		}
 
 		return null;
 	}
