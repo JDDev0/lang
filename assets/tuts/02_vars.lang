@@ -7,6 +7,7 @@ $null # null value var
 
 func.println($var)  # Will print "Text"
 func.println(\$var2) # Will print "$var2"
+func.println("$var2") # Will print "$var2" too
 func.println($null) # Will print "null"
 
 func.println(-----------------)
@@ -116,36 +117,36 @@ func.println(-----------------)
 
 # $LANG vars
 func.println(\$LANG vars:)
-func.println(• "$LANG_VERSION") # Will print the Lang version
-func.println(• "$LANG_NAME") # Will print the name of the implementation of lang
-func.println(• "$LANG_PATH") # Will print the path to the Lang file
-func.println(• "$LANG_FILE") # Will print the file name of the Lang file (Can be NULL)
-func.println(• "$LANG_CURRENT_FUNCTION") # Will print the current function (Can be NULL)
-func.println(• "$LANG_RAND_MAX") # Will print the maximal value for func.rand
-func.println(• "$LANG_OS_NAME") # Will print the name of the operating system
-func.println(• "$LANG_OS_VER") # Will print the version of the operating system
-func.println(• "$LANG_OS_ARCH") # Will print the architecture of the operating system
-func.println(• "$LANG_OS_FILE_SEPARATOR") # Will print the file separator of the operating system
-func.println(• "$LANG_OS_LINE_SEPARATOR") # Will print the line separator (new line) of the operating system
-func.println(• "$LANG_INT_MIN") # Will print the minimal value which can be stored in an INT
-func.println(• "$LANG_INT_MAX") # Will print the maximal value which can be stored in an INT
-func.println(• "$LANG_LONG_MIN") # Will print the minimal value which can be stored in a LONG
-func.println(• "$LANG_LONG_MAX") # Will print the maximal value which can be stored in a LONG
-func.println(• "$LANG_FLOAT_NAN") # Will print the NaN float value
-func.println(• "$LANG_FLOAT_POS_INF") # Will print the positive infinity float value
-func.println(• "$LANG_FLOAT_NEG_INF") # Will print the negative infinity float value
-func.println(• "$LANG_DOUBLE_NAN") # Will print the NaN double value
-func.println(• "$LANG_DOUBLE_POS_INF") # Will print the positive infinity double value
-func.println(• "$LANG_DOUBLE_NEG_INF") # Will print the negative infinity double value
-func.println(• "$LANG_MATH_PI") # Will print the closest double value to π
-func.println(• "$LANG_MATH_E") # Will print the closest double value to e
-func.println(• "&LANG_ARGS") # Will print the command line arguments (Array of TEXT elements, See: 05_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
-func.println(• "$LANG_ERRNO") # Will print the errno value or 0 if no error
+func.println(• \"$LANG_VERSION\") # Will print the Lang version
+func.println(• \"$LANG_NAME\") # Will print the name of the implementation of lang
+func.println(• \"$LANG_PATH\") # Will print the path to the Lang file
+func.println(• \"$LANG_FILE\") # Will print the file name of the Lang file (Can be NULL)
+func.println(• \"$LANG_CURRENT_FUNCTION\") # Will print the current function (Can be NULL)
+func.println(• \"$LANG_RAND_MAX\") # Will print the maximal value for func.rand
+func.println(• \"$LANG_OS_NAME\") # Will print the name of the operating system
+func.println(• \"$LANG_OS_VER\") # Will print the version of the operating system
+func.println(• \"$LANG_OS_ARCH\") # Will print the architecture of the operating system
+func.println(• \"$LANG_OS_FILE_SEPARATOR\") # Will print the file separator of the operating system
+func.println(• \"$LANG_OS_LINE_SEPARATOR\") # Will print the line separator (new line) of the operating system
+func.println(• \"$LANG_INT_MIN\") # Will print the minimal value which can be stored in an INT
+func.println(• \"$LANG_INT_MAX\") # Will print the maximal value which can be stored in an INT
+func.println(• \"$LANG_LONG_MIN\") # Will print the minimal value which can be stored in a LONG
+func.println(• \"$LANG_LONG_MAX\") # Will print the maximal value which can be stored in a LONG
+func.println(• \"$LANG_FLOAT_NAN\") # Will print the NaN float value
+func.println(• \"$LANG_FLOAT_POS_INF\") # Will print the positive infinity float value
+func.println(• \"$LANG_FLOAT_NEG_INF\") # Will print the negative infinity float value
+func.println(• \"$LANG_DOUBLE_NAN\") # Will print the NaN double value
+func.println(• \"$LANG_DOUBLE_POS_INF\") # Will print the positive infinity double value
+func.println(• \"$LANG_DOUBLE_NEG_INF\") # Will print the negative infinity double value
+func.println(• \"$LANG_MATH_PI\") # Will print the closest double value to π
+func.println(• \"$LANG_MATH_E\") # Will print the closest double value to e
+func.println(• \"&LANG_ARGS\") # Will print the command line arguments (Array of TEXT elements, See: 05_arrays.lang) # Try in TermIO window: "executeLang -assets/tuts/02_vars.lang -First arg -Second arg -3rd -42 -TEST"
+func.println(• \"$LANG_ERRNO\") # Will print the errno value or 0 if no error
 
 #$LANG_ERRNO_<errorName> # Error code of the error "errorName"
-func.println(• "$LANG_ERRNO_DIV_BY_ZERO") # Will print the error code of the error "DIV_BY_ZERO" (Used to check the exact error in "$LANG_ERRNO")
+func.println(• \"$LANG_ERRNO_DIV_BY_ZERO\") # Will print the error code of the error "DIV_BY_ZERO" (Used to check the exact error in "$LANG_ERRNO")
 #$LANG_ERROR_<errorName> # Error object of the error "errorName"
-func.println(• "$LANG_ERROR_DIV_BY_ZERO") # Will print the error object of the error "DIV_BY_ZERO" (Used to check the exact error for error returned from functions [See: 03_functions.lang])
+func.println(• \"$LANG_ERROR_DIV_BY_ZERO\") # Will print the error object of the error "DIV_BY_ZERO" (Used to check the exact error for error returned from functions [See: 03_functions.lang])
 
 func.println(-----------------)
 
