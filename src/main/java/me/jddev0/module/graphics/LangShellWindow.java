@@ -1179,6 +1179,7 @@ public class LangShellWindow extends JDialog {
 
 					case START_MULTILINE_TEXT:
 					case END_MULTILINE_TEXT:
+					case SINGLE_LINE_TEXT_QUOTES:
 					case LITERAL_TEXT:
 						tokenSize = t.getValue().length();
 
