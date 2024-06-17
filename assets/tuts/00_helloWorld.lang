@@ -8,4 +8,4 @@ lang.version = v1.0.0
 
 # Code
 # func.println(text)
-func.println(Hello World!)
+fn.println("Hello World!")
