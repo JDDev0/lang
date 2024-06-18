@@ -613,11 +613,7 @@ public class LangShellWindow extends JDialog {
 			@LangParameter("$value") DataObject valueObject
 	) {
 		try {
-			AutoPrintMode autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, CodePosition.EMPTY));
-			if(autoPrintMode == null)
-				return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") must be one of 'NONE', 'AUTO', 'DEBUG'");
-
-			LangShellWindow.this.autoPrintMode = autoPrintMode;
+			LangShellWindow.this.autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, CodePosition.EMPTY));
 		}catch(IllegalArgumentException e) {
 			return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") mode must be one of 'NONE', 'AUTO', 'DEBUG'");
 		}
