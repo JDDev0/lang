@@ -1235,10 +1235,9 @@ public class LangShellWindow extends JDialog {
 										t.getValue().equals("elif") || t.getValue().equals("else") ||
 										t.getValue().equals("finally") || t.getValue().equals("foreach") ||
 										t.getValue().equals("if") || t.getValue().equals("loop") ||
-										t.getValue().equals("try") || t.getValue().equals("nontry") ||
-										t.getValue().equals("repeat") || t.getValue().equals("softtry") ||
-										t.getValue().equals("contry") || t.getValue().equals("until") ||
-										t.getValue().equals("while"))))
+										t.getValue().equals("nontry") || t.getValue().equals("repeat") ||
+										t.getValue().equals("softtry") || t.getValue().equals("try") ||
+										t.getValue().equals("until") || t.getValue().equals("while"))))
 							col = KEYWORD_COLOR;
 						else if(t.getValue().startsWith("fp.") || t.getValue().startsWith("mp.") ||
 								t.getValue().startsWith("fn.") || t.getValue().startsWith("ln.") ||
