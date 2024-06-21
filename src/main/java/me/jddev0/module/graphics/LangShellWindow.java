@@ -48,7 +48,7 @@ public class LangShellWindow extends JDialog {
 	private static final long serialVersionUID = 3517996790399999763L;
 
 	private static final Color VARIABLE_IDENTIFIER_COLOR = new Color(152, 118, 170);
-	private static final Color MODULE_PREFIX_COLOR = new Color(178, 82, 0).darker();
+	private static final Color MODULE_PREFIX_COLOR = new Color(178, 82, 0);
 	private static final Color OPERATOR_BRACKET_COLOR = new Color(192, 192, 192);
 	private static final Color COMMENT_COLOR = new Color(98, 151, 85);
 	private static final Color DOC_COMMENT_COLOR = new Color(0, 127, 0);
@@ -1113,6 +1113,19 @@ public class LangShellWindow extends JDialog {
 				break;
 			}
 
+			//Split Identifier tokens to add different color for module prefix
+			for(int i = tokens.size() - 1;i >= 0;i--) {
+				Token t = tokens.get(i);
+				if(t.getTokenType() == Token.TokenType.IDENTIFIER && t.getValue().startsWith("[[") &&
+						t.getValue().contains("]]::")) {
+					int modulePrefixEndIndex = t.getValue().indexOf("]]::") + 4;
+					tokens.set(i, new Token(t.pos, t.getValue().substring(0, modulePrefixEndIndex),
+							Token.TokenType.IDENTIFIER));
+					tokens.add(i + 1, new Token(t.pos, t.getValue().substring(modulePrefixEndIndex),
+							Token.TokenType.IDENTIFIER));
+				}
+			}
+
 			boolean docCommentFlag = false;
 			boolean commentFlag = false;
 			int columnFromIndex = 0;
@@ -1165,7 +1178,9 @@ public class LangShellWindow extends JDialog {
 					case IDENTIFIER:
 						tokenSize = t.getValue().length();
 
-						if(t.getValue().contains("$") || t.getValue().contains("&"))
+						if(t.getValue().startsWith("[[") && t.getValue().contains("]]::"))
+							col = MODULE_PREFIX_COLOR;
+						else if(t.getValue().contains("$") || t.getValue().contains("&"))
 							col = VARIABLE_IDENTIFIER_COLOR;
 						else
 							col = FUNCTION_COLOR;
