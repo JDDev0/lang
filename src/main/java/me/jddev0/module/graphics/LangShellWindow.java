@@ -939,6 +939,12 @@ public class LangShellWindow extends JDialog {
 							List<String> parameterInfoList = normalFunction.getParameterInfoList();
 							builder.append("\n            Function Signature: ");
 							builder.append(normalFunction.toFunctionSignatureSyntax());
+							builder.append("\n        Combinator Function: ");
+							builder.append(normalFunction.isCombinatorFunction());
+							builder.append("\n        Combinator Function Call Count: ");
+							builder.append(normalFunction.getCombinatorFunctionCallCount());
+							builder.append("\n        Combinator Function Arguments: ");
+							builder.append(normalFunction.getCombinatorProvidedArgumentList());
 							builder.append("\n            Return Value Type Constraint: ");
 							builder.append(normalFunction.getReturnValueTypeConstraint().toTypeConstraintSyntax());
 							builder.append("\n            Parameters: ");
@@ -1205,6 +1211,7 @@ public class LangShellWindow extends JDialog {
 						if(t.getValue().equals("return") || t.getValue().equals("throw") ||
 								t.getValue().equals("class") || t.getValue().equals("struct") ||
 								t.getValue().equals("function") || t.getValue().equals("overload") ||
+								t.getValue().equals("combinator") ||
 								t.getValue().equals("super") || t.getValue().equals("override") ||
 								t.getValue().equals("final") || t.getValue().equals("static") ||
 								t.getValue().equals("construct") || t.getValue().startsWith("con.") ||
@@ -1909,14 +1916,12 @@ public class LangShellWindow extends JDialog {
 						if(function.getOverloadedFunctionCount() > 0) {
 							DataObject.FunctionPointerObject.InternalFunction internalFunction = function.getFunction(0);
 
-							if(internalFunction.getFunctionPointerType() == DataObject.FunctionPointerObject.NATIVE) {
-								builder.append("<p>Combinator function info:").append("</p>");
-								builder.append("<ul>");
-								{
-									builder.append("<li>Call count: ").append(internalFunction.getNativeFunction().getCombinatorFunctionCallCount()).append("</li>");
-								}
-								builder.append("</ul>");
+							builder.append("<p>Combinator function info:").append("</p>");
+							builder.append("<ul>");
+							{
+								builder.append("<li>Call count: ").append(internalFunction.getFunction().getCombinatorFunctionCallCount()).append("</li>");
 							}
+							builder.append("</ul>");
 						}
 
 						builder.append("<h2>Function signatures</h2>");
@@ -1934,10 +1939,8 @@ public class LangShellWindow extends JDialog {
 		}
 
 		private void generateFunctionSignatureHTML(StringBuilder builder, String functionName, LangBaseFunction function) {
-			LangNativeFunction nativeFunction = (function instanceof LangNativeFunction)?(LangNativeFunction)function:null;
-
-			List<DataObject> combinatorArguments = (nativeFunction != null && nativeFunction.isCombinatorFunction())?
-					nativeFunction.getCombinatorProvidedArgumentList():new ArrayList<>();
+			List<DataObject> combinatorArguments = function.isCombinatorFunction()?function.getCombinatorProvidedArgumentList():
+					new ArrayList<>();
 			boolean hideCombinatorArgument = false;
 
 			builder.append("<li><code>");
