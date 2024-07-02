@@ -1167,6 +1167,8 @@ public class LangShellWindow extends JDialog {
 					case OPERATOR:
 					case OPENING_BRACKET:
 					case CLOSING_BRACKET:
+					case OPENING_BLOCK_BRACKET:
+					case CLOSING_BLOCK_BRACKET:
 					case ASSIGNMENT:
 					case ARGUMENT_SEPARATOR:
 						tokenSize = t.getValue().length();
