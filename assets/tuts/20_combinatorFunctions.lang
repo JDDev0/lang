@@ -358,45 +358,45 @@ lang.version = v1.0.0
 
 # Examples
 # A
-func.println(Examples  A)
-func.println(===========)
+func.println("Examples  A")
+func.println("===========")
 func.println()
 
 # A-1: Execute a function on every element
-func.println(Example A-1: Execute a function on every element)
-func.println(------------------------------------------------)
+func.println("Example A-1: Execute a function on every element")
+func.println("------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 func.println(&values)
 
 func.arrayMap(&values, func.combA(func.inc))
 func.println(&values)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # A0
-func.println(Examples A0)
-func.println(===========)
+func.println("Examples A0")
+func.println("===========")
 func.println()
 
 # A0-1: Map to executed functions
-func.println(Example A0-1: Map to executed functions)
-func.println(---------------------------------------)
+func.println("Example A0-1: Map to executed functions")
+func.println("---------------------------------------")
 &funcs $= [func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
 &executedFuncs = func.arrayMapToNew(&funcs, func.combA0)
 
-func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println("[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]")
 func.println(&executedFuncs)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # A2
-func.println(Examples A2)
-func.println(===========)
+func.println("Examples A2")
+func.println("===========")
 func.println()
 
 # A2-1: Add a number to every element
-func.println(Example A2-1: Add a number to every element)
-func.println(-------------------------------------------)
+func.println("Example A2-1: Add a number to every element")
+func.println("-------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 func.println(&values)
 
@@ -406,61 +406,61 @@ func.println(&values)
 func.println()
 
 # A2-2: Output every element with format
-func.println(Example A2-2: Output every element with format)
-func.println(----------------------------------------------)
+func.println("Example A2-2: Output every element with format")
+func.println("----------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayForEach(&values, func.combA2(func.printf, {{{This is a value: "%5.2f"%n}}}))
+func.arrayForEach(&values, func.combA2(func.printf, "This is a value: \"%5.2f\"%n"))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # A3
-func.println(Examples A3)
-func.println(===========)
+func.println("Examples A3")
+func.println("===========")
 func.println()
 
 # A3-1: Output every element with index with format
-func.println(Example A3-1: Output every element with index with format)
-func.println(---------------------------------------------------------)
+func.println("Example A3-1: Output every element with index with format")
+func.println("---------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayEnumerate(&values, func.combA3(func.printf, {{{The element at the index %d is "%s"%n}}}))
+func.arrayEnumerate(&values, func.combA3(func.printf, "The element at the index %d is \"%s\"%n"))
 
 func.println()
 
 # A3-2: Output every element with index after value
-func.println(Example A3-2: Output every element with index after value)
-func.println(---------------------------------------------------------)
+func.println("Example A3-2: Output every element with index after value")
+func.println("---------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayEnumerate(&values, func.combA3(func.printf, {{{Value "%[2]10s" (Index: %d)%n}}}))
+func.arrayEnumerate(&values, func.combA3(func.printf, "Value \"%[2]10s\" (Index: %d)%n"))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # A4
-func.println(Examples A4)
-func.println(===========)
+func.println("Examples A4")
+func.println("===========")
 func.println()
 
 element.index.txt = is at the index
 
 # A4-1: Output every element with index with format and additional value
-func.println(Example A4-1: Output every element with index with format and additional value)
-func.println(------------------------------------------------------------------------------)
+func.println("Example A4-1: Output every element with index with format and additional value")
+func.println("------------------------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayEnumerate(&values, func.combA4(func.printf, {{{"%[3]7s" %[1]t 0x%[2]02x%n}}}, element.index.txt))
+func.arrayEnumerate(&values, func.combA4(func.printf, "\"%[3]7s\" %[1]t 0x%[2]02x%n", "element.index.txt"))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # AE
-func.println(Examples AE)
-func.println(===========)
+func.println("Examples AE")
+func.println("===========")
 func.println()
 
 # AE-1: Filter random elements from an array
-func.println(Example AE-1: Filter random elements from an array)
-func.println(--------------------------------------------------)
+func.println("Example AE-1: Filter random elements from an array")
+func.println("--------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
 func.println(&values)
@@ -469,155 +469,155 @@ func.println(func.arrayFiltered(&values, func.combAE(func.randb)))
 func.println(func.arrayFiltered(&values, func.combAE(func.randb)))
 func.println(func.arrayFiltered(&values, func.combAE(func.randb)))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # AN
-func.println(Examples AN)
-func.println(===========)
+func.println("Examples AN")
+func.println("===========")
 func.println()
 
 element.index.txt = is at the index
 
 # AN-1: Output every element with additional information
-func.println(Example AN-1: Output every element with additional information)
-func.println(--------------------------------------------------------------)
+func.println("Example AN-1: Output every element with additional information")
+func.println("--------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayEnumerate(&values, func.combAN(func.printf, {{{The element "%[4]7s" ("%[4]5.2f") is located in %[2]s (Len: %[1]d) at index %[3]d!%n}}}, func.len(&values), &values))
+func.arrayEnumerate(&values, func.combAN(func.printf, "The element \"%[4]7s\" (\"%[4]5.2f\") is located in %[2]s (Len: %[1]d) at index %[3]d!%n", func.len(&values), &values))
 
 func.println()
 
 # AN-2: Output every element with and without index with the same function call
-func.println(Example AN-2: Output every element with and without index with the same function call)
-func.println(-------------------------------------------------------------------------------------)
+func.println("Example AN-2: Output every element with and without index with the same function call")
+func.println("-------------------------------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-fp.arrayFunc = func.combAN(func.println, Element-Data)
+fp.arrayFunc = func.combAN(func.println, "Element-Data")
 
 func.arrayForEach(&values, fp.arrayFunc)
-func.println(---)
+func.println("---")
 func.arrayEnumerate(&values, fp.arrayFunc)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # AV
-func.println(Examples AV)
-func.println(===========)
+func.println("Examples AV")
+func.println("===========")
 func.println()
 
 # AV-1: Map every element to the sum of its elements [Auto-unpack]
-func.println(Example AV-1: Map every element to the sum of its elements [Auto-unpack])
-func.println(------------------------------------------------------------------------)
+func.println("Example AV-1: Map every element to the sum of its elements [Auto-unpack]")
+func.println("------------------------------------------------------------------------")
 &values $= [func.arrayOf(1, 2, 3), func.arrayOf(20, 40), func.arrayOf(10, 2, 5, 5.423, 1), func.arrayOf(10, 2, 5, 5.423f, 1)]
 
 func.arrayMap(&values, func.combAV(func.addf))
 
 func.println(&values)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # AX
-func.println(Examples AX)
-func.println(===========)
+func.println("Examples AX")
+func.println("===========")
 func.println()
 
 # AX-1: Output every element with index after value without specified index in func.printf
-func.println(Example AX-1: Output every element with index after value without specified index in func.printf)
-func.println(------------------------------------------------------------------------------------------------)
+func.println("Example AX-1: Output every element with index after value without specified index in func.printf")
+func.println("------------------------------------------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-func.arrayEnumerate(&values, func.combAX(func.printf, {{{Value "%7s" (Index: %d)%n}}}))
+func.arrayEnumerate(&values, func.combAX(func.printf, "Value \"%7s\" (Index: %d)%n"))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # AZ
-func.println(Examples AZ)
-func.println(===========)
+func.println("Examples AZ")
+func.println("===========")
 func.println()
 
 # AZ-1: Output every element with and without index with the same function call in reverse order
-func.println(Example AZ-1: Output every element with and without index with the same function call reverse order)
-func.println(---------------------------------------------------------------------------------------------------)
+func.println("Example AZ-1: Output every element with and without index with the same function call reverse order")
+func.println("---------------------------------------------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3), a]
 
-fp.arrayFunc = func.combAZ(func.println, Element-Data)
+fp.arrayFunc = func.combAZ(func.println, "Element-Data")
 
 func.arrayForEach(&values, fp.arrayFunc)
-func.println(---)
+func.println("---")
 func.arrayEnumerate(&values, fp.arrayFunc)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # B
-func.println(Examples  B)
-func.println(===========)
+func.println("Examples  B")
+func.println("===========")
 func.println()
 
 # B-1: Map to the incremented inversed value
-func.println(Example B-1: Map to the incremented inversed value)
-func.println(--------------------------------------------------)
+func.println("Example B-1: Map to the incremented inversed value")
+func.println("--------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
 func.arrayMap(&values, func.combB(func.inc, func.inv))
 func.println(&values)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # B0
-func.println(Examples B0)
-func.println(===========)
+func.println("Examples B0")
+func.println("===========")
 func.println()
 
 # B0-1: Map to executed functions and pass to other function
-func.println(Example B0-1: Map to executed functions and pass to other function)
-func.println(------------------------------------------------------------------)
+func.println("Example B0-1: Map to executed functions and pass to other function")
+func.println("------------------------------------------------------------------")
 &funcs $= [func.rand, func.currentTimeMillis, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]
 &executedFuncs = func.arrayMapToNew(&funcs, func.combB0(func.inv))
 
-func.println({{{[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]}}})
+func.println("[func.rand, func.currentTimeMillis, func.randChoice, func.currentUnixTime, func.randi, func.randl, func.randf, func.randd]")
 func.println(&executedFuncs)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # B2
-func.println(Examples B2)
-func.println(===========)
+func.println("Examples B2")
+func.println("===========")
 func.println()
 
 # B2-1: Output to int casted elements with index
-func.println(Example B2-1: Output to int casted elements with index)
-func.println(------------------------------------------------------)
+func.println("Example B2-1: Output to int casted elements with index")
+func.println("------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
 func.arrayEnumerate(&values, func.combB2(func.println, func.int))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # B3
-func.println(Examples B3)
-func.println(===========)
+func.println("Examples B3")
+func.println("===========")
 func.println()
 
 # B3-1: Output to int casted elements with index and length
-func.println(Example B3-1: Output to int casted elements with index and length)
-func.println(-----------------------------------------------------------------)
+func.println("Example B3-1: Output to int casted elements with index and length")
+func.println("-----------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
 func.arrayEnumerate(&values, func.combB3(func.println, func.int, func.len(&values)))
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # BN
-func.println(Examples BN)
-func.println(===========)
+func.println("Examples BN")
+func.println("===========")
 func.println()
 
 # BN-1: Output to int casted elements with and without index with one function pointer
-func.println(Example BN-1: Output to int casted elements with and without index with one function pointer)
-func.println(--------------------------------------------------------------------------------------------)
+func.println("Example BN-1: Output to int casted elements with and without index with one function pointer")
+func.println("--------------------------------------------------------------------------------------------")
 &values $= [42, 0, -1, 1, 5.21234, 5.91235f, func.long(3)]
 func.println(&values)
 
@@ -626,32 +626,32 @@ fp.arrayFunc = func.combBN(func.println, func.int)
 func.arrayForEach(&values, fp.arrayFunc)
 func.arrayEnumerate(&values, fp.arrayFunc)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # BV
-func.println(Examples BV)
-func.println(===========)
+func.println("Examples BV")
+func.println("===========")
 func.println()
 
 # BV-1: Map every element to the sum of its to int casted elements [Auto-unpack]
-func.println(Examples BV-1: Map every element to the sum of its to int casted elements [Auto-unpack])
-func.println(---------------------------------------------------------------------------------------)
+func.println("Examples BV-1: Map every element to the sum of its to int casted elements [Auto-unpack]")
+func.println("---------------------------------------------------------------------------------------")
 &values $= [func.arrayOf(42, 1, 3), func.arrayOf(0), func.arrayOf(-1, 2.5), func.arrayOf(1, 2), func.arrayOf(5.21234, 5.91235f), func.arrayOf(func.long(3), 3, -4.9)]
 
 func.arrayMap(&values, func.combBV(func.addl, func.int))
 
 func.println(&values)
 
-func.printf(%n%n)
+func.printf("%n%n")
 
 # Y
-func.println(Examples  Y)
-func.println(===========)
+func.println("Examples Y")
+func.println("==========")
 func.println()
 
 # Y-1: Factorial function
-func.println(Example  Y-1: Factorial function)
-func.println(--------------------------------)
+func.println("Example Y-1: Factorial function")
+func.println("-------------------------------")
 fp.fac = (fp.func) -> {
 	fp.retFunc = (fp.func, $n) -> {
 		return parser.op($n < 2?1:$n * fp.func($n - 1))
@@ -674,8 +674,8 @@ until($i > 20) {
 func.println()
 
 # Y-2: Fibonacci function
-func.println(Example  Y-2: Fibonacci function)
-func.println(--------------------------------)
+func.println("Example Y-2: Fibonacci function")
+func.println("-------------------------------")
 fp.fib = (fp.func) -> {
 	fp.retFunc = (fp.func, $x) -> {
 		return parser.op($x < 2?$x:fp.func($x - 2) + fp.func($x - 1))
@@ -698,13 +698,13 @@ until($i > 20) {
 func.println()
 
 # Y-3: Multiple arguments
-func.println(Example  Y-3: Multiple arguments)
-func.println(--------------------------------)
+func.println("Example  Y-3: Multiple arguments")
+func.println("--------------------------------")
 fp.facOut = (fp.func) -> {
 	fp.retFunc = (fp.func, $n, $run) -> {
-		func.printf({{{ > %2d (%2d)}}}, $run, $n)
+		func.printf(" > %2d (%2d)", $run, $n)
 		parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
-		parser.op($n < 2?func.printf({{{%n=> }}}):null)
+		parser.op($n < 2?func.printf("%n=> "):null)
 		return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
 	}
 	
