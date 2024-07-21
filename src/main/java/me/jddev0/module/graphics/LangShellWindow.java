@@ -678,6 +678,11 @@ public class LangShellWindow extends JDialog {
 		builder.append(dataObject.isLangVar());
 		builder.append("\nVariable Name: ");
 		builder.append(dataObject.getVariableName());
+		builder.append("\nMember of: ");
+		builder.append(dataObject.getMemberOfClass() == null?null:(
+				dataObject.getMemberOfClass().getClassName() == null?"<class>":dataObject.getMemberOfClass().getClassName()));
+		builder.append("\nVisibility: ");
+		builder.append(dataObject.getMemberVisibility());
 		builder.append("\nType constraint: ");
 		builder.append(dataObject.getTypeConstraint().toTypeConstraintSyntax());
 		builder.append("\nAllowed types: ");
@@ -733,8 +738,14 @@ public class LangShellWindow extends JDialog {
 				for(DataObject staticMember:dataObject.getObject().getStaticMembers()) {
 					builder.append("\n    ");
 
-					//TODO visibility
-					builder.append("+");
+					builder.append(staticMember.getMemberVisibility());
+					if(staticMember.getMemberOfClass() != null) {
+						builder.append("(");
+						builder.append(staticMember.getMemberOfClass().getClassName() == null?"<class>":
+								staticMember.getMemberOfClass().getClassName());
+						builder.append(")");
+					}
+					builder.append(" ");
 
 					builder.append(staticMember.getVariableName());
 
@@ -756,8 +767,14 @@ public class LangShellWindow extends JDialog {
 					String memberName = dataObject.getObject().getMemberNames()[i];
 					builder.append("\n    ");
 
-					//TODO visibility
-					builder.append("+");
+					builder.append(dataObject.getObject().getMemberVisibility()[i]);
+					if(dataObject.getObject().getMemberOfClass()[i] != null) {
+						builder.append("(");
+						builder.append(dataObject.getObject().getMemberOfClass()[i].getClassName() == null?"<class>":
+								dataObject.getObject().getMemberOfClass()[i].getClassName());
+						builder.append(")");
+					}
+					builder.append(" ");
 
 					if(dataObject.getObject().getMemberFinalFlags()[i])
 						builder.append("final:");
@@ -924,6 +941,11 @@ public class LangShellWindow extends JDialog {
 					builder.append(internalFunction.getLangPath());
 					builder.append("\n    Lang-File: ");
 					builder.append(internalFunction.getLangFile());
+					builder.append("\n    Member of: ");
+					builder.append(internalFunction.getMemberOfClass() == null?null:(
+							internalFunction.getMemberOfClass().getClassName() == null?"<class>":internalFunction.getMemberOfClass().getClassName()));
+					builder.append("\n    Visibility: ");
+					builder.append(internalFunction.getMemberVisibility());
 					builder.append("\n    Normal Function: ");
 					LangNormalFunction normalFunction = internalFunction.getNormalFunction();
 					if(normalFunction == null) {
