@@ -1256,7 +1256,7 @@ public class LangShellWindow extends JDialog {
 								t.getValue().equals("construct") || t.getValue().equals("private") ||
 								t.getValue().equals("protected") || t.getValue().equals("public") ||
 								t.getValue().startsWith("con.") ||
-								(lineEndsWithBracket && (t.getValue().equals("if") || t.getValue().equals("break") ||
+								(lineEndsWithBracket && (t.getValue().equals("break") ||
 										t.getValue().equals("catch") || t.getValue().equals("continue") ||
 										t.getValue().equals("elif") || t.getValue().equals("else") ||
 										t.getValue().equals("finally") || t.getValue().equals("foreach") ||
