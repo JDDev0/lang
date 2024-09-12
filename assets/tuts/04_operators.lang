@@ -445,9 +445,9 @@ func.println()
 # Evaluation order
 # Function pointer is only for output, Function pointers: See [06_functionPointer.lang]
 fp.printAndRet = ($name, $num) -> {
-	func.println(Evaluation: $num ($name))
-	
-	return $num
+    func.println(Evaluation: $num ($name))
+
+    return $num
 }
 
 # Left-to-right vs right-to-left operators with 1 operator

@@ -3,27 +3,27 @@ lang.version = v1.0.0
 
 # Recursion
 fp.factorial = ($num) -> {
-	if($num < 2) {
-		return 1
-	}
-	
-	# Recursive call: fp.factorial(...)
-	return func.mull($num, fp.factorial(func.subi($num, 1)))
+    if($num < 2) {
+        return 1
+    }
+    
+    # Recursive call: fp.factorial(...)
+    return func.mull($num, fp.factorial(func.subi($num, 1)))
 }
 fp.printFactorial = ($i) -> {
-	func.println($i! = fp.factorial($i))
+    func.println($i! = fp.factorial($i))
 }
 func.repeat(fp.printFactorial, 25) # Long precision is not enough for 21! and beyond
 
 # Indirect recursion (Uses variable definition after function pointer definition)
 fp.a = ($a) -> {
-	return $a - fp.b(func.subi($a, 2))
+    return $a - fp.b(func.subi($a, 2))
 }
 fp.b = ($a) -> {
-	if($a < 0) {
-		return END
-	}
-	
-	return $a - fp.a(func.addi($a, 1))
+    if($a < 0) {
+        return END
+    }
+    
+    return $a - fp.a(func.addi($a, 1))
 }
 func.println(fp.a(10))

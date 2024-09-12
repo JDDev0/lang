@@ -82,9 +82,9 @@ func.println()
 # Return value from executed Lang file
 $i
 repeat($[i], 4) {
-	func.printTerminal(1, \nRun num $i:)
-	$ret = linker.link(10_linkTestReturn.lang)
-	func.printTerminal(1, Returned value: "$ret")
+    func.printTerminal(1, \nRun num $i:)
+    $ret = linker.link(10_linkTestReturn.lang)
+    func.printTerminal(1, Returned value: "$ret")
 }
 func.println()
 

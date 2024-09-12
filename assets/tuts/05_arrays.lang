@@ -279,10 +279,10 @@ func.println(func.arrayReduce(func.arrayOf(Empty), func.print)) # func.print wil
 func.println()
 
 fp.sumAndMultiplyBy2 = ($prevValue, $ele) -> {
-	func.println(Input: $ele and $prevValue)
-	$res = func.addi(func.muli($ele, 2), $prevValue)
-	func.println(Ouput: $res)
-	return $res
+    func.println(Input: $ele and $prevValue)
+    $res = func.addi(func.muli($ele, 2), $prevValue)
+    func.println(Ouput: $res)
+    return $res
 }
 $sum2 = func.arrayReduce(&testArray, 0, fp.sumAndMultiplyBy2)
 func.println(Last Output: $sum2)

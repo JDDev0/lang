@@ -11,42 +11,42 @@ lang.version = v1.0.0
 
 # Create:
 { # Normal
-	# Without vars:
-	# fp.name = () -> {
-	fp.test = () -> {
-		func.println(This is a Test!)
-		func.println(Ok...)
-	}
-	fp.test()
-	
-	func.println(-----------------)
-	
-	# With vars:
-	#             Var    Array  Function pointer
-	# fp.name = ($var1,  &var2,     fp.var3) -> {
-	fp.printRandom = ($min, $max) -> {
-		$rand = func.addi(func.modi(func.rand(), func.addi(func.subi($max, $min), 1)), $min)
-		func.println(Random number: $rand!)
-	}
-	fp.printRandom(42, 42)
-	fp.printRandom(41, 42)
-	fp.printRandom(0, 42)
-	
-	func.println(-----------------)
+    # Without vars:
+    # fp.name = () -> {
+    fp.test = () -> {
+        func.println(This is a Test!)
+        func.println(Ok...)
+    }
+    fp.test()
+    
+    func.println(-----------------)
+    
+    # With vars:
+    #             Var    Array  Function pointer
+    # fp.name = ($var1,  &var2,     fp.var3) -> {
+    fp.printRandom = ($min, $max) -> {
+        $rand = func.addi(func.modi(func.rand(), func.addi(func.subi($max, $min), 1)), $min)
+        func.println(Random number: $rand!)
+    }
+    fp.printRandom(42, 42)
+    fp.printRandom(41, 42)
+    fp.printRandom(0, 42)
+    
+    func.println(-----------------)
 }
 { # One-Line
-	# fp.name = () -> [CODE...]
-	fp.printNormal = ($text) -> func.println($text)
-	fp.printNormal(100 - TESTed!)
-	
-	func.println(-----------------)
+    # fp.name = () -> [CODE...]
+    fp.printNormal = ($text) -> func.println($text)
+    fp.printNormal(100 - TESTed!)
+    
+    func.println(-----------------)
 }
 
 # Return:
 fp.testRet = () -> {
-	func.println(I was executed!)
-	return # Will return -> Everything after won't be executed
-	func.println(Hello?)
+    func.println(I was executed!)
+    return # Will return -> Everything after won't be executed
+    func.println(Hello?)
 }
 fp.testRet()
 
@@ -62,7 +62,7 @@ func.println(-----------------)
 # Function Pointer as return value
 fp.func = () -> return YES!
 fp.get = () -> {
-	return fp.func
+    return fp.func
 }
 $g = fp.get()
 func.println($g)
@@ -81,7 +81,7 @@ func.println(-----------------)
 # Function Pointer
 # fp.name = fp.name
 fp.orig = () -> {
-	func.println(A function)
+    func.println(A function)
 }
 fp.orig() # Prints: "A function"
 fp.copy = fp.orig # Copying
@@ -106,7 +106,7 @@ func.println(-----------------)
 # If no argument was given, all variables will be empty
 # If too many arguments are given, the arguments after the last parameter will be ignored
 fp.manyArgs = ($a, $b, $c, $d, $e, $f, $g) -> {
-	func.println(|$a  $b  $c  $d  $e  $f  $g|)
+    func.println(|$a  $b  $c  $d  $e  $f  $g|)
 }
 fp.manyArgs()
 fp.manyArgs(A)
@@ -123,211 +123,211 @@ func.println(-----------------)
 
 # Varargs
 {
-	# The last parameter can be a vargargs parameter ($<name>... [Text varargs] or &<name>... [Array varargs])
-	
-	# Text varargs
-	# Everything after the argument prior to the last argument will be combined as text and written to $args
-	fp.testTextVarArgs = ($num, $args...) -> {
-		func.printTerminal(-1, \nFrom "fp.testTextVarArgs")
-		func.println(\$num: $num)
-		func.println(\$args: $args)
-		func.printError()
-	}
-	fp.testTextVarArgs()
-	fp.testTextVarArgs(1)
-	fp.testTextVarArgs(1, 2)
-	fp.testTextVarArgs(1, 2, 3)
-	fp.testTextVarArgs(1, 2, 3, 4)
-	fp.testTextVarArgs(1, 2, 3, 4, 5)
-	fp.testTextVarArgs(1, 2, 3, 4, 5, 6)
-	
-	func.println(-----------------)
-	
-	# Array varargs
-	# Everything after the argument prior to the last argument will be combined as Array and written to &args
-	fp.testArrayVarArgs = ($num, &args...) -> {
-		func.printTerminal(-1, \nFrom "fp.testArrayVarArgs")
-		func.println(\$num: $num)
-		func.println(\&args: func.arrayGetAll(&args))
-		func.printError()
-		func.printTerminal(-1, length(\&args): func.arrayLength(&args))
-		func.printError()
-	}
-	fp.testArrayVarArgs()
-	fp.testArrayVarArgs(1)
-	fp.testArrayVarArgs(1, 2)
-	fp.testArrayVarArgs(1, 2, 3)
-	fp.testArrayVarArgs(1, 2, 3, 4)
-	fp.testArrayVarArgs(1, 2, 3, 4, 5)
-	fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
-	
-	func.println(-----------------)
+    # The last parameter can be a vargargs parameter ($<name>... [Text varargs] or &<name>... [Array varargs])
+    
+    # Text varargs
+    # Everything after the argument prior to the last argument will be combined as text and written to $args
+    fp.testTextVarArgs = ($num, $args...) -> {
+        func.printTerminal(-1, \nFrom "fp.testTextVarArgs")
+        func.println(\$num: $num)
+        func.println(\$args: $args)
+        func.printError()
+    }
+    fp.testTextVarArgs()
+    fp.testTextVarArgs(1)
+    fp.testTextVarArgs(1, 2)
+    fp.testTextVarArgs(1, 2, 3)
+    fp.testTextVarArgs(1, 2, 3, 4)
+    fp.testTextVarArgs(1, 2, 3, 4, 5)
+    fp.testTextVarArgs(1, 2, 3, 4, 5, 6)
+    
+    func.println(-----------------)
+    
+    # Array varargs
+    # Everything after the argument prior to the last argument will be combined as Array and written to &args
+    fp.testArrayVarArgs = ($num, &args...) -> {
+        func.printTerminal(-1, \nFrom "fp.testArrayVarArgs")
+        func.println(\$num: $num)
+        func.println(\&args: func.arrayGetAll(&args))
+        func.printError()
+        func.printTerminal(-1, length(\&args): func.arrayLength(&args))
+        func.printError()
+    }
+    fp.testArrayVarArgs()
+    fp.testArrayVarArgs(1)
+    fp.testArrayVarArgs(1, 2)
+    fp.testArrayVarArgs(1, 2, 3)
+    fp.testArrayVarArgs(1, 2, 3, 4)
+    fp.testArrayVarArgs(1, 2, 3, 4, 5)
+    fp.testArrayVarArgs(1, 2, 3, 4, 5, 6)
+    
+    func.println(-----------------)
 }
 
 # Every value at function call will be copied to function pointer:
 # Changed values
 {
-	$a = 42
-	fp.scopeTest = ($a) -> {
-		$a = 43
-		func.println(Local: $a)
-	}
-	fp.scopeTest($a)
-	fp.scopeTest = () -> {
-		$a = 44
-		func.println(Inner: $a)
-	}
-	fp.scopeTest()
-	func.println(Outer: $a)
-	
-	func.println(-----------------)
+    $a = 42
+    fp.scopeTest = ($a) -> {
+        $a = 43
+        func.println(Local: $a)
+    }
+    fp.scopeTest($a)
+    fp.scopeTest = () -> {
+        $a = 44
+        func.println(Inner: $a)
+    }
+    fp.scopeTest()
+    func.println(Outer: $a)
+    
+    func.println(-----------------)
 }
 
 # Use values that are defined after function pointer definition
 {
-	fp.printNot = () -> {
-		func.println($not)
-	}
-	
-	fp.printNot() # Will print "$not"
-	$not = I'm defined!
-	fp.printNot() # Will print "I'm defined!"
-	
-	func.println(-----------------)
+    fp.printNot = () -> {
+        func.println($not)
+    }
+    
+    fp.printNot() # Will print "$not"
+    $not = I'm defined!
+    fp.printNot() # Will print "I'm defined!"
+    
+    func.println(-----------------)
 }
 
 # Returning of assignment
-{	
-	$tmp = fn.asStatic(0)
-	$val = 42
-	fp.genNextNumber = () -> {
-		return $tmp = func.addi($val, $tmp) # Not supported: Empty assignment / translation and translations
-	}
-	func.println(fp.genNextNumber())
-	func.println(fp.genNextNumber())
-	func.println(fp.genNextNumber())
-	
-	func.println(-----------------)
-	
-	&a = func.arrayOf(6, 8, 9, 4, 2, 0, 1, 5, 3, 7)
-	$tmpIndex = fn.asStatic(0)
-	fp.next = (&arr) -> {
-		return $tmpIndex $= &arr[$tmpIndex]
-	}
-	func.println(fp.next(&a))
-	func.println(fp.next(&a))
-	func.println(fp.next(&a))
-	
-	func.println(-----------------)
+{    
+    $tmp = fn.asStatic(0)
+    $val = 42
+    fp.genNextNumber = () -> {
+        return $tmp = func.addi($val, $tmp) # Not supported: Empty assignment / translation and translations
+    }
+    func.println(fp.genNextNumber())
+    func.println(fp.genNextNumber())
+    func.println(fp.genNextNumber())
+    
+    func.println(-----------------)
+    
+    &a = func.arrayOf(6, 8, 9, 4, 2, 0, 1, 5, 3, 7)
+    $tmpIndex = fn.asStatic(0)
+    fp.next = (&arr) -> {
+        return $tmpIndex $= &arr[$tmpIndex]
+    }
+    func.println(fp.next(&a))
+    func.println(fp.next(&a))
+    func.println(fp.next(&a))
+    
+    func.println(-----------------)
 }
 
 # Set Function Pointer to a returned value
 {
-	fp.a = func.printError
-	fp.a(0-ABC)
-	fp.b = () -> return fp.a
-	fp.b()(1-ABC)
-	fp.c = fp.a
-	fp.c(2-ABC)
-	fp.d = fp.b()
-	fp.d(3-ABC)
-	fp.e = func.randChoice(fp.a, fp.c)
-	fp.e(4-ABC)
-	fp.f = func.randChoice(func.println, func.errorln)
-	fp.f(5-ABC)
-	fp.g = func.exec(ret\!urn func\!.printError)
-	fp.g(6-ABC)
-	fp.h = func.exec(ret\!urn (\$text...) -> {\nfunc\!.printError(\$text)\n})
-	fp.h(7-ABC)
-	fp.i = func.exec({{{
-		return ($text...) -> {
-			func.printError($text)
-		}
-	}}})
-	fp.i(8-ABC)
-	
-	func.println(-----------------)
+    fp.a = func.printError
+    fp.a(0-ABC)
+    fp.b = () -> return fp.a
+    fp.b()(1-ABC)
+    fp.c = fp.a
+    fp.c(2-ABC)
+    fp.d = fp.b()
+    fp.d(3-ABC)
+    fp.e = func.randChoice(fp.a, fp.c)
+    fp.e(4-ABC)
+    fp.f = func.randChoice(func.println, func.errorln)
+    fp.f(5-ABC)
+    fp.g = func.exec(ret\!urn func\!.printError)
+    fp.g(6-ABC)
+    fp.h = func.exec(ret\!urn (\$text...) -> {\nfunc\!.printError(\$text)\n})
+    fp.h(7-ABC)
+    fp.i = func.exec({{{
+        return ($text...) -> {
+            func.printError($text)
+        }
+    }}})
+    fp.i(8-ABC)
+    
+    func.println(-----------------)
 }
 
 # Anonymous Function Pointer as return value
 {
-	fp.a = () -> {
-		return ($text...) -> {
-			func.println($text)
-		}
-	}
-	fp.a()(abc, def)
-	fp.b = fp.a()
-	fp.b(def, abc)
-	
-	func.println(-----------------)
+    fp.a = () -> {
+        return ($text...) -> {
+            func.println($text)
+        }
+    }
+    fp.a()(abc, def)
+    fp.b = fp.a()
+    fp.b(def, abc)
+    
+    func.println(-----------------)
 }
 
 # Prevent call of returned function pointer
 {
-	fp.getABCFunc = () -> {
-		return () -> {
-			return abc
-		}
-	}
-	func.println(fp.getABCFunc()())
-	func.println(fp.getABCFunc()\!()) # Prevent call of returned function pointer
-	
-	func.println(-----------------)
+    fp.getABCFunc = () -> {
+        return () -> {
+            return abc
+        }
+    }
+    func.println(fp.getABCFunc()())
+    func.println(fp.getABCFunc()\!()) # Prevent call of returned function pointer
+    
+    func.println(-----------------)
 }
 
 # Call of returned function pointer is not possible inside CONDITIONs
 {
-	fp.fp = () -> {
-		func.println(fp.fp was called!)
-		return 1
-	}
-	fp.retFP = () -> {
-		func.println(fp.retFP was called!)
-		return fp.fp
-	}
-	
-	# Call of returned function pointer is not possible inside CONDITIONs in:
-	# con.if(...), con.elif(...), parser.con(...) [See: 07_if.lang]
-	
-	$bool = parser.con(fp.retFP()()) # Would not call returned function pointer
-	func.println($bool)
-	
-	func.println(-----------------)
-	
-	$ret = fp.retFP()() # Returned function pointer must be called outside of a CONDITION
-	func.println(parser.con($ret))
-	
-	func.println(-----------------)
+    fp.fp = () -> {
+        func.println(fp.fp was called!)
+        return 1
+    }
+    fp.retFP = () -> {
+        func.println(fp.retFP was called!)
+        return fp.fp
+    }
+    
+    # Call of returned function pointer is not possible inside CONDITIONs in:
+    # con.if(...), con.elif(...), parser.con(...) [See: 07_if.lang]
+    
+    $bool = parser.con(fp.retFP()()) # Would not call returned function pointer
+    func.println($bool)
+    
+    func.println(-----------------)
+    
+    $ret = fp.retFP()() # Returned function pointer must be called outside of a CONDITION
+    func.println(parser.con($ret))
+    
+    func.println(-----------------)
 }
 
 # An other possibility for "returning" a value
 {
-	# With call by value
-	{
-		$a = 42
-		fp.changeValue = ($ptr) -> {
-			$*ptr = changed value # Pointer dereferencing
-		}
-		func.println($a)
-		fp.changeValue($[a]) # Provide pointer to "$a"
-		func.println($a)
-	}
-	
-	func.println(-----------------)
-	
-	# With call by pointer
-	{
-		$a = 42
-		fp.changeValue = ($[ptr]) -> {
-			$*ptr = changed value # Pointer dereferencing
-		}
-		func.println(5, $a)
-		fp.changeValue($a) # A pointer will be created for "$a" during the call process
-		func.println(5, $a)
-	}
-	
-	func.println(-----------------)
+    # With call by value
+    {
+        $a = 42
+        fp.changeValue = ($ptr) -> {
+            $*ptr = changed value # Pointer dereferencing
+        }
+        func.println($a)
+        fp.changeValue($[a]) # Provide pointer to "$a"
+        func.println($a)
+    }
+    
+    func.println(-----------------)
+    
+    # With call by pointer
+    {
+        $a = 42
+        fp.changeValue = ($[ptr]) -> {
+            $*ptr = changed value # Pointer dereferencing
+        }
+        func.println(5, $a)
+        fp.changeValue($a) # A pointer will be created for "$a" during the call process
+        func.println(5, $a)
+    }
+    
+    func.println(-----------------)
 }
 
 # End the program early & return DataObject

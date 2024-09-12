@@ -3,279 +3,279 @@ lang.version = v1.0.0
 
 # Loop statements
 {
-	# While loop
-	# while(condition) {
-	#     ...
-	# }
-	#
-	# The whitespace after "}" and before "{" will be ignored
-	$num = 50
-	
-	while($num > 41) {
-		func.println($num)
-		$num = func.subi($num, 1)
-	}
-	
-	# Until loop
-	# until(condition) {
-	#     ...
-	# }
-	$win = 0
-	$num = func.modi(func.rand(), 10)
-	until($win) {
-		$guess = func.addi(func.modi(func.rand(), 10))
-		if($guess < $num) {
-			func.printTerminal(3, The number is larger than $guess!)
-		}elif($guess > $num) {
-			func.printTerminal(3, The number is smaller than $guess!)
-		}else {
-			$win = 1
-			
-			func.printTerminal(2, You got the number $guess!)
-		}
-	}
-	
-	# Repeat loop
-	# repeat(varPtr, count) { # varPtr can be null
-	#     ...
-	# }
-	$i
-	func.println(Before Loop: $i)
-	repeat($[i], 10) {
-		func.println(In Loop: $i)
-	}
-	func.println(After Loop: $i)
-	
-	repeat(null, 10) {
-		func.println(In Loop2: $i)
-	}
-	
-	repeat($[i], 8) {
-		func.printTerminal(func.deci($i), TEXT-TEXT-TEXT)
-	}
-	
-	$j
-	repeat($[j], func.modi(func.rand(), 10)) {
-		func.printTerminal(0, RANDOM: $j)
-	}
-	
-	fp.getFP = () -> return () -> return 10
-	repeat($[j], fp.getFP()()) {
-		func.println($j with call of returned value)
-	}
-	
-	func.println()
-	
-	# Continue and break
-	# con.break # Breaks the current loop
-	# con.continue # Breaks the current iteration and skips to the next iteration
-	$val = 42
-	while(1) {
-		if($val == 50) {
-			con.break
-		}
-		
-		func.println(Value: $val)
-		$val = func.inci($val)
-	} # Will output numbers from 42 to 49
-	
-	func.println()
-	
-	# Endless loop with con.loop (Can only be exited with break or continue with level > 1)
-	$val = 42
-	loop {
-		if($val == 50) {
-			con.break
-		}
-		
-		func.println(Value: $val)
-		$val = func.inci($val)
-	} # Will output numbers from 42 to 49
-	
-	func.println()
-	
-	$val = 41
-	while($val < 50) {
-		$val = func.inci($val)
-		
-		if($val == 45) {
-			con.continue
-		}
-		
-		func.println(Value: $val)
-	} # Will output numbers from 42 to 49 without 45
-	
-	func.println()
-	
-	# Continue and break of outer loops
-	# con.break(num) # Breaks the nth loop level (loop level 1 is the same as con.break without an argument
-	# con.continue(num) # Breaks current iteration and skips to the next iteration in the nth loop level (loop level 1 is the same as con.continue without an argument
-	# -> num can be an expression with function call of returned value
-	$val = 42
-	$i
-	loop {
-		repeat($[i], 2) {
-			func.println(	Inner Value: $i)
-			
-			if($val == 50) {
-				con.break(2) # Will break the "con.loop" loop
-			}
-		}
-		
-		func.println(Value: $val)
-		$val = func.inci($val)
-	} # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
-	
-	func.println()
-	func.println()
-	
-	$val = 41
-	while($val < 50) {
-		$val = func.inci($val)
-		
-		func.println()
-		
-		repeat($[i], 2) {
-			func.println(	Inner Value: $i)
-			
-			if($val == 45) {
-				con.continue(2) # Will continue the "con.while($val < 50)" loop
-			}
-		}
-		
-		func.println(Value: $val)
-	} # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
+    # While loop
+    # while(condition) {
+    #     ...
+    # }
+    #
+    # The whitespace after "}" and before "{" will be ignored
+    $num = 50
+    
+    while($num > 41) {
+        func.println($num)
+        $num = func.subi($num, 1)
+    }
+    
+    # Until loop
+    # until(condition) {
+    #     ...
+    # }
+    $win = 0
+    $num = func.modi(func.rand(), 10)
+    until($win) {
+        $guess = func.addi(func.modi(func.rand(), 10))
+        if($guess < $num) {
+            func.printTerminal(3, The number is larger than $guess!)
+        }elif($guess > $num) {
+            func.printTerminal(3, The number is smaller than $guess!)
+        }else {
+            $win = 1
+            
+            func.printTerminal(2, You got the number $guess!)
+        }
+    }
+    
+    # Repeat loop
+    # repeat(varPtr, count) { # varPtr can be null
+    #     ...
+    # }
+    $i
+    func.println(Before Loop: $i)
+    repeat($[i], 10) {
+        func.println(In Loop: $i)
+    }
+    func.println(After Loop: $i)
+    
+    repeat(null, 10) {
+        func.println(In Loop2: $i)
+    }
+    
+    repeat($[i], 8) {
+        func.printTerminal(func.deci($i), TEXT-TEXT-TEXT)
+    }
+    
+    $j
+    repeat($[j], func.modi(func.rand(), 10)) {
+        func.printTerminal(0, RANDOM: $j)
+    }
+    
+    fp.getFP = () -> return () -> return 10
+    repeat($[j], fp.getFP()()) {
+        func.println($j with call of returned value)
+    }
+    
+    func.println()
+    
+    # Continue and break
+    # con.break # Breaks the current loop
+    # con.continue # Breaks the current iteration and skips to the next iteration
+    $val = 42
+    while(1) {
+        if($val == 50) {
+            con.break
+        }
+        
+        func.println(Value: $val)
+        $val = func.inci($val)
+    } # Will output numbers from 42 to 49
+    
+    func.println()
+    
+    # Endless loop with con.loop (Can only be exited with break or continue with level > 1)
+    $val = 42
+    loop {
+        if($val == 50) {
+            con.break
+        }
+        
+        func.println(Value: $val)
+        $val = func.inci($val)
+    } # Will output numbers from 42 to 49
+    
+    func.println()
+    
+    $val = 41
+    while($val < 50) {
+        $val = func.inci($val)
+        
+        if($val == 45) {
+            con.continue
+        }
+        
+        func.println(Value: $val)
+    } # Will output numbers from 42 to 49 without 45
+    
+    func.println()
+    
+    # Continue and break of outer loops
+    # con.break(num) # Breaks the nth loop level (loop level 1 is the same as con.break without an argument
+    # con.continue(num) # Breaks current iteration and skips to the next iteration in the nth loop level (loop level 1 is the same as con.continue without an argument
+    # -> num can be an expression with function call of returned value
+    $val = 42
+    $i
+    loop {
+        repeat($[i], 2) {
+            func.println(    Inner Value: $i)
+            
+            if($val == 50) {
+                con.break(2) # Will break the "con.loop" loop
+            }
+        }
+        
+        func.println(Value: $val)
+        $val = func.inci($val)
+    } # Will output numbers from 42 to 49 with inner values of 0 and 1 except the last inner loop iteration
+    
+    func.println()
+    func.println()
+    
+    $val = 41
+    while($val < 50) {
+        $val = func.inci($val)
+        
+        func.println()
+        
+        repeat($[i], 2) {
+            func.println(    Inner Value: $i)
+            
+            if($val == 45) {
+                con.continue(2) # Will continue the "con.while($val < 50)" loop
+            }
+        }
+        
+        func.println(Value: $val)
+    } # Will output numbers from 42 to 49 without 45 with inner values of 0 and 1 except the inner loop iteration where $val = 45
 
-	# Alternative loop statement syntax
-	# Besides the curly brackets loop statement syntax there is the end block loop statement syntax
-	# Curly brackets loop statement syntax
-	repeat(null, 1) {
-		func.println(test-1)
-	}
-	while(0) {
-		func.println(test-2)
-	}else {
-		func.println(test-3)
-	}
-	until(1) {
-		func.println(test-4)
-	}else {
-		func.println(test-5)
-	}
-	loop {
-		func.println(test-6)
-		con.break
-	}
+    # Alternative loop statement syntax
+    # Besides the curly brackets loop statement syntax there is the end block loop statement syntax
+    # Curly brackets loop statement syntax
+    repeat(null, 1) {
+        func.println(test-1)
+    }
+    while(0) {
+        func.println(test-2)
+    }else {
+        func.println(test-3)
+    }
+    until(1) {
+        func.println(test-4)
+    }else {
+        func.println(test-5)
+    }
+    loop {
+        func.println(test-6)
+        con.break
+    }
 
-	func.println()
+    func.println()
 
-	# End block loop statement syntax
-	con.repeat(null, 1)
-		func.println(test-1)
-	con.endloop
-	con.while(0)
-		func.println(test-2)
-	con.else
-		func.println(test-3)
-	con.endloop
-	con.until(1)
-		func.println(test-4)
-	con.else
-		func.println(test-5)
-	con.endloop
-	con.loop
-		func.println(test-6)
-		con.break
-	con.endloop
+    # End block loop statement syntax
+    con.repeat(null, 1)
+        func.println(test-1)
+    con.endloop
+    con.while(0)
+        func.println(test-2)
+    con.else
+        func.println(test-3)
+    con.endloop
+    con.until(1)
+        func.println(test-4)
+    con.else
+        func.println(test-5)
+    con.endloop
+    con.loop
+        func.println(test-6)
+        con.break
+    con.endloop
 
-	# The "con." prefix can also be used in the curly brackets loop statement syntax (It can also be used only sometimes, but this is not recommended)
+    # The "con." prefix can also be used in the curly brackets loop statement syntax (It can also be used only sometimes, but this is not recommended)
 
-	func.println()
+    func.println()
 
-	con.repeat(null, 1) {
-		func.println(test-1)
-	}
-	con.while(0) {
-		func.println(test-2)
-	}else {
-		func.println(test-3)
-	}
-	until(1) {
-		func.println(test-4)
-	}con.else {
-		func.println(test-5)
-	}
-	con.loop {
-		func.println(test-6)
-		con.break
-	}
+    con.repeat(null, 1) {
+        func.println(test-1)
+    }
+    con.while(0) {
+        func.println(test-2)
+    }else {
+        func.println(test-3)
+    }
+    until(1) {
+        func.println(test-4)
+    }con.else {
+        func.println(test-5)
+    }
+    con.loop {
+        func.println(test-6)
+        con.break
+    }
 }
 
 # Loop functions
 {
-	# For loop
-	# func.repeat(funcPtr, int) # Will call the function pointer n times
-	#                             the funcPtr gets the actual iteration number
+    # For loop
+    # func.repeat(funcPtr, int) # Will call the function pointer n times
+    #                             the funcPtr gets the actual iteration number
 
-	fp.printColor = ($i) -> {
-		$i = func.deci($i) #[0, 7] for repeat will be changed to [-1, 6]
-		
-		func.printTerminal($i, $i: This is a for loop test!)
-	}
-	func.repeat(fp.printColor, 8)
-	
-	# While loop
-	# func.repeatWhile(funcPtr, funcPtr) # Will call the first function pointer
-	#                                      while the second function pointer returns true
-	$num = fn.asStatic(50)
+    fp.printColor = ($i) -> {
+        $i = func.deci($i) #[0, 7] for repeat will be changed to [-1, 6]
+        
+        func.printTerminal($i, $i: This is a for loop test!)
+    }
+    func.repeat(fp.printColor, 8)
+    
+    # While loop
+    # func.repeatWhile(funcPtr, funcPtr) # Will call the first function pointer
+    #                                      while the second function pointer returns true
+    $num = fn.asStatic(50)
 
-	fp.printFunc = () -> {
-		func.println($num)
-		$num -= 1
-	}
-	fp.test = () -> return parser.con($num > 41)
-	func.repeatWhile(fp.printFunc, fp.test)
+    fp.printFunc = () -> {
+        func.println($num)
+        $num -= 1
+    }
+    fp.test = () -> return parser.con($num > 41)
+    func.repeatWhile(fp.printFunc, fp.test)
 
-	# Until loop
-	# func.repeatUntil(funcPtr, funcPtr) # Will call the first function pointer
-	#                                      while the second function pointer returns false
-	$win = fn.asStatic(0)
-	$num = func.modi(func.rand(), 10)
-	fp.printFunc = () -> {
-		$guess = func.addi(func.modi(func.rand(), 10))
-		con.if($guess < $num)
-			func.printTerminal(3, The number is larger than $guess!)
-		con.elif($guess > $num)
-			func.printTerminal(3, The number is smaller than $guess!)
-		con.else
-			$win = 1
-			func.printTerminal(2, You got the number $guess!)
-		con.endif
-	}
-	fp.test = () -> return $win
-	func.repeatUntil(fp.printFunc, fp.test)
+    # Until loop
+    # func.repeatUntil(funcPtr, funcPtr) # Will call the first function pointer
+    #                                      while the second function pointer returns false
+    $win = fn.asStatic(0)
+    $num = func.modi(func.rand(), 10)
+    fp.printFunc = () -> {
+        $guess = func.addi(func.modi(func.rand(), 10))
+        con.if($guess < $num)
+            func.printTerminal(3, The number is larger than $guess!)
+        con.elif($guess > $num)
+            func.printTerminal(3, The number is smaller than $guess!)
+        con.else
+            $win = 1
+            func.printTerminal(2, You got the number $guess!)
+        con.endif
+    }
+    fp.test = () -> return $win
+    func.repeatUntil(fp.printFunc, fp.test)
 
-	# Arrays for each function
-	# func.arrayForEach(arrPtr, funcPtr)
-	# fp.funcPtr = ($ele) -> ...
-	# The provived function will be executed for each element of the array
+    # Arrays for each function
+    # func.arrayForEach(arrPtr, funcPtr)
+    # fp.funcPtr = ($ele) -> ...
+    # The provived function will be executed for each element of the array
 
-	&a = func.arrayOf(0, 2, 4, 5, 6, abc, test, 42, 90, 100)
+    &a = func.arrayOf(0, 2, 4, 5, 6, abc, test, 42, 90, 100)
 
-	fp.printElement = ($ele) -> {
-		func.println(Element: $ele)
-	}
-	func.arrayForEach(&a, fp.printElement)
+    fp.printElement = ($ele) -> {
+        func.println(Element: $ele)
+    }
+    func.arrayForEach(&a, fp.printElement)
 
-	$output
-	fn.makeStatic($[output])
-	fp.addElementToOuput = ($e) -> {
-		con.if($output == null)
-			$output = $e
-		con.else
-			$output = $output, $e
-		con.endif
-	}
-	func.arrayForEach(&a, fp.addElementToOuput)
-	func.println($output)
+    $output
+    fn.makeStatic($[output])
+    fp.addElementToOuput = ($e) -> {
+        con.if($output == null)
+            $output = $e
+        con.else
+            $output = $output, $e
+        con.endif
+    }
+    func.arrayForEach(&a, fp.addElementToOuput)
+    func.println($output)
 }

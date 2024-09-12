@@ -57,10 +57,10 @@ func.println(func.isFinal($a)) # 1
 func.println(func.isFinal($b)) # 0
 
 fp.test = () -> {
-	# No error, because $a is an local variable of the function
-	$a = 100
-	func.printTerminal(2, $a)
-	func.printError()
+    # No error, because $a is an local variable of the function
+    $a = 100
+    func.printTerminal(2, $a)
+    func.printError()
 }
 fp.test()
 func.printTerminal(2, $a)
@@ -85,14 +85,14 @@ func.printTerminal(3, func.arrayGetAll(&a))
 
 # Final funcPtrs
 fp.test = () -> {
-	func.printTerminal(2, TESTED!)
+    func.printTerminal(2, TESTED!)
 }
 func.makeFinal(fn.pointerTo(fp.test))
 fp.test() # Will produce no error
 func.printError()
 
 fp.test = () -> { # Will result in an error
-	func.printTerminal(5, Modifyed!)
+    func.printTerminal(5, Modifyed!)
 }
 fp.test()
 func.printError()
@@ -153,13 +153,13 @@ $b = 43
 func.println(\$b: $b) # 43
 
 fp.function = () -> {
-	func.println(\$a [In function]: $a) # 42
-	func.println(\$b [In function]: $b) # 43
-	
-	$a = 40
-	func.println(\$a [In function]: $a) # 40
-	$b = 41
-	func.println(\$b [In function]: $b) # 41
+    func.println(\$a [In function]: $a) # 42
+    func.println(\$b [In function]: $b) # 43
+    
+    $a = 40
+    func.println(\$a [In function]: $a) # 40
+    $b = 41
+    func.println(\$b [In function]: $b) # 41
 }
 fp.function()
 
@@ -187,13 +187,13 @@ $b = 43
 func.println(\$b: $b) # 43
 
 fp.function = () -> {
-	func.println(\$a [In function]: $a) # 42
-	func.println(\$b [In function]: $b) # 43
-	
-	$a = 40
-	func.println(\$a [In function]: $a) # 40
-	$b = 41
-	func.println(\$b [In function]: $b) # 41
+    func.println(\$a [In function]: $a) # 42
+    func.println(\$b [In function]: $b) # 43
+    
+    $a = 40
+    func.println(\$a [In function]: $a) # 40
+    $b = 41
+    func.println(\$b [In function]: $b) # 41
 }
 fp.function()
 
@@ -221,18 +221,18 @@ func.println(\&a: &a) # [1, test]
 func.println(\&b: &b) # [2, test2]
 
 fp.function = () -> {
-	func.println(\&a [In function]: &a) # [1, test]
-	func.println(\&b [In function]: &b) # [2, test2]
-	
-	&a[1] ::= 42
-	func.println(\&a [In function]: &a) # [1, 42]
-	&b[1] ::= 422
-	func.println(\&b [In function]: &b) # [2, 422]
-	
-	&a = func.arrayOf(1, 2, 3)
-	func.println(\&a [In function]: &a) # [1, 2, 3]
-	&b = func.arrayOf(4, 5, 6)
-	func.println(\&b [In function]: &b) # [4, 5, 6]
+    func.println(\&a [In function]: &a) # [1, test]
+    func.println(\&b [In function]: &b) # [2, test2]
+    
+    &a[1] ::= 42
+    func.println(\&a [In function]: &a) # [1, 42]
+    &b[1] ::= 422
+    func.println(\&b [In function]: &b) # [2, 422]
+    
+    &a = func.arrayOf(1, 2, 3)
+    func.println(\&a [In function]: &a) # [1, 2, 3]
+    &b = func.arrayOf(4, 5, 6)
+    func.println(\&b [In function]: &b) # [4, 5, 6]
 }
 fp.function()
 
@@ -253,19 +253,19 @@ func.println(\$b: $b) # Not static
 func.println(\$c: $c) # Static 2
 
 fp.function = () -> {
-	func.println(\$a [In function]: $a) # Static
-	func.println(\$b [In function]: $b) # Not static
-	func.println(\$c [In function]: $c) # Static 2
-	
-	func.freeVar($[a])
-	func.println(\$a [In function]: $a) # $a
-	func.freeVar($[b])
-	func.println(\$b [In function]: $b) # $b
-	func.freeVar($[c])
-	func.println(\$c [In function]: $c) # $c
-	
-	$c = test # $c is now a new variable (It is not the static outer scope variable)
-	func.println(\$c [In function]: $c) # test
+    func.println(\$a [In function]: $a) # Static
+    func.println(\$b [In function]: $b) # Not static
+    func.println(\$c [In function]: $c) # Static 2
+    
+    func.freeVar($[a])
+    func.println(\$a [In function]: $a) # $a
+    func.freeVar($[b])
+    func.println(\$b [In function]: $b) # $b
+    func.freeVar($[c])
+    func.println(\$c [In function]: $c) # $c
+    
+    $c = test # $c is now a new variable (It is not the static outer scope variable)
+    func.println(\$c [In function]: $c) # test
 }
 fp.function()
 
@@ -282,12 +282,12 @@ func.makeStatic($[a])
 func.println(\$a: $a) # Static
 
 fp.function = ($a) -> {
-	# "$a" will shadow the static "$a" variable
-	
-	func.println(\$a [In function]: $a) # test
-	
-	$a = 42
-	func.println(\$a [In function]: $a) # 42
+    # "$a" will shadow the static "$a" variable
+    
+    func.println(\$a [In function]: $a) # test
+    
+    $a = 42
+    func.println(\$a [In function]: $a) # 42
 }
 fp.function(test)
 
@@ -313,14 +313,14 @@ func.println(\$a: $a) # Final Static
 func.println(\$b: $b) # Static Final
 
 fp.function = () -> {
-	func.println(\$a: $a) # Final Static
-	func.println(\$b: $b) # Static Final
+    func.println(\$a: $a) # Final Static
+    func.println(\$b: $b) # Static Final
 
-	$a = 42 # Will throw an error: Final var change
-	$b = 43 # Will throw an error too: Final var change
-	
-	func.println(\$a: $a) # Final Static
-	func.println(\$b: $b) # Static Final
+    $a = 42 # Will throw an error: Final var change
+    $b = 43 # Will throw an error too: Final var change
+    
+    func.println(\$a: $a) # Final Static
+    func.println(\$b: $b) # Static Final
 }
 fp.function()
 
@@ -339,33 +339,33 @@ $x = X # Will not be static in outer scope
 func.println(\$x: $x) # X
 
 fp.inner = () -> {
-	$innerStatic = Inner static
-	func.makeStatic($[innerStatic])
-	
-	func.println(\$innerStatic: $innerStatic) # Inner static
-	
-	func.println(\$x: $x) # X
-	func.makeStatic($[x]) # Make $x static in inner scope
-	func.println(\$x: $x) # X
-	
-	fp.function = () -> {
-		func.println(\$innerStatic: $innerStatic) # Inner static
-		func.println(\$outerStatic: $outerStatic) # Outer static
-		func.println(\$x: $x) # X
-		
-		$innerStatic = 42
-		func.println(\$innerStatic: $innerStatic) # 42
-		
-		$outerStatic = 40
-		func.println(\$outerStatic: $outerStatic) # 40
-		
-		$x = 42
-		func.println(\$x: $x) # 42
-	}
-	fp.function()
-	
-	func.println(\$innerStatic: $innerStatic) # 42
-	func.println(\$x: $x) # 42
+    $innerStatic = Inner static
+    func.makeStatic($[innerStatic])
+    
+    func.println(\$innerStatic: $innerStatic) # Inner static
+    
+    func.println(\$x: $x) # X
+    func.makeStatic($[x]) # Make $x static in inner scope
+    func.println(\$x: $x) # X
+    
+    fp.function = () -> {
+        func.println(\$innerStatic: $innerStatic) # Inner static
+        func.println(\$outerStatic: $outerStatic) # Outer static
+        func.println(\$x: $x) # X
+        
+        $innerStatic = 42
+        func.println(\$innerStatic: $innerStatic) # 42
+        
+        $outerStatic = 40
+        func.println(\$outerStatic: $outerStatic) # 40
+        
+        $x = 42
+        func.println(\$x: $x) # 42
+    }
+    fp.function()
+    
+    func.println(\$innerStatic: $innerStatic) # 42
+    func.println(\$x: $x) # 42
 }
 fp.inner()
 
@@ -381,12 +381,12 @@ func.makeStatic($[y])
 func.println(\$y: $y) # Static
 
 fp.y = () -> {
-	func.println(fp\.y: \$y: $y)
-	# 1st time: Static
-	# 2nd time: 42
-	
-	$y = abc
-	func.println(fp\.y: \$y: $y) # abc
+    func.println(fp\.y: \$y: $y)
+    # 1st time: Static
+    # 2nd time: 42
+    
+    $y = abc
+    func.println(fp\.y: \$y: $y) # abc
 }
 fp.y()
 
@@ -397,13 +397,13 @@ $y = Static
 func.println(\$y: $y) # Static
 
 fp.y2 = ($y) -> {
-	func.println(fp\.y2.\$y: $y) # test
-	
-	$y = 42
-	func.println(fp\.y2.\$y: $y) # 42
-	
-	fp.y()
-	func.println(fp\.y2.\$y: $y) # 42
+    func.println(fp\.y2.\$y: $y) # test
+    
+    $y = 42
+    func.println(fp\.y2.\$y: $y) # 42
+    
+    fp.y()
+    func.println(fp\.y2.\$y: $y) # 42
 }
 fp.y2(test)
 func.println(\$y: $y) # Static

@@ -14,7 +14,7 @@ test2.data = MY
 func.printTerminal(1, 0 - Vars & FuncPtrs)
 $var = Variable
 fp.printTest = ($var) -> {
-	func.printTerminal(-1, Var: $var)
+    func.printTerminal(-1, Var: $var)
 }
 
 func.printTerminal(1, 0 - Finished)

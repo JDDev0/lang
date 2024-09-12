@@ -7,7 +7,7 @@ lib.name = LIB_42
 func.printTerminal(1, 1 - Vars & FuncPtrs)
 $lib_var = Variable of LIB
 fp.libTest = ($var) -> {
-	func.printTerminal(-1, Var: $var)
+    func.printTerminal(-1, Var: $var)
 }
 
 func.printTerminal(1, 1 - Finished)

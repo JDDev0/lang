@@ -653,11 +653,11 @@ func.println()
 func.println("Example Y-1: Factorial function")
 func.println("-------------------------------")
 fp.fac = (fp.func) -> {
-	fp.retFunc = (fp.func, $n) -> {
-		return parser.op($n < 2?1:$n * fp.func($n - 1))
-	}
-	
-	return func.combAN(fp.retFunc, fp.func)
+    fp.retFunc = (fp.func, $n) -> {
+        return parser.op($n < 2?1:$n * fp.func($n - 1))
+    }
+    
+    return func.combAN(fp.retFunc, fp.func)
 }
 
 # Apply the Y combinator
@@ -666,9 +666,9 @@ fp.facY = func.combY(fp.fac)
 # Use function (All values from 0 to 20)
 $i $= long(0)
 until($i > 20) {
-	func.println(fp.facY($i))
-	
-	$i += 1
+    func.println(fp.facY($i))
+    
+    $i += 1
 }
 
 func.println()
@@ -677,11 +677,11 @@ func.println()
 func.println("Example Y-2: Fibonacci function")
 func.println("-------------------------------")
 fp.fib = (fp.func) -> {
-	fp.retFunc = (fp.func, $x) -> {
-		return parser.op($x < 2?$x:fp.func($x - 2) + fp.func($x - 1))
-	}
-	
-	return func.combAN(fp.retFunc, fp.func)
+    fp.retFunc = (fp.func, $x) -> {
+        return parser.op($x < 2?$x:fp.func($x - 2) + fp.func($x - 1))
+    }
+    
+    return func.combAN(fp.retFunc, fp.func)
 }
 
 # Apply the Y combinator
@@ -690,9 +690,9 @@ fp.fibY = func.combY(fp.fib)
 # Use function (All values from 0 to 20)
 $i $= long(0)
 until($i > 20) {
-	func.println(fp.fibY($i))
-	
-	$i += 1
+    func.println(fp.fibY($i))
+    
+    $i += 1
 }
 
 func.println()
@@ -701,14 +701,14 @@ func.println()
 func.println("Example  Y-3: Multiple arguments")
 func.println("--------------------------------")
 fp.facOut = (fp.func) -> {
-	fp.retFunc = (fp.func, $n, $run) -> {
-		func.printf(" > %2d (%2d)", $run, $n)
-		parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
-		parser.op($n < 2?func.printf("%n=> "):null)
-		return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
-	}
-	
-	return func.combAN(fp.retFunc, fp.func)
+    fp.retFunc = (fp.func, $n, $run) -> {
+        func.printf(" > %2d (%2d)", $run, $n)
+        parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
+        parser.op($n < 2?func.printf("%n=> "):null)
+        return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
+    }
+    
+    return func.combAN(fp.retFunc, fp.func)
 }
 
 # Apply the Y combinator
@@ -717,7 +717,7 @@ fp.facOutY = func.combY(fp.facOut)
 # Use function (All values from 0 to 20)
 $i $= long(0)
 until($i > 20) {
-	func.println(fp.facOutY($i, 1))
-	
-	$i += 1
+    func.println(fp.facOutY($i, 1))
+    
+    $i += 1
 }

@@ -8,60 +8,60 @@ $ver = $LANG_COMPILER_VERSION # Will not be executed in version >= v1.0.0 becaus
 # }}}
 
 con.if($ver == v0.1.8)
-	func.printTerminal(2, This is Code for the Lang version v0.1.8!)
-	
-	func.printTerminal(2, Are you crazy? This version of Lang isn't even public!)
+    func.printTerminal(2, This is Code for the Lang version v0.1.8!)
+    
+    func.printTerminal(2, Are you crazy? This version of Lang isn't even public!)
 con.elif($ver == v0.1.9)
-	func.printTerminal(2, This is Code for the Lang version v0.1.9!)
-	
-	$a = A non final variable
-	func.printTerminal(2, $a)
-	$a = New var
-	func.printTerminal(2, $a)
-	func.printError()
+    func.printTerminal(2, This is Code for the Lang version v0.1.9!)
+    
+    $a = A non final variable
+    func.printTerminal(2, $a)
+    $a = New var
+    func.printTerminal(2, $a)
+    func.printError()
 con.elif($ver == v0.2.0)
-	func.printTerminal(2, This is Code for the Lang version v0.2.0!)
-	
-	$a = A final variable
-	func.makeFinal($[a])
-	func.printTerminal(2, $a)
-	$a = New var
-	func.printTerminal(2, $a)
-	func.printError()
+    func.printTerminal(2, This is Code for the Lang version v0.2.0!)
+    
+    $a = A final variable
+    func.makeFinal($[a])
+    func.printTerminal(2, $a)
+    $a = New var
+    func.printTerminal(2, $a)
+    func.printError()
 con.elif($ver == v0.2.1)
-	func.printTerminal(2, This is Code for Lang version v0.2.1!)
-	
-	$a = A final variable
-	func.makeFinal($[a])
-	func.printTerminal(2, $a)
-	$a = New var
-	func.printTerminal(2, $a)
-	func.printError()
+    func.printTerminal(2, This is Code for Lang version v0.2.1!)
+    
+    $a = A final variable
+    func.makeFinal($[a])
+    func.printTerminal(2, $a)
+    $a = New var
+    func.printTerminal(2, $a)
+    func.printError()
 con.elif($ver == v1.0.0)
-	func.println(This is Code for Lang version v1.0.0!)
-	
-	$a = func.asFinal(A final variable)
-	func.println($a)
-	$a = New var
-	func.println($a)
-	func.printError()
+    func.println(This is Code for Lang version v1.0.0!)
+    
+    $a = func.asFinal(A final variable)
+    func.println($a)
+    $a = New var
+    func.println($a)
+    func.printError()
 con.else
-	func.printTerminal(5, Lang version $ver is not supported!)
+    func.printTerminal(5, Lang version $ver is not supported!)
 con.endif
 
 # Best practice: Use different Lang files for different Lang version dependent functions: # Example: Contains different version of function "fp.test"
 con.if($ver == v0.1.8)
-	linker.bindLibrary(14_utilsLibrary018.lang)
+    linker.bindLibrary(14_utilsLibrary018.lang)
 con.elif($ver == v0.1.9)
-	linker.bindLibrary(14_utilsLibrary019.lang)
+    linker.bindLibrary(14_utilsLibrary019.lang)
 con.elif($ver == v0.2.0)
-	linker.bindLibrary(14_utilsLibrary020.lang)
+    linker.bindLibrary(14_utilsLibrary020.lang)
 con.elif($ver == v0.2.1)
-	linker.bindLibrary(14_utilsLibrary021.lang)
+    linker.bindLibrary(14_utilsLibrary021.lang)
 con.elif($ver == v1.0.0)
-	linker.bindLibrary(14_utilsLibrary100.lang)
+    linker.bindLibrary(14_utilsLibrary100.lang)
 con.else
-	func.printTerminal(5, The Lang version $ver is not supported!)
+    func.printTerminal(5, The Lang version $ver is not supported!)
 con.endif
 
 fp.test(A test text)

@@ -3,20 +3,20 @@ lang.version = v1.0.0
 
 # Line continuation
 {
-	func.printTerminal(3, abc-\
+    func.printTerminal(3, abc-\
 test) # Will print "abc-test", if "\" is at end of line and outside of a multiline text, the line will be split (It must be the end of the line, comments may not come after "\")
 # The leading whitespaces of a line after "\" will be parsed
-	
-	func.printTerminal(4, abc-\
+    
+    func.printTerminal(4, abc-\
 {{{
 test
 }}})
-	
+    
 func.printTerminal(5, abc-{{{
 test
 }}}\
 abc)
-	
+    
 func.printTerminal(6, abc-{{{
 test\
 }}})
@@ -26,403 +26,403 @@ func.printTerminal(-1, \n\n\n)
 
 # Multiline comments
 {
-	# Comment \
-	2nd line
-	
-	# Comment \
-	func.printTerminal(-1, test) # In comment
-	func.printTerminal(-1, test) # Not in comment
-	
-	# Comment \
-	2nd line \
-	3rd line
-	
-	# Comment {{{
-		2nd line
-		3rd line
-	}}} - 4th line \
-	5th line
-	
-	# Comment \
-	2nd line {{{
-		3rd line
-	}}} - 4th line
+    # Comment \
+    2nd line
+    
+    # Comment \
+    func.printTerminal(-1, test) # In comment
+    func.printTerminal(-1, test) # Not in comment
+    
+    # Comment \
+    2nd line \
+    3rd line
+    
+    # Comment {{{
+        2nd line
+        3rd line
+    }}} - 4th line \
+    5th line
+    
+    # Comment \
+    2nd line {{{
+        3rd line
+    }}} - 4th line
 }
 
 func.printTerminal(-1, \n\n\n)
 
 # Custom IO functions
 {
-	if(func.isTerminalAvailable()) {
-		fp.input = func.readTerminal
-		fp.print = func.printTerminal
-		fp.error = ($text...) -> func.printTerminal(5, $text)
-	}else {
-		fp.input = ($text...) -> {
-			if($text) {
-				func.print($text: )
-			}else {
-				func.print(Input: )
-			}
-			return func.input()
-		}
-		fp.print = ($lvl, $text...) -> func.println($text)
-		fp.error = func.errorln
-	}
-	
-	$input = fp.input(Test)
-	fp.print(1, Input: $input)
-	fp.print(2, varars, test)
-	fp.error(test error)
-	fp.error(test, error, with, varargs)
-	
-	$input = fp.input() # Empty input message
-	fp.print(1, Input: $input)
+    if(func.isTerminalAvailable()) {
+        fp.input = func.readTerminal
+        fp.print = func.printTerminal
+        fp.error = ($text...) -> func.printTerminal(5, $text)
+    }else {
+        fp.input = ($text...) -> {
+            if($text) {
+                func.print($text: )
+            }else {
+                func.print(Input: )
+            }
+            return func.input()
+        }
+        fp.print = ($lvl, $text...) -> func.println($text)
+        fp.error = func.errorln
+    }
+    
+    $input = fp.input(Test)
+    fp.print(1, Input: $input)
+    fp.print(2, varars, test)
+    fp.error(test error)
+    fp.error(test, error, with, varargs)
+    
+    $input = fp.input() # Empty input message
+    fp.print(1, Input: $input)
 }
 
 func.printTerminal(-1, \n\n\n)
 
 # Advanced conditions
 {
-	# XOR: (CONDITION) != (CONDITION)
-	func.printTerminal(2, XOR:)
-	func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) != (1 > 42))) # 0
-	func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) != (1 < 42))) # 1
-	func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) != (1 > 42))) # 1
-	func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) != (1 < 42))) # 0
-	
-	# NXOR: (CONDITION) == (CONDITION)
-	func.printTerminal(2, \nNXOR:)
-	func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) == (1 > 42))) # 1
-	func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) == (1 < 42))) # 0
-	func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) == (1 > 42))) # 0
-	func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) == (1 < 42))) # 1
+    # XOR: (CONDITION) != (CONDITION)
+    func.printTerminal(2, XOR:)
+    func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) != (1 > 42))) # 0
+    func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) != (1 < 42))) # 1
+    func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) != (1 > 42))) # 1
+    func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) != (1 < 42))) # 0
+    
+    # NXOR: (CONDITION) == (CONDITION)
+    func.printTerminal(2, \nNXOR:)
+    func.printTerminal(1, (1 > 42) != (1 > 42) = parser.con((1 > 42) == (1 > 42))) # 1
+    func.printTerminal(1, (1 > 42) != (1 < 42) = parser.con((1 > 42) == (1 < 42))) # 0
+    func.printTerminal(1, (1 < 42) != (1 > 42) = parser.con((1 < 42) == (1 > 42))) # 0
+    func.printTerminal(1, (1 < 42) != (1 < 42) = parser.con((1 < 42) == (1 < 42))) # 1
 }
 
 func.printTerminal(-1, \n\n\n)
 
 # "Returning" of multiple values
 {
-	# "Return" is also possible by dereferencing of a pointer: "$*ptr"
-	
-	# With call by value
-	{
-		# $column and $row are var pointers
-		fp.convertIndexToCoords = ($index, $COLUMN_COUNT, $column, $row) -> {
-			$*column = func.modi($index, $COLUMN_COUNT)
-			$*row = func.divi($index, $COLUMN_COUNT)
-		}
-		$index = 42
-		$COLUMN_COUNT = 12
-		$column = $row = null
-		fp.convertIndexToCoords(42, 12, $[column], $[row])
-		func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
-	}
-	
-	func.printTerminal(-1, \n)
-	
-	# With call by pointer
-	{
-		fp.convertIndexToCoords = ($index, $COLUMN_COUNT, $[column], $[row]) -> {
-			# "$column" and "$row" are pointers to the corresponding arguments
-			$*column = func.modi($index, $COLUMN_COUNT)
-			$*row = func.divi($index, $COLUMN_COUNT)
-		}
-		$index = 42
-		$COLUMN_COUNT = 12
-		$column = $row = null
-		# Two pointers are created for $column" and "$row" during the call process
-		fp.convertIndexToCoords(42, 12, $column, $row)
-		func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
-	}
+    # "Return" is also possible by dereferencing of a pointer: "$*ptr"
+    
+    # With call by value
+    {
+        # $column and $row are var pointers
+        fp.convertIndexToCoords = ($index, $COLUMN_COUNT, $column, $row) -> {
+            $*column = func.modi($index, $COLUMN_COUNT)
+            $*row = func.divi($index, $COLUMN_COUNT)
+        }
+        $index = 42
+        $COLUMN_COUNT = 12
+        $column = $row = null
+        fp.convertIndexToCoords(42, 12, $[column], $[row])
+        func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
+    }
+    
+    func.printTerminal(-1, \n)
+    
+    # With call by pointer
+    {
+        fp.convertIndexToCoords = ($index, $COLUMN_COUNT, $[column], $[row]) -> {
+            # "$column" and "$row" are pointers to the corresponding arguments
+            $*column = func.modi($index, $COLUMN_COUNT)
+            $*row = func.divi($index, $COLUMN_COUNT)
+        }
+        $index = 42
+        $COLUMN_COUNT = 12
+        $column = $row = null
+        # Two pointers are created for $column" and "$row" during the call process
+        fp.convertIndexToCoords(42, 12, $column, $row)
+        func.printTerminal(-1, $index with $COLUMN_COUNT columns = column $column, row $row)
+    }
 }
 
 # Execution flags
 {
-	# Execution flags can only be changed globally and will also affect linked Lang files
-	# Execution flags can be changed at any point of the code (Inside functions, inside if statments, ...)
-	
-	# Allow terminal redirect
-	{
-		# lang.allowTermRedirect = BOOL
-		# If true, the terminal can be redirected to standard output, standard error, and standard input else it would return an error
-		lang.allowTermRedirect = 0 # Default: 1
-		
-		func.printTerminal(-1, Test)
-		func.println(Error: $LANG_ERRNO) # Will print an error if the terminal is not available
+    # Execution flags can only be changed globally and will also affect linked Lang files
+    # Execution flags can be changed at any point of the code (Inside functions, inside if statments, ...)
+    
+    # Allow terminal redirect
+    {
+        # lang.allowTermRedirect = BOOL
+        # If true, the terminal can be redirected to standard output, standard error, and standard input else it would return an error
+        lang.allowTermRedirect = 0 # Default: 1
+        
+        func.printTerminal(-1, Test)
+        func.println(Error: $LANG_ERRNO) # Will print an error if the terminal is not available
 
-		func.getErrorText() # Reset $LANG_ERRNO
-		
-		$in = func.readTerminal(-1, Test)
-		func.println(Error: $LANG_ERRNO [Read: $in]) # Will print an error if the terminal is not available
-		
-		func.getErrorText() # Reset $LANG_ERRNO
-		
-		lang.allowTermRedirect = 1
-		func.printTerminal(-1, Test)
-		func.println(Error: $LANG_ERRNO) # Will print a warning if the terminal is not available
-		
-		func.getErrorText() # Reset $LANG_ERRNO
-		
-		$in = func.readTerminal(-1, Test)
-		func.println(Error: $LANG_ERRNO [Read: $in]) # Will print a warning if the terminal is not available
+        func.getErrorText() # Reset $LANG_ERRNO
+        
+        $in = func.readTerminal(-1, Test)
+        func.println(Error: $LANG_ERRNO [Read: $in]) # Will print an error if the terminal is not available
+        
+        func.getErrorText() # Reset $LANG_ERRNO
+        
+        lang.allowTermRedirect = 1
+        func.printTerminal(-1, Test)
+        func.println(Error: $LANG_ERRNO) # Will print a warning if the terminal is not available
+        
+        func.getErrorText() # Reset $LANG_ERRNO
+        
+        $in = func.readTerminal(-1, Test)
+        func.println(Error: $LANG_ERRNO [Read: $in]) # Will print a warning if the terminal is not available
 
-		func.getErrorText() # Reset $LANG_ERRNO
-	}
+        func.getErrorText() # Reset $LANG_ERRNO
+    }
 }
 
 # Retroactively change value
 {
-	$val = test	
-	fp.changeValue = ($[val]) -> {
-		$*val = new value
-		
-		return CHANGED!
-	}
-	
-	func.printTerminal(-1, $val) - fp.changeValue($val) # Will print "test"
+    $val = test    
+    fp.changeValue = ($[val]) -> {
+        $*val = new value
+        
+        return CHANGED!
+    }
+    
+    func.printTerminal(-1, $val) - fp.changeValue($val) # Will print "test"
 
-	$val = test # Reset $val to "test"
-	func.printTerminal(-1, $val) # Will print "test"
-	
-	func.printTerminal(-1, $val - fp.changeValue($val)) # Will print "new value", because $val's value can be changed until all argument parts of the function call where the variable is located in are interpreted
+    $val = test # Reset $val to "test"
+    func.printTerminal(-1, $val) # Will print "test"
+    
+    func.printTerminal(-1, $val - fp.changeValue($val)) # Will print "new value", because $val's value can be changed until all argument parts of the function call where the variable is located in are interpreted
 
-	$val = test # Reset $val to "test"
-	func.printTerminal(-1, $val) # Will print "test"
-	
-	func.printTerminal(-1, $val - func.strlen(fp.changeValue($val))) # Will als print "new value"
+    $val = test # Reset $val to "test"
+    func.printTerminal(-1, $val) # Will print "test"
+    
+    func.printTerminal(-1, $val - func.strlen(fp.changeValue($val))) # Will als print "new value"
 }
 
 # Dynamic function call
 {
-	$func = func.
-	$func = $funcprintTerminal
-	# $func is set to "func.printTerminal" as TEXT
-	
-	$realFunc = func.exec(ret\!urn $func)
-	# Execution of "return func.printTerminal" will return a real function pointer object
-	
-	$realFunc(6, test)
-	# execute function
-	
-	# Function to convert function name to function pointer
-	fp.convertToFP = ($funcName) -> return func.exec(ret\!urn func.$funcName)
-	
-	fp.println = fp.convertToFP(println)
-	fp.println(TEST)
+    $func = func.
+    $func = $funcprintTerminal
+    # $func is set to "func.printTerminal" as TEXT
+    
+    $realFunc = func.exec(ret\!urn $func)
+    # Execution of "return func.printTerminal" will return a real function pointer object
+    
+    $realFunc(6, test)
+    # execute function
+    
+    # Function to convert function name to function pointer
+    fp.convertToFP = ($funcName) -> return func.exec(ret\!urn func.$funcName)
+    
+    fp.println = fp.convertToFP(println)
+    fp.println(TEST)
 }
 
 # Call function with pointer dereferencing
 {
-	# This type of function calls is only possible if call of previous value is supported
-	
-	fp.ptr = ($[ptr]) -> return $ptr
-	fp.print = ($text...) -> func.println($text)
-	$ptr = fp.ptr(fp.print)
-	
-	$*ptr(abc, test)
-	
-	$*ptr = func.println
-	$*ptr(test)
+    # This type of function calls is only possible if call of previous value is supported
+    
+    fp.ptr = ($[ptr]) -> return $ptr
+    fp.print = ($text...) -> func.println($text)
+    $ptr = fp.ptr(fp.print)
+    
+    $*ptr(abc, test)
+    
+    $*ptr = func.println
+    $*ptr(test)
 }
 
 func.println()
 
 # Assignment operators with pointer dereferencing
 {
-	$val = test
-	$ptr = $[val]
-	func.println($*ptr, $val)
-	
-	$*ptr ?= 1 && 0
-	func.println($*ptr, $val)
-	
-	$*ptr := 1 + 8
-	func.println($*ptr, $val)
-	
-	$*ptr $= 0 || (1 - 2)
-	func.println($*ptr, $val)
-	
-	$*ptr += 41
-	func.println($*ptr, $val)
-	
-	$*ptr //= 2
-	func.println($*ptr, $val)
-	
-	$*ptr /= 2
-	func.println($*ptr, $val)
-	
-	$*ptr **= 2
-	func.println($*ptr, $val)
-	
-	$*ptr $= null
-	func.println($*ptr, $val)
-	
-	$*ptr ??= test
-	func.println($*ptr, $val)
-	
-	$*ptr ??= 42
-	func.println($*ptr, $val)
-	
-	$*ptr $= null
-	func.println($*ptr, $val)
-	
-	$*ptr ?:= 0
-	func.println($*ptr, $val)
-	
-	$*ptr ?:= 42
-	func.println($*ptr, $val)
+    $val = test
+    $ptr = $[val]
+    func.println($*ptr, $val)
+    
+    $*ptr ?= 1 && 0
+    func.println($*ptr, $val)
+    
+    $*ptr := 1 + 8
+    func.println($*ptr, $val)
+    
+    $*ptr $= 0 || (1 - 2)
+    func.println($*ptr, $val)
+    
+    $*ptr += 41
+    func.println($*ptr, $val)
+    
+    $*ptr //= 2
+    func.println($*ptr, $val)
+    
+    $*ptr /= 2
+    func.println($*ptr, $val)
+    
+    $*ptr **= 2
+    func.println($*ptr, $val)
+    
+    $*ptr $= null
+    func.println($*ptr, $val)
+    
+    $*ptr ??= test
+    func.println($*ptr, $val)
+    
+    $*ptr ??= 42
+    func.println($*ptr, $val)
+    
+    $*ptr $= null
+    func.println($*ptr, $val)
+    
+    $*ptr ?:= 0
+    func.println($*ptr, $val)
+    
+    $*ptr ?:= 42
+    func.println($*ptr, $val)
 }
 
 func.println()
 
 # Emulating loop types that are not directly supported by Lang
 {
-	# do-while loop
-	{
-		# do {
-		#     # Stuff
-		# }while(CONDITION)
-		
-		# Can be emulated by
-		# loop {
-		#     # STUFF
-		#
-		#     if(!(CONDITION)) {
-		#         con.break
-		#     }
-		# }
-		
-		# Example
-		# $i = 0
-		# do {
-		#     func.println($i)
-		# }while($i)
-		$i = 0
-		loop {
-			func.println($i)
-			
-			if(!($i)) {
-				con.break
-			}
-		}
-	}
-	
-	func.println()
-	
-	# do-until loop
-	{
-		# do {
-		#     # Stuff
-		# }until(CONDITION)
-		
-		# Can be emulated by
-		# loop {
-		#     # STUFF
-		#
-		#     if(CONDITION) {
-		#         con.break
-		#     }
-		# }
-		
-		# Example
-		# $i = 1
-		# do {
-		#     func.println($i)
-		# }until($i)
-		$i = 1
-		loop {
-			func.println($i)
-			
-			if($i) {
-				con.break
-			}
-		}
-	}
-	
-	func.println()
-	
-	# for loop
-	{
-		# for(INIT; CONDITION; UPDATE) {
-		#     # Stuff
-		# }
-		
-		# Can be emulated by
-		# # INIT
-		# while(CONDITION) {
-		#     # STUFF
-		#
-		#     # Update
-		# }
-		
-		# Example
-		# for($x = 0; $x < 10; $x += 1) {
-		#     func.println($i)
-		# }
-		$x = 0 # Init
-		while($x < 10) {
-			func.println($x)
-			
-			$x += 1 # Update
-		}
-	}
+    # do-while loop
+    {
+        # do {
+        #     # Stuff
+        # }while(CONDITION)
+        
+        # Can be emulated by
+        # loop {
+        #     # STUFF
+        #
+        #     if(!(CONDITION)) {
+        #         con.break
+        #     }
+        # }
+        
+        # Example
+        # $i = 0
+        # do {
+        #     func.println($i)
+        # }while($i)
+        $i = 0
+        loop {
+            func.println($i)
+            
+            if(!($i)) {
+                con.break
+            }
+        }
+    }
+    
+    func.println()
+    
+    # do-until loop
+    {
+        # do {
+        #     # Stuff
+        # }until(CONDITION)
+        
+        # Can be emulated by
+        # loop {
+        #     # STUFF
+        #
+        #     if(CONDITION) {
+        #         con.break
+        #     }
+        # }
+        
+        # Example
+        # $i = 1
+        # do {
+        #     func.println($i)
+        # }until($i)
+        $i = 1
+        loop {
+            func.println($i)
+            
+            if($i) {
+                con.break
+            }
+        }
+    }
+    
+    func.println()
+    
+    # for loop
+    {
+        # for(INIT; CONDITION; UPDATE) {
+        #     # Stuff
+        # }
+        
+        # Can be emulated by
+        # # INIT
+        # while(CONDITION) {
+        #     # STUFF
+        #
+        #     # Update
+        # }
+        
+        # Example
+        # for($x = 0; $x < 10; $x += 1) {
+        #     func.println($i)
+        # }
+        $x = 0 # Init
+        while($x < 10) {
+            func.println($x)
+            
+            $x += 1 # Update
+        }
+    }
 }
 
 # Y combinator function without "func.combY()"
 {
-	fp.combY = (fp.f) -> {
-		# fp.f must be provided by the function with a partially called combinator function, because fp.f will not be available in the callee scope
-		fp.func = (fp.f, fp.x) -> {
-			fp.callFunc = (fp.f, fp.x, &args...) -> return fp.f(fp.x(fp.x))(&args...)
-			
-			return func.combAN(fp.callFunc, fp.f, fp.x)
-		}
-		
-		return func.combM(func.combA2(fp.func, fp.f))
-	}
-	
-	# Factorial function
-	fp.fac = (fp.func) -> {
-		fp.retFunc = (fp.func, $n) -> {
-			return parser.op($n < 2?1:$n * fp.func($n - 1))
-		}
-		
-		return func.combAN(fp.retFunc, fp.func)
-	}
-	
-	# Apply Y combinator
-	fp.facY = fp.combY(fp.fac)
+    fp.combY = (fp.f) -> {
+        # fp.f must be provided by the function with a partially called combinator function, because fp.f will not be available in the callee scope
+        fp.func = (fp.f, fp.x) -> {
+            fp.callFunc = (fp.f, fp.x, &args...) -> return fp.f(fp.x(fp.x))(&args...)
+            
+            return func.combAN(fp.callFunc, fp.f, fp.x)
+        }
+        
+        return func.combM(func.combA2(fp.func, fp.f))
+    }
+    
+    # Factorial function
+    fp.fac = (fp.func) -> {
+        fp.retFunc = (fp.func, $n) -> {
+            return parser.op($n < 2?1:$n * fp.func($n - 1))
+        }
+        
+        return func.combAN(fp.retFunc, fp.func)
+    }
+    
+    # Apply Y combinator
+    fp.facY = fp.combY(fp.fac)
 
-	# Use function (All values from 0 to 20)
-	$i $= long(0)
-	until($i > 20) {
-		func.println(fp.facY($i))
-		
-		$i += 1
-	}
-	
-	# Multiple arguments
-	func.println()
-	fp.facOut = (fp.func) -> {
-		fp.retFunc = (fp.func, $n, $run) -> {
-			func.printf({{{ > %2d (%2d)}}}, $run, $n)
-			parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
-			parser.op($n < 2?func.printf({{{%n=> }}}):null)
-			return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
-		}
-		
-		return func.combAN(fp.retFunc, fp.func)
-	}
+    # Use function (All values from 0 to 20)
+    $i $= long(0)
+    until($i > 20) {
+        func.println(fp.facY($i))
+        
+        $i += 1
+    }
+    
+    # Multiple arguments
+    func.println()
+    fp.facOut = (fp.func) -> {
+        fp.retFunc = (fp.func, $n, $run) -> {
+            func.printf({{{ > %2d (%2d)}}}, $run, $n)
+            parser.op($run % 5 == 0 && $n > 1?func.println(\t):null)
+            parser.op($n < 2?func.printf({{{%n=> }}}):null)
+            return parser.op($n < 2?1:$n * fp.func($n - 1, $run + 1))
+        }
+        
+        return func.combAN(fp.retFunc, fp.func)
+    }
 
-	# Apply the Y combinator
-	fp.facOutY = fp.combY(fp.facOut)
+    # Apply the Y combinator
+    fp.facOutY = fp.combY(fp.facOut)
 
-	# Use function (All values from 0 to 20)
-	$i $= long(0)
-	until($i > 20) {
-		func.println(fp.facOutY($i, 1))
-		
-		$i += 1
-	}
+    # Use function (All values from 0 to 20)
+    $i $= long(0)
+    until($i > 20) {
+        func.println(fp.facOutY($i, 1))
+        
+        $i += 1
+    }
 }

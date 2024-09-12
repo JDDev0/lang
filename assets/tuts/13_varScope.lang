@@ -5,44 +5,44 @@ $a = test # "Global Scope Variable"
 func.println(Global scope)
 func.println(\$a: $a)
 {
-	func.println(\s)
-	func.println(Global scope ["Block"])
-	func.println(\$a: $a)
-	$b = test2 # Also "Global Scope Variable", because "{"-"Block" is no block
-	func.println(\$b: $b)
+    func.println(\s)
+    func.println(Global scope ["Block"])
+    func.println(\$a: $a)
+    $b = test2 # Also "Global Scope Variable", because "{"-"Block" is no block
+    func.println(\$b: $b)
 }
 func.println(\s)
 func.println(Global scope)
 func.println(\$b: $b)
 
 fp.test = ($d) -> { # "Function Scope Variable"
-	func.println(\s)
-	func.println(Function scope [fp.test])
-	func.println(\$d: $d)
-	func.println(\$a: $a)
-	func.println(\$b: $b)
-	$a = overriden # "Function Scope Variable"
-	               # {"Global Scope Variable" $a will be shadowed}
-	func.println(\$a: $a)
-	func.println(\$c: $c)
-	$c = new # "Function Scope Variable" {"Global Scope Variable" $c will be shadowed}
-	func.println(\$c: $c)
-	
-	fp.innerTest = () -> {
-		func.println(\s)
-		func.println(Function scope [fp.test [fp.innerTest]])
-		func.println(\$a: $a)
-		func.println(\$b: $b)
-		func.println(\$c: $c)
-		func.println(\$d: $d)
-		$a = new new var # "(Inner) Function Scope Variable" {$a will be shadowed}
-		func.println(\$a: $a)
-	}
-	fp.innerTest()
-	
-	func.println(\s)
-	func.println(Function scope [fp.test])
-	func.println(\$a: $a)
+    func.println(\s)
+    func.println(Function scope [fp.test])
+    func.println(\$d: $d)
+    func.println(\$a: $a)
+    func.println(\$b: $b)
+    $a = overriden # "Function Scope Variable"
+                   # {"Global Scope Variable" $a will be shadowed}
+    func.println(\$a: $a)
+    func.println(\$c: $c)
+    $c = new # "Function Scope Variable" {"Global Scope Variable" $c will be shadowed}
+    func.println(\$c: $c)
+    
+    fp.innerTest = () -> {
+        func.println(\s)
+        func.println(Function scope [fp.test [fp.innerTest]])
+        func.println(\$a: $a)
+        func.println(\$b: $b)
+        func.println(\$c: $c)
+        func.println(\$d: $d)
+        $a = new new var # "(Inner) Function Scope Variable" {$a will be shadowed}
+        func.println(\$a: $a)
+    }
+    fp.innerTest()
+    
+    func.println(\s)
+    func.println(Function scope [fp.test])
+    func.println(\$a: $a)
 }
 fp.test(Tested)
 
@@ -58,10 +58,10 @@ func.println(Global scope)
 func.println(\$a: $a)
 
 if(1) {
-	func.println(\s)
-	func.println(Global scope ["IF"])
-	$e = test
-	func.println(\$e: $e)
+    func.println(\s)
+    func.println(Global scope ["IF"])
+    $e = test
+    func.println(\$e: $e)
 }
 
 func.println(\s)
@@ -70,22 +70,22 @@ func.println(\$e: $e)
 
 # Translations are always in the global scope
 fp.a = () -> {
-	fp.b = () -> {
-		fp.c = () -> {
-			fp.d = () -> {
-				fp.e = () -> {
-					fp.f = () -> {
-						global.translation = A translation
-					}
-					fp.f()
-				}
-				fp.e()
-			}
-			fp.d()
-		}
-		fp.c()
-	}
-	fp.b()
+    fp.b = () -> {
+        fp.c = () -> {
+            fp.d = () -> {
+                fp.e = () -> {
+                    fp.f = () -> {
+                        global.translation = A translation
+                    }
+                    fp.f()
+                }
+                fp.e()
+            }
+            fp.d()
+        }
+        fp.c()
+    }
+    fp.b()
 }
 fp.a()
 

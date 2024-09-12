@@ -4,13 +4,13 @@ lang.version = v1.0.0
 func.printTerminal(1, 3 - Return)
 
 if(func.modi(func.rand(), 2) == 1) {
-	func.printTerminal(1, 3 - Finished (early))
-	return early return
+    func.printTerminal(1, 3 - Finished (early))
+    return early return
 }
 
 if(func.modi(func.rand(), 2) == 1) {
-	func.printTerminal(1, 3 - Finished (early - no return value))
-	return
+    func.printTerminal(1, 3 - Finished (early - no return value))
+    return
 }
 
 func.printTerminal(1, 3 - Finished (long))

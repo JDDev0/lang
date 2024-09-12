@@ -173,8 +173,8 @@ $val = 42
 $ptr = $[val]
 
 fp.printCastAndTypes = (fp.conversionFunc, $[value]) -> {
-	$cast = fp.conversionFunc($*value)
-	func.printf(%-20s [%-16s] => %-20s [%-6s]%n, $*value, func.typeOf($*value), $cast, func.typeOf($cast))
+    $cast = fp.conversionFunc($*value)
+    func.printf(%-20s [%-16s] => %-20s [%-6s]%n, $*value, func.typeOf($*value), $cast, func.typeOf($cast))
 }
 
 # func.text(any) # Casts the provided value to a text value (No implicit casts will be executed)
