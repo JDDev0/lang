@@ -56,6 +56,8 @@ lang.version = v1.0.0
 # opr1 , opr2         - Comma
 # opr1[opr2]          - Get item
 # opr1?.[opr2]        - Optional get item
+# opr1[opr2:opr3]     - Slice
+# opr1?.[opr2:opr3]   - Optional slice
 # opr1::opr2          - Member access
 # ::opr1              - Member access this (Member access operator where composite type is "&this")
 # opr1?::opr2         - Optional member access
@@ -99,6 +101,8 @@ lang.version = v1.0.0
 #            | opr1(opr2)         | left-to-right | Function calls
 #            | opr1[opr2]         | left-to-right | Get item
 #            | opr1?.[opr2]       | left-to-right | Optional get item
+#            | opr1[opr2:opr3]    | left-to-right | Slice
+#            | opr1?.[opr2:opr3]  | left-to-right | Optional slice
 #            | opr1::opr2         | left-to-right | Member access [1]
 #            | ::opr1             | right-to-left | Member access this
 #            | opr1?::opr2        | left-to-right | Optional member access [1]
