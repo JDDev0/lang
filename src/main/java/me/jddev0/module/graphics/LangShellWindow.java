@@ -581,7 +581,7 @@ public class LangShellWindow extends JDialog {
     public DataObject printTokensFunction(
             @LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
     ) {
-        try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText()))) {
+        try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText().toString()))) {
             lexer.resetPositionVars();
             List<Token> tokens = lexer.readTokens(reader);
 
@@ -597,7 +597,7 @@ public class LangShellWindow extends JDialog {
     public DataObject printASTFunction(
             @LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
     ) {
-        try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText()))) {
+        try(BufferedReader reader = new BufferedReader(new StringReader(codeObject.getText().toString()))) {
             AbstractSyntaxTree ast = new LangParser().parseLines(reader);
 
             term.logln(Level.DEBUG, ast.toString(), LangShellWindow.class);
@@ -613,7 +613,7 @@ public class LangShellWindow extends JDialog {
             @LangParameter("$value") DataObject valueObject
     ) {
         try {
-            LangShellWindow.this.autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, CodePosition.EMPTY));
+            LangShellWindow.this.autoPrintMode = AutoPrintMode.valueOf(lii.getInterpreter().conversions.toText(valueObject, CodePosition.EMPTY).toString());
         }catch(IllegalArgumentException e) {
             return lii.setErrnoErrorObject(InterpretingError.INVALID_ARGUMENTS, "Argument 1 (\"$value\") mode must be one of 'NONE', 'AUTO', 'DEBUG'");
         }
