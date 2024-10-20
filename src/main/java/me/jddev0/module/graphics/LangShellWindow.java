@@ -10,13 +10,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
@@ -68,9 +64,9 @@ public class LangShellWindow extends JDialog {
     private SpecialCharInputWindow specialCharInputWindow = null;
 
     private File lastLangFileSavedTo = null;
-    private StringBuilder langFileOutputBuilder = new StringBuilder();
+    private final StringBuilder langFileOutputBuilder = new StringBuilder();
 
-    private List<String> history = new LinkedList<>();
+    private final List<String> history = new LinkedList<>();
     private int historyPos = 0;
     private String currentCommand = "";
 
@@ -78,8 +74,8 @@ public class LangShellWindow extends JDialog {
     private int autoCompletePos = 0;
     private Color lastColor = Color.BLACK;
 
-    private Queue<String> executionQueue = new LinkedList<>();
-    private StringBuilder multiLineTmp = new StringBuilder();
+    private final Queue<String> executionQueue = new LinkedList<>();
+    private final StringBuilder multiLineTmp = new StringBuilder();
     private int indent = 0;
     private boolean flagMultilineText = false;
     private boolean flagLineContinuation = false;
@@ -146,7 +142,7 @@ public class LangShellWindow extends JDialog {
         shell.setMargin(new Insets(3, 5, 0, 5));
         shell.setFocusTraversalKeysEnabled(false);
         shellKeyListener = new KeyAdapter() {
-            private StringBuilder lineTmp = new StringBuilder();
+            private final StringBuilder lineTmp = new StringBuilder();
             private String lastHistoryEntryUsed = "";
 
             @Override
@@ -167,7 +163,7 @@ public class LangShellWindow extends JDialog {
                         try {
                             Document doc = shell.getDocument();
                             doc.remove(doc.getLength() - 1, 1);
-                        }catch(BadLocationException e1) {}
+                        }catch(BadLocationException ignored) {}
                         lineTmp.deleteCharAt(lineTmp.length() - 1);
                         highlightSyntaxLastLine();
                         updateAutoCompleteText(lineTmp.toString());
@@ -406,12 +402,12 @@ public class LangShellWindow extends JDialog {
         oldOut = System.out;
         System.setOut(new PrintStream(new OutputStream() {
             //Tmp for multibyte char
-            private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            private final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 
             private int charsLeftInLogOutput;
             private int type = 0;
             //Colors for the levels
-            private Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
+            private final Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
 
             @Override
             public void write(int b) throws IOException {
@@ -431,7 +427,7 @@ public class LangShellWindow extends JDialog {
             }
 
             private void updateOutput(String output) {
-                if(output.length() == 0)
+                if(output.isEmpty())
                     return;
 
                 if(charsLeftInLogOutput > 0) {
@@ -566,13 +562,11 @@ public class LangShellWindow extends JDialog {
     ) {
         DataObject dereferencedVarPointer = pointerObject.getVarPointer().getVar();
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("Debug[");
-        builder.append(dereferencedVarPointer.getVariableName() == null?"<ANONYMOUS>":dereferencedVarPointer.getVariableName());
-        builder.append("]:\n");
-        builder.append(getDebugString(dereferencedVarPointer, 4));
+        String builder = "Debug[" +
+                (dereferencedVarPointer.getVariableName() == null?"<ANONYMOUS>":dereferencedVarPointer.getVariableName()) +
+                "]:\n" + getDebugString(dereferencedVarPointer, 4);
 
-        term.logln(Level.DEBUG, builder.toString(), LangShellWindow.class);
+        term.logln(Level.DEBUG, builder, LangShellWindow.class);
 
         return null;
     }
@@ -804,8 +798,19 @@ public class LangShellWindow extends JDialog {
 
                     builder.append("\n    ");
 
-                    //TODO visibility
-                    builder.append("+");
+                    switch(Optional.ofNullable(constructor.getMemberVisibility()).orElse(DataObject.Visibility.PUBLIC)) {
+                        case PUBLIC:
+                            builder.append("+");
+                            break;
+
+                        case PROTECTED:
+                            builder.append("~");
+                            break;
+
+                        case PRIVATE:
+                            builder.append("-");
+                            break;
+                    }
 
                     builder.append("construct");
                     builder.append(constructor.toFunctionSignatureSyntax());
@@ -830,8 +835,19 @@ public class LangShellWindow extends JDialog {
 
                         builder.append("\n    ");
 
-                        //TODO visibility
-                        builder.append("+");
+                        switch(Optional.ofNullable(methodDefinition.getMemberVisibility()).orElse(DataObject.Visibility.PUBLIC)) {
+                            case PUBLIC:
+                                builder.append("+");
+                                break;
+
+                            case PROTECTED:
+                                builder.append("~");
+                                break;
+
+                            case PRIVATE:
+                                builder.append("-");
+                                break;
+                        }
 
                         builder.append(methodName);
                         builder.append(methodDefinition.toFunctionSignatureSyntax());
@@ -1150,11 +1166,10 @@ public class LangShellWindow extends JDialog {
             boolean docCommentFlag = false;
             boolean commentFlag = false;
             int columnFromIndex = 0;
-            for(int i = 0;i < tokens.size();i++) {
+            for(Token t:tokens) {
                 int tokenSize = 0;
                 Color col = NORMAL_COLOR;
 
-                Token t = tokens.get(i);
                 switch(t.getTokenType()) {
                     case START_COMMENT:
                         commentFlag = true;
@@ -1357,7 +1372,7 @@ public class LangShellWindow extends JDialog {
                     int oldLen = lastToken.length();
                     lastToken = lastToken.replace("[", ""); //Ignore "["
                     int diff = oldLen - lastToken.length();
-                    if(diff == 0 && lastToken.length() > 0)
+                    if(diff == 0 && !lastToken.isEmpty())
                         appendClosingBracketCount = -1;
                     else
                         appendClosingBracketCount = diff;
@@ -1505,7 +1520,7 @@ public class LangShellWindow extends JDialog {
             Document doc = shell.getDocument();
             int startOfAutoComplete = doc.getLength() - autoCompleteText.length();
             doc.remove(startOfAutoComplete, autoCompleteText.length());
-        }catch(BadLocationException e) {}
+        }catch(BadLocationException ignored) {}
         autoCompleteText = "";
         autoCompletePos = 0;
     }
@@ -1649,7 +1664,7 @@ public class LangShellWindow extends JDialog {
                             break;
                     startOfLine++; //The line starts on char after '\n'
                     doc.remove(startOfLine, 4);
-                }catch(BadLocationException e) {}
+                }catch(BadLocationException ignored) {}
             }
 
             if(flagMultilineText && hasMultilineTextEnd(line)) {
@@ -1665,7 +1680,7 @@ public class LangShellWindow extends JDialog {
                             break;
                     startOfLine++; //The line starts on char after '\n'
                     doc.remove(startOfLine, 4);
-                }catch(BadLocationException e) {}
+                }catch(BadLocationException ignored) {}
             }
 
             if(!flagMultilineText) {
@@ -1770,7 +1785,7 @@ public class LangShellWindow extends JDialog {
     }
 
     private void saveLangFile(boolean chooseFile) {
-        File file = null;
+        File file;
         if(chooseFile || lastLangFileSavedTo == null) {
             JFileChooser fileChooser = new JFileChooser(".");
             fileChooser.setDialogTitle("Select file to save input to");
