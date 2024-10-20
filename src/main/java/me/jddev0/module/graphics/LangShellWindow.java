@@ -1118,7 +1118,6 @@ public class LangShellWindow extends JDialog {
             doc.remove(startOfLine, doc.getLength() - startOfLine);
 
             //TODO:
-            //- modulePrefixFlag: MODULE_PREFIX_COLOR
             //- dereferencingAndReferencingOperatorFlag: OPERATOR_BRACKET_COLOR;
 
             boolean lineEndsWithBracket = false;
@@ -1128,7 +1127,7 @@ public class LangShellWindow extends JDialog {
                         tokens.get(i).getTokenType() == Token.TokenType.EOF)
                     continue;
 
-                if(tokens.get(i).getTokenType() == Token.TokenType.OPENING_BRACKET &&
+                if(tokens.get(i).getTokenType() == Token.TokenType.OPENING_BLOCK_BRACKET &&
                         tokens.get(i).getValue().equals("{"))
                     lineEndsWithBracket = true;
 
