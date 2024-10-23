@@ -96,12 +96,6 @@ public class LangShellWindow extends JDialog {
             "repeat(", "softtry", "try", "until(", "while(");
     private final List<String> parserFunctions = Arrays.asList("con(", "math(", "norm(", "op(");
 
-    public LangShellWindow(Frame owner, TerminalIO term) {
-        this(owner, term, 12);
-    }
-    public LangShellWindow(Frame owner, TerminalIO term, int fontSize) {
-        this(owner, term, fontSize, null);
-    }
     public LangShellWindow(Frame owner, TerminalIO term, int fontSize, String[] langArgs) {
         super(owner, true);
 
