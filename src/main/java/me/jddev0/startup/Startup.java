@@ -136,7 +136,7 @@ public class Startup {
                 });
                 boolean isThrowValue = lii.isReturnedValueThrowValue();
                 DataObject retValue = lii.getAndResetReturnValue();
-                if(isThrowValue) {
+                if(retValue != null && isThrowValue) {
                     term.logln(Level.DEBUG, "------------- Throwed value --------------", Startup.class);
                     term.logf(Level.DEBUG, "Error code: \"%d\"\nError message: \"%s\"\n", Startup.class, retValue.getError().getErrno(), retValue.getError().getErrtxt());
                 }else {
