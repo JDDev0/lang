@@ -16,7 +16,7 @@ import javax.swing.text.StyleContext;
  * @author JDDev0
  * @version v0.1.1 beta 1 fix 1
  */
-public class GraphicsHelper {
+public final class GraphicsHelper {
     private GraphicsHelper() {}
 
     /**
