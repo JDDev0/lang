@@ -680,8 +680,7 @@ public class LangShellWindow extends JDialog {
         switch(dataObject.getType()) {
             case VAR_POINTER:
                 builder.append("\nPointing to: {\n");
-                String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar(), maxRecursionDepth - 1).
-                        toString().split("\\n");
+                String[] debugStringLines = getDebugString(dataObject.getVarPointer().getVar(), maxRecursionDepth - 1).split("\\n");
                 for(String debugStringLine:debugStringLines) {
                     builder.append("    ");
                     builder.append(debugStringLine);
@@ -706,7 +705,7 @@ public class LangShellWindow extends JDialog {
                         DataObject member = dataObject.getStruct().getMember(memberName);
 
                         builder.append(": {\n");
-                        debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+                        debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).split("\\n");
                         for(String debugStringLine:debugStringLines) {
                             builder.append("        ");
                             builder.append(debugStringLine);
@@ -741,7 +740,7 @@ public class LangShellWindow extends JDialog {
                         builder.append(staticMember.getTypeConstraint().toTypeConstraintSyntax());
 
                     builder.append(": {\n");
-                    debugStringLines = getDebugString(staticMember, maxRecursionDepth > 1?1:0).toString().split("\\n");
+                    debugStringLines = getDebugString(staticMember, maxRecursionDepth > 1?1:0).split("\\n");
                     for(String debugStringLine:debugStringLines) {
                         builder.append("        ");
                         builder.append(debugStringLine);
@@ -868,7 +867,7 @@ public class LangShellWindow extends JDialog {
                     builder.append(i);
                     builder.append(": {\n");
                     String[] debugStringLinesMethod = getDebugString(new DataObject().setObject(parentClass),
-                            maxRecursionDepth > 1?1:0).toString().split("\\n");
+                            maxRecursionDepth > 1?1:0).split("\\n");
                     for(String debugStringLine:debugStringLinesMethod) {
                         builder.append("        ");
                         builder.append(debugStringLine);
@@ -892,7 +891,7 @@ public class LangShellWindow extends JDialog {
                     builder.append("\n    arr(");
                     builder.append(i);
                     builder.append("): {\n");
-                    debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
+                    debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).split("\\n");
                     for(String debugStringLine:debugStringLines) {
                         builder.append("        ");
                         builder.append(debugStringLine);
@@ -911,7 +910,7 @@ public class LangShellWindow extends JDialog {
                     builder.append("\n    list(");
                     builder.append(i);
                     builder.append("): {\n");
-                    debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).toString().split("\\n");
+                    debugStringLines = getDebugString(ele, maxRecursionDepth > 1?1:0).split("\\n");
                     for(String debugStringLine:debugStringLines) {
                         builder.append("        ");
                         builder.append(debugStringLine);
@@ -1403,9 +1402,7 @@ public class LangShellWindow extends JDialog {
                 final String lastTokenCopy = lastToken.substring(2); //Remove "[["
 
                 List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
-                    int oldLen = moduleName.length();
-
-                    return oldLen == moduleName.length() && moduleName.startsWith(lastTokenCopy);
+                    return moduleName.startsWith(lastTokenCopy);
                 }).sorted().collect(Collectors.toList());
                 if(autoCompletes.isEmpty())
                     return;
@@ -1424,9 +1421,7 @@ public class LangShellWindow extends JDialog {
 
                 final String argumentStartCopy = argumentStart;
                 List<String> autoCompletes = lii.getModules().keySet().stream().filter(moduleName -> {
-                    int oldLen = moduleName.length();
-
-                    return oldLen == moduleName.length() && moduleName.startsWith(argumentStartCopy);
+                    return moduleName.startsWith(argumentStartCopy);
                 }).sorted().collect(Collectors.toList());
                 if(autoCompletes.isEmpty())
                     return;
