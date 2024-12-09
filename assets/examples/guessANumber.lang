@@ -11,7 +11,7 @@ until($end) {
 	# Generate random number between $low and $high
 	$num $= func.rand() % +|($high - $low) + $low
 	until($win) {
-		func.println(Guesss a number between $low and $high!)
+		func.println(Guess a number between $low and $high!)
 		$in = func.input()
 		if($in < $num) {
 			func.println(The number is heigher than your input!)
