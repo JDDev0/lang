@@ -282,9 +282,9 @@ public class Startup {
         System.out.println("    -clear                            Clears the output of the \"TermIO-Control\" window");
         System.out.println("    -exit                             Exits the \"TermIO-Control\" window");
         System.out.println("    -commands                         Lists all \"TermIO-Control\" window commands");
-        System.out.println("");
+        System.out.println();
         System.out.println("    -log                              Enables log file output");
-        System.out.println("");
+        System.out.println();
         System.out.println("    -h, --help                        Prints this help page");
         System.out.println();
         System.out.println("IN-LINE CODE");
