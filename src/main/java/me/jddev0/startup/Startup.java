@@ -60,24 +60,30 @@ public class Startup {
             boolean warnings = false;
             String[] langArgs = null;
 
+            label:
             for(int i = executionArgsStartIndex;i < args.length;i++) {
                 String arg = args[i];
-                if(arg.equals("-printTranslations")) {
-                    printTranslations = true;
-                }else if(arg.equals("-printReturnedValue")) {
-                    printReturnedValue = true;
-                }else if(arg.equals("-warnings")) {
-                    warnings = true;
-                }else if(arg.equals("-langArgs") || arg.equals("--")) {
-                    langArgs = Arrays.copyOfRange(args, i + 1, args.length);
-                    break;
-                }else {
-                    System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
+                switch(arg) {
+                    case "-printTranslations":
+                        printTranslations = true;
+                        break;
+                    case "-printReturnedValue":
+                        printReturnedValue = true;
+                        break;
+                    case "-warnings":
+                        warnings = true;
+                        break;
+                    case "-langArgs":
+                    case "--":
+                        langArgs = Arrays.copyOfRange(args, i + 1, args.length);
+                        break label;
+                    default:
+                        System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
 
-                    printHelp();
+                        printHelp();
 
-                    System.exit(1);
-                    return;
+                        System.exit(1);
+                        return;
                 }
             }
 
