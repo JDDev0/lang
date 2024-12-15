@@ -60,7 +60,7 @@ public class Startup {
             boolean warnings = false;
             String[] langArgs = null;
 
-            label:
+            argument_processing_loop:
             for(int i = executionArgsStartIndex;i < args.length;i++) {
                 String arg = args[i];
                 switch(arg) {
@@ -76,7 +76,7 @@ public class Startup {
                     case "-langArgs":
                     case "--":
                         langArgs = Arrays.copyOfRange(args, i + 1, args.length);
-                        break label;
+                        break argument_processing_loop;
                     default:
                         System.err.printf("Unknown EXECUTION_ARG \"%s\"\n", arg);
 
