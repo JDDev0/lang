@@ -39,10 +39,10 @@ import at.jddev0.io.TerminalIO.Level;
 public class TerminalWindow extends JFrame {
     private static final long serialVersionUID = 3517996790399999763L;
 
-    private JTextField txtEnterCommands;
-    private JTextPane term;
+    private final JTextField txtEnterCommands;
+    private final JTextPane term;
 
-    private List<String> history = new LinkedList<String>();
+    private final List<String> history = new LinkedList<String>();
     private int historyPos = 0;
     private String currentCommand = "";
     private boolean b = false;
@@ -76,7 +76,7 @@ public class TerminalWindow extends JFrame {
                         currentCommand = txtEnterCommands.getText();
                     }
                     if(e.getKeyCode() == KeyEvent.VK_ENTER && !b) { //Starts sending command to TerminalIO
-                        readingTmp = new StringBuilder(txtEnterCommands.getText() + "");
+                        readingTmp = new StringBuilder(txtEnterCommands.getText());
                         addToHistory(readingTmp.toString());
                         termIO.logln(Level.USER, readingTmp.toString(), TerminalWindow.class);
 
@@ -87,15 +87,15 @@ public class TerminalWindow extends JFrame {
                         List<String> tmp = new LinkedList<String>();
                         String in = txtEnterCommands.getText();
 
-                        for(String str : commands.keySet()) {
-                            if(in.length() != 0 && str.startsWith(in)) {
+                        for(String str:commands.keySet()) {
+                            if(!in.isEmpty() && str.startsWith(in)) {
                                 tmp.add(str);
                             }
                         }
 
                         if(tmp.size() == 1) {
                             txtEnterCommands.setText(tmp.get(0));
-                        }else if(tmp.size() > 0) {
+                        }else if(!tmp.isEmpty()) {
                             String tmpStr = "";
                             char tmpC;
                             int charIndex = 0;
@@ -117,8 +117,8 @@ public class TerminalWindow extends JFrame {
                             txtEnterCommands.setText(tmpStr);
 
                             String out = "Commands with \"" + tmpStr + "\":\n";
-                            for(int i = 0;i < tmp.size();i++)
-                                out += "    " + tmp.get(i) + "\n";
+                            for(String s:tmp)
+                                out += "    " + s + "\n";
                             termIO.log(Level.USER, out, TerminalWindow.class);
                         }
                     }else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
@@ -187,7 +187,7 @@ public class TerminalWindow extends JFrame {
             @Override
             public int read() throws IOException {
                 if(inputTmp != null && inputTmpPos < inputTmp.length)
-                    return inputTmp[inputTmpPos++];
+                    return inputTmp[inputTmpPos++] & 0xFF;
 
                 if(n) {
                     n = false;
@@ -220,12 +220,12 @@ public class TerminalWindow extends JFrame {
         PrintStream out = System.out;
         System.setOut(new PrintStream(new OutputStream() {
             //Tmp for multibyte char
-            private ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            private final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 
             private int charsLeftInLogOutput = 0;
             private int type = 0;
             //Colors for the levels
-            private Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
+            private final Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
 
             @Override
             public void write(int b) throws IOException {
@@ -245,7 +245,7 @@ public class TerminalWindow extends JFrame {
             }
 
             private void updateOutput(String output) {
-                if(output.length() == 0)
+                if(output.isEmpty())
                     return;
 
                 if(charsLeftInLogOutput > 0) {
