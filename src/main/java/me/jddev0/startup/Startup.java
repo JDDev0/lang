@@ -228,13 +228,13 @@ public class Startup {
                 return;
             }
 
-            String tmp = "\nCommands: {\n";
+            StringBuilder builder = new StringBuilder("\nCommands: {\n");
             for(String str:term.getCommands().keySet()) {
-                tmp += "     " + str + "\n";
+                builder.append("     ").append(str).append("\n");
             }
-            tmp += "}";
+            builder.append("}");
 
-            term.logln(Level.INFO, tmp, Startup.class);
+            term.logln(Level.INFO, builder.toString(), Startup.class);
         });
 
         termWin.setTerminalIO(term);
