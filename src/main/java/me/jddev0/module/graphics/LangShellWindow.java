@@ -204,33 +204,31 @@ public class LangShellWindow extends JDialog {
                     try {
                         removeAutoCompleteText();
                         Object copiedRaw = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null).getTransferData(DataFlavor.stringFlavor);
-                        if(copiedRaw != null) {
-                            String copied = copiedRaw.toString();
-                            String[] lines = copied.split("\n");
-                            for(int i = 0;i < lines.length;i++) {
-                                String line = lines[i].trim();
-                                GraphicsHelper.addText(shell, line, Color.WHITE);
-                                highlightSyntaxLastLine();
-                                lineTmp.append(line);
-                                if(i != lines.length - 1) { //Line has an '\n' at end -> finished line
-                                    addLine(lineTmp.toString(), true, true);
-                                    lineTmp.delete(0, lineTmp.length());
-                                }
-                            }
-
-                            if(lines.length > 1) {
-                                addLine(lines[lines.length - 1], true, false);
+                        String copied = copiedRaw.toString();
+                        String[] lines = copied.split("\n");
+                        for(int i = 0;i < lines.length;i++) {
+                            String line = lines[i].trim();
+                            GraphicsHelper.addText(shell, line, Color.WHITE);
+                            highlightSyntaxLastLine();
+                            lineTmp.append(line);
+                            if(i != lines.length - 1) { //Line has an '\n' at end -> finished line
+                                addLine(lineTmp.toString(), true, true);
                                 lineTmp.delete(0, lineTmp.length());
                             }
+                        }
 
-                            if(flagRunning) {
-                                if(!flagExecutingQueue) {
-                                    executionQueue.clear();
-                                    term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
-                                }
-                            }else if(lines.length > 1 && !executionQueue.isEmpty()) {
-                                executeCodeFromExecutionQueue();
+                        if(lines.length > 1) {
+                            addLine(lines[lines.length - 1], true, false);
+                            lineTmp.delete(0, lineTmp.length());
+                        }
+
+                        if(flagRunning) {
+                            if(!flagExecutingQueue) {
+                                executionQueue.clear();
+                                term.logln(Level.ERROR, "The interpreter is already executing stuff!\nPress CTRL + C for stopping the execution.", LangShellWindow.class);
                             }
+                        }else if(lines.length > 1 && !executionQueue.isEmpty()) {
+                            executeCodeFromExecutionQueue();
                         }
 
                         updateAutoCompleteText(lineTmp.toString());
