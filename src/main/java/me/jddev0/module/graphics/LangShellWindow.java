@@ -538,6 +538,7 @@ public class LangShellWindow extends JDialog {
     //Debug functions
     @LangFunction("printHelp")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject printHelpFunction() {
         term.logln(Level.DEBUG, "func.printHelp() # Prints this help text\n" +
                 "func.printDebug(value) # Prints debug information about the provided DataObject\n" +
@@ -549,6 +550,7 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("printDebug")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject printDebugFunction(
             @LangParameter("$value") @CallByPointer DataObject pointerObject
     ) {
@@ -564,6 +566,7 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("printTokens")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject printTokensFunction(
             @LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
     ) {
@@ -580,6 +583,7 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("printAST")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject printASTFunction(
             @LangParameter("$code") @AllowedTypes(DataObject.DataType.TEXT) DataObject codeObject
     ) {
@@ -595,6 +599,7 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("setAutoPrintMode")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject setAutoPrintModeFunction(
             @LangParameter("$value") DataObject valueObject
     ) {
@@ -608,11 +613,13 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("getParserLineNumber")
     @AllowedTypes(DataObject.DataType.INT)
+    @SuppressWarnings("unused")
     public DataObject getParserLineNumberFunction() {
         return new DataObject().setInt(lii.getParserLineNumber());
     }
     @LangFunction("setParserLineNumber")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject setParserLineNumberFunction(
             @LangParameter("$lineNumber") @NumberValue Number number
     ) {
@@ -626,6 +633,7 @@ public class LangShellWindow extends JDialog {
     }
     @LangFunction("resetParserLineNumber")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject resetParserLineNumberFunction() {
         lii.resetParserPositionVars();
 
@@ -636,6 +644,7 @@ public class LangShellWindow extends JDialog {
      */
     @LangFunction("input")
     @AllowedTypes(DataObject.DataType.VOID)
+    @SuppressWarnings("unused")
     public DataObject inputFunctionRemoval(
             @LangParameter("$dummy") @VarArgs DataObject dummy
     ) {
