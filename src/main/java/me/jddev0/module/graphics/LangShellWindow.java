@@ -351,7 +351,7 @@ public class LangShellWindow extends JDialog {
                         if(historyPos == history.size()) {
                             currentCommand = lineTmp.toString();
                             if(multiLineTmp.length() > 0)
-                                currentCommand = multiLineTmp.toString() + " " + currentCommand; //Add tmp space for split at "\n" in removeLines()
+                                currentCommand = multiLineTmp + " " + currentCommand; //Add tmp space for split at "\n" in removeLines()
                             lastHistoryEntryUsed = currentCommand;
                         }
 
@@ -1144,8 +1144,10 @@ public class LangShellWindow extends JDialog {
                     continue;
 
                 if(tokens.get(i).getTokenType() == Token.TokenType.OPENING_BLOCK_BRACKET &&
-                        tokens.get(i).getValue().equals("{"))
+                        tokens.get(i).getValue().equals("{")) {
                     lineEndsWithBracket = true;
+                    break;
+                }
 
                 break;
             }
