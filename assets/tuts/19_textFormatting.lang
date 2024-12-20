@@ -29,11 +29,11 @@ lang.version = v1.0.0
 #   - %*           # For: d, b, o, x, f, c, s, t, ? # Size from varargs
 #   - %*[<index>]  # For: d, b, o, x, f, c, s, t, ? # Size from varargs at a specific argument index (0th index is the format text)
 #   - %.<num>      # For:             f             # Decimal places (Rounded)
-#   - %.<num>      # For:                      t    # Count (For pluralization template translation)
+#   - %.<num>      # For:                   s, t    # Count (For pluralization template translation)
 #   - %.*          # For:             f             # Decimal places from varargs (Rounded)
-#   - %.*          # For:                      t    # Count from varargs (For pluralization template translation)
+#   - %.*          # For:                   s, t    # Count from varargs (For pluralization template translation)
 #   - %.*[<index>] # For:             f             # Decimal places from varargs at a specific argument index (0th index is the format text) (Rounded)
-#   - %.*[<index>] # For:                      t    # Count from varargs at a specific argument index (0th index is the format text) (For pluralization template translation)
+#   - %.*[<index>] # For:                   s, t    # Count from varargs at a specific argument index (0th index is the format text) (For pluralization template translation)
 # - Format argument incompatibilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
