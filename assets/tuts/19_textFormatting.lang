@@ -34,7 +34,7 @@ lang.version = v1.0.0
 #   - %.*          # For:                      t    # Count from varargs (For pluralization template translation)
 #   - %.*[<index>] # For:             f             # Decimal places from varargs at a specific argument index (0th index is the format text) (Rounded)
 #   - %.*[<index>] # For:                      t    # Count from varargs at a specific argument index (0th index is the format text) (For pluralization template translation)
-# - Format argument incompabilities:
+# - Format argument incompatibilities:
 #   - "-" or "0" without size
 #   - "-" and "0" together
 #   - "+" and " " together
