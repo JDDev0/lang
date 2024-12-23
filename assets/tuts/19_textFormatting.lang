@@ -56,7 +56,7 @@ func.printf(Bin numbers: %08b %08b%n, 42, -42)
 func.printf(Oct numbers: %08o %08o%n, 42, -42)
 func.printf(Hex numbers: %08x %08x%n, 42, -42)
 func.printf(Floating point numbers: %-*.*f $%n, 10, 2, 20.2567)
-func.printf(Floating point numbers: %-+10.*f $%n, 2, 20.2367) # "+" must be behind "-"
+func.printf(Floating point numbers: %+-10.*f $%n, 2, 20.2367) # "+" must be before "-"
 func.printf(Floating point numbers: %0*.2f $%n, 10, 20.2567)
 func.printf(Floating point numbers: %+010.2f $%n, 20.2367)
 func.printf(Floating point number (Rounded to 0 decimal places): %+010.0f%n, 20.2367)
