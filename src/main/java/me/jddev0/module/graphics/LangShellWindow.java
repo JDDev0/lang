@@ -674,8 +674,7 @@ public class LangShellWindow extends JDialog {
         builder.append("\nVariable Name: ");
         builder.append(dataObject.getVariableName());
         builder.append("\nMember of: ");
-        builder.append(dataObject.getMemberOfClass() == null?null:(
-                dataObject.getMemberOfClass().getClassName() == null?"<class>":dataObject.getMemberOfClass().getClassName()));
+        builder.append(dataObject.getMemberOfClassId());
         builder.append("\nVisibility: ");
         builder.append(dataObject.getMemberVisibility());
         builder.append("\nType constraint: ");
@@ -733,12 +732,9 @@ public class LangShellWindow extends JDialog {
                     builder.append("\n    ");
 
                     builder.append(staticMember.getMemberVisibility());
-                    if(staticMember.getMemberOfClass() != null) {
-                        builder.append("(");
-                        builder.append(staticMember.getMemberOfClass().getClassName() == null?"<class>":
-                                staticMember.getMemberOfClass().getClassName());
-                        builder.append(")");
-                    }
+                    builder.append("(");
+                    builder.append(staticMember.getMemberOfClassId());
+                    builder.append(")");
                     builder.append(" ");
 
                     builder.append(staticMember.getVariableName());
