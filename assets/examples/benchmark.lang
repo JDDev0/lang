@@ -63,8 +63,7 @@ repeat($[i], 2) {
 		}else {
 			# One-line functions
 			
-			fp.empty = () -> {
-			}
+			fp.empty = () -> \!
 			fp.addFunc = () -> parser.op(func.rand() + func.rand())
 			fp.execFP = () -> {
 				fp.test = () -> test = test
