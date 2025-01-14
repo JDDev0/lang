@@ -5,28 +5,28 @@ fp.benchmark = ($runs, fp.func) -> {
 	if(fp.func == null) {
 		return n/a
 	}
-	
+
 	$time = 0
-    $start = func.currentTimeMillis()
+    $start = func.nanoTime()
 	repeat(null, $runs) {
 		fp.func()
 	}
-    $end = func.currentTimeMillis()
-	
-	return parser.op(($end - $start) / $runs)
+    $end = func.nanoTime()
+
+	return parser.op("%0.4f" % [($end - $start) / $runs / 1000000])
 }
 
 $i
 repeat($[i], 2) {
 	lang.rawVariableNames = $i
-	
+
 	func.println(RawVariables: $i)
-	
+
 	$j
 	repeat($[j], 2) {
 		if($j) {
 			# Normal functions
-			
+
 			fp.empty = () -> {
 			}
 			fp.addFunc = () -> {
@@ -50,7 +50,7 @@ repeat($[i], 2) {
 			}
 			fp.loopFunc = () -> {
 				$i = 0
-				
+
 				while($i < 1000) {
 					$i += 1
 				}
@@ -62,7 +62,7 @@ repeat($[i], 2) {
 			func.println(\s          Normal functions           \s)
 		}else {
 			# One-line functions
-			
+
 			fp.empty = () -> \!
 			fp.addFunc = () -> parser.op(func.rand() + func.rand())
 			fp.execFP = () -> {
