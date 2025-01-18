@@ -337,8 +337,8 @@ public class Startup {
     }
 
     private static void printPostExecutionOutput(LangInterpreterInterface lii, boolean printTranslations, boolean printReturnedValue) {
-        Map<String, String> translations = lii.getTranslationMap();
         if(printTranslations) {
+            Map<String, String> translations = lii.getTranslationMap();
             System.out.println("-------------- Translations --------------");
             translations.forEach((key, value) -> System.out.printf("%s = %s\n", key, value));
         }
