@@ -378,17 +378,6 @@ public class LangShellWindow extends JDialog {
         initShell(langArgs);
     }
 
-    public void setFontSize(int fontSize) {
-        this.fontSize = fontSize;
-
-        shell.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
-
-        revalidate();
-
-        //Auto scroll
-        shell.setCaretPosition(shell.getDocument().getLength());
-    }
-
     private void initShell(String[] langArgs) {
         //Sets System.out
         oldOut = System.out;
