@@ -59,7 +59,7 @@ public class LangShellWindow extends JDialog {
     private final KeyListener shellKeyListener;
     private final TerminalIO term;
 
-    private int fontSize;
+    private final int fontSize;
 
     private SpecialCharInputWindow specialCharInputWindow = null;
 
@@ -391,13 +391,13 @@ public class LangShellWindow extends JDialog {
             private final Color[] colors = {Color.WHITE, new Color(63, 63, 255), Color.MAGENTA, Color.GREEN, Color.YELLOW, new Color(255, 127, 0), Color.RED, new Color(127, 0, 0)};
 
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 oldOut.write(b);
                 byteOut.write(b);
             }
 
             @Override
-            public void flush() throws IOException {
+            public void flush() {
                 String output = byteOut.toString();
                 byteOut.reset();
 
@@ -767,7 +767,7 @@ public class LangShellWindow extends JDialog {
                         DataObject member = dataObject.getObject().getMember(memberName);
 
                         builder.append(": {\n");
-                        debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).toString().split("\\n");
+                        debugStringLines = getDebugString(member, maxRecursionDepth > 1?1:0).split("\\n");
                         for(String debugStringLine:debugStringLines) {
                             builder.append("        ");
                             builder.append(debugStringLine);
