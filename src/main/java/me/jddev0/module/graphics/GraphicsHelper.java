@@ -34,22 +34,4 @@ public final class GraphicsHelper {
             doc.insertString(doc.getLength(), str, as);
         }catch(BadLocationException ignore) {}
     }
-    public static void setColor(JTextPane pane, int start, int length, Color c) {
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet as = sc.addAttribute(sc.getEmptySet(), StyleConstants.Foreground, c);
-        try {
-            Document doc = pane.getDocument();
-            doc.insertString(start, doc.getText(start, length), as);
-            doc.remove(start + length, length);
-        }catch(BadLocationException ignore) {}
-    }
-    public static void setBackgroundColor(JTextPane pane, int start, int length, Color c) {
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet as = sc.addAttribute(sc.getEmptySet(), StyleConstants.Background, c);
-        try {
-            Document doc = pane.getDocument();
-            doc.insertString(start, doc.getText(start, length), as);
-            doc.remove(start + length, length);
-        }catch(BadLocationException ignore) {}
-    }
 }
