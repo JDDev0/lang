@@ -212,7 +212,7 @@ public class TerminalWindow extends JFrame {
                 inputTmp = readingTmp.substring(0, 1).getBytes();
                 inputTmpPos = 0;
                 readingTmp.delete(0, 1);
-                return inputTmp[inputTmpPos++];
+                return inputTmp[inputTmpPos++] & 0xFF;
             }
         });
 
