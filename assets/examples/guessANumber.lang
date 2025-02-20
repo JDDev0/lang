@@ -5,32 +5,32 @@ $end = 0
 $low = 1
 $high = 10
 until($end) {
-	$win = 0
-	$guesses = 0
-	
-	# Generate random number between $low and $high
-	$num $= func.rand() % +|($high - $low) + $low
-	until($win) {
-		func.println(Guess a number between $low and $high!)
-		$in = func.input()
-		if($in < $num) {
-			func.println(The number is heigher than your input!)
-		}elif($in > $num) {
-			func.println(The number is lower than your input!)
-		}elif($in == $num) {
-			$win = 1
-		}else {
-			func.errorln(Invalid Input!)
-			con.continue
-		}
-		
-		$guesses += 1
-	}
-	
-	func.println(You have won the game after $guesses guesses!\nType YES, if you'd like to play again!)
-	$in = func.input()
-	if($in != YES) {
-		$end = 1
-		func.println(Thanks for playing!)
-	}
+    $win = 0
+    $guesses = 0
+    
+    # Generate random number between $low and $high
+    $num $= func.rand() % +|($high - $low) + $low
+    until($win) {
+        func.println(Guess a number between $low and $high!)
+        $in = func.input()
+        if($in < $num) {
+            func.println(The number is heigher than your input!)
+        }elif($in > $num) {
+            func.println(The number is lower than your input!)
+        }elif($in == $num) {
+            $win = 1
+        }else {
+            func.errorln(Invalid Input!)
+            con.continue
+        }
+        
+        $guesses += 1
+    }
+    
+    func.println(You have won the game after $guesses guesses!\nType YES, if you'd like to play again!)
+    $in = func.input()
+    if($in != YES) {
+        $end = 1
+        func.println(Thanks for playing!)
+    }
 }
