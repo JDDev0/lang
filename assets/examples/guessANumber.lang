@@ -14,7 +14,7 @@ until($end) {
         func.println(Guess a number between $low and $high!)
         $in = func.input()
         if($in < $num) {
-            func.println(The number is heigher than your input!)
+            func.println(The number is higher than your input!)
         }elif($in > $num) {
             func.println(The number is lower than your input!)
         }elif($in == $num) {
